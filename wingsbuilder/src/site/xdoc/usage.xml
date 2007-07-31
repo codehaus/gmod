@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+
+   <properties>
+      <title>WingSBuilder::Getting Started</title>
+   </properties>
+
+   <body>
+      <section name="Table of Contents">
+         <ol>
+            <li><a href="#Getting Started">Getting Started</a></li>	   
+            <li><a href="#Alphabetical List">Alphabetical List</a></li>	   
+            <li><a href="#Extras">Extras</a></li>	   
+         </ol>
+      </section>
+	   
+      <section name="Getting Started">
+	<p>You can use WingSBuilder in the same fashion as SwingBuilder. Most of the constructs provided
+	by the original SwingBuilder are supported in WingSBuilder, thanks to the efforts of the wingS
+	team in following the Swing model very closely. WingSBuilder also supports wingS specific components
+	and the ability to attach your own components through <code>widget()</code> &amp; <code>container()</code>.
+	 </p>     
+      </section>
+      <section name="Alphabetical List">
+         <p>
+<table>
+<thead><tr><th>Element</th><th>Class</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><th>Compatible with SwingBuilder</th><th></th><th></th></tr>
+<tr><td>action</td><td>javax.swing.Action</td><td>same as SwingBuilder.action()</td></tr>
+<tr><td>actions</td><td>Collection</td><td>same as SwingBuilder.actions()</td></tr>
+<tr><td>borderLayout</td><td>SBorderLayout</td><td></td></tr>
+<tr><td>boundedRangeModel</td><td>SDefaultBoundedRangeModel</td><td></td></tr>
+<tr><td>boxLayout</td><td>SBoxLayout</td><td></td></tr>
+<tr><td>button</td><td>SButton</td><td></td></tr>
+<tr><td>buttonGroup</td><td>SButtonGroup</td><td></td></tr>
+<tr><td>cardLayout</td><td>SCardLayout</td><td></td></tr>
+<tr><td>checkbox</td><td>SCheckbox</td><td></td></tr>
+<tr><td>closureColumn</td><td>Collection</td><td>same as SwingBuilder.closureColumn()</td></tr>
+<tr><td>container</td><td>SComponent</td><td>placeholder for any SComponent</td></tr>
+<tr><td>comboBox</td><td>SCombox</td><td>Obeys 'items' to populate model</td></tr>
+<tr><td>desktopPane</td><td>SDesktopPane</td><td></td></tr>
+<tr><td>dialog</td><td>SDialog</td><td></td></tr>
+<tr><td>flowLayout</td><td>SFlowLayout</td><td></td></tr>
+<tr><td>formattedTextField</td><td>SSormattedTextField</td><td></td></tr>
+<tr><td>frame</td><td>SFrame</td><td></td></tr>
+<tr><td>gbc</td><td>GridBagConstraints</td><td>same as SwingBuilder.gbc()</td></tr>
+<tr><td>gridBagConstraints</td><td>GridBagConstraints</td><td>same as SwingBuilder.gridBagConstraints()</td></tr>
+<tr><td>gridBagLayout</td><td>SGridBagLayout</td><td></td></tr>
+<tr><td>gridLayout</td><td>SGridLayout</td><td></td></tr>
+<tr><td>internalFrame</td><td>SInternalFrame</td><td></td></tr>
+<tr><td>label</td><td>SLabel</td><td></td></tr>
+<tr><td>list</td><td>SList</td><td></td></tr>
+<tr><td>menu</td><td>SMenu</td><td></td></tr>
+<tr><td>menuBar</td><td>SMenuBar</td><td></td></tr>
+<tr><td>menuItem</td><td>SMenuItem</td><td></td></tr>
+<tr><td>map</td><td>java.util.Map</td><td>same as SwingBuilder.map()</td></tr>
+<tr><td>optionPane</td><td>SOptionPane</td><td></td></tr>
+<tr><td>panel</td><td>SPanel</td><td></td></tr>
+<tr><td>passwordField</td><td>SPasswordField</td><td></td></tr>
+<tr><td>popupMenu</td><td>SPopupMenu</td><td></td></tr>
+<tr><td>progressBar</td><td>SProgressBar</td><td></td></tr>
+<tr><td>propertyColumn</td><td>Collection</td><td>same as SwingBuilder.propertyColumn()</td></tr>
+<tr><td>radioButton</td><td>SRadioButton</td><td></td></tr>
+<tr><td>scrollBar</td><td>SScrollBar</td><td></td></tr>
+<tr><td>scrollPane</td><td>SScrollPane</td><td></td></tr>
+<tr><td>separator</td><td>SSeparator</td><td></td></tr>
+<tr><td>slider</td><td>SSlider</td><td></td></tr>
+<tr><td>spinnerDateModel</td><td>SSpinnerDateModel</td><td></td></tr>
+<tr><td>spinnerListModel</td><td>SSpinnerListModel</td><td></td></tr>
+<tr><td>spinnerNumberModel</td><td>SSpinnerNumberModel</td><td></td></tr>
+<tr><td>tabbedPane</td><td>STabbedPane</td><td></td></tr>
+<tr><td>table</td><td>STable</td><td></td></tr>
+<tr><td>tableModel</td><td>Collection</td><td>same as SwingBuilder.tableModel()</td></tr>
+<tr><td>tableColumn</td><td>STableColumn</td><td></td></tr>
+<tr><td>textArea</td><td>STextArea</td><td></td></tr>
+<tr><td>textField</td><td>STextField</td><td></td></tr>
+<tr><td>toggleButton</td><td>SToggleButton</td><td></td></tr>
+<tr><td>toolBar</td><td>SToolBar</td><td></td></tr>
+<tr><td>tree</td><td>STree</td><td></td></tr>
+<tr><td>widget</td><td>SComponent</td><td>placeholder for any SComponent</td></tr>
+<tr><th>WingS specific</th><th></th><th></th></tr>
+<tr><td>anchor</td><td>SAnchor</td><td></td></tr>
+<tr><td>byteArrayIcon</td><td>SByteArrayIcon</td><td></td></tr>
+<tr><td>downloadButton</td><td>SDownloadButton</td><td>Must define 'resource' property at least<br/>
+other construction properties are 'text' &amp; 'icon'</td></tr>
+<tr><td>fileChooser</td><td>SFileChooser</td><td></td></tr>
+<tr><td>fileIcon</td><td>SFileIcon</td><td>Must define 'file' or 'filename' property at least<br/>
+other construction properties are 'mimetype' &amp; 'extension'</td></tr>
+<tr><td>flowDownLayout</td><td>SFlowDownLayout</td><td></td></tr>
+<tr><td>form</td><td>SForm</td><td></td></tr>
+<tr><td>imageIcon</td><td>SImageIcon</td><td></td></tr>
+<tr><td>nullLayout</td><td>SNullLayout</td><td></td></tr>
+<tr><td>pageScroller</td><td>SPageScroller</td><td></td></tr>
+<tr><td>pagingBoundedRangeModel</td><td>SPagingBoundedRangeModel</td><td></td></tr>
+<tr><td>popup</td><td>SPopup</td><td></td></tr>
+<tr><td>rawText</td><td>SRawTextComponent</td><td></td></tr>
+<tr><td>resourceIcon</td><td>SResourceIcon</td><td></td></tr>
+<tr><td>rootLayout</td><td>SRootLayout</td><td></td></tr>
+<tr><td>spacer</td><td>SSpacer</td><td>Must define 'width' &amp; 'height' properties</td></tr>
+<tr><td>templateLayout</td><td>STemplateLayout</td><td></td></tr>
+<tr><th>WingX specific</th><th></th><th></th></tr>
+<tr><td>calendar</td><td>XCalendar</td><td></td></tr>
+<tr><td>colorPicker</td><td>XColorPicker</td><td>Obeys 'red', 'blue' &amp; 'green' properties or 'color'</td></tr>
+<tr><td>division</td><td>XDivision</td><td></td></tr>
+<tr><td>inplaceEditor</td><td>XInplaceEditor</td><td></td></tr>
+<tr><td>popupFrame</td><td>XPopupFrame</td><td></td></tr>
+<tr><td>scrollablePanel</td><td>XScrollablePanel</td><td></td></tr>
+<tr><td>suggest</td><td>XSuggest</td><td></td></tr>
+<tr><td>treeTable</td><td>XTreeTable</td><td></td></tr>
+<tr><td>yuixGrid</td><td>YUIxGrid</td><td></td></tr>
+<tr><td>xpageScroller</td><td>XPageScroller</td><td></td></tr>
+<tr><td>xscrollPane</td><td>XScrollPane</td><td></td></tr>
+<tr><td>xtable</td><td>XTable</td><td></td></tr>
+</tbody>
+</table>
+         </p>
+      </section>
+      <section name="Extras">
+<ul>
+<li>Allows 'label' property in buttons</li>
+</ul>	      
+      </section>
+   </body>
+
+</document>
