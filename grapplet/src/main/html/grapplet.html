@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>Groovy on the Browser!!</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+<script type="text/javascript" src="script/groovy.js"></script>
+<script type="text/javascript">
+//Groovy.config.jars: "lib/myjar.jar"
+Groovy.config.codebase = "http://localhost:8080/grapplet/"
+
+function runGroovy(){
+   var code = document.getElementById("groovycode").value;
+   document.getElementById("output").value = document.Grapplet.evalGroovy(code)
+}
+
+window.onload = function() {
+  Groovy.init(function(result) {
+    document.getElementById("output").value = result
+  });
+}
+</script>
+</head>
+<body>
+
+<script type="text/x-groovy">
+import javax.swing.*
+import groovy.swing.SwingBuilder
+import javax.swing.WindowConstants as WC
+
+window.greet = { name -> 
+   def swing = new SwingBuilder()
+   def frame = swing.frame(title:name,
+      defaultCloseOperation:WC.DISPOSE_ON_CLOSE) {
+         panel{  
+	    label( window.location as String )
+         }
+   }
+   frame.pack()
+   frame.show()
+}
+
+window.greet("Groovy")
+window.language = "Groovy"
+"""Please inspect the window object (JavaScript Shell or FireBug)
+You'll see that it has a language property with value 'Groovy'
+which was set by running the initial Groovy script, the same 
+that displayed that little frame with the window's location"""
+</script>
+<p>
+This example follows the ideas/code presented by Dion Almaer at <a href="http://www.almaer.com/blog/archives/001455.html">Running Ruby in the browser via script type="text/ruby"</a> showing that its also possible to use Groovy in a similar fashion. Be aware that in order to run Groovy inside an applet, you'll need to sign the applet and modify your java security/policy settings, this is a work in progress and should not be used in a production environment.
+</p>
+<table>
+<tr><th>Groovy source</th>
+<th>Groovy output</th></tr>
+<tr><td valign="top">	
+<textarea id="groovycode" cols="60" rows="10">
+// your Groovy code goes here
+def greeting = ''
+3.times{ greeting += "[${it}] Hello Groovy!\n" }
+greeting
+</textarea><br/>
+<button onclick="runGroovy()">Run your Groovy</button>
+</td>
+<td valign="top">
+<textarea id="output" cols="60" rows="10"></textarea>
+</td></tr>
+</table>
+</body>
+</html>

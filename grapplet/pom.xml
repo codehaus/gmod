@@ -1,0 +1,105 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>groovy-contrib</groupId>
+   <artifactId>grapplet</artifactId>
+   <packaging>jar</packaging>
+   <version>0.1</version>
+   <name>Grapplet</name>
+
+   <inceptionYear>2007</inceptionYear>
+   <url>http://groovy.codehaus.org/Grapplet</url>
+
+   <description>
+      Grapplet provides a way for running Groovy on an applet, adding
+      extra functionality to JS objects and arrays.
+   </description>
+
+   <licenses>
+      <license>
+         <name>The Apache Software License, Version 2.0</name>
+         <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+
+   <scm>
+      <connection>
+         scm:svn:http://svn.codehaus.org/groovy-contrib/grapplet
+      </connection>
+      <url>http://svn.codehaus.org/groovy-contrib/grapplet</url>
+   </scm>
+
+   <issueManagement>
+      <system>JIRA</system>
+      <url>
+         http://jira.codehaus.org/secure/BrowseProject.jspa?id=10242&amp;report=roadmap
+      </url>
+   </issueManagement>
+
+   <developers>
+      <developer>
+         <name>Andres Almiray</name>
+         <id>aalmiray</id>
+         <email>aalmiray@users.sourceforge.net</email>
+         <timezone>-5</timezone>
+         <roles>
+            <role>Founder</role>
+            <role>Developer</role>
+         </roles>
+      </developer>
+   </developers>
+
+   <dependencies>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <version>3.8.1</version>
+      </dependency>
+      <dependency>
+         <groupId>groovy</groupId>
+         <artifactId>groovy-all</artifactId>
+         <version>1.0</version>
+      </dependency>
+      <dependency>
+         <groupId>com.sun.java-plugin</groupId>
+         <artifactId>java-plugin</artifactId>
+         <version>1.6.0</version>
+      </dependency>
+   </dependencies>
+
+   <prerequisites>
+      <maven>2.0.7</maven>
+   </prerequisites>
+
+   <build>
+      <defaultGoal>install</defaultGoal>
+      <plugins>
+         <plugin>
+            <groupId>org.codehaus.mojo.groovy</groupId>
+            <artifactId>groovy-maven-plugin</artifactId>
+            <version>1.0-beta-1</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>compile</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+
+   <reporting>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+         </plugin>
+      </plugins>
+   </reporting>
+
+</project>
