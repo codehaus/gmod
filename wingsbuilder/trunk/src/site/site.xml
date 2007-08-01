@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+   <bannerLeft>
+      <name>WingSBuilder</name>
+      <href>http://groovy.codehaus.org/WingSBuilder</href>
+   </bannerLeft>
+
+   <poweredBy>
+      <logo name="Build with Maven 2" href="http://maven.apache.org" img="images/logos/maven-feather.png" />
+   </poweredBy>
+
+   <body>
+      <links>
+         <item name="wingS" href="http://wingsframework.org" />
+         <item name="Groovy" href="http://groovy.codehaus.org" />
+      </links>
+
+      <menu name="WingSBuilder">
+         <item name="Introduction" href="index.html" />
+         <item name="Getting Started" href="usage.html" />
+         <item name="Building" href="building.html" />
+         <item name="Changes" href="changes-report.html" />
+      </menu>
+
+    ${reports}
+
+  </body>
+</project>

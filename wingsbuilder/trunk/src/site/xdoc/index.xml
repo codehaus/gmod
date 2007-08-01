@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+
+   <properties>
+      <title>WingSBuilder::Welcome</title>
+   </properties>
+
+   <body>
+      <section name="Welcome to WingSBuilder">
+         <p>
+	 WingSBuilder is a Groovy builder for the 
+	 (<a href="http://wingsframework.org">wingS Framework</a>).<br/>It 
+	 is based on the original <a href="http://groovy.codehaus.org/GUI+Programming+with+Groovy">SwingBuilder</a>.
+         </p>
+         <p>WingSBuilder requires Groovy 1.1-BETA-2 or later.</p>
+      </section>
+   </body>
+</document>
