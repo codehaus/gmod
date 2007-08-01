@@ -54,7 +54,6 @@ import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.TableModel;
 
-
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.wings.SAbstractButton;
 import org.wings.SAnchor;
@@ -202,8 +201,8 @@ public class WingSBuilder extends SwingBuilder {
                && (autoForm == null || autoForm.booleanValue()) ){
             SFrame frame = (SFrame) containingWindows.peek();
             SContainer contentPane = frame.getContentPane();
-            frame.setContentPane( new SPanel( new SBorderLayout() ) );
-            SForm form = new SForm( frame.getLayout() );
+            frame.setContentPane( new SPanel(new SBorderLayout()) );
+            SForm form = new SForm();
             form.add( contentPane );
             frame.getContentPane()
                   .add( form );

@@ -34,7 +34,7 @@ class GuessingGame {
       def font = new SFont( null, SFont.BOLD, 14 )
 
       def frame = builder.frame {
-         form( border: border){
+         panel( border: border){
             gridLayout( columns: 1, rows: 5, vgap: 10)
             label("Hello World - this is wingS (+WingSBuilder&Groovy)!",
                   font: font)
