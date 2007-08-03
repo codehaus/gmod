@@ -10,7 +10,7 @@
         <servlet-class>org.wings.session.WingServlet</servlet-class>
         <init-param>
             <param-name>wings.mainclass</param-name>
-            <param-value>groovy.guessinggame.GuessingGame</param-value>
+            <param-value>org.kordamp.groovy.wings.demo.GuessingGame</param-value>
         </init-param>
         <init-param>
             <param-name>wings.lookandfeel.factory</param-name>
