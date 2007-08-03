@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package groovy.grapplet
+package org.kordamp.groovy.grapplet
 
 import netscape.javascript.JSObject
 

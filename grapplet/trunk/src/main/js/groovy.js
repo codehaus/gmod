@@ -67,7 +67,7 @@ var Groovy = {
       }
 
       applet.setAttribute("archive", archive );
-      applet.setAttribute("code", "groovy.grapplet.Grapplet");
+      applet.setAttribute("code", "org.kordamp.groovy.grapplet.Grapplet");
       if( Groovy.config.codebase != "" ){
          applet.setAttribute("codebase", Groovy.config.codebase);
       }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package groovy.grapplet
+package org.kordamp.groovy.grapplet
 
 import groovy.lang.Binding
 import groovy.lang.GroovyShell
