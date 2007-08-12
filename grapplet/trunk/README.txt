@@ -50,7 +50,7 @@ issue the following command:
    keytool -selfcert -keystore groovy -storepass groovy -keypass groovy \
            -alias groovy
 
-3. Export your certificate.Export your certificate to an external file with
+3. Export your certificate. Export your certificate to an external file with
 the following command:
 
    keytool -export -keystore groovy -storepass groovy -keypass groovy \
@@ -87,9 +87,9 @@ in windows $JRE_HOME usally points to "c:/Program Files/Java/jdk1.x.x/".
        };
    3. Copy the keystore 'groovy' and 'groovy.cer' (just in case) to $USER_HOME.
 
-7. Copy the binary dist to your webserver. I'm using Apache 2.2 in my laptop,
-so I copied grapplet.html, groovy.js, grapplet-0.1.jar, groovy-all-1.0.jar, 
-groovy and groovy.cer to $APACHE_HOME/htdocs/grapplet
+7. Copy the binary dist to your webserver. If you're using Apache copy
+grapplet.html, groovy.js, grapplet-0.1.jar, groovy-all-1.0.jar, groovy and 
+groovy.cer to $APACHE_HOME/htdocs/grapplet
 
 
 Have fun!
