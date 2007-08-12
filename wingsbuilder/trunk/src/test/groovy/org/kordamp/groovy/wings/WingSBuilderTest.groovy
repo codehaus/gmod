@@ -495,6 +495,22 @@ class WingSBuilderTest extends GroovyTestCase {
        assert child.class == SButton.class
     }
 
+    void testAllowMissingProperty(){
+       if (isHeadless()) return
+
+       def wings = new WingSBuilder( true )
+       def panel = wings.panel() {
+          button("A", bogus:"I don't exist")
+       }
+
+       shouldFail( MissingPropertyException ){
+          wings = new WingSBuilder()
+          panel = wings.panel() {
+             button("A", bogus:"I don't exist")
+          }
+       }
+    }
+
    private Session session
 
    protected void setUp() throws Exception {

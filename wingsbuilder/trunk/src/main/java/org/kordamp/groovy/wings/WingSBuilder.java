@@ -17,6 +17,7 @@
 package org.kordamp.groovy.wings;
 
 import groovy.lang.Closure;
+import groovy.lang.MissingPropertyException;
 import groovy.model.DefaultTableModel;
 import groovy.swing.SwingBuilder;
 import groovy.swing.factory.ActionFactory;
@@ -29,6 +30,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.SpinnerDateModel;
@@ -121,12 +124,20 @@ public class WingSBuilder extends SwingBuilder {
       return parent;
    }
 
+   private boolean allowMissingProperties = false;
    private Boolean autoForm;
    private Object constraints;
    private boolean formInHierarchy;
    private Integer zindex;
+   private Logger log;
 
    public WingSBuilder() {
+      this( false );
+   }
+
+   public WingSBuilder( boolean allowMissingProperties ) {
+      this.log = Logger.getLogger( getClass().getName() );
+      this.allowMissingProperties = allowMissingProperties;
       registerWidgets();
    }
 
@@ -180,7 +191,17 @@ public class WingSBuilder extends SwingBuilder {
          String property = entry.getKey()
                .toString();
          Object value = entry.getValue();
-         InvokerHelper.setProperty( widget, property, value );
+         try{
+            InvokerHelper.setProperty( widget, property, value );
+         }catch( MissingPropertyException e ){
+            if( allowMissingProperties ){
+               log.log( Level.WARNING, "Could not set property '" + property
+                     + "' for object of class '" + widget.getClass()
+                           .getName() + "'" );
+            }else{
+               throw e;
+            }
+         }
       }
    }
 
