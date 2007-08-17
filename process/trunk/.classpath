@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-    <classpathentry kind="src" path="src"/>
-    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-    <classpathentry kind="lib" path="lib/concurrent.jar"/>
-    <classpathentry kind="lib" path="/home/yuri/local/groovy/lib/asm-1.4.1.jar"/>
-    <classpathentry kind="lib" path="/home/yuri/local/groovy/lib/asm-attrs-1.4.1.jar"/>
-    <classpathentry kind="lib" path="/home/yuri/local/groovy/lib/asm-util-1.4.1.jar"/>
-    <classpathentry kind="lib" path="/home/yuri/local/groovy/lib/groovy-1.0-beta-3-snapshot.jar"/>
-    <classpathentry kind="lib" path="/home/yuri/local/groovy/lib/junit-3.8.1.jar"/>
-    <classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/groovy"/>
+	<classpathentry kind="src" path="src/main/groovy"/>
+	<classpathentry kind="src" path="examples/testScripts"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="bin-groovy"/>
+	<classpathentry kind="lib" path="lib/groovy-all-1.0.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
 </classpath>
