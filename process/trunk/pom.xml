@@ -13,8 +13,7 @@
 	<url>http://groovy.codehaus.org/Process</url>
 
 	<description>
-		Grapplet provides a way for running Groovy on an applet, adding
-		extra functionality to JS objects and arrays.
+		Provides a shell-like capability for handling external processes
 	</description>
 
 	<licenses>
@@ -27,24 +26,24 @@
 
 	<scm>
 		<connection>
-			scm:svn:http://svn.codehaus.org/groovy-contrib/grapplet
+			scm:svn:http://svn.codehaus.org/groovy-contrib/process
 		</connection>
-		<url>http://svn.codehaus.org/groovy-contrib/grapplet</url>
+		<url>http://svn.codehaus.org/groovy-contrib/process</url>
 	</scm>
 
-	<issueManagement>
-		<system>JIRA</system>
-		<url>
-			http://jira.codehaus.org/secure/BrowseProject.jspa?id=10242&amp;report=roadmap
-		</url>
-	</issueManagement>
-
 	<developers>
+		<developer>
+			<name>Yuri Schimke</name>
+			<id>yschimke</id>
+			<roles>
+				<role>Founder</role>
+			</roles>
+		</developer>
 		<developer>
 			<name>Alexander Egger</name>
 			<id>eggeral</id>
 			<email>alexander.egger@campus02.at</email>
-			<timezone>-5</timezone>
+			<timezone>+1</timezone>
 			<roles>
 				<role>Developer</role>
 			</roles>
@@ -69,7 +68,7 @@
 	</prerequisites>
 
 	<build>
-		<defaultGoal>install</defaultGoal>
+		<defaultGoal>assembly:assembly</defaultGoal>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -91,6 +90,15 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/assembly/src.xml</descriptor>
+						<descriptor>src/assembly/bin.xml</descriptor>
+					</descriptors>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
