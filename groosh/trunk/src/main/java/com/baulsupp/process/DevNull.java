@@ -1,4 +1,4 @@
-//  !!projectname!! -- Provides a shell-like capability for handling external processes
+//  Groosh -- Provides a shell-like capability for handling external processes
 //
 //  Copyright © 2004 Yuri Schimke
 //
@@ -12,7 +12,7 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-//  !!projectname!! -- Provides a shell-like capability for handling external processes
+//  Groosh -- Provides a shell-like capability for handling external processes
 //
 //  Copyright © 2004 Yuri Schimke
 //

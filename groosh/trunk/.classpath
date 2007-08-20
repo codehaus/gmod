@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/groovy"/>
-	<classpathentry kind="src" path="examples/testScripts"/>
+	<classpathentry kind="src" path="examples"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="var" path="GROOVY_ECLIPSE_HOME/groovy-all-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="bin-groovy"/>

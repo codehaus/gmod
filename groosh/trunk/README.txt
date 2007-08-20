@@ -1,26 +1,31 @@
-H - Change encoding from ISO-8859-1.  ISO-8859-1 is a marker to search for, rather than using the implicit methods.
+== INSTALL ==
 
-M - Various TODOs in the code.
-M - Line based stdin, rather than buffer based.  More intuitive for users.
-M - Handle process completion including sink?  Source can be ignored?
-M - Groovy operator overloading.
-M - Throw error if source/sink retrieved twice etc.  Or after start() called.
+For openSUSE there are RPMs available from
+http://download.opensuse.org/repositories/home:/eggeral/openSUSE_10.2/
+Just install it and you are ready to go.
 
-E - Pipeline parsing i.e |, `.
-E - Tee Process for duplicating output
-E - Concat for joining multiple inputs.  With ThreadLocal input name!
-E - Sink/Source dealing with Reader/Writer?
+If you use the binary distribution e.g. (groosh-0.1.1-bin.tar.gz). 
+Untar it and copy groosh-0.1.1.jar to your $GROOVY_HOME/lib. 
 
-General
+Try the following script to check if it worked:
 
-bin/groovy test_scripts/dict_args.groovy 2>&1 | grep -v NativeMethod | grep -v Delegating | grep -v Launcher | grep -v Method.invoke | grep -v Invoker | grep -v MetaClass
+def gsh = new com.baulsupp.groovy.groosh.Groosh();
+gsh.ls().toStdOut();
 
-Caught: java.lang.ArrayIndexOutOfBoundsException: 0
-java.lang.ArrayIndexOutOfBoundsException: 0
-        at org.codehaus.groovy.runtime.DefaultGroovyMethods.get(DefaultGroovyMethods.java:741)
-        at dict_args.run(test_scripts/dict_args.groovy:7)
-        at dict_args.invokeMethod(test_scripts/dict_args.groovy)
-        at dict_args.main(test_scripts/dict_args.groovy)
-        at groovy.lang.GroovyShell.run(GroovyShell.java:166)
-        at groovy.lang.GroovyShell.main(GroovyShell.java:85)
+Have a look at the examples directory for more examples how to use
+groosh 
 
+== BUILDING FROM SOURCE ==
+
+Untar/unzip the source distribution file (e.g. groosh-0.1.1-src.tar.gz)
+
+Groosh uses Maven 2 for building. You have to have Maven 2 installed. 
+Just execute mvn in the groosh directory and groosh-0.1.1.jar gets build
+as well as the source and binary distribution.
+
+== BUILDING FROM SVN ==
+
+Check out the source from 
+http://svn.codehaus.org/groovy-contrib/groosh/trunk/
+
+Building works the same as for the source distribution. 

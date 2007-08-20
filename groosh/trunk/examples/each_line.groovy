@@ -1,4 +1,4 @@
-//  !!projectname!! -- Provides a shell-like capability for handling external processes
+//  Groosh -- Provides a shell-like capability for handling external processes
 //
 //  Copyright © 2007 Alexander Egger
 //
@@ -14,5 +14,14 @@
 
 gsh = new com.baulsupp.groovy.groosh.Groosh();
 
-c = gsh._cat('src/test/resources/blah.txt').toStdOut();
+cat = gsh.cat('src/test/resources/blah.txt');
+lines = gsh.each_line { line,w -> 
+  w.write("*");
+  w.write(line);
+  w.write("\n");
+};
+
+cat.pipeTo(lines);
+lines.toStdOut();
+
 

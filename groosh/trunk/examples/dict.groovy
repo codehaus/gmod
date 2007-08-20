@@ -1,4 +1,4 @@
-//  !!projectname!! -- Provides a shell-like capability for handling external processes
+//  Groosh -- Provides a shell-like capability for handling external processes
 //
 //  Copyright © 2007 Alexander Egger
 //
@@ -12,22 +12,8 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-// BUG?? java.util.Arrays.asList fails with util on null!
-// changed java code to send List
-
 gsh = new com.baulsupp.groovy.groosh.Groosh();
 
-f = gsh.find('.', '-name', '*.java', '-ls');
-total = 0;
-lines = gsh.grid { values,w ->
-  x = values[2,4,6,10]; 
-  s = x.join('	');
-  w.println(s);
-  total += Integer.parseInt(values[6]);
-};
+gsh.cat('src/test/resources/words').pipeTo(gsh._grep('lexia')).toStdOut();
 
-f.pipeTo(lines);
-lines.toStdOut();
-
-System.out.println("Total: " + total);
 

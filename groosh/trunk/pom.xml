@@ -4,16 +4,16 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.codehaus.groovy-contrib</groupId>
-	<artifactId>process</artifactId>
+	<artifactId>groosh</artifactId>
 	<packaging>jar</packaging>
 	<version>0.1.1</version>
-	<name>Groovy Process</name>
+	<name>Groosh</name>
 
 	<inceptionYear>2007</inceptionYear>
-	<url>http://groovy.codehaus.org/Process</url>
+	<url>http://groovy.codehaus.org/Groosh</url>
 
 	<description>
-		Provides a shell-like capability for handling external processes
+		Groosh - provides a shell-like capability for handling external processes
 	</description>
 
 	<licenses>
@@ -26,9 +26,9 @@
 
 	<scm>
 		<connection>
-			scm:svn:http://svn.codehaus.org/groovy-contrib/process
+			scm:svn:http://svn.codehaus.org/groovy-contrib/groosh
 		</connection>
-		<url>http://svn.codehaus.org/groovy-contrib/process</url>
+		<url>http://svn.codehaus.org/groovy-contrib/groosh</url>
 	</scm>
 
 	<developers>
