@@ -7,14 +7,19 @@
   </formats>
   <fileSets>
     <fileSet>
-      <directory>.</directory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+        <include>NOTICE*</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>target</directory>
       <outputDirectory></outputDirectory>
-      <useDefaultExcludes>true</useDefaultExcludes>
-      <excludes>
-        <exclude>**/target/**</exclude>
-        <exclude>**/build/**</exclude>
-        <exclude>**/bin-groovy/**</exclude>
-      </excludes>
+      <includes>
+        <include>*.jar</include>
+      </includes>
     </fileSet>
   </fileSets>
 </assembly>
+

@@ -7,21 +7,14 @@
   </formats>
   <fileSets>
     <fileSet>
-      <includes>
-        <include>README*</include>
-        <include>LICENSE*</include>
-        <include>NOTICE*</include>
-        <include>pom.xml</include>
-        <include>.project</include>
-        <include>.classpath</include>
-        <include>.settings/**</include>
-        <include>examples/**</include>
-      </includes>
+      <directory>.</directory>
+      <outputDirectory></outputDirectory>
       <useDefaultExcludes>true</useDefaultExcludes>
-    </fileSet>
-    <fileSet>
-      <directory>src</directory>
-      <useDefaultExcludes>true</useDefaultExcludes>
+      <excludes>
+        <exclude>**/target/**</exclude>
+        <exclude>**/build/**</exclude>
+        <exclude>**/bin-groovy/**</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </assembly>
