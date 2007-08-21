@@ -1,3 +1,8 @@
+= Groosh = 
+
+A Groovy module that provides a shell-like capability for handling 
+external processes
+
 == INSTALL ==
 
 For openSUSE there are RPMs available from
