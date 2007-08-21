@@ -1,0 +1,20 @@
+<assembly>
+  <id>src</id>
+  <formats>
+    <format>tar.gz</format>
+    <format>tar.bz2</format>
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>.</directory>
+      <outputDirectory></outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+      <excludes>
+        <exclude>**/target/**</exclude>
+        <exclude>**/build/**</exclude>
+        <exclude>**/bin-groovy/**</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>
