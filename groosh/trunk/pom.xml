@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.codehaus.groovy-contrib</groupId>
-	<artifactId>groosh</artifactId>
+	<artifactId>groovy-groosh</artifactId>
 	<packaging>jar</packaging>
 	<version>0.1.1</version>
 	<name>Groosh</name>
