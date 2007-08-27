@@ -1,0 +1,39 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+   <parent>
+      <groupId>org.codehaus.groovy-contrib</groupId>
+      <artifactId>graphicsbuilder-parent</artifactId>
+      <version>${graphicsbuilder-version}</version>
+   </parent>
+
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>graphicsbuilder-ext-swingx</artifactId>
+   <packaging>jar</packaging>
+   <name>GraphicsBuilder [swingx]</name>
+
+   <description></description>
+
+   <dependencies>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>groovy-all</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jdesktop</groupId>
+         <artifactId>swingx</artifactId>
+         <version>2007_08_12</version>
+      </dependency>
+   </dependencies>
+
+</project>
