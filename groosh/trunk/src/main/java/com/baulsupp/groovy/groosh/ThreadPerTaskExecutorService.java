@@ -21,18 +21,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * 
  * @author Alexander Egger
- *
+ * 
  */
 public class ThreadPerTaskExecutorService extends AbstractExecutorService {
 
 	private boolean isShutdown = false;
 	private Thread currentThread = null;
-	
-	
+
 	public boolean awaitTermination(long timeout, TimeUnit unit)
 			throws InterruptedException {
-//TODO make this respond to timeout!
-		
+		// TODO make this respond to timeout!
+
 		if (currentThread == null)
 			return true;
 		if (!currentThread.isAlive())

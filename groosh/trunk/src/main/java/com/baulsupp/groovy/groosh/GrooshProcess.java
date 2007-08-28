@@ -16,6 +16,9 @@ package com.baulsupp.groovy.groosh;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.baulsupp.process.FileStreams;
 import com.baulsupp.process.Sink;
@@ -28,7 +31,7 @@ import com.baulsupp.process.StringStreams;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public abstract class GrooshProcess {
 	protected abstract Sink getSink();
@@ -87,6 +90,27 @@ public abstract class GrooshProcess {
 		source.connect(getSink());
 
 		return this;
+	}
+
+	protected List<String> getArgs(Object arg1) {
+		if (arg1 == null)
+			return new ArrayList<String>();
+		else if (arg1 instanceof String[])
+			return Arrays.asList((String[]) arg1);
+		else if (arg1 instanceof Object[]) {
+			List<String> retval = new ArrayList<String>();
+			Object[] argsO = (Object[]) arg1;
+			for (Object object : argsO) {
+				retval.add(String.valueOf(object));
+			}
+			return retval;
+		} else if (arg1 instanceof String) {
+			List<String> retval = new ArrayList<String>();
+			retval.add((String) arg1);
+			return retval;
+		} else
+			throw new IllegalStateException("no support for args of type "
+					+ arg1.getClass());
 	}
 
 	public abstract void start() throws IOException;

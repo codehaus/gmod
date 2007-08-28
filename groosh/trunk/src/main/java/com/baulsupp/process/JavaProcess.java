@@ -16,6 +16,10 @@ package com.baulsupp.process;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
+import com.baulsupp.groovy.groosh.ExecDir;
 
 /**
  * 
@@ -29,22 +33,24 @@ public class JavaProcess implements AppProcess {
 	private boolean outHandled = false;
 	private boolean inHandled = false;
 
-	private JavaProcess(String[] command) throws IOException {
-		process = Runtime.getRuntime().exec(command);
+	private JavaProcess(List<String> command, Map<String, String> env, ExecDir execDir) throws IOException {
+		ProcessBuilder builder = new ProcessBuilder(command);
+		Map<String,String> currentEnv = builder.environment();
+		currentEnv.putAll(env);
+		builder.directory(execDir.getDir());
+		process = builder.start();
 	}
 
-	public static JavaProcess createProcess(String command, String[] args)
+	public static JavaProcess createProcess(String command, List<String> args, Map<String, String> env, ExecDir execDir)
 			throws IOException {
-		String[] commandArgs = concat(command, args);
+		List<String> commandArgs = concat(command, args);
 
-		return new JavaProcess(commandArgs);
+		return new JavaProcess(commandArgs, env, execDir);
 	}
 
-	private static String[] concat(String command, String[] args) {
-		String[] commandArgs = new String[args.length + 1];
-		commandArgs[0] = command;
-		System.arraycopy(args, 0, commandArgs, 1, args.length);
-		return commandArgs;
+	private static List<String> concat(String command, List<String> args) {
+		args.add(0,command);
+		return args;
 	}
 
 	public void start() throws IOException {

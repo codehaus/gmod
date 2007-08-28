@@ -30,7 +30,7 @@ import groovy.lang.Closure;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class LineClosureProcess extends StreamClosureProcess {
 	public LineClosureProcess(Closure closure) {

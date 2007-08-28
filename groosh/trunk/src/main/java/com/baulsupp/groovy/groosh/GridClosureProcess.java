@@ -31,7 +31,7 @@ import groovy.lang.Closure;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class GridClosureProcess extends StreamClosureProcess {
 	public GridClosureProcess(Closure closure) {

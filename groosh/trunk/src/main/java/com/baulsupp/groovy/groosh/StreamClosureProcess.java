@@ -34,7 +34,7 @@ import com.baulsupp.process.StandardStreams;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class StreamClosureProcess extends GrooshProcess implements
 		Callable<Boolean> {
