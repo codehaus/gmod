@@ -33,6 +33,7 @@ public class EllipseGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     public EllipseGraphicsOperation() {
         super( "ellipse", ["cx", "cy", "radiusx","radiusy"] as String[] )

@@ -15,36 +15,23 @@
 
 package groovy.swing.j2d.factory;
 
-import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.operations.AreaGraphicsOperation
 import groovy.util.FactoryBuilderSupport
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsOperationBeanFactory extends AbstractGraphicsOperationFactory {
-     private Class beanClass
-     private boolean leaf
+class AreaGraphicsOperationFactory extends AbstractGraphicsOperationFactory {
+     private String areaMethod
+     private String name
 
-     GraphicsOperationBeanFactory( beanClass, leaf ){
-         this.beanClass = beanClass
-         this.leaf = leaf
-     }
-
-     public boolean isLeaf(){
-         return leaf
+     AreaGraphicsOperationFactory( String name, String areaMethod ){
+         this.name = name
+         this.areaMethod = areaMethod
      }
 
      public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
              Map properties ) throws InstantiationException, IllegalAccessException {
-        return wrap( newBean( builder, name, value, properties ) )
-     }
-
-     private GraphicsOperation newBean( FactoryBuilderSupport builder, Object name, Object value,
-             Map properties ) throws InstantiationException, IllegalAccessException {
-         if( FactoryBuilderSupport.checkValueIsTypeNotString( value, name, beanClass ) ){
-             return value
-         }else{
-             return beanClass.newInstance()
-         }
+        return new AreaGraphicsOperation( name, areaMethod )
      }
 }

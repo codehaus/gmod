@@ -30,6 +30,7 @@ class PolygonGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     PolygonGraphicsOperation() {
         super( "polygon", ["points"] as String[] )

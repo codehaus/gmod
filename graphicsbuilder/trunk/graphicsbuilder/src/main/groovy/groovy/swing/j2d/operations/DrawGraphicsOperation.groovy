@@ -16,6 +16,7 @@
 package groovy.swing.j2d.operations
 
 import java.awt.Graphics2D
+import java.awt.Shape
 import java.awt.image.ImageObserver
 
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
@@ -28,9 +29,17 @@ class DrawGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     DrawGraphicsOperation() {
         super( "draw", ["shape"] as String[] )
+    }
+
+    public Shape getClip( Graphics2D g, ImageObserver observer ){
+        if( parameterHasValue("shape") ){
+            return getParameterValue("shape")
+        }
+        return null
     }
 
     protected void doExecute( Graphics2D g, ImageObserver observer ){

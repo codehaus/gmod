@@ -28,13 +28,16 @@ import java.awt.image.ImageObserver
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class PathGraphicsOperation extends AbstractGraphicsOperation {
+   def winding
+
    private List pathOperations = []
 
    static fillable = true
    static contextual = true
+   static hasShape = true
 
    PathGraphicsOperation() {
-      super( "path", [] as String[] )
+      super( "path", [] as String[], ["winding"] as String[] )
    }
 
    public void addPathOperation( PathOperation operation ) {
@@ -42,7 +45,7 @@ class PathGraphicsOperation extends AbstractGraphicsOperation {
    }
 
    public Shape getClip( Graphics2D g, ImageObserver observer ) {
-      Path2D path = new GeneralPath()
+      Path2D path = new GeneralPath( getWindingRule() )
       path.moveTo( 0, 0 )
       pathOperations.each { pathOperation ->
          pathOperation.apply( path )
@@ -53,5 +56,31 @@ class PathGraphicsOperation extends AbstractGraphicsOperation {
 
    protected void doExecute( Graphics2D g, ImageObserver observer ){
       g.draw( getClip( g, observer ) )
+   }
+
+   private int getWindingRule() {
+      if( !parameterHasValue("winding") ){
+         return Path2D.WIND_NON_ZERO
+      }
+
+      Object windingValue = getParameterValue( "winding" )
+      int winding = Path2D.WIND_NON_ZERO
+
+      if( windingValue instanceof Integer ){
+         return windingValue
+      }else if( windingValue instanceof String ){
+         if( "non_zero".compareToIgnoreCase( (String) windingValue ) == 0 ){
+            winding = Path2D.WIND_NON_ZERO
+         }else if( "even_odd".compareToIgnoreCase( (String) windingValue ) == 0 ){
+            winding = Path2D.WIND_EVEN_ODD
+         }else{
+            throw new IllegalStateException( "'winding=" + windingValue
+                  + "' is not one of [non_zero,even_odd]" )
+         }
+      }else{
+         throw new IllegalStateException( "'winding' value is not a String nor an Integer" );
+      }
+
+      return winding
    }
 }

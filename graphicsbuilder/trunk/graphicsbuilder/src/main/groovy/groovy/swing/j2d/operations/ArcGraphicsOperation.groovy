@@ -37,6 +37,7 @@ class ArcGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     public ArcGraphicsOperation() {
         super( "arc", ["x", "y", "width", "height", "start", "extent"] as String[],

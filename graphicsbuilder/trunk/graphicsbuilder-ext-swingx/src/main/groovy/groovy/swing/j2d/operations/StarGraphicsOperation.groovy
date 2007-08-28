@@ -35,6 +35,7 @@ public class StarGraphicsOperation extends AbstractGraphicsOperation {
 
    static fillable = true
    static contextual = true
+   static hasShape = true
 
    public StarGraphicsOperation() {
       super( "star", ["x", "y", "ir", "or", "count"] as String[] )

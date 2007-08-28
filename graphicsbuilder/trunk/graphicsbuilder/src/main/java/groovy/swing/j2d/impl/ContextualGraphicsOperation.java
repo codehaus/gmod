@@ -22,6 +22,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -60,10 +61,18 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
             saveContext( g, observer );
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
-                go.execute( g, observer );
+                executeChildOperation( g, observer, go );
             }
             restoreClip( g, observer );
         }
+    }
+
+    protected void executeChildOperation( Graphics2D g, ImageObserver observer, GraphicsOperation go ) {
+        go.execute( g, observer );
+    }
+
+    protected List getOperations() {
+        return Collections.unmodifiableList( operations );
     }
 
     private void restoreClip( Graphics2D g, ImageObserver observer ) {

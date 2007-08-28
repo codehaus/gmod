@@ -16,8 +16,8 @@
 package groovy.swing.j2d.operations
 
 import java.awt.Graphics2D
-import java.awt.Rectangle
 import java.awt.Shape
+import java.awt.geom.RoundRectangle2D
 import java.awt.image.ImageObserver
 
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
@@ -35,20 +35,23 @@ class RoundRectGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     RoundRectGraphicsOperation() {
         super( "rect", ["x", "y", "width", "height", "arcWidth", "arcHeight"] as String[] )
     }
 
     public Shape getClip( Graphics2D g, ImageObserver observer ) {
-        int x = getParameterValue( "x" )
-        int y = getParameterValue( "y" )
-        int width = getParameterValue( "width" )
-        int height = getParameterValue( "height" )
-        return new Rectangle( x, y, width, height )
+        double x = getParameterValue( "x" )
+        double y = getParameterValue( "y" )
+        double width = getParameterValue( "width" )
+        double height = getParameterValue( "height" )
+        double arcWidth = getParameterValue( "arcWidth" )
+        double arcHeight = getParameterValue( "arcHeight" )
+        return new RoundRectangle2D.Double( x, y, width, height, arcWidth, arcHeight )
     }
 
     protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.drawRoundRect( x, y, width, height, arcWidth, arcHeight )
+        g.draw( getClip( g, observer ) )
     }
 }

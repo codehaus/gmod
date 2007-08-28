@@ -110,8 +110,13 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "stroke", StrokeGraphicsOperation, true )
         registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
-        /*
-        registerGraphicsOperationFactory( "rect3d", Rect3DGraphicsOperation.class, true );
-        */
+
+        //
+        // area operations
+        //
+        registerFactory( "add", new AreaGraphicsOperationFactory("add","add") )
+        registerFactory( "subtract", new AreaGraphicsOperationFactory("subtract","subtract") )
+        registerFactory( "intersect", new AreaGraphicsOperationFactory("intersect","intersect") )
+        registerFactory( "xor", new AreaGraphicsOperationFactory("xor","exclusiveOr") )
     }
 }

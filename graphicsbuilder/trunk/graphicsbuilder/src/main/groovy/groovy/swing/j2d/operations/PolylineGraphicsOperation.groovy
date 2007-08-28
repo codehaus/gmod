@@ -29,6 +29,7 @@ class PolylineGraphicsOperation extends AbstractGraphicsOperation {
 
     static strokable = true
     static contextual = true
+    static hasShape = true
 
     PolylineGraphicsOperation() {
         super( "polyline", ["points"] as String[] )

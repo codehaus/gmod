@@ -37,6 +37,7 @@ class CubicCurveGraphicsOperation extends AbstractGraphicsOperation {
 
     static strokable = true
     static contextual = true
+    static hasShape = true
 
     CubicCurveGraphicsOperation() {
         super( "cubicCurve", ["x1", "x2", "y1", "y2", "ctrlx1", "ctrlx2", "ctrly1",

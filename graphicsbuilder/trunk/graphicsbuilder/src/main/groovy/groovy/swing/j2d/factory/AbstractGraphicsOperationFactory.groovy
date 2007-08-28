@@ -16,7 +16,6 @@
 package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.GraphicsBuilder
 import groovy.swing.j2d.impl.ContextualGraphicsOperation
 import groovy.swing.j2d.impl.StrokingGraphicsOperation
 import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
@@ -26,32 +25,29 @@ import groovy.util.FactoryBuilderSupport
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
+abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     public void onNodeCompleted( FactoryBuilderSupport builder, Object parent, Object node ) {
-        try{
-            if( parent && parent.fillable && node.supportsFill ){
-               if( parent instanceof Boolean && parent.fill == false ){
-                   return
-               }
+        if( parent && safePropertyGet(parent, "fillable") && safePropertyGet(node, "supportsFill") ){
+           if( parent.fill instanceof Boolean && !parent.fill ){
+		       // do not override fill
+           }else{
                parent.fill = true
-            }
-        }catch( MissingPropertyException mpe ){
-            // ignore
+           }
         }
 
-        if( parent instanceof ContextualGraphicsOperation ){
-            ((ContextualGraphicsOperation) parent).addOperation( (GraphicsOperation) node );
+        if( safePropertyGet(parent, "contextual") ){
+            parent.addOperation( node )
         }else{
-            List operations = ((GraphicsBuilder) builder).getOperations();
+            List operations = builder.getOperations()
             if( operations != null && node instanceof GraphicsOperation ){
-                operations.add( node );
+                operations.add( node )
             }
         }
     }
 
     protected boolean safePropertyGet( Object bean, String name ){
         try{
-            return bean."${name}"
+            return bean?."${name}"
         }catch( MissingPropertyException mpe ){
             // ignore
         }

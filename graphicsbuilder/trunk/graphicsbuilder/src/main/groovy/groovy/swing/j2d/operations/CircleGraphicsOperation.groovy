@@ -32,6 +32,7 @@ public class CircleGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     public CircleGraphicsOperation() {
         super( "circle", ["cx", "cy", "radius"] as String[] )

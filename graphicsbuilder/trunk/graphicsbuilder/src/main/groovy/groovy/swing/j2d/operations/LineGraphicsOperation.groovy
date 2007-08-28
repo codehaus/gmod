@@ -19,7 +19,7 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.geom.QuadCurve2D
+import java.awt.geom.Line2D
 import java.awt.image.ImageObserver
 
 /**
@@ -33,12 +33,21 @@ class LineGraphicsOperation extends AbstractGraphicsOperation {
 
     static strokable = true
     static contextual = true
+    static hasShape = true
 
     LineGraphicsOperation() {
         super( "line", ["x1", "y1", "x2", "y2"] as String[] )
     }
 
+    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+        double x1 = getParameterValue( "x1" )
+        double x2 = getParameterValue( "x2" )
+        double y1 = getParameterValue( "y1" )
+        double y2 = getParameterValue( "y2" )
+        return new Line2D.Double( x1, y1, x2, y2 )
+    }
+
     protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.drawLine( x1, y1, x2, y2 )
+        g.draw( getClip( g, observer ) )
     }
 }

@@ -33,6 +33,7 @@ class MorphGraphicsOperation extends AbstractGraphicsOperation {
 
    static fillable = true
    static contextual = true
+   static hasShape = true
 
    MorphGraphicsOperation() {
       super( "morph", ["from", "to", "morphing"] as String[] )

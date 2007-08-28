@@ -16,9 +16,9 @@
 package groovy.swing.j2d.operations
 
 import java.awt.Graphics2D
-import java.awt.Rectangle
 import java.awt.Shape
 import java.awt.image.ImageObserver
+import java.awt.geom.Rectangle2D
 
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
@@ -33,17 +33,18 @@ class RectGraphicsOperation extends AbstractGraphicsOperation {
 
     static fillable = true
     static contextual = true
+    static hasShape = true
 
     RectGraphicsOperation() {
         super( "rect", ["x", "y", "width", "height"] as String[] )
     }
 
     public Shape getClip( Graphics2D g, ImageObserver observer ) {
-        int x = getParameterValue( "x" )
-        int y = getParameterValue( "y" )
-        int width = getParameterValue( "width" )
-        int height = getParameterValue( "height" )
-        return new Rectangle( x, y, width, height )
+        double x = getParameterValue( "x" )
+        double y = getParameterValue( "y" )
+        double width = getParameterValue( "width" )
+        double height = getParameterValue( "height" )
+        return new Rectangle2D.Double( x, y, width, height )
     }
 
     protected void doExecute( Graphics2D g, ImageObserver observer ){

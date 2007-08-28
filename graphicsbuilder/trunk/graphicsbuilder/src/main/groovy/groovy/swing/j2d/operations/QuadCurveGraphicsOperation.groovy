@@ -35,6 +35,7 @@ class QuadCurveGraphicsOperation extends AbstractGraphicsOperation {
 
     static strokable = true
     static contextual = true
+    static hasShape = true
 
     QuadCurveGraphicsOperation() {
         super( "quadCurve", ["x1", "x2", "y1", "y2", "ctrlx", "ctrly"] as String[] )

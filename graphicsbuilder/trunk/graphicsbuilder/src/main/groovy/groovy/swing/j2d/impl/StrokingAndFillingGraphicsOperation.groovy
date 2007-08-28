@@ -18,7 +18,6 @@ package groovy.swing.j2d.impl
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.operations.Rect3DGraphicsOperation
-import groovy.swing.j2d.operations.RoundRectGraphicsOperation
 
 import java.awt.Color
 import java.awt.Graphics2D
@@ -72,10 +71,7 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
     private void invokeFillMethod( Graphics2D g, ImageObserver observer ) {
         // some special cases
         GraphicsOperation go = getDelegate()
-        if( delegate instanceof RoundRectGraphicsOperation ){
-            g.fillRoundRect( delegate.x, delegate.y, delegate.width, delegate.height,
-                    delegate.arcWidth, delegate.arcHeight )
-        }else if( delegate instanceof Rect3DGraphicsOperation ){
+        if( delegate instanceof Rect3DGraphicsOperation ){
             g.fill3DRect( delegate.x, delegate.y, delegate.width, delegate.height,
                     delegate.raised )
         }else{

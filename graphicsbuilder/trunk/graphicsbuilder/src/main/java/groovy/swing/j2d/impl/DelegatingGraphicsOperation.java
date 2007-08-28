@@ -74,16 +74,6 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
         super.verify();
     }
 
-    /*
-     * protected void addParameter( String name ) { if( delegate instanceof
-     * AbstractGraphicsOperation ){ ((AbstractGraphicsOperation)
-     * delegate).addParameter( name ); }else{ super.addParameter( name ); } }
-     * protected void addParameter( String name, boolean verify ) { if( delegate
-     * instanceof AbstractGraphicsOperation ){ ((AbstractGraphicsOperation)
-     * delegate).addParameter( name, verify ); }else{ super.addParameter( name,
-     * verify ); } }
-     */
-
     protected void afterDelegateExecutes( Graphics2D g, ImageObserver observer ) {
     }
 
@@ -92,7 +82,11 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
 
     protected final void doExecute( Graphics2D g, ImageObserver observer ) {
         beforeDelegateExecutes( g, observer );
-        delegate.execute( g, observer );
+        executeDelegate( g, observer );
         afterDelegateExecutes( g, observer );
+    }
+
+    protected void executeDelegate( Graphics2D g, ImageObserver observer ) {
+        delegate.execute( g, observer );
     }
 }
