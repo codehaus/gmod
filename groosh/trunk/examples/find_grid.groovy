@@ -15,7 +15,7 @@
 // BUG?? java.util.Arrays.asList fails with util on null!
 // changed java code to send List
 
-gsh = new com.baulsupp.groovy.groosh.Groosh();
+gsh = new groosh.Groosh();
 
 f = gsh.find('.', '-name', '*.java', '-ls');
 total = 0;

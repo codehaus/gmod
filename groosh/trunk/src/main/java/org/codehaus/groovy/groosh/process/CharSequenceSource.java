@@ -1,6 +1,6 @@
 //  Groosh -- Provides a shell-like capability for handling external processes
 //
-//  Copyright © 2007 Alexander Egger
+//  Copyright © 2004 Yuri Schimke
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
 //  compliance with the License. You may obtain a copy of the License at
@@ -12,9 +12,15 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh();
+package org.codehaus.groovy.groosh.process;
 
-// does this fail if you change c to cat?
-gsh.cat().fromStdIn().toStdOut();
-
-
+/**
+ * 
+ * @author Yuri Schimke
+ *
+ */
+public class CharSequenceSource extends Source {
+	public void connect(Sink sink) {
+		throw new RuntimeException();
+	}
+}
