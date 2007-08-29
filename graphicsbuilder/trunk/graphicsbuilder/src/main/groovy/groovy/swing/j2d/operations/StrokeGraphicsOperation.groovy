@@ -43,7 +43,7 @@ public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
 
     public StrokeGraphicsOperation() {
         super( "stroke", [] as String[], ["paint", "color", "width", "cap", "join", "miterlimit",
-                "dash", "dashphase"] as String[] )
+                "dash", "dashphase", "red", "green", "blue", "alpha"] as String[] )
     }
 
     public void doExecute( Graphics2D g, ImageObserver observer ) {

@@ -111,7 +111,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "polyline", PolylineGraphicsOperation )
         registerGraphicsOperationBeanFactory( "quadCurve", QuadCurveGraphicsOperation )
         registerFactory( "rect", new RectFactory() )
-        registerGraphicsOperationBeanFactory( "stroke", StrokeGraphicsOperation, true )
+        registerFactory( "stroke", new StrokeFactory() )
         registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
 
