@@ -19,7 +19,7 @@ import java.io.IOException;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public abstract class Source {
 	public abstract void connect(Sink sink) throws IOException;

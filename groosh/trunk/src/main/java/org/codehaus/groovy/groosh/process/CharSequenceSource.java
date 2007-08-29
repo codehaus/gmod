@@ -17,7 +17,7 @@ package org.codehaus.groovy.groosh.process;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class CharSequenceSource extends Source {
 	public void connect(Sink sink) {

@@ -22,7 +22,7 @@ import java.io.OutputStream;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class DevNull {
 	public static class NullSink extends Sink {

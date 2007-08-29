@@ -31,7 +31,6 @@ import org.codehaus.groovy.groosh.process.Sink;
 import org.codehaus.groovy.groosh.process.Source;
 import org.codehaus.groovy.groosh.process.StandardStreams;
 
-
 /**
  * 
  * @author Yuri Schimke

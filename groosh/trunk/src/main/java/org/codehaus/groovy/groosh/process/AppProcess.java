@@ -19,9 +19,10 @@ import java.io.IOException;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
-// TODO how does the completion of the input/output i.e. to a file get monitored?
+// TODO how does the completion of the input/output i.e. to a file get
+// monitored?
 public interface AppProcess {
 	Sink getInput();
 

@@ -23,7 +23,7 @@ import java.io.OutputStream;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class FileStreams {
 	public static class FileSource extends Source {

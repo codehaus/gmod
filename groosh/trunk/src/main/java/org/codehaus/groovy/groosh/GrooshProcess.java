@@ -26,7 +26,6 @@ import org.codehaus.groovy.groosh.process.Source;
 import org.codehaus.groovy.groosh.process.StandardStreams;
 import org.codehaus.groovy.groosh.process.StringStreams;
 
-
 // TODO class should not be reentrant 
 // that is if output is already set, don't let it be done twice.
 /**

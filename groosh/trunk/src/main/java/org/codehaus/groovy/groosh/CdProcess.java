@@ -22,28 +22,65 @@ import java.util.Map;
 import org.codehaus.groovy.groosh.process.Sink;
 import org.codehaus.groovy.groosh.process.Source;
 
-
 /**
  * Implements a basic 'cd' command which changes the base directory used to
  * execute processes. It is similar to the cd command of bash. Pipeing is
  * possible but has no effect.
+ * 
+ * The command processes only the first argument. Subsequent arguments are
+ * ignored.
+ * 
+ * If the argument is a directory the execution path for the shell is set to
+ * this directory. The environment variable PWD is set to this directory and the
+ * environment variable OLDPWD is seth to the previous value of PWD
+ * 
+ * If the argument is "-" the execution path of the shell is set to OLDPWD if
+ * this environment varibale exists. If not System.getProperty("user.home") is
+ * used.
+ * 
  * 
  * @author Alexander Egger
  * 
  */
 public class CdProcess extends GrooshProcess {
 
+	private static final String OLDPWD = "OLDPWD";
+	private static final String PWD = "PWD";
+
 	public CdProcess(Object arg1, Map<String, String> env, ExecDir execDir)
 			throws IOException {
 		List<String> args = getArgs(arg1);
-		String arg = args.get(0);
 
-		execDir.setDir(new File(arg));
-
-		if (env.get("PWD") != null) {
-			env.put("OLDPWD", env.get("PWD"));
+		String arg;
+		if (args.isEmpty()) {
+			arg = System.getProperty("user.dir");
+		} else {
+			arg = args.get(0);
+			if (arg.equals("-"))
+				arg = env.get(OLDPWD);
+			if (arg == null) {
+				arg = System.getProperty("user.home");
+			}
 		}
-		env.put("PWD", arg);
+
+		File dir = new File(arg);
+		if (!dir.exists()) {
+			throw new IOException("Target directory " + arg + " ("
+					+ dir.getAbsolutePath() + " ) " + "does not exist!");
+		}
+
+		if (!dir.isDirectory()) {
+			throw new IOException("Target " + arg + " ("
+					+ dir.getAbsolutePath() + " ) " + "is not a directory!");
+		}
+		execDir.setDir(dir);
+
+		if (env.get(PWD) != null) {
+			env.put(OLDPWD, env.get(PWD));
+		} else {
+			env.put(OLDPWD, System.getProperty("user.dir"));
+		}
+		env.put(PWD, arg);
 	}
 
 	public void waitForExit() throws IOException {

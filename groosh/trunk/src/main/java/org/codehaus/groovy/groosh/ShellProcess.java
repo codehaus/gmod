@@ -23,7 +23,6 @@ import org.codehaus.groovy.groosh.process.ProcessFactory;
 import org.codehaus.groovy.groosh.process.Sink;
 import org.codehaus.groovy.groosh.process.Source;
 
-
 /**
  * 
  * @author Yuri Schimke

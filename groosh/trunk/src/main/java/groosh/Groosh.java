@@ -67,6 +67,7 @@ public class Groosh extends GroovyObjectSupport {
 
 	public Groosh() {
 		execDir.setDir(new File(System.getProperty("user.dir")));
+		env.put("PWD", System.getProperty("user.dir"));
 	}
 
 	public static void registerInternalProcess(String name,
@@ -137,5 +138,9 @@ public class Groosh extends GroovyObjectSupport {
 
 	public File getCurrentExecDir() {
 		return execDir.getDir();
+	}
+
+	public Map<String, String> getCurrentEnvironment() {
+		return env;
 	}
 }

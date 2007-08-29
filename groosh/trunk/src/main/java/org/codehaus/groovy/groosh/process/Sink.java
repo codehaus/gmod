@@ -20,11 +20,11 @@ import java.io.OutputStream;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 // TODO need an isFinished method
 // in general process.waitForExit() knows when input has finished
-// but not aware of output has reached destination neccesarily! 
+// but not aware of output has reached destination neccesarily!
 public class Sink {
 	public boolean receivesStream() {
 		return false;

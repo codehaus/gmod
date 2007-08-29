@@ -12,11 +12,11 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh();
+gsh = new groosh.Groosh()
 
-gsh.ls().toStdOut();
-gsh.pwd().toStdOut();
-c = gsh.cd('/');
-gsh.ls().toStdOut();
-gsh.pwd().toStdOut();
+gsh.pwd().toStdOut()
+gsh.cd('/')
+gsh.pwd().toStdOut()
+gsh.cd('-')
+gsh.pwd().toStdOut()
 

@@ -21,11 +21,10 @@ import java.util.Map;
 
 import org.codehaus.groovy.groosh.ExecDir;
 
-
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class JavaProcess implements AppProcess {
 	private Process process;
@@ -34,23 +33,24 @@ public class JavaProcess implements AppProcess {
 	private boolean outHandled = false;
 	private boolean inHandled = false;
 
-	private JavaProcess(List<String> command, Map<String, String> env, ExecDir execDir) throws IOException {
+	private JavaProcess(List<String> command, Map<String, String> env,
+			ExecDir execDir) throws IOException {
 		ProcessBuilder builder = new ProcessBuilder(command);
-		Map<String,String> currentEnv = builder.environment();
+		Map<String, String> currentEnv = builder.environment();
 		currentEnv.putAll(env);
 		builder.directory(execDir.getDir());
 		process = builder.start();
 	}
 
-	public static JavaProcess createProcess(String command, List<String> args, Map<String, String> env, ExecDir execDir)
-			throws IOException {
+	public static JavaProcess createProcess(String command, List<String> args,
+			Map<String, String> env, ExecDir execDir) throws IOException {
 		List<String> commandArgs = concat(command, args);
 
 		return new JavaProcess(commandArgs, env, execDir);
 	}
 
 	private static List<String> concat(String command, List<String> args) {
-		args.add(0,command);
+		args.add(0, command);
 		return args;
 	}
 

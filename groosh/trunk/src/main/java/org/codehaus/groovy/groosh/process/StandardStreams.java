@@ -24,7 +24,7 @@ import java.io.OutputStream;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 // TODO don't let stdout, stderr be closed
 public class StandardStreams {

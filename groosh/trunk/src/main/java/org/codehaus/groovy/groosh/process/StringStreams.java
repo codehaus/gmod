@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class StringStreams {
 	public static class StringSink extends Sink {

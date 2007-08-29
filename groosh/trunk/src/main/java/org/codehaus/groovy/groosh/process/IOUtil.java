@@ -23,11 +23,10 @@ import java.util.concurrent.Future;
 
 import org.codehaus.groovy.groosh.ThreadPerTaskExecutorService;
 
-
 /**
  * 
  * @author Yuri Schimke
- *
+ * 
  */
 public class IOUtil {
 	private static final int BUFFER_SIZE = 8192;
@@ -66,5 +65,5 @@ public class IOUtil {
 	public static ExecutorService getExecutor() {
 		return new ThreadPerTaskExecutorService();
 	}
-	
+
 }

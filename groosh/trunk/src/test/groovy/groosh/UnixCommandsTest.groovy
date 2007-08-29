@@ -43,7 +43,7 @@ class UnixCommandsTest extends GroovyTestCase {
 		"Alexia's\n" +
 		"dyslexia\n" +
 		"dyslexia's\n" 
-
+		
 	void testBasicCat() {
 		def out = gsh._cat('src/test/resources/blah.txt').toStringOut()
 		assert blaResult == out
