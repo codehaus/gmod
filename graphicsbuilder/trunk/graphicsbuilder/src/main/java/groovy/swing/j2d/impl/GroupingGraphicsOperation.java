@@ -27,7 +27,9 @@ import java.util.List;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
+    private GraphicsContext context;
     private List operations = new ArrayList();
+    private TransformationsGraphicsOperation transformations;
 
     public GroupingGraphicsOperation() {
         this( null );
@@ -38,10 +40,19 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         if( operations != null ){
             this.operations.addAll( operations );
         }
+        this.context = new GraphicsContext();
     }
 
     public void addOperation( GraphicsOperation go ) {
         operations.add( go );
+    }
+
+    public GraphicsContext getContext() {
+        return context;
+    }
+
+    public void setTransformations( TransformationsGraphicsOperation transformations ) {
+        this.transformations = transformations;
     }
 
     public void verify() {
@@ -49,12 +60,35 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
             GraphicsOperation go = (GraphicsOperation) i.next();
             go.verify();
         }
+        if( transformations != null ){
+            transformations.verify();
+        }
     }
 
     protected void doExecute( Graphics2D g, ImageObserver observer ) {
-        for( Iterator i = operations.iterator(); i.hasNext(); ){
-            GraphicsOperation go = (GraphicsOperation) i.next();
-            go.execute( g, observer );
+        saveContext( g, observer );
+        if( operations.size() > 0 ){
+            for( Iterator i = operations.iterator(); i.hasNext(); ){
+                GraphicsOperation go = (GraphicsOperation) i.next();
+                go.execute( g, observer );
+            }
         }
+        if( transformations != null ){
+            transformations.execute( g, observer );
+        }
+        restoreClip( g );
+        restoreContext( g );
+    }
+
+    private void restoreClip( Graphics2D g ) {
+        context.restoreClip( g );
+    }
+
+    private void restoreContext( Graphics2D g ) {
+        context.restore( g );
+    }
+
+    private void saveContext( Graphics2D g, ImageObserver observer ) {
+        context.save( g, getClip( g, observer ) );
     }
 }

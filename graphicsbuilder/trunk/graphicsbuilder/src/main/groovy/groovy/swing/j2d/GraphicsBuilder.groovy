@@ -99,6 +99,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "ellipse", EllipseGraphicsOperation )
         registerFactory( "font", new FontFactory() )
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
+        registerGraphicsOperationBeanFactory( "group", GroupingGraphicsOperation )
         registerGraphicsOperationBeanFactory( "image", ImageGraphicsOperation )
         registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation )
         registerFactory( "operation", new OperationFactory() )
@@ -118,5 +119,14 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "subtract", new AreaGraphicsOperationFactory("subtract","subtract") )
         registerFactory( "intersect", new AreaGraphicsOperationFactory("intersect","intersect") )
         registerFactory( "xor", new AreaGraphicsOperationFactory("xor","exclusiveOr") )
+
+        //
+        // transformations
+        //
+        registerGraphicsOperationBeanFactory( "transformations", TransformationsGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "rotate", RotateGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "scale", ScaleGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "skew", SkewGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "translate", TranslateGraphicsOperation )
     }
 }

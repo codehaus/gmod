@@ -17,8 +17,11 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.ContextualGraphicsOperation
+import groovy.swing.j2d.impl.GroupingGraphicsOperation
 import groovy.swing.j2d.impl.StrokingGraphicsOperation
 import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
+import groovy.swing.j2d.impl.TransformationsGraphicsOperation
+import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
 import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 
@@ -35,9 +38,22 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
            }
         }
 
-        if( safePropertyGet(parent, "contextual") ){
+        if( parent instanceof TransformationsGraphicsOperation &&
+            node instanceof TransformSupportGraphicsOperation ){
             parent.addOperation( node )
-        }else{
+        }else if( safePropertyGet(parent, "contextual") ){
+            if( node instanceof TransformationsGraphicsOperation ){
+                parent.transformations = node
+            }else{
+                parent.addOperation( node )
+            }
+        }else if( parent instanceof GroupingGraphicsOperation &&
+                  node instanceof TransformationsGraphicsOperation ){
+            parent.transformations = node
+        }else if( parent instanceof GroupingGraphicsOperation ){
+            parent.addOperation( node )
+        }
+        else{
             List operations = builder.getOperations()
             if( operations != null && node instanceof GraphicsOperation ){
                 operations.add( node )

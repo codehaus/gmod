@@ -18,8 +18,6 @@ package groovy.swing.j2d.impl;
 import groovy.swing.j2d.GraphicsOperation;
 
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +29,25 @@ import java.util.List;
  */
 public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
     private GraphicsContext context;
-    private List operations = new ArrayList();
+    private List operations;
+    private TransformationsGraphicsOperation transformations;
 
     public ContextualGraphicsOperation( GraphicsOperation delegate ) {
         super( delegate );
         this.context = new GraphicsContext();
+        this.operations = new ArrayList();
     }
 
     public void addOperation( GraphicsOperation go ) {
         operations.add( go );
+    }
+
+    public GraphicsContext getContext() {
+        return context;
+    }
+
+    public void setTransformations( TransformationsGraphicsOperation transformations ) {
+        this.transformations = transformations;
     }
 
     public void verify() {
@@ -48,22 +56,32 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
             GraphicsOperation go = (GraphicsOperation) i.next();
             go.verify();
         }
+        if( transformations != null ){
+            transformations.verify();
+        }
     }
 
     protected void afterDelegateExecutes( Graphics2D g, ImageObserver observer ) {
-        if( operations.size() > 0 ){
-            restoreContext( g, observer );
+        if( operations.size() > 0 || transformations != null ){
+            restoreContext( g );
         }
     }
 
     protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
-        if( operations.size() > 0 ){
+        if( operations.size() > 0 || transformations != null ){
             saveContext( g, observer );
+        }
+        if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
                 executeChildOperation( g, observer, go );
             }
-            restoreClip( g, observer );
+        }
+        if( transformations != null ){
+            transformations.execute( g, observer );
+        }
+        if( operations.size() > 0 || transformations != null ){
+            restoreClip( g );
         }
     }
 
@@ -75,46 +93,15 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         return Collections.unmodifiableList( operations );
     }
 
-    private void restoreClip( Graphics2D g, ImageObserver observer ) {
-        Shape clip = context.getClip();
-        if( clip != null ){
-            g.translate( context.getX() * -1, context.getY() * -1 );
-            g.setClip( clip );
-        }
+    private void restoreClip( Graphics2D g ) {
+        context.restoreClip( g );
     }
 
-    private void restoreContext( Graphics2D g, ImageObserver observer ) {
-        if( context.getBackground() != null ){
-            g.setBackground( context.getBackground() );
-        }
-        if( context.getColor() != null ){
-            g.setColor( context.getColor() );
-        }
-        if( context.getFont() != null ){
-            g.setFont( context.getFont() );
-        }
-        if( context.getPaint() != null ){
-            g.setPaint( context.getPaint() );
-        }
-        if( context.getStroke() != null ){
-            g.setStroke( context.getStroke() );
-        }
+    private void restoreContext( Graphics2D g) {
+        context.restore( g );
     }
 
     private void saveContext( Graphics2D g, ImageObserver observer ) {
-        context.setBackground( g.getBackground() );
-        context.setColor( g.getColor() );
-        context.setFont( g.getFont() );
-        context.setPaint( g.getPaint() );
-        context.setStroke( g.getStroke() );
-        context.setClip( g.getClip() );
-        Shape newclip = getClip( g, observer );
-        if( newclip != null ){
-            g.setClip( newclip );
-            Rectangle bounds = newclip.getBounds();
-            context.setX( bounds.getX() );
-            context.setY( bounds.getY() );
-            g.translate( bounds.getX(), bounds.getY() );
-        }
+        context.save( g, getClip( g, observer ) );
     }
 }
