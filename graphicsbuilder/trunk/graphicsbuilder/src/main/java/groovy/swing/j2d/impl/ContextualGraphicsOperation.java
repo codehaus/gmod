@@ -25,6 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * Decorator that adds a GraphicsContext to its delegate.<br>
+ * A GraphicsContext takes care of restoring the state of the Graphics2D object
+ * after this operation's delegate has been executed.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
@@ -97,7 +101,7 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         context.restoreClip( g );
     }
 
-    private void restoreContext( Graphics2D g) {
+    private void restoreContext( Graphics2D g ) {
         context.restore( g );
     }
 

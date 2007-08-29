@@ -25,6 +25,8 @@ import java.awt.image.ImageObserver;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
+ * Base class for creating decorators.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperation {

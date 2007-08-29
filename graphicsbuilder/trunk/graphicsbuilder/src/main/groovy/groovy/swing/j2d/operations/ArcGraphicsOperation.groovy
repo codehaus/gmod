@@ -24,6 +24,17 @@ import java.awt.image.ImageObserver
 import java.awt.geom.*
 
 /**
+ * Draws an Arc2D<br>
+ * Parameters<ul>
+ * <li>x: (number)</li>
+ * <li>y: (number)</li>
+ * <li>width: (number)</li>
+ * <li>height: (number)</li>
+ * <li>start: (number)</li>
+ * <li>extent: (number)</li>
+ * </ul>Optional<ul>
+ * <li>close: 'open', 'chord', 'pie' (default: 'open')</li>
+ * </ul>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ArcGraphicsOperation extends AbstractGraphicsOperation {

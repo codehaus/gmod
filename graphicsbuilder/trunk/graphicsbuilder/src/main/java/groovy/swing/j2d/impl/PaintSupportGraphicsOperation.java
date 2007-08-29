@@ -21,6 +21,8 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 
 /**
+ * Marker interface for operations that work with Paint.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface PaintSupportGraphicsOperation extends GraphicsOperation {

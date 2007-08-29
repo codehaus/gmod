@@ -27,22 +27,22 @@ import org.jdesktop.swingx.geom.Morphing2D
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MorphGraphicsOperation extends AbstractGraphicsOperation {
-   def from
-   def to
-   def morphing
+   def start
+   def end
+   def morph
 
    static fillable = true
    static contextual = true
    static hasShape = true
 
    MorphGraphicsOperation() {
-      super( "morph", ["from", "to", "morphing"] as String[] )
+      super( "morph", ["start", "end", "morph"] as String[] )
    }
 
    public Shape getClip(Graphics2D g, ImageObserver observer) {
-      Shape from = getParameterValue( "from" )
-      Shape to = getParameterValue( "to" )
-      double morphing = getParameterValue( "morphing" )
+      Shape from = getParameterValue( "start" )
+      Shape to = getParameterValue( "end" )
+      double morphing = getParameterValue( "morph" )
 
       Morphing2D morph = new Morphing2D( from, to )
       morph.setMorphing( morphing )

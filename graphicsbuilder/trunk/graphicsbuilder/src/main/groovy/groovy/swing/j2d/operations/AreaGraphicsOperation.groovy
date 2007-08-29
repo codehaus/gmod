@@ -26,6 +26,8 @@ import java.awt.image.ImageObserver
 import java.awt.geom.*
 
 /**
+ * Applies an Area operation (any of [add,subtract,intersect,xor])
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class AreaGraphicsOperation extends ContextualGraphicsOperation {

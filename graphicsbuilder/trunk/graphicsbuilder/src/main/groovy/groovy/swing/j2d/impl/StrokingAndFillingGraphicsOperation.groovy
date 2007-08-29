@@ -25,6 +25,7 @@ import java.awt.Paint
 import java.awt.image.ImageObserver
 
 /**
+ * Decorator that adds 'color', 'strokeWidth' and 'fill' properties.
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperation {

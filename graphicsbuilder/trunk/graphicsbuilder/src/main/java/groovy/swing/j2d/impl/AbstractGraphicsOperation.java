@@ -15,13 +15,14 @@
 
 package groovy.swing.j2d.impl;
 
-import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import groovy.swing.j2d.GraphicsOperation;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -29,6 +30,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Base implementation of GraphicsOperation.<br>
+ * It adds propertyChangeSupport for all parameters and optional parameters
+ * among other things.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class AbstractGraphicsOperation extends GroovyObjectSupport implements
@@ -37,11 +42,35 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
     private String[] optionalParameters = new String[0];
     private Map parameterMap = new LinkedHashMap();
     private String[] parameters = new String[0];
+    private PropertyChangeSupport propertyChangeSupport;
 
+    /**
+     * Creates a new GraphicsOperation with name and no parameters.
+     *
+     * @param name the name of the operation
+     */
+    public AbstractGraphicsOperation( String name ) {
+        this( name, null, null );
+    }
+
+    /**
+     * Creates a new GraphicsOperation with name and parameters.
+     *
+     * @param name the name of the operation
+     * @param parameters a list of parameters.
+     */
     public AbstractGraphicsOperation( String name, String[] parameters ) {
         this( name, parameters, null );
     }
 
+    /**
+     * Creates a new GraphicsOperation with name, parameters and optional
+     * parameters.
+     *
+     * @param name the name of the operation
+     * @param parameters a list of parameters.
+     * @param parameters a list of optional parameters.
+     */
     public AbstractGraphicsOperation( String name, String[] parameters, String[] optional ) {
         this.name = name;
         Set optionalParams = new LinkedHashSet();
@@ -63,6 +92,15 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
                 }
             }
         }
+        propertyChangeSupport = new PropertyChangeSupport( this );
+    }
+
+    public void addPropertyChangeListener( PropertyChangeListener listener ) {
+        propertyChangeSupport.addPropertyChangeListener( listener );
+    }
+
+    public void addPropertyChangeListener( String propertyName, PropertyChangeListener listener ) {
+        propertyChangeSupport.addPropertyChangeListener( propertyName, listener );
     }
 
     public void execute( Graphics2D g, ImageObserver observer ) {
@@ -88,13 +126,25 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
 
     public Object getParameterValue( String name ) {
         if( parameterMap.containsKey( name ) ){
-            Object value = getProperty( name );
-            if( value instanceof Closure ){
-                value = ((Closure) value).call();
-            }
-            return value;
+            return getProperty( name );
+            /*
+             * if( value instanceof Closure ){ value = ((Closure) value).call(); }
+             * return value;
+             */
         }
         return null;
+    }
+
+    public PropertyChangeListener[] getPropertyChangeListeners() {
+        return propertyChangeSupport.getPropertyChangeListeners();
+    }
+
+    public PropertyChangeListener[] getPropertyChangeListeners( String propertyName ) {
+        return propertyChangeSupport.getPropertyChangeListeners( propertyName );
+    }
+
+    public boolean hasListeners( String propertyName ) {
+        return propertyChangeSupport.hasListeners( propertyName );
     }
 
     public boolean parameterHasValue( String name ) {
@@ -104,9 +154,25 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         return false;
     }
 
+    public void removePropertyChangeListener( PropertyChangeListener listener ) {
+        propertyChangeSupport.removePropertyChangeListener( listener );
+    }
+
+    public void removePropertyChangeListener( String propertyName, PropertyChangeListener listener ) {
+        propertyChangeSupport.removePropertyChangeListener( propertyName, listener );
+    }
+
     public void setParameterValue( String name, Object value ) {
         if( parameterMap.containsKey( name ) ){
             setProperty( name, value );
+        }
+    }
+
+    public void setProperty( String name, Object value ) {
+        Object oldValue = getProperty( name );
+        super.setProperty( name, value );
+        if( parameterMap.containsKey( name ) ){
+            propertyChangeSupport.firePropertyChange( name, oldValue, value );
         }
     }
 
@@ -125,10 +191,22 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         }
     }
 
+    /**
+     * Adds a new parameter to the parameter list.
+     *
+     * @param name the name of the parameter
+     */
     protected void addParameter( String name ) {
         addParameter( name, true );
     }
 
+    /**
+     * Adds a new parameter to the parameter list which may be verified.
+     *
+     * @param name the name of the parameter
+     * @param verify true if the parameter value should be verified before
+     *        executing, false otherwise
+     */
     protected void addParameter( String name, boolean verify ) {
         String[] params = new String[parameters.length + 1];
         System.arraycopy( parameters, 0, params, 0, parameters.length );
@@ -138,15 +216,16 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
     }
 
     protected final void applyParameters() {
-        for( int i = 0; i < parameters.length; i++ ){
-            String param = parameters[i];
-            Object value = getProperty( param );
-            if( value instanceof Closure ){
-                setProperty( param, ((Closure) value).call() );
-            }
-        }
+        /*
+         * for( int i = 0; i < parameters.length; i++ ){ String param =
+         * parameters[i]; Object value = getProperty( param ); if( value
+         * instanceof Closure ){ setProperty( param, ((Closure) value).call() ); } }
+         */
     }
 
+    /**
+     * Executes the operation
+     */
     protected abstract void doExecute( Graphics2D g, ImageObserver observer );
 
     protected final Map getParameterMap() {

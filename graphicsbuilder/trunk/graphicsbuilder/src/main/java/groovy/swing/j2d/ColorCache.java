@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
+ * A collection of named colors.<br>
+ * ColorCache registers all Java, CSS2 and HTML colors by default.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class ColorCache {
@@ -28,6 +31,9 @@ public class ColorCache {
         instance = new ColorCache();
     }
 
+    /**
+     * Returns the singleton instance.
+     */
     public static ColorCache getInstance() {
         return instance;
     }
@@ -38,10 +44,23 @@ public class ColorCache {
         initColors();
     }
 
+    /**
+     * Retrieves a Color from the cache.
+     *
+     * @param name the name of the color to retrieve
+     * @return the named color, null if not found
+     */
     public Color getColor( String name ) {
         return (Color) cache.get( name );
     }
 
+    /**
+     * Stores a color on the cache.<br>
+     * It will override any existing color with the same name.
+     *
+     * @param name the name of the color to store
+     * @param color the Color to store
+     */
     public void setColor( String name, Color color ) {
         cache.put( name, color );
     }

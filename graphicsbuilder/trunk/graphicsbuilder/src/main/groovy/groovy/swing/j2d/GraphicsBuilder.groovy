@@ -27,6 +27,9 @@ import groovy.swing.j2d.impl.*
 import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.*
 
+import org.codehaus.groovy.binding.FullBinding
+import org.codehaus.groovy.binding.PropertyTargetBinding
+
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -128,5 +131,10 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "scale", ScaleGraphicsOperation )
         registerGraphicsOperationBeanFactory( "skew", SkewGraphicsOperation )
         registerGraphicsOperationBeanFactory( "translate", TranslateGraphicsOperation )
+
+        //
+        // binding
+        //
+        registerFactory( "bind", new BindFactory() )
     }
 }

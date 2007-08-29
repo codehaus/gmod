@@ -25,6 +25,8 @@ import java.awt.Stroke;
 import java.awt.image.ImageObserver;
 
 /**
+ * Decorator that adds 'color' and 'strokeWidth' properties.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class StrokingGraphicsOperation extends DelegatingGraphicsOperation {

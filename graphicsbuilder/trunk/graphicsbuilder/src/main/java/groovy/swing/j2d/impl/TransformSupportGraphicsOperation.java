@@ -18,6 +18,8 @@ package groovy.swing.j2d.impl;
 import groovy.swing.j2d.GraphicsOperation;
 
 /**
+ * Marker interface for operations that perform an AffineTransform.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface TransformSupportGraphicsOperation extends GraphicsOperation {

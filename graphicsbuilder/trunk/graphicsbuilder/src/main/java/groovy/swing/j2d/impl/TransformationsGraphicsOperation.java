@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * Groups all TransformSupportGraphicsOperations.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class TransformationsGraphicsOperation extends AbstractGraphicsOperation {
@@ -34,6 +36,10 @@ public class TransformationsGraphicsOperation extends AbstractGraphicsOperation 
         operations = new ArrayList();
     }
 
+    /**
+     * Adds a new operation to the operation list.<br>
+     * Only instances of TransformSupportGraphicsOperation will be added
+     */
     public void addOperation( GraphicsOperation go ) {
         if( go instanceof TransformSupportGraphicsOperation ){
             operations.add( go );

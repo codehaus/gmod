@@ -23,6 +23,13 @@ import java.awt.geom.Ellipse2D
 import java.awt.image.ImageObserver
 
 /**
+ * Draws an Ellipse2D as a circle<br>
+ * Parameters<ul>
+ * <li>cx: (number)</li>
+ * <li>cy: (number)</li>
+ * <li>radiusx: (number)</li>
+ * <li>radiusy: (number)</li>
+ * </ul>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class EllipseGraphicsOperation extends AbstractGraphicsOperation {

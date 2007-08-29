@@ -24,11 +24,33 @@ import groovy.swing.j2d.impl.TransformationsGraphicsOperation
 import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
 import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
+import org.codehaus.groovy.binding.FullBinding
+import org.codehaus.groovy.binding.PropertyTargetBinding
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
+     public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+             Map attributes ) {
+         attributes.each { property, value ->
+             if (value instanceof FullBinding) {
+                 FullBinding fb = (FullBinding) value;
+                 PropertyTargetBinding ptb = new PropertyTargetBinding(node, property);
+                 fb.setTargetBinding(ptb);
+                 fb.bind();
+                 try {
+                     fb.forceUpdate();
+                 } catch (Exception e) {
+                     // just eat it?
+                 }
+             } else {
+                 node."${property}" = value
+             }
+         }
+         return false
+     }
+
     public void onNodeCompleted( FactoryBuilderSupport builder, Object parent, Object node ) {
         if( parent && safePropertyGet(parent, "fillable") && safePropertyGet(node, "supportsFill") ){
            if( parent.fill instanceof Boolean && !parent.fill ){
