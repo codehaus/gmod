@@ -123,7 +123,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
 
     /**
      * Convenience method when no arguments are required
-     * 
+     *
      * @return the result of the call
      * @param methodName the name of the method to invoke
      */
@@ -156,7 +156,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
     /**
      * A hook to allow names to be converted into some other object such as a
      * QName in XML or ObjectName in JMX.
-     * 
+     *
      * @param methodName the name of the desired method
      * @return the object representing the name
      */
@@ -185,7 +185,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
      * A hook to allow nodes to be processed once they have had all of their
      * children applied and allows the actual node object that represents the
      * Markup element to be changed
-     * 
+     *
      * @param node the current node being processed
      * @param parent the parent of the node being processed
      * @return the node, possibly new, that represents the markup element
@@ -206,7 +206,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
      * setDelegate() method on the closure which by default passes in this but
      * if node is-a builder we could pass that in instead (or do something wacky
      * too)
-     * 
+     *
      * @param closure the closure on which to call setDelegate()
      * @param node the node value that we've just created, which could be a
      *        builder
@@ -330,6 +330,14 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
 
         }
 
+        if( node == null ){
+            if( contexts.size() == 1 ){
+                // pop the first context
+                popContext();
+            }
+            return node;
+        }
+
         Object current = getCurrent();
         if( current != null ){
             proxyBuilder.setParent( current, node );
@@ -370,7 +378,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
     /**
      * A hook to allow nodes to be processed once they have had all of their
      * children applied.
-     * 
+     *
      * @param node the current node being processed
      * @param parent the parent of the node being processed
      */

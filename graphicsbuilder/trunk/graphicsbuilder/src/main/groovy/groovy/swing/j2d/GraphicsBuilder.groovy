@@ -51,17 +51,17 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         building = true
         operations = []
         closure.setDelegate( this )
-        closure.call()
-        GraphicsOperation go = new GroupingGraphicsOperation( operations );
-        go.verify()
-        reset()
+        GraphicsOperation go;
+        try {
+            closure.call()
+            go = new GroupingGraphicsOperation( operations );
+            go.verify()
+        }finally {
+            operations = []
+            variables.clear()
+            building = false
+        }
         return go
-    }
-
-    public void reset() {
-        operations = []
-        variables.clear()
-        building = false
     }
 
     public List getOperations() {

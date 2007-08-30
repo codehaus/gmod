@@ -36,21 +36,6 @@
          <version>${graphicsbuilder-version}</version>
       </dependency>
       <dependency>
-         <groupId>org.codehaus.groovy</groupId>
-         <artifactId>swingxbuilder</artifactId>
-         <version>0.1</version>
-      </dependency>
-      <dependency>
-         <groupId>com.jhlabs</groupId>
-         <artifactId>filters</artifactId>
-         <version>2.0.235</version>
-      </dependency>
-      <dependency>
-         <groupId>batik</groupId>
-         <artifactId>batik-awt-util</artifactId>
-         <version>1.6-1</version>
-      </dependency>
-      <dependency>
          <groupId>org.jdesktop</groupId>
          <artifactId>swingx</artifactId>
          <version>2007_08_12</version>

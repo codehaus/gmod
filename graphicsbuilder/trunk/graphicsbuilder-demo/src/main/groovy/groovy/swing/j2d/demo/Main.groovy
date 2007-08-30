@@ -21,8 +21,9 @@ import java.awt.Font
 import javax.swing.*
 import javax.swing.border.*
 import javax.swing.event.*
+import org.jdesktop.swingx.JXTitledPanel
 import org.jdesktop.swingx.border.*
-import groovy.swing.SwingXBuilder
+import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
 
 import org.codehaus.groovy.control.CompilationFailedException
@@ -59,14 +60,14 @@ class Main {
     }
 
     private void buildUI(){
-       swing = new SwingXBuilder()
+       swing = new SwingBuilder()
        frame = swing.frame( title: "GraphicsBuilder - Demo", size: [1024,800],
              locationRelativeTo: null, defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE ){
           panel( border: BorderFactory.createEmptyBorder(5, 5, 5, 5) ){
              borderLayout()
              widget( buildListPanel(swing), constraints: BL.WEST )
              panel( constraints: BL.CENTER ){
-  				gridLayout( cols: 1, rows: 3 )
+          gridLayout( cols: 1, rows: 3 )
                 widget( buildViewPanel(swing) )
                 widget( buildCodePanel(swing) )
                 widget( buildTextPanel(swing) )
@@ -77,7 +78,7 @@ class Main {
 
     private def buildListPanel( swing ){
        def data = ["Shapes","Painting","Transformations","Groups","Images","Areas"]
-       swing.titledPanel( title: 'Topics', border: createShadowBorder() ){
+       swing.panel( new JXTitledPanel(), title: 'Topics', border: createShadowBorder() ){
           list( listData: data as Object[], mouseClicked: this.&displayDemo )
        }
     }
@@ -87,7 +88,7 @@ class Main {
        graphicsPanel.border = BorderFactory.createEmptyBorder()
        graphicsPanel.background = Color.white
 
-       swing.titledPanel( title: 'View', border: createShadowBorder() ){
+       swing.panel( new JXTitledPanel(), title: 'View', border: createShadowBorder() ){
           scrollPane {
              widget( graphicsPanel, id: 'view' )
           }
@@ -95,7 +96,7 @@ class Main {
     }
 
     private def buildCodePanel( swing ){
-       def sourcePanel = swing.titledPanel( title: 'Source', border: createShadowBorder() ){
+       def sourcePanel = swing.panel( new JXTitledPanel(), title: 'Source', border: createShadowBorder() ){
           borderLayout()
           scrollPane( constraints: BL.CENTER ) {
              textArea( id: 'source', border: BorderFactory.createEmptyBorder(),
@@ -114,7 +115,7 @@ class Main {
     }
 
     private def buildTextPanel( swing ){
-       swing.titledPanel( title: 'Description', border: createShadowBorder() ){
+       swing.panel( new JXTitledPanel(), title: 'Description', border: createShadowBorder() ){
           scrollPane( horizontalScrollBarPolicy: ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER ) {
              editorPane( id: 'description', border: BorderFactory.createEmptyBorder(),
                    editable: false, background: Color.white, contentType: 'text/html',
@@ -156,7 +157,6 @@ class Main {
 
     private def executeCode = {
         swing.error.text = ""
-        graphicsBuilder.reset()
         try {
            def go = graphicsBuilder.build(gsh.evaluate("""
            import java.awt.*
@@ -164,6 +164,9 @@ class Main {
            import org.jdesktop.swingx.geom.*
 
            go = {${swing.source.text}}"""))
+           if( go.operations.size() == 0 ){
+              throw new RuntimeException("An operation is not recognized. Please check the code.")
+           }
            swing.view.graphicsOperation = go
         }catch( Exception e ){
            swing.error.text = e.localizedMessage

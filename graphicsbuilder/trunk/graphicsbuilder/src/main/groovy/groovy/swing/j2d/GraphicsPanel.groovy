@@ -28,6 +28,10 @@ class GraphicsPanel extends JPanel {
      private GraphicsOperation graphicsOperation
      private boolean displayed
 
+     GraphicsPanel(){
+         super( null )
+     }
+
      /**
       * Returns the current GraphicsOperation of this Panel
       * @return the current GraphicsOperation of this Panel

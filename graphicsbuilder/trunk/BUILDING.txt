@@ -1,12 +1,12 @@
 GraphicsBuilder uses Maven2 as its build tool, which means that if you want to 
-build your own version of WingSBuilder from source you'll need to have it 
-installed. Follow the instructions at http://maven.apache.org 
+build your own version from source you'll need to have it installed. Follow the
+instructions at http://maven.apache.org 
 
-You will also need swingx-2007_08_12 and swingxbuilder-0.1 to build the demo
-app. Once you have located the jars you can install them on your local Maven2 
-repo with the following command
+You will also need swingx-2007_08_12 to build the demo app, you can download
+it from http://swingx.dev.java.net Once you have located the jar you can install
+it on your local Maven2 repo with the following command
 
- mvn install:installFile -DgroupId=org.wings -Dversion=3.0 -Dpackaging=jar \
-     -DartifactId=<depname> -Dfile=<jarfile>
+ mvn install:installFile -DgroupId=org.jdesktop -Dversion=2007_08_12 \
+     -Dpackaging=jar -DartifactId=swingx -Dfile=<jarfile>
 
 Have fun!
