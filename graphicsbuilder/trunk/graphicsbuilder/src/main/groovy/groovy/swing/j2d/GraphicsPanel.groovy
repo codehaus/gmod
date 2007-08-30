@@ -16,8 +16,6 @@
 package groovy.swing.j2d
 
 import java.awt.Graphics
-import java.awt.event.ComponentEvent
-import java.awt.event.ComponentListener
 import javax.swing.JPanel
 import groovy.swing.j2d.GraphicsOperation
 
@@ -26,7 +24,7 @@ import groovy.swing.j2d.GraphicsOperation
  *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsPanel extends JPanel implements ComponentListener {
+class GraphicsPanel extends JPanel {
      private GraphicsOperation graphicsOperation
      private boolean displayed
 
@@ -44,25 +42,15 @@ class GraphicsPanel extends JPanel implements ComponentListener {
       */
      public void setGraphicsOperation( GraphicsOperation graphicsOperation ){
          this.graphicsOperation = graphicsOperation
-         if( displayed ){
+         if( visible ){
              repaint()
          }
      }
 
      public void paintComponent( Graphics g ){
-         graphicsOperation.execute( g, this )
+         if( graphicsOperation ){
+             g.clearRect( 0, 0, size.width as int, size.height as int )
+             graphicsOperation.execute( g, this )
+         }
      }
-
-     // ComponentListener implementation
-
-     public void componentHidden( ComponentEvent e ){
-         displayed = false
-     }
-
-     public void componentShown( ComponentEvent e ){
-         displayed = true
-     }
-
-     public void componentMoved( ComponentEvent e ){}
-     public void componentResized( ComponentEvent e ){}
  }

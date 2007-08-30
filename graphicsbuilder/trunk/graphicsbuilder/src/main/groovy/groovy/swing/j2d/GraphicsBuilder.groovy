@@ -54,10 +54,14 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         closure.call()
         GraphicsOperation go = new GroupingGraphicsOperation( operations );
         go.verify()
+        reset()
+        return go
+    }
+
+    public void reset() {
         operations = []
         variables.clear()
         building = false
-        return go
     }
 
     public List getOperations() {

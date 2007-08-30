@@ -1,0 +1,3 @@
+rect( x: 10, y: 10, width: 300, height: 80,
+      arcWidth: 20, arcHeight: 20,
+      color: 'blue', strokeWidth: 2, fill: 'cyan' )

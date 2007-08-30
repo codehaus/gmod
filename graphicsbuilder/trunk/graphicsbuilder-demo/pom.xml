@@ -1,0 +1,100 @@
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+   <parent>
+      <groupId>org.codehaus.groovy-contrib</groupId>
+      <artifactId>graphicsbuilder-parent</artifactId>
+      <version>${graphicsbuilder-version}</version>
+   </parent>
+
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>graphicsbuilder-demo</artifactId>
+   <packaging>jar</packaging>
+   <name>GraphicsBuilder [demo]</name>
+
+   <description></description>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>groovy-all</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder-ext-jdk6</artifactId>
+         <version>${graphicsbuilder-version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder-ext-swingx</artifactId>
+         <version>${graphicsbuilder-version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>swingxbuilder</artifactId>
+         <version>0.1</version>
+      </dependency>
+      <dependency>
+         <groupId>com.jhlabs</groupId>
+         <artifactId>filters</artifactId>
+         <version>2.0.235</version>
+      </dependency>
+      <dependency>
+         <groupId>batik</groupId>
+         <artifactId>batik-awt-util</artifactId>
+         <version>1.6-1</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jdesktop</groupId>
+         <artifactId>swingx</artifactId>
+         <version>2007_08_12</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <source>1.6</source>
+               <target>1.6</target>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>appassembler-maven-plugin</artifactId>
+            <configuration>
+               <programs>
+                  <program>
+                     <mainClass>
+                        groovy.swing.j2d.demo.Main
+                     </mainClass>
+                     <name>graphicsBuilderDemo</name>
+                  </program>
+               </programs>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <pluginRepositories>
+      <pluginRepository>
+         <id>codehaus-snapshot-plugins</id>
+         <name>codehaus-shapshot-plugins</name>
+         <url>http://snapshots.repository.codehaus.org/</url>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
+      </pluginRepository>
+   </pluginRepositories>
+
+</project>
