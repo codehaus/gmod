@@ -156,8 +156,14 @@ class Main {
 
     private def executeCode = {
         swing.error.text = ""
+        graphicsBuilder.reset()
         try {
-           def go = graphicsBuilder.build(gsh.evaluate("go = {"+swing.source.text+"}"))
+           def go = graphicsBuilder.build(gsh.evaluate("""
+           import java.awt.*
+           import java.awt.geom.*
+           import org.jdesktop.swingx.geom.*
+
+           go = {${swing.source.text}}"""))
            swing.view.graphicsOperation = go
         }catch( Exception e ){
            swing.error.text = e.localizedMessage
