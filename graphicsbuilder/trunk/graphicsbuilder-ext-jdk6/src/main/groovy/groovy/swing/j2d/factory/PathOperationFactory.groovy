@@ -52,7 +52,6 @@ public class PathOperationFactory extends AbstractFactory {
       }
 
       if( parent instanceof PathGraphicsOperation ){
-         println "${parent} ${child}"
          ((PathGraphicsOperation) parent).addPathOperation( (PathOperation) child )
       }
    }

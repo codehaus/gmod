@@ -1,0 +1,2 @@
+star( x: 30, y: 30, ir: 50, or: 80, count: 5,
+      color: 'darkGreen', strokeWidth: 2, fill: 'lime' )

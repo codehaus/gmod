@@ -1,0 +1,6 @@
+arc( x: 0, y: 20, width: 100, height: 100, start: 0, extent: 90,
+     color: 'darkViolet', strokeWidth: 5, fill: 'pink', close: 'pie' )
+arc( x: 100, y: 20, width: 100, height: 100, start: 0, extent: 90,
+     color: 'darkViolet', strokeWidth: 5, fill: 'pink', close: 'chord' )
+arc( x: 200, y: 20, width: 100, height: 100, start: 0, extent: 90,
+     color: 'darkViolet', strokeWidth: 5, fill: 'pink', close: 'open' )

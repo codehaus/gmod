@@ -1,0 +1,7 @@
+path( color: 'darkBlue', fill: 'blue', strokeWidth: 4 ){  
+   moveTo( x: 50, y: 50 )  
+   quadTo( x1: -30, y1: 100, x2: 50, y2: 150 )  
+   quadTo( x1: 100, y1: 230, x2: 150, y2: 150 )  
+   quadTo( x1: 230, y1: 100, x2: 150, y2: 50 )  
+   quadTo( x1: 100, y1: -30, x2: 50, y2: 50 )  
+} 

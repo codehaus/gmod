@@ -44,7 +44,6 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
     protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
         if( parameterHasValue( "fill" ) ){
             Object fillValue = getParameterValue( "fill" )
-            println fillValue
             if( fillValue instanceof Color ){
                 // Color is a subclass of Paint
                 // we need to check it first

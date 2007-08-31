@@ -27,6 +27,7 @@ import groovy.swing.j2d.impl.*
 import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.*
 
+import groovy.swing.SwingBuilder
 import org.codehaus.groovy.binding.FullBinding
 import org.codehaus.groovy.binding.PropertyTargetBinding
 
@@ -74,6 +75,23 @@ class GraphicsBuilder extends FactoryBuilderSupport {
             return super.getProperty( name )
         }
         return operation
+    }
+
+    public def swing( Closure closure ) {
+        return swing( new SwingBuilder(), closure )
+    }
+
+    public def swing( SwingBuilder builder, Closure closure ) {
+        closure.setDelegate( builder )
+        def container = builder.panel( closure )
+        def go = new SwingGraphicsOperation( container )
+        def parent = getCurrent()
+        if( parent instanceof GroupingGraphicsOperation || parent instanceof ContextualGraphicsOperation ){
+            parent.addOperation( go )
+        }else{
+            operations.add( go )
+        }
+        return container
     }
 
     protected void postIstantiate( Object name, Map attributes, Object node ) {

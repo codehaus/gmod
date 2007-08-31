@@ -77,7 +77,7 @@ class Main {
     }
 
     private def buildListPanel( swing ){
-       def data = ["Shapes","Painting","Transformations","Groups","Images","Areas"]
+       def data = ["Shapes","Painting","Transformations","Groups","Images","Areas","Swing"]
        swing.panel( new JXTitledPanel(), title: 'Topics', border: createShadowBorder() ){
           list( listData: data as Object[], mouseClicked: this.&displayDemo )
        }
@@ -88,7 +88,7 @@ class Main {
        graphicsPanel.border = BorderFactory.createEmptyBorder()
        graphicsPanel.background = Color.white
        graphicsPanel.addGraphicsErrorListener({ event ->
-           swing.error.text = event.cause.localizedMessage
+           displayError( event.cause.localizedMessage )
        } as GraphicsErrorListener )
 
        swing.panel( new JXTitledPanel(), title: 'View', border: createShadowBorder() ){
@@ -166,13 +166,20 @@ class Main {
            import java.awt.geom.*
            import org.jdesktop.swingx.geom.*
 
-           go = {${swing.source.text}}"""))
+           go = {
+              ${swing.source.text}
+           }"""))
            if( go.operations.size() == 0 ){
               throw new RuntimeException("An operation is not recognized. Please check the code.")
            }
            swing.view.graphicsOperation = go
         }catch( Exception e ){
-           swing.error.text = e.localizedMessage
+           displayError( e.localizedMessage )
         }
+    }
+
+    private def displayError = { text ->
+       swing.error.text = text
+       swing.error.caretPosition = 0
     }
 }
