@@ -15,8 +15,14 @@
 
 package groovy.swing.j2d.operations
 
+import java.awt.Font
 import java.awt.Graphics2D
+import java.awt.Shape
 import java.awt.image.ImageObserver
+import java.awt.font.FontRenderContext
+import java.awt.font.TextLayout
+import java.awt.geom.AffineTransform
+import java.awt.geom.Rectangle2D
 
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
@@ -28,13 +34,22 @@ class TextGraphicsOperation extends AbstractGraphicsOperation {
     def x
     def y
 
+    static fillable = true
     static contextual = true
+    static hasShape = true
 
     TextGraphicsOperation() {
         super( "text", ["text", "x", "y"] as String[] )
     }
 
+    public Shape getClip( Graphics2D g, ImageObserver observer ){
+        FontRenderContext frc = g.getFontRenderContext()
+        TextLayout layout = new TextLayout( text, g.font, frc )
+        Rectangle2D bounds = layout.getBounds()
+        return layout.getOutline( AffineTransform.getTranslateInstance( x, y + bounds.height ) )
+    }
+
     protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.drawString( text, x, y )
+        g.draw( getClip(g,observer) )
     }
 }

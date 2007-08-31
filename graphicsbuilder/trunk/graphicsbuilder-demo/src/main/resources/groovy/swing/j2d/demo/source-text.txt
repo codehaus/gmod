@@ -1,0 +1,2 @@
+font( face: "Helvetica", style: Font.ITALIC, size: 48 )
+text( text: 'Groovy rocks!', x: 20, y: 20, color: 'darkGreen', fill: 'green' )

@@ -17,17 +17,20 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.PaintSupportGraphicsOperation
 
 import java.awt.Color
 import java.awt.GradientPaint
 import java.awt.Graphics2D
 import java.awt.Paint
+import java.awt.Rectangle
 import java.awt.image.ImageObserver
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GradientPaintGraphicsOperation extends AbstractGraphicsOperation {
+class GradientPaintGraphicsOperation extends AbstractGraphicsOperation implements
+   PaintSupportGraphicsOperation {
     private Paint paint
     def x1
     def y1
@@ -44,22 +47,11 @@ class GradientPaintGraphicsOperation extends AbstractGraphicsOperation {
                ["cycle"] as String[] )
     }
 
+    public Paint adjustPaintToBounds( Rectangle bounds ){
+        return getPaint()
+    }
+
     public Paint getPaint() {
-        return paint;
-    }
-
-    public void verify() {
-        Map parameters = getParameterMap()
-        parameters.each { k, v ->
-            if( !k.equals( "cycle" ) ){
-                if( !v ){
-                    throw new IllegalStateException( "Property '${k}' for 'gradientPaint' has no value" );
-                }
-            }
-        }
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
         float x1 = getParameterValue( "x1" )
         float x2 = getParameterValue( "x2" )
         float y1 = getParameterValue( "y1" )
@@ -88,6 +80,21 @@ class GradientPaintGraphicsOperation extends AbstractGraphicsOperation {
         }
 
         paint = new GradientPaint( x1, y1, color1, x2, y2, color2, cycle )
-        g.paint = paint
+        return paint
+    }
+
+    public void verify() {
+        Map parameters = getParameterMap()
+        parameters.each { k, v ->
+            if( !k.equals( "cycle" ) ){
+                if( !v ){
+                    throw new IllegalStateException( "Property '${k}' for 'gradientPaint' has no value" );
+                }
+            }
+        }
+    }
+
+    protected void doExecute( Graphics2D g, ImageObserver observer ){
+        g.paint = getPaint()
     }
 }

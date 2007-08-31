@@ -52,8 +52,8 @@ class Jdk6GraphicsBuilderHelper {
       // JDK 1.6
       //
       builder.registerFactory( "gradientStop", new GradientStopFactory() )
-      //builder.registerGraphicsOperationBeanFactory( "linearGradient",
-      //      LinearGradientPaintGraphicsOperation )
+      builder.registerGraphicsOperationBeanFactory( "linearGradient",
+            LinearGradientPaintGraphicsOperation )
       builder.registerGraphicsOperationBeanFactory( "radialGradient",
             RadialGradientPaintGraphicsOperation )
    }

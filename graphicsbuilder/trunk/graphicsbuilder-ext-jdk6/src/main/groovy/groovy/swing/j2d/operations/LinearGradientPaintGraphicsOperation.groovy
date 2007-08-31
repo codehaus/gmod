@@ -25,6 +25,8 @@ import java.awt.LinearGradientPaint
 import java.awt.Paint
 import java.awt.Rectangle
 import java.awt.MultipleGradientPaint.*
+import java.awt.geom.AffineTransform
+import java.awt.geom.Point2D
 import java.awt.image.ImageObserver
 
 /**
@@ -51,10 +53,10 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
 
    public Paint getPaint() {
       Paint paint = null
-      int x1 = getParameterValue( "x1" )
-      int x2 = getParameterValue( "x2" )
-      int y1 = getParameterValue( "y1" )
-      int y2 = getParameterValue( "y2" )
+      double x1 = getParameterValue( "x1" )
+      double x2 = getParameterValue( "x2" )
+      double y1 = getParameterValue( "y1" )
+      double y2 = getParameterValue( "y2" )
 
       int n = stops.size()
       float[] fractions = new float[n]
@@ -66,9 +68,11 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       }
 
       if( parameterHasValue( "cycle" ) ){
-         paint = new LinearGradientPaint( x1, y1, x2, y2, fractions, colors, getCycleMethod() )
+         paint = new LinearGradientPaint( new Point2D.Double(x1,y1), new Point2D.Double(x2,y2),
+               fractions, colors, getCycleMethod() )
       }else{
-         paint = new LinearGradientPaint( x1, y1, x2, y2, fractions, colors )
+         paint = new LinearGradientPaint( new Point2D.Double(x1,y1), new Point2D.Double(x2,y2),
+               fractions, colors )
       }
 
       return paint
@@ -86,17 +90,60 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
    }
 
    public Paint adjustPaintToBounds( Rectangle bounds ) {
-      // TODO finish it!
-      return getPaint()
+      Paint paint = null
+      double x1 = getParameterValue( "x1" )
+      double x2 = getParameterValue( "x2" )
+      double y1 = getParameterValue( "y1" )
+      double y2 = getParameterValue( "y2" )
+
+      int n = stops.size()
+      float[] fractions = new float[n]
+      Color[] colors = new Color[n]
+      n.times { i ->
+         GradientStop stop = stops[i]
+         fractions[i] = stop.offset
+         colors[i] = stop.color
+      }
+
+      if( parameterHasValue( "cycle" ) ){
+         paint = new LinearGradientPaint( new Point2D.Double(x1,y1), new Point2D.Double(x2,y2),
+               fractions, colors, getCycleMethod(), ColorSpaceType.SRGB, computeTransform(bounds) )
+      }else{
+         paint = new LinearGradientPaint( new Point2D.Double(x1,y1), new Point2D.Double(x2,y2),
+               fractions, colors, CycleMethod.NO_CYCLE, ColorSpaceType.SRGB, computeTransform(bounds) )
+      }
+
+      return paint
    }
 
    protected void doExecute( Graphics2D g, ImageObserver observer ){
       g.setPaint( getPaint() )
    }
+/*
+   private CycleMethod getCycleMethod() {
+      Object cycleValue = getParameterValue( "cycle" )
+
+      if( cycleValue instanceof CycleMethod ){
+         return cycleValue
+      }else if( cycleValue instanceof String ){
+         if( "nocycle".compareToIgnoreCase( cycleValue ) == 0 ){
+            return cycleMethod = CycleMethod.NO_CYCLE
+         }else if( "reflect".compareToIgnoreCase( cycleValue ) == 0 ){
+            return cycleMethod = CycleMethod.REFLECT
+         }else if( "repeat".compareToIgnoreCase( cycleValue ) == 0 ){
+            return cycleMethod = CycleMethod.REPEAT
+         }else{
+            throw new IllegalStateException( "'cycle=" + cycleValue
+                  + "' is not one of [nocycle,reflect,repeat]" )
+         }
+      }else{
+         throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" )
+      }
+   }*/
 
    private CycleMethod getCycleMethod() {
       Object cycleValue = getParameterValue( "cycle" )
-      CycleMethod cycle = null
+      CycleMethod cycle = null;
 
       if( cycleValue instanceof CycleMethod ){
          cycle = (CycleMethod) cycleValue
@@ -112,9 +159,15 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
                   + "' is not one of [nocycle,reflect,repeat]" )
          }
       }else{
-         throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" )
+         throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" );
       }
 
       return cycle
+   }
+
+   private AffineTransform computeTransform( Rectangle bounds ){
+      AffineTransform tx = AffineTransform.getScaleInstance( bounds.width as double, bounds.height as double )
+      tx.preConcatenate( AffineTransform.getTranslateInstance(bounds.x as int, bounds.y as double) )
+      return tx
    }
 }
