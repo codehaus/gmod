@@ -24,6 +24,6 @@ class VLinePathOperation implements PathOperation {
     double y
 
     public void apply( Path2D path ) {
-       path.moveTo( path.currentPoint.x, y )
+       path.lineTo( path.currentPoint.x, y )
     }
 }

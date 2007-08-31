@@ -24,6 +24,6 @@ class HLinePathOperation implements PathOperation {
     double x
 
     public void apply( Path2D path ) {
-       path.moveTo( x, path.currentPoint.y )
+       path.lineTo( x, path.currentPoint.y )
     }
 }

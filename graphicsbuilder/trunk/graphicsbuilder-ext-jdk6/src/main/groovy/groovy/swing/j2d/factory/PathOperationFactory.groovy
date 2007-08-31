@@ -16,7 +16,7 @@
 package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.ContextualGraphicsOperation
+import groovy.swing.j2d.impl.DelegatingGraphicsOperation
 import groovy.swing.j2d.impl.PathOperation
 import groovy.swing.j2d.operations.PathGraphicsOperation
 import groovy.util.AbstractFactory
@@ -46,12 +46,13 @@ public class PathOperationFactory extends AbstractFactory {
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-      if( parent instanceof ContextualGraphicsOperation ){
-         GraphicsOperation delegate = ((ContextualGraphicsOperation) parent).getDelegate()
-         if( delegate instanceof PathGraphicsOperation ){
-            ((PathGraphicsOperation) delegate).addPathOperation( (PathOperation) child )
-         }
-      }else if( parent instanceof PathGraphicsOperation ){
+
+      while( parent instanceof DelegatingGraphicsOperation ){
+         parent = parent.delegate
+      }
+
+      if( parent instanceof PathGraphicsOperation ){
+         println "${parent} ${child}"
          ((PathGraphicsOperation) parent).addPathOperation( (PathOperation) child )
       }
    }
