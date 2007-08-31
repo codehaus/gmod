@@ -1,0 +1,13 @@
+rect( x:10, y: 10, width: 300, height: 80 ){
+   radialGradient( cx: 145, cy: 45, radius: 100, cycle: 'repeat' ){
+      gradientStop( offset: 0, red: 255, green: 0, blue: 0 )
+      gradientStop( offset: 1, color: 'blue' )
+   }
+}
+rect( x:10, y: 10, width: 300, height: 80 ){
+   radialGradient( cx: 145, cy: 45, fx: 200, fy: 0, radius: 100, cycle: 'repeat' ){
+      gradientStop( offset: 0, red: 255, green: 0, blue: 0 )
+      gradientStop( offset: 1, color: 'blue' )
+   }
+   transformations { translate( x: 310, y: 0 ) }
+}
