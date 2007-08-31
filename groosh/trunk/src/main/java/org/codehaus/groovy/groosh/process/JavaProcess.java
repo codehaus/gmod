@@ -36,22 +36,17 @@ public class JavaProcess implements AppProcess {
 	private JavaProcess(List<String> command, Map<String, String> env,
 			ExecDir execDir) throws IOException {
 		ProcessBuilder builder = new ProcessBuilder(command);
+
 		Map<String, String> currentEnv = builder.environment();
 		currentEnv.putAll(env);
 		builder.directory(execDir.getDir());
 		process = builder.start();
 	}
 
-	public static JavaProcess createProcess(String command, List<String> args,
+	public static JavaProcess createProcess(List<String> command,
 			Map<String, String> env, ExecDir execDir) throws IOException {
-		List<String> commandArgs = concat(command, args);
 
-		return new JavaProcess(commandArgs, env, execDir);
-	}
-
-	private static List<String> concat(String command, List<String> args) {
-		args.add(0, command);
-		return args;
+		return new JavaProcess(command, env, execDir);
 	}
 
 	public void start() throws IOException {

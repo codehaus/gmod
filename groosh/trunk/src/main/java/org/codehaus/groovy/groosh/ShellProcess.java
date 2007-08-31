@@ -30,12 +30,10 @@ import org.codehaus.groovy.groosh.process.Source;
  */
 public class ShellProcess extends GrooshProcess {
 	private AppProcess process = null;
-	private List<String> args;
 
-	public ShellProcess(String name, Object arg1, Map<String, String> env,
+	public ShellProcess(List<String> command, Map<String, String> env,
 			ExecDir execDir) throws IOException {
-		this.args = getArgs(arg1);
-		process = ProcessFactory.buildProcess(name, args, env, execDir);
+		process = ProcessFactory.buildProcess(command, env, execDir);
 	}
 
 	public void waitForExit() throws IOException {

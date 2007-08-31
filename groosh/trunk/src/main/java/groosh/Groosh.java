@@ -20,7 +20,10 @@ import groovy.lang.GroovyObjectSupport;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codehaus.groovy.groosh.CdProcess;
@@ -49,6 +52,10 @@ public class Groosh extends GroovyObjectSupport {
 	private Map<String, String> env = new HashMap<String, String>();
 
 	private ExecDir execDir = new ExecDir();
+
+	private String user;
+	private String password;
+	private boolean withSudo;
 
 	static {
 		registerStreamClosureProcess("groovy", StreamClosureProcess.class);
@@ -90,9 +97,24 @@ public class Groosh extends GroovyObjectSupport {
 						registeredStreamClosureProcesses.get(name), args);
 			} else if (registeredInternalProcesses.containsKey(name)) {
 				process = createInternalProcess(registeredInternalProcesses
-						.get(name), args);
+						.get(name), getArgs(args));
 			} else {
-				process = new ShellProcess(name, args, env, execDir);
+				List<String> command;
+				if (!withSudo) {
+					command = getArgs(args);
+					command.add(0, name);
+				} else {
+					command = new ArrayList<String>();
+					command.add("sudo");
+					command.add("-u");
+					command.add(user);
+					command.add("-S");
+					command.add(name);
+					command.addAll(getArgs(args));
+				}
+				System.out.println(listAsString(command));
+				process = new ShellProcess(command, env, execDir);
+				process.fromString(password);
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -101,15 +123,24 @@ public class Groosh extends GroovyObjectSupport {
 		return process;
 	}
 
+	private String listAsString(List<String> args) {
+		StringBuilder str = new StringBuilder();
+		for (String string : args) {
+			str.append(string);
+			str.append(" ");
+		}
+		return str.toString();
+	}
+
 	private GrooshProcess createInternalProcess(
-			Class<? extends GrooshProcess> class1, Object args) {
+			Class<? extends GrooshProcess> class1, List<String> args) {
 		GrooshProcess process = null;
 
 		try {
 			Constructor<? extends GrooshProcess> c = class1
-					.getConstructor(new Class[] { Object.class, Map.class,
+					.getConstructor(new Class[] { List.class, Map.class,
 							ExecDir.class });
-			process = c.newInstance((Object[]) args, env, execDir);
+			process = c.newInstance(args, env, execDir);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -143,4 +174,35 @@ public class Groosh extends GroovyObjectSupport {
 	public Map<String, String> getCurrentEnvironment() {
 		return env;
 	}
+
+	public void setSudoUser(String user, String password) {
+		this.user = user;
+		this.password = password;
+	}
+
+	public void withSudo(boolean withSudo) {
+		this.withSudo = withSudo;
+	}
+
+	protected List<String> getArgs(Object arg1) {
+		if (arg1 == null)
+			return new ArrayList<String>();
+		else if (arg1 instanceof String[])
+			return Arrays.asList((String[]) arg1);
+		else if (arg1 instanceof Object[]) {
+			List<String> retval = new ArrayList<String>();
+			Object[] argsO = (Object[]) arg1;
+			for (Object object : argsO) {
+				retval.add(String.valueOf(object));
+			}
+			return retval;
+		} else if (arg1 instanceof String) {
+			List<String> retval = new ArrayList<String>();
+			retval.add((String) arg1);
+			return retval;
+		} else
+			throw new IllegalStateException("no support for args of type "
+					+ arg1.getClass());
+	}
+
 }

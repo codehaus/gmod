@@ -47,10 +47,8 @@ public class CdProcess extends GrooshProcess {
 	private static final String OLDPWD = "OLDPWD";
 	private static final String PWD = "PWD";
 
-	public CdProcess(Object arg1, Map<String, String> env, ExecDir execDir)
+	public CdProcess(List<String> args, Map<String, String> env, ExecDir execDir)
 			throws IOException {
-		List<String> args = getArgs(arg1);
-
 		String arg;
 		if (args.isEmpty()) {
 			arg = System.getProperty("user.dir");
