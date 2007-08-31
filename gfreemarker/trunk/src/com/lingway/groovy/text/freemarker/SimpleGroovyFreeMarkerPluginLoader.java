@@ -15,7 +15,7 @@
  *
  */
 
-package groovy.text.freemarker;
+package com.lingway.groovy.text.freemarker;
 
 import groovy.lang.GroovyClassLoader;
 

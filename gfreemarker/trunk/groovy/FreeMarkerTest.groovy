@@ -1,4 +1,4 @@
-import groovy.text.freemarker.FreeMarkerTemplateEngine
+import com.lingway.groovy.text.freemarker.FreeMarkerTemplateEngine
 
 /**
  * Created by IntelliJ IDEA.

@@ -15,22 +15,19 @@
  *
  */
 
-package groovy.text.freemarker;
-
-import java.util.Map;
+package com.lingway.groovy.text.freemarker;
 
 /**
- * The interface the Groovy FreeMarker plugins should implement.
+ * The interface plugin loaders should implement.
  * User: cedric
- * Date: 2 août 2007
- * Time: 19:47:50
+ * Date: 3 août 2007
+ * Time: 09:35:14
  */
-public interface IGroovyFreeMarkerPlugin {
+public interface IGroovyFreeMarkerPluginLoader {
 	/**
-	 * Transforms text content thanks to a groovy script
-	 * @param someParams a map of parameters provided by the template
-	 * @param aContent the content of the text to transform
-	 * @return &lt;code>String&lt;/code> the transformed text
+	 * Loads a plugin.
+	 * @param aPluginName plugin to be loaded
+	 * @return &lt;code>IGroovyFreeMarkerPlugin&lt;/code> a plugin instance
 	 */
-	String transform(Map someParams, String aContent);
+	IGroovyFreeMarkerPlugin loadPlugin(String aPluginName);
 }

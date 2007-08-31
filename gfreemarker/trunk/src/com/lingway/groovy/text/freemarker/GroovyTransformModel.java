@@ -15,7 +15,7 @@
  *
  */
 
-package groovy.text.freemarker;
+package com.lingway.groovy.text.freemarker;
 
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
