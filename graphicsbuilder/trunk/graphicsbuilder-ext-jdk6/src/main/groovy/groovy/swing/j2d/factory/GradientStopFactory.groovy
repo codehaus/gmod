@@ -21,6 +21,8 @@ import groovy.swing.j2d.impl.GradientSupportGraphicsOperation
 import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 
+import java.awt.Color
+
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -32,7 +34,30 @@ public class GradientStopFactory extends AbstractFactory {
    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
          Map properties ) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull( value, name )
-      return new GradientStop()
+      GradientStop stop = new GradientStop()
+      if( properties.containsKey( "red" ) && properties.containsKey( "green" )
+            && properties.containsKey( "blue" ) ){
+         Number red = properties.remove( "red" )
+         Number green = properties.remove( "green" )
+         Number blue = properties.remove( "blue" )
+         Number alpha = properties.remove( "alpha" )
+
+         if( red > 1 || green > 1 || blue > 1 ){
+             if( alpha != null ){
+                 value = new Color( red as int, green as int, blue as int, alpha as int )
+             }else{
+                 value = new Color( red as int, green as int, blue as int )
+             }
+         }else{
+             if( alpha != null ){
+                 value = new Color( red as float, green as float, blue as float, alpha as float )
+             }else{
+                 value = new Color( red as float, green as float, blue as float )
+             }
+         }
+         stop.color = value
+      }
+      return stop
    }
 
    public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ) {
