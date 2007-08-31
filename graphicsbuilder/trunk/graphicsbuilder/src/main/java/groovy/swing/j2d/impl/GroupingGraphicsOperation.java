@@ -24,12 +24,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.codehaus.groovy.runtime.InvokerHelper;
+
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
+    private Object color;
     private GraphicsContext context;
+    private Object fill;
     private List operations = new ArrayList();
+    private Object strokeWidth;
     private TransformationsGraphicsOperation transformations;
 
     public GroupingGraphicsOperation() {
@@ -48,12 +53,36 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         operations.add( go );
     }
 
+    public Object getColor() {
+        return color;
+    }
+
     public GraphicsContext getContext() {
         return context;
     }
 
+    public Object getFill() {
+        return fill;
+    }
+
     public final List getOperations() {
         return Collections.unmodifiableList( operations );
+    }
+
+    public Object getStrokeWidth() {
+        return strokeWidth;
+    }
+
+    public void setColor( Object color ) {
+        this.color = color;
+    }
+
+    public void setFill( Object fill ) {
+        this.fill = fill;
+    }
+
+    public void setStrokeWidth( Object strokeWidth ) {
+        this.strokeWidth = strokeWidth;
     }
 
     public void setTransformations( TransformationsGraphicsOperation transformations ) {
@@ -75,6 +104,15 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
+                if( color != null ){
+                    InvokerHelper.setProperty( go, "color", color );
+                }
+                if( strokeWidth != null ){
+                    InvokerHelper.setProperty( go, "strokeWidth", strokeWidth );
+                }
+                if( fill != null ){
+                    InvokerHelper.setProperty( go, "fill", fill );
+                }
                 go.execute( g, observer );
             }
         }

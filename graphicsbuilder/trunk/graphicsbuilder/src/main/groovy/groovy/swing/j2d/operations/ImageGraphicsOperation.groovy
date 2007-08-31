@@ -33,6 +33,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
     def image
     def file
     def url
+    def classpath
     def x
     def y
     def width
@@ -43,7 +44,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
     static contextual = true
 
     ImageGraphicsOperation() {
-        super( "image", ["x", "y"] as String[], ["image", "file", "url", "width", "height",
+        super( "image", ["x", "y"] as String[], ["image", "file", "url", "classpath", "width", "height",
                 "bgcolor", "observer"] as String[] )
     }
 
@@ -74,8 +75,8 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
             throw new IllegalStateException( "Property 'y' for 'image' has no value" )
         }
         if( !parameterHasValue( "image" ) && !parameterHasValue( "url" )
-                && !parameterHasValue( "file" ) ){
-            throw new IllegalStateException( "Must define  one of [image,file,url] for 'image'" )
+            && !parameterHasValue( "file" ) && !parameterHasValue( "classpath" ) ){
+            throw new IllegalStateException( "Must define one of [image,file,url,classpath] for 'image'" )
         }
     }
 
@@ -105,6 +106,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
 
         // TODO scale image if needed
         Image image = loadImage()
+        image.getWidth( observer )
         if( !image.bufferedImage ){
             throw new IllegalStateException("Couldn't locate the image")
         }
@@ -131,7 +133,11 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
                     .getImage( (String) getParameterValue( "file" ) )
         }else if( parameterHasValue( "url" ) ){
             return Toolkit.getDefaultToolkit()
-                    .getImage( (URL) getParameterValue( "url" ) )
+                    .getImage( getParameterValue( "url" ).toURL() )
+        }else if( parameterHasValue( "classpath" ) ){
+            URL url = Thread.currentThread().getContextClassLoader()
+                        .getResource( getParameterValue( "classpath" ) )
+            return Toolkit.getDefaultToolkit().getImage( url )
         }else{
             throw new IllegalStateException("Couldn't locate the image")
         }
