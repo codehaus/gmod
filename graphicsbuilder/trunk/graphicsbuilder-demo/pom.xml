@@ -40,6 +40,11 @@
          <artifactId>swingx</artifactId>
          <version>2007_08_12</version>
       </dependency>
+      <dependency>
+         <groupId>org.tango-project</groupId>
+         <artifactId>tango-icon-theme</artifactId>
+         <version>0.8.0</version>
+      </dependency>
    </dependencies>
 
    <build>

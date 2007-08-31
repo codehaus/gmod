@@ -25,6 +25,7 @@ import groovy.swing.j2d.impl.CurveToPathOperation
 import groovy.swing.j2d.impl.HLinePathOperation
 import groovy.swing.j2d.impl.VLinePathOperation
 import groovy.swing.j2d.impl.ShapePathOperation
+import groovy.swing.j2d.impl.ClosePathOperation
 import groovy.swing.j2d.operations.PathGraphicsOperation
 import groovy.swing.j2d.operations.LinearGradientPaintGraphicsOperation
 import groovy.swing.j2d.operations.RadialGradientPaintGraphicsOperation
@@ -45,6 +46,7 @@ class Jdk6GraphicsBuilderHelper {
       builder.registerFactory( "hline", new PathOperationFactory( HLinePathOperation) )
       builder.registerFactory( "vline", new PathOperationFactory( VLinePathOperation) )
       builder.registerFactory( "shape", new PathOperationFactory( ShapePathOperation) )
+      builder.registerFactory( "close", new PathOperationFactory( ClosePathOperation) )
 
       //
       // JDK 1.6

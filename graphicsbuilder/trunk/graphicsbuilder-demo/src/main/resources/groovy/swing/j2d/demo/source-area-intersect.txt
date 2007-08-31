@@ -1,0 +1,5 @@
+intersect( color: 'blue', strokeWidth: 4, fill: 'cyan' ){  
+    rect( x: 10, y: 10, width: 290, height: 80, arcWidth: 20, arcHeight: 20 )  
+    circle( cx: 90, cy: 80, radius: 50 )  
+    polygon(points: [175, 38, 229, 69, 229, 131, 175, 162, 121, 131, 121, 69])  
+} 

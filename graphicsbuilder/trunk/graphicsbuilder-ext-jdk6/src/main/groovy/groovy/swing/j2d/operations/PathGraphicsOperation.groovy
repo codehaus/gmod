@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 import groovy.swing.j2d.impl.PathOperation
+import groovy.swing.j2d.impl.MoveToPathOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -46,7 +47,9 @@ class PathGraphicsOperation extends AbstractGraphicsOperation {
 
    public Shape getClip( Graphics2D g, ImageObserver observer ) {
       Path2D path = new GeneralPath( getWindingRule() )
-      path.moveTo( 0, 0 )
+      if( pathOperations.size() > 0 && !(pathOperations[0] instanceof MoveToPathOperation) ){
+         throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")
+      }
       pathOperations.each { pathOperation ->
          pathOperation.apply( path )
       }

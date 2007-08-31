@@ -1,0 +1,6 @@
+rect( x: 10, y: 10, width: 300, height: 80, arcWidth: 20, arcHeight: 20,
+      color: 'darkRed', strokeWidth: 2, fill: 'red' ){
+   transformations {
+      scale( x: 1.5, y: 0.5 )
+   }
+}

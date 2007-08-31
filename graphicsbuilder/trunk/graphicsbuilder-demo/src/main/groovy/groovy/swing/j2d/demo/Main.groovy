@@ -17,6 +17,7 @@ package groovy.swing.j2d.demo
 
 import java.awt.BorderLayout as BL
 import java.awt.Color
+import java.awt.Component
 import java.awt.Font
 import javax.swing.*
 import javax.swing.border.*
@@ -79,7 +80,8 @@ class Main {
     private def buildListPanel( swing ){
        def data = ["Shapes","Painting","Transformations","Groups","Images","Areas","Swing"]
        swing.panel( new JXTitledPanel(), title: 'Topics', border: createShadowBorder() ){
-          list( listData: data as Object[], mouseClicked: this.&displayDemo )
+          list( listData: data as Object[], mouseClicked: this.&displayDemo,
+                cellRenderer: new OptionCellRenderer() )
        }
     }
 
@@ -92,25 +94,31 @@ class Main {
        } as GraphicsErrorListener )
 
        swing.panel( new JXTitledPanel(), title: 'View', border: createShadowBorder() ){
-          scrollPane {
+          scrollPane( border: BorderFactory.createEmptyBorder() ) {
              widget( graphicsPanel, id: 'view' )
           }
        }
     }
 
     private def buildCodePanel( swing ){
-       def sourcePanel = swing.panel( new JXTitledPanel(), title: 'Source', border: createShadowBorder() ){
-          borderLayout()
-          scrollPane( constraints: BL.CENTER ) {
-             textArea( id: 'source', border: BorderFactory.createEmptyBorder(),
-                       font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) )
-          }
-          panel( constraints: BL.SOUTH ){
+       def sourcePanel = swing.panel( new JXTitledPanel(), title: 'Source - Type your own code!',
+          border: createShadowBorder() ){
+          panel {
              borderLayout()
-             scrollPane( constraints: BL.CENTER ) {
-                textArea( id: 'error', border: BorderFactory.createEmptyBorder(), rows: 2 )
+             scrollPane( constraints: BL.CENTER, border: BorderFactory.createEmptyBorder() ) {
+                textArea( id: 'source', border: BorderFactory.createEmptyBorder(),
+                          font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) )
              }
-             button( constraints: BL.EAST, label: 'Eval', actionPerformed: this.&executeCode )
+             panel( constraints: BL.SOUTH ){
+                borderLayout()
+                button( constraints: BL.WEST, label: 'Clear', icon: Main.getIcon('clear'),
+                        actionPerformed: this.&clearCode )
+                scrollPane( constraints: BL.CENTER ) {
+                   textArea( id: 'error', border: BorderFactory.createEmptyBorder(), rows: 2 )
+                }
+                button( constraints: BL.EAST, label: 'Eval', icon: Main.getIcon('eval'),
+                        actionPerformed: this.&executeCode )
+             }
           }
        }
 
@@ -119,7 +127,8 @@ class Main {
 
     private def buildTextPanel( swing ){
        swing.panel( new JXTitledPanel(), title: 'Description', border: createShadowBorder() ){
-          scrollPane( horizontalScrollBarPolicy: ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER ) {
+          scrollPane( horizontalScrollBarPolicy: ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER,
+                border: BorderFactory.createEmptyBorder() ) {
              editorPane( id: 'description', border: BorderFactory.createEmptyBorder(),
                    editable: false, background: Color.white, contentType: 'text/html',
                    hyperlinkUpdate: this.&onClickDemoOption )
@@ -128,12 +137,20 @@ class Main {
     }
 
     private def createShadowBorder() {
-       BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(5, 5, 5, 5),
-             new DropShadowBorder() )
+       BorderFactory.createCompoundBorder( BorderFactory.createCompoundBorder(
+             BorderFactory.createEmptyBorder(5, 5, 5, 5),
+             new DropShadowBorder() ),
+          BorderFactory.createLineBorder(Color.black, 1), )
     }
 
     private def descriptionCache = [:]
     private def sourceCache = [:]
+    private static def iconCache = [:]
+    private static def translateMap = [
+        "clear":"16x16/actions/view-refresh",
+        "eval":"16x16/actions/go-next",
+        "option":"16x16/categories/applications-system",
+    ]
 
     private def loadDescription( demo ){
        Thread.currentThread().contextClassLoader.getResourceAsStream("groovy/swing/j2d/demo/${demo}.html").text
@@ -143,43 +160,73 @@ class Main {
        Thread.currentThread().contextClassLoader.getResourceAsStream("groovy/swing/j2d/demo/source-${demo}.txt").text
     }
 
+    private static ImageIcon getIcon( name ){
+       Icon icon = iconCache[name]
+       if( !icon ){
+          String fileName = "org/tango-project/tango-icon-theme/${translateMap[name]}.png"
+          def url = Thread.currentThread().contextClassLoader.getResource( fileName )
+          icon = new ImageIcon( url )
+          iconCache[name] = icon
+       }
+       return icon
+    }
+
     // ---------- ACTIONS -----------
 
     private def displayDemo = { event ->
        def demo = event.source.selectedValue
        swing.description.text = descriptionCache.get( demo, loadDescription(demo) )
+       swing.description.caretPosition = 0
     }
 
     private def onClickDemoOption = { event ->
        if( event.eventType == HyperlinkEvent.EventType.ACTIVATED ){
           def demo = event.description
           swing.source.text = sourceCache.get( demo, loadSource(demo) )
+          swing.source.caretPosition = 0
           executeCode()
        }
     }
 
     private def executeCode = {
-        swing.error.text = ""
-        try {
-           def go = graphicsBuilder.build(gsh.evaluate("""
-           import java.awt.*
-           import java.awt.geom.*
-           import org.jdesktop.swingx.geom.*
+        if( !swing.source.text.trim() ){
+           displayError( "Please type some code" )
+        }else{
+           swing.error.text = ""
+           try {
+              def go = graphicsBuilder.build(gsh.evaluate("""
+              import java.awt.*
+              import java.awt.geom.*
+              import org.jdesktop.swingx.geom.*
 
-           go = {
-              ${swing.source.text}
-           }"""))
-           if( go.operations.size() == 0 ){
-              throw new RuntimeException("An operation is not recognized. Please check the code.")
+              go = {
+                 ${swing.source.text}
+              }"""))
+              if( go.operations.size() == 0 ){
+                 throw new RuntimeException("An operation is not recognized. Please check the code.")
+              }
+              swing.view.graphicsOperation = go
+           }catch( Exception e ){
+              displayError( e.localizedMessage )
            }
-           swing.view.graphicsOperation = go
-        }catch( Exception e ){
-           displayError( e.localizedMessage )
         }
+    }
+
+    private def clearCode = {
+       swing.source.text = ""
+       swing.error.text = ""
     }
 
     private def displayError = { text ->
        swing.error.text = text
        swing.error.caretPosition = 0
     }
+}
+
+class OptionCellRenderer extends DefaultListCellRenderer {
+   public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus){
+      Component renderer = super.getListCellRendererComponent(list,value,index,isSelected,cellHasFocus)
+      renderer.setIcon( Main.getIcon('option') )
+      return renderer
+   }
 }

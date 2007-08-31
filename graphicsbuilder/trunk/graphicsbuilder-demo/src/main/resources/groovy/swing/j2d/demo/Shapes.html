@@ -1,48 +1,68 @@
 <html>
 <body>
 <h3>Shapes</h3>
+<p>All shapes support nesting of other operations and the following optional properties
+<ul>
+<li>color: defines the color of the shape's outline</li>
+<li>strokeWidth: defines the thicknes of the shape's outline</li>
+<li>fill: defines the color, paint or gradient to fill the shape's content</li>
+</ul>
+</p>
 <table border="0">
 <tr>
-   <td><strong><a href="rect">rect</a></strong></td><td>properties: [x,y,width,height]</td>
+   <td valign="top"><strong><a href="rect">rect</a></strong></td><td>Draws a rectangle defined by a location (x,y) and dimension (width x height).</td>
 </tr>
 <tr>
-   <td><strong><a href="roundRect">rect (round)</a></strong></td><td>same as rect plus [arcWidth,arcHeight]</td>
+   <td valign="top"><strong><a href="roundRect">rect (round)</a></strong></td><td>Draws a rectangle with rounded corners defined by a location (x,y), a dimension (w x h), and the width and height of an arc with which to round the corners.</td>
 </tr>
 <tr>
-   <td><strong><a href="rect3d">rect (3d)</a></strong></td><td>same as rect plus [raised]</td>
+   <td valign="top"><strong><a href="rect3d">rect (3d)</a></strong></td><td>Draws a 3-D highlighted outline of the specified rectangle. Use the same properties as <code>rect</code> and specify a boolean value for 'raised'.</td>
 </tr>
 <tr>
-   <td><strong><a href="circle">circle</a></strong></td><td>properties: [cx,cy,radius]</td>
+   <td valign="top"><strong><a href="circle">circle</a></strong></td><td>Draws a circle that is defined by a framing rectangle. properties: [cx,cy,radius]</td>
 </tr>
 <tr>
-   <td><strong><a href="ellipse">ellipse</a></strong></td><td>properties: [cx,cy,fx,fy,radiusx,radiusy]</td>
+   <td valign="top"><strong><a href="ellipse">ellipse</a></strong></td><td>Draws a circle that is defined by a framing rectangle. properties: [cx,cy,fx,fy,radiusx,radiusy]. If fx or fy don't have an specific value they will use cx and cy accordingly.</td>
 </tr>
 <tr>
-   <td><strong><a href="arc">arc</a></strong></td><td></td>
+   <td valign="top"><strong><a href="arc">arc</a></strong></td>Draws an arc defined by a framing rectangle, start angle, angular extent (length of the arc), and a closure type (OPEN, CHORD, or PIE). properties [x,y,width,height,start,extent], optional [close=open,chord,pie]<td></td>
 </tr>
 <tr>
-   <td><strong><a href="line">line</a></strong></td><td></td>
+   <td valign="top"><strong><a href="polygon">polygon</a></strong></td>Draws a closed, two-dimensional region within a coordinate space. This region is bounded by an arbitrary number of line segments, each of which is one side of the polygon. Internally, a polygon comprises of a list of (x,y)  coordinate pairs, where each pair defines a vertex of the polygon, and two successive pairs are the endpoints of a line that is a side of the polygon. The first and final pairs of (x,y) points are joined by a line segment that closes the polygon. properties [points]<td></td>
 </tr>
 <tr>
-   <td><strong><a href="cubicCurve">cubicCurve</a></strong></td><td></td>
+   <td valign="top"><strong><a href="path">path</a></strong></td>Draws an arbitrary geometric path. Paths are described by a series of pathOperations:
+   <ul>
+   <li>moveTo[x,y] : adds a point to the path by moving to the specified coordinates (x,y)</li>
+   <li>lineTo[x,y] : adds a point to the path by drawing a straight line from the current coordinates to the new specified coordinates (x,y)</li>
+   <li>curveTo[x1,y1,x2,y2,x3,y3] : adds a curved segment, defined by three new points, to the path by drawing a Bézier curve that intersects both the current coordinates and the specified coordinates (x3,y3), using the specified points (x1,y1) and (x2,y2) as Bézier control points.</li>
+   <li>quadTo[x1,y1,x2,y2] : adds a curved segment, defined by two new points, to the path by drawing a Quadratic curve that intersects both the current coordinates and the specified coordinates (x2,y2), using the specified point (x1,y1) as a quadratic parametric control point.</li>
+   <li>hline[x] : adds a point to the path by drawing an horizontal line to the specified coordinates (x,current.y)</li>
+   <li>vline[y] : adds a point to the path by drawing a vertical line to the specified coordinates (current.x,y)</li>
+   <li>shape[shape,connect] : appends the geometry of the specified Shape object to the path, possibly connecting the new geometry to the existing path segments with a line segment.</li>
+   <li>close : closes the current subpath by drawing a straight line back to the coordinates of the last moveTo.</li>
+   </ul>The first operation must be a moveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-jdk6<td></td>
 </tr>
 <tr>
-   <td><strong><a href="quadCurve">quadCurve</a></strong></td><td></td>
+   <td valign="top"><strong><a href="star">star</a></strong></td><td>Draws a star shape. A star is defined by two radii and a number of branches. Each branch spans between the two radii. The inner radius is the distance between the center of the star and the origin of the branches. The outer radius is the distance between the center of the star and the tips of the branches. properties [x,y,ir,or,count]. Requires graphicsbuilder-ext-swingx</td>
 </tr>
 <tr>
-   <td><strong><a href="polygon">polygon</a></strong></td><td></td>
+   <td valign="top"><strong><a href="morph">morph</a></strong></td><td>Draws a shape which geometry is constructed from two other shapes: a start shape and an end shape. The morph property of a morphing shape defines the amount of transformation applied to the start shape to turn it into the end shape. Both shapes must have the same winding rule. properties [start,end,morph]. Requires graphicsbuilder-ext-swingx</td>
 </tr>
 <tr>
-   <td><strong><a href="polyline">polyline</a></strong></td><td></td>
+   <th colspan="2">The following shapes do not accept 'fill'</th>
 </tr>
 <tr>
-   <td><strong><a href="path">path</a></strong></td><td></td>
+   <td valign="top"><strong><a href="line">line</a></strong></td><td>Draws a line, using the current color, between the points (x1, y1) and (x2, y2).</td>
 </tr>
 <tr>
-   <td><strong><a href="star">star</a></strong></td><td></td>
+   <td valign="top"><strong><a href="polyline">polyline</a></strong></td><td>Draws a sequence of connected lines defined by arrays of x and y coordinates. properties [points]</td>
 </tr>
 <tr>
-   <td><strong><a href="morph">morph</a></strong></td><td></td>
+   <td valign="top"><strong><a href="cubicCurve">cubicCurve</a></strong></td><td>properties [x1,y1,ctrlx1,ctrly1,ctrlx2,ctrly2,x2,y2]</td>
+</tr>
+<tr>
+   <td valign="top"><strong><a href="quadCurve">quadCurve</a></strong></td><td>properties [x1,y1,ctrlx,ctrly,x2,y2]</td>
 </tr>
 </table>
 </body>
