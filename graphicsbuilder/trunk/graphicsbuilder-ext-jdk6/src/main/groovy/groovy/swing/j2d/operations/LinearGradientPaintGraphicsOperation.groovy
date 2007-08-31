@@ -39,6 +39,8 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
    def cycle
    private List stops = []
 
+   static supportsFill = true
+
    LinearGradientPaintGraphicsOperation() {
       super( "linearGradient", ["x1", "x2", "y1", "y2"] as String[], ["cycle"] as String[] )
    }
@@ -64,7 +66,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       }
 
       if( parameterHasValue( "cycle" ) ){
-         paint = new LinearGradientPaint( x1, y1, x2, y2, fractions, colors, getCycle() )
+         paint = new LinearGradientPaint( x1, y1, x2, y2, fractions, colors, getCycleMethod() )
       }else{
          paint = new LinearGradientPaint( x1, y1, x2, y2, fractions, colors )
       }
@@ -92,7 +94,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       g.setPaint( getPaint() )
    }
 
-   private CycleMethod getCycle() {
+   private CycleMethod getCycleMethod() {
       Object cycleValue = getParameterValue( "cycle" )
       CycleMethod cycle = null
 

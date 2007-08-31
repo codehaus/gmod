@@ -27,6 +27,7 @@ import groovy.swing.j2d.GraphicsOperation
 class GraphicsPanel extends JPanel {
      private GraphicsOperation graphicsOperation
      private boolean displayed
+     private List errorListeners = []
 
      GraphicsPanel(){
          super( null )
@@ -54,7 +55,30 @@ class GraphicsPanel extends JPanel {
      public void paintComponent( Graphics g ){
          if( graphicsOperation ){
              g.clearRect( 0, 0, size.width as int, size.height as int )
-             graphicsOperation.execute( g, this )
+             try{
+                 graphicsOperation.execute( g, this )
+             }catch( Exception e ){
+                 fireGraphicsErrorEvent( e )
+             }
+         }
+     }
+
+     public void addGraphicsErrorListener( GraphicsErrorListener l ){
+         errorListeners.add( l )
+     }
+
+     public void removeGraphicsErrorListener( GraphicsErrorListener l ){
+         errorListeners.remove( l )
+     }
+
+     public List getGraphicsErrorListeners(){
+         return Collections.unmodifiableList( errorListeners )
+     }
+
+     protected void fireGraphicsErrorEvent( Throwable t ) {
+         def event = new GraphicsErrorEvent( this, t )
+         errorListeners.each { listener ->
+            listener.errorOccurred( event )
          }
      }
  }

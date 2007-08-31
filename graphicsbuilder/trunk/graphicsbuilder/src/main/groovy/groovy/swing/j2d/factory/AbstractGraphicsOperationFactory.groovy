@@ -17,7 +17,9 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.ContextualGraphicsOperation
+import groovy.swing.j2d.impl.DelegatingGraphicsOperation
 import groovy.swing.j2d.impl.GroupingGraphicsOperation
+import groovy.swing.j2d.impl.PaintSupportGraphicsOperation
 import groovy.swing.j2d.impl.StrokingGraphicsOperation
 import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
 import groovy.swing.j2d.impl.TransformationsGraphicsOperation
@@ -55,6 +57,8 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
         if( parent && safePropertyGet(parent, "fillable") && safePropertyGet(node, "supportsFill") ){
            if( parent.fill instanceof Boolean && !parent.fill ){
 		       // do not override fill
+           }else if( node instanceof PaintSupportGraphicsOperation){
+               parent.fill = node
            }else{
                parent.fill = true
            }
@@ -93,7 +97,11 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     }
 
     protected GraphicsOperation wrap( GraphicsOperation go ){
-        if( safePropertyGet(go, "fillable") ){
+        if( go instanceof DelegatingGraphicsOperation ){
+           // assume that the operation is ok
+           // TODO recheck this assumption
+           return go
+        }else if( safePropertyGet(go, "fillable") ){
             go = new StrokingAndFillingGraphicsOperation( go )
         }else if( safePropertyGet(go, "strokable") ){
             go = new StrokingGraphicsOperation( go )

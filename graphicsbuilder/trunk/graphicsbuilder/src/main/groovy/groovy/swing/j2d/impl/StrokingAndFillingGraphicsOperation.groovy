@@ -44,9 +44,8 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
     protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
         if( parameterHasValue( "fill" ) ){
             Object fillValue = getParameterValue( "fill" )
-            if( fillValue instanceof Boolean && fillValue ){
-                invokeFillMethod( g, observer )
-            }else if( fillValue instanceof Color ){
+            println fillValue
+            if( fillValue instanceof Color ){
                 // Color is a subclass of Paint
                 // we need to check it first
                 Color color = g.getColor()
@@ -58,12 +57,20 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
                 g.setPaint( (Paint) fillValue )
                 invokeFillMethod( g, observer )
                 g.setPaint( paint )
+            }else if( fillValue instanceof PaintSupportGraphicsOperation ){
+                Paint paint = g.getPaint()
+                fillValue.execute( g, observer )
+                g.setPaint( fillValue.adjustPaintToBounds(getClip(g,observer).bounds) )
+                invokeFillMethod( g, observer )
+                g.setPaint( paint )
             }else if( fillValue instanceof String ){
                 Color color = g.getColor()
                 g.setColor( ColorCache.getInstance()
                         .getColor( fillValue ) )
                 invokeFillMethod( g, observer )
                 g.setColor( color )
+            }else if( fillValue instanceof Boolean && fillValue ){
+                invokeFillMethod( g, observer )
             }
         }
         super.beforeDelegateExecutes( g, observer )

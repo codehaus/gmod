@@ -67,7 +67,7 @@ class Main {
              borderLayout()
              widget( buildListPanel(swing), constraints: BL.WEST )
              panel( constraints: BL.CENTER ){
-          gridLayout( cols: 1, rows: 3 )
+                gridLayout( cols: 1, rows: 3 )
                 widget( buildViewPanel(swing) )
                 widget( buildCodePanel(swing) )
                 widget( buildTextPanel(swing) )
@@ -87,6 +87,9 @@ class Main {
        def graphicsPanel = new GraphicsPanel()
        graphicsPanel.border = BorderFactory.createEmptyBorder()
        graphicsPanel.background = Color.white
+       graphicsPanel.addGraphicsErrorListener({ event ->
+           swing.error.text = event.cause.localizedMessage
+       } as GraphicsErrorListener )
 
        swing.panel( new JXTitledPanel(), title: 'View', border: createShadowBorder() ){
           scrollPane {

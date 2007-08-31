@@ -31,14 +31,17 @@ import java.awt.image.ImageObserver
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation implements
-     GradientSupportGraphicsOperation{
+     GradientSupportGraphicsOperation {
    private Paint paint
+   private def stops = []
    def cx
    def cy
    def fx
    def fy
    def radius
    def cycle
+
+   static supportsFill = true
 
    RadialGradientPaintGraphicsOperation() {
       super( "radialGradient", ["cx","cy","fx","fy","radius"] as String[], ["cycle"] as String[] )
@@ -49,7 +52,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
    }
 
    public Paint adjustPaintToBounds( Rectangle bounds ) {
-      return paint
+      return getPaint()
    }
 
    public Paint getPaint() {
@@ -57,7 +60,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       float cy = getParameterValue( "cy" )
       float fx = getParameterValue( "fx" )
       float fy = getParameterValue( "fy" )
-      float radius =getParameterValue( "radius" )
+      float radius = getParameterValue( "radius" )
 
       int n = stops.size()
       float[] fractions = new float[n]
@@ -69,7 +72,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       }
 
       if( parameterHasValue( "cycle" ) ){
-         paint = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors, getCycle() )
+         paint = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors, getCycleMethod() )
       }else{
          paint = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors,
                CycleMethod.NO_CYCLE )
@@ -78,23 +81,22 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
    }
 
    public void verify() {
+      if( !parameterHasValue("fx") ){ fx = cx }
+      if( !parameterHasValue("fy") ){ fy = cy }
       Map parameters = getParameterMap()
       parameters.each { k, v ->
          if( k.equals( "cycle" ) ){/* optional */}
-         else if( k.equals( "fx" ) ){ this.fx = cx }
-         else if( k.equals( "fy" ) ){ this.fy = cy }
          else if( !v ){
             throw new IllegalStateException( "Property '${k}' for 'radialGradient' has no value" );
          }
       }
    }
 
-
    protected void doExecute( Graphics2D g, ImageObserver observer ){
       g.setPaint( adjustPaintToBounds( g.getClipBounds() ) )
    }
 
-   private CycleMethod getCycle() {
+   private CycleMethod getCycleMethod() {
       Object cycleValue = getParameterValue( "cycle" )
       CycleMethod cycle = null;
 

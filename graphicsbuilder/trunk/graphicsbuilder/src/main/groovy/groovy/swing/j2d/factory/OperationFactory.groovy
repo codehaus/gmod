@@ -25,9 +25,9 @@ class OperationFactory extends AbstractGraphicsOperationFactory {
     public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
             Map properties ) throws InstantiationException, IllegalAccessException {
         if( FactoryBuilderSupport.checkValueIsType( value, name, GraphicsOperation.class ) ){
-            return value
+            return wrap(value)
         }else if( properties.get( name ) instanceof GraphicsOperation ){
-            return properties.remove( name )
+            return wrap(properties.remove( name ))
         }else{
             throw new RuntimeException( "'${name}' must have a value argument of "
                     + "${GraphicsOperation.class.name} or a property named '${name}'"

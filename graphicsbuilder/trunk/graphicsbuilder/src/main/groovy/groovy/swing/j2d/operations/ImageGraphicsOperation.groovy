@@ -105,6 +105,9 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
 
         // TODO scale image if needed
         Image image = loadImage()
+        if( !image.bufferedImage ){
+            throw new IllegalStateException("Couldn't locate the image")
+        }
         if( bgcolor != null ){
             if( width > -1 && height > -1 ){
                 g.drawImage( image, x, y, width, height, bgcolor, observer )
@@ -129,7 +132,8 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
         }else if( parameterHasValue( "url" ) ){
             return Toolkit.getDefaultToolkit()
                     .getImage( (URL) getParameterValue( "url" ) )
+        }else{
+            throw new IllegalStateException("Couldn't locate the image")
         }
-        return null
     }
 }

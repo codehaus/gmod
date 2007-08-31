@@ -127,10 +127,6 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
     public Object getParameterValue( String name ) {
         if( parameterMap.containsKey( name ) ){
             return getProperty( name );
-            /*
-             * if( value instanceof Closure ){ value = ((Closure) value).call(); }
-             * return value;
-             */
         }
         return null;
     }

@@ -20,6 +20,7 @@ import groovy.swing.j2d.GraphicsOperation;
 import java.awt.Graphics2D;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +50,10 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
 
     public GraphicsContext getContext() {
         return context;
+    }
+
+    public final List getOperations() {
+        return Collections.unmodifiableList( operations );
     }
 
     public void setTransformations( TransformationsGraphicsOperation transformations ) {
