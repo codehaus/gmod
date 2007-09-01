@@ -136,6 +136,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "stroke", new StrokeFactory() )
         registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
+        registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
 
         //
         // area operations
