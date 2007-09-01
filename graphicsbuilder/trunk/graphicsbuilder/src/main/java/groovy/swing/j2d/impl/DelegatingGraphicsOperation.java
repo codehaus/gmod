@@ -21,6 +21,7 @@ import groovy.swing.j2d.GraphicsOperation;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeListener;
 
 import org.codehaus.groovy.runtime.InvokerHelper;
 
@@ -35,6 +36,11 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
     public DelegatingGraphicsOperation( GraphicsOperation delegate ) {
         super( delegate.getName(), delegate.getParameters(), delegate.getOptionalParameters() );
         this.delegate = delegate;
+    }
+
+    public void addPropertyChangeListener( PropertyChangeListener listener ) {
+        InvokerHelper.invokeMethod( getDelegate(), "addPropertyChangeListener",
+                new Object[] { listener } );
     }
 
     public Shape getClip( Graphics2D g, ImageObserver observer ) {
@@ -61,6 +67,11 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
             value = super.getProperty( name );
         }
         return value;
+    }
+
+    public void removePropertyChangeListener( PropertyChangeListener listener ) {
+        InvokerHelper.invokeMethod( getDelegate(), "removePropertyChangeListener",
+                new Object[] { listener } );
     }
 
     public void setProperty( String name, Object value ) {

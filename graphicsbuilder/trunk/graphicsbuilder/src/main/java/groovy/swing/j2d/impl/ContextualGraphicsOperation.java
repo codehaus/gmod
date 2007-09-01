@@ -19,10 +19,13 @@ import groovy.swing.j2d.GraphicsOperation;
 
 import java.awt.Graphics2D;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
  * Decorator that adds a GraphicsContext to its delegate.<br>
@@ -46,8 +49,25 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         operations.add( go );
     }
 
+    public void addPropertyChangeListener( PropertyChangeListener listener ) {
+        super.addPropertyChangeListener( listener );
+        for( Iterator i = operations.iterator(); i.hasNext(); ){
+            GraphicsOperation go = (GraphicsOperation) i.next();
+            InvokerHelper.invokeMethod( go, "addPropertyChangeListener", new Object[] { listener } );
+        }
+    }
+
     public GraphicsContext getContext() {
         return context;
+    }
+
+    public void removePropertyChangeListener( PropertyChangeListener listener ) {
+        super.removePropertyChangeListener( listener );
+        for( Iterator i = operations.iterator(); i.hasNext(); ){
+            GraphicsOperation go = (GraphicsOperation) i.next();
+            InvokerHelper.invokeMethod( go, "removePropertyChangeListener",
+                    new Object[] { listener } );
+        }
     }
 
     public void setTransformations( TransformationsGraphicsOperation transformations ) {

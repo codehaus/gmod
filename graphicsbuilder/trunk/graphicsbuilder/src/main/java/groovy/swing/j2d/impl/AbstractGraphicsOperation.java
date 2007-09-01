@@ -168,7 +168,7 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         Object oldValue = getProperty( name );
         super.setProperty( name, value );
         if( parameterMap.containsKey( name ) ){
-            propertyChangeSupport.firePropertyChange( name, oldValue, value );
+            firePropertyChange( name, oldValue, value );
         }
     }
 
@@ -223,6 +223,10 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
      * Executes the operation
      */
     protected abstract void doExecute( Graphics2D g, ImageObserver observer );
+
+    protected void firePropertyChange( String name, Object oldValue, Object newValue ) {
+        propertyChangeSupport.firePropertyChange( name, oldValue, newValue );
+    }
 
     protected final Map getParameterMap() {
         return Collections.unmodifiableMap( parameterMap );

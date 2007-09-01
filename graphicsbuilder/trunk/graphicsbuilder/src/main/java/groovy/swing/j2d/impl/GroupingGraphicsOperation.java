@@ -19,6 +19,7 @@ import groovy.swing.j2d.GraphicsOperation;
 
 import java.awt.Graphics2D;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -53,6 +54,14 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         operations.add( go );
     }
 
+    public void addPropertyChangeListener( PropertyChangeListener listener ) {
+        super.addPropertyChangeListener( listener );
+        for( Iterator i = operations.iterator(); i.hasNext(); ){
+            GraphicsOperation go = (GraphicsOperation) i.next();
+            InvokerHelper.invokeMethod( go, "addPropertyChangeListener", new Object[] { listener } );
+        }
+    }
+
     public Object getColor() {
         return color;
     }
@@ -73,16 +82,31 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         return strokeWidth;
     }
 
+    public void removePropertyChangeListener( PropertyChangeListener listener ) {
+        super.removePropertyChangeListener( listener );
+        for( Iterator i = operations.iterator(); i.hasNext(); ){
+            GraphicsOperation go = (GraphicsOperation) i.next();
+            InvokerHelper.invokeMethod( go, "removePropertyChangeListener",
+                    new Object[] { listener } );
+        }
+    }
+
     public void setColor( Object color ) {
+        Object oldValue = this.color;
         this.color = color;
+        firePropertyChange( "color", oldValue, color );
     }
 
     public void setFill( Object fill ) {
+        Object oldValue = this.fill;
         this.fill = fill;
+        firePropertyChange( "fill", oldValue, fill );
     }
 
     public void setStrokeWidth( Object strokeWidth ) {
+        Object oldValue = this.strokeWidth;
         this.strokeWidth = strokeWidth;
+        firePropertyChange( "strokeWidth", oldValue, strokeWidth );
     }
 
     public void setTransformations( TransformationsGraphicsOperation transformations ) {

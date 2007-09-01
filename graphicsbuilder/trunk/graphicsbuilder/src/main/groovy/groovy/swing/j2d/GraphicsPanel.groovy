@@ -16,6 +16,8 @@
 package groovy.swing.j2d
 
 import java.awt.Graphics
+import java.beans.PropertyChangeEvent
+import java.beans.PropertyChangeListener
 import javax.swing.JPanel
 import groovy.swing.j2d.GraphicsOperation
 
@@ -24,7 +26,7 @@ import groovy.swing.j2d.GraphicsOperation
  *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsPanel extends JPanel {
+class GraphicsPanel extends JPanel implements PropertyChangeListener {
      private GraphicsOperation graphicsOperation
      private boolean displayed
      private List errorListeners = []
@@ -46,9 +48,15 @@ class GraphicsPanel extends JPanel {
       * If the panel is visible, a <code>repaint()</code> will be ensued
       */
      public void setGraphicsOperation( GraphicsOperation graphicsOperation ){
-         this.graphicsOperation = graphicsOperation
-         if( visible ){
-             repaint()
+         if( graphicsOperation ){
+             if( this.graphicsOperation ){
+                this.graphicsOperation.removePropertyChangeListener( this )
+             }
+             this.graphicsOperation = graphicsOperation
+             this.graphicsOperation.addPropertyChangeListener( this )
+             if( visible ){
+                 repaint()
+             }
          }
      }
 
@@ -79,6 +87,12 @@ class GraphicsPanel extends JPanel {
          def event = new GraphicsErrorEvent( this, t )
          errorListeners.each { listener ->
             listener.errorOccurred( event )
+         }
+     }
+
+     public void propertyChange( PropertyChangeEvent event ){
+         if( visible ){
+             repaint()
          }
      }
  }
