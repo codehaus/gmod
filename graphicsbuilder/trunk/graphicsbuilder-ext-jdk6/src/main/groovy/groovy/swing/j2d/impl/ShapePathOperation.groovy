@@ -15,17 +15,23 @@
 
 package groovy.swing.j2d.impl
 
-import java.awt.Shape
+import groovy.swing.j2d.GraphicsOperation
+import java.awt.Graphics2D
+import java.awt.image.ImageObserver
 import java.awt.geom.Path2D
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ShapePathOperation implements PathOperation {
-    Shape shape
+    def shape
     boolean connect
 
-    public void apply( Path2D path ) {
+    public void apply( Path2D path, Graphics2D g, ImageObserver observer ) {
+       if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
+             shape.getParameterValue("asShape") ){
+          shape = shape.getClip(g,observer)
+       }
        path.append( shape, connect )
     }
 }

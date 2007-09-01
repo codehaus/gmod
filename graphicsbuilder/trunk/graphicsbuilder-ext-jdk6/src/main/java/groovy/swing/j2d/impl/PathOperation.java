@@ -15,11 +15,13 @@
 
 package groovy.swing.j2d.impl;
 
+import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
+import java.awt.image.ImageObserver;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface PathOperation {
-   void apply( Path2D path );
+   void apply( Path2D path, Graphics2D g, ImageObserver observer );
 }

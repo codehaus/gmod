@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 import java.awt.Graphics2D
@@ -40,9 +41,18 @@ class MorphGraphicsOperation extends AbstractGraphicsOperation {
    }
 
    public Shape getClip(Graphics2D g, ImageObserver observer) {
-      Shape from = getParameterValue( "start" )
-      Shape to = getParameterValue( "end" )
+      def from = getParameterValue( "start" )
+      def to = getParameterValue( "end" )
       double morphing = getParameterValue( "morph" )
+
+      if( from instanceof GraphicsOperation && from.parameterHasValue("asShape") &&
+            from.getParameterValue("asShape") ){
+         from = from.getClip(g,observer)
+      }
+      if( to instanceof GraphicsOperation && to.parameterHasValue("asShape") &&
+            to.getParameterValue("asShape") ){
+         to = to.getClip(g,observer)
+      }
 
       Morphing2D morph = new Morphing2D( from, to )
       morph.setMorphing( morphing )

@@ -20,6 +20,7 @@ import groovy.swing.j2d.impl.ContextualGraphicsOperation
 import groovy.swing.j2d.impl.DelegatingGraphicsOperation
 import groovy.swing.j2d.impl.GroupingGraphicsOperation
 import groovy.swing.j2d.impl.PaintSupportGraphicsOperation
+import groovy.swing.j2d.impl.ShapeProviderGraphicsOperation
 import groovy.swing.j2d.impl.StrokingGraphicsOperation
 import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
 import groovy.swing.j2d.impl.TransformationsGraphicsOperation
@@ -101,7 +102,11 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
            // assume that the operation is ok
            // TODO recheck this assumption
            return go
-        }else if( safePropertyGet(go, "fillable") ){
+        }
+        if( safePropertyGet(go, "hasShape") ){
+            go = new ShapeProviderGraphicsOperation( go )
+        }
+        if( safePropertyGet(go, "fillable") ){
             go = new StrokingAndFillingGraphicsOperation( go )
         }else if( safePropertyGet(go, "strokable") ){
             go = new StrokingGraphicsOperation( go )

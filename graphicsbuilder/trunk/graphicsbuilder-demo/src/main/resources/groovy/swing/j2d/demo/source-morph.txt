@@ -1,5 +1,5 @@
-def rect = new Rectangle(20,50,100,100)
-def star = new Star2D(20,50,50,80,5)
+def rect = rect( x: 20, y: 50, width: 100, height: 100, arcWidth: 20, arcHeight: 20, asShape: true)
+def star = star( x: 20, y: 50, ir: 50, or: 80, count: 5, asShape: true )
 morph( start: rect, end: star, morph: 0.1, strokeWidth: 3, color: 'orange', fill: 'yellow' )
 morph( start: rect, end: star, morph: 0.8, strokeWidth: 3, color: 'blue', fill: 'cyan' ){
    transformations { translate(x: 140, y: 0) }

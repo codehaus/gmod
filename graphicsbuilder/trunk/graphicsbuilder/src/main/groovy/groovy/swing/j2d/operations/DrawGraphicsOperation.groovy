@@ -19,6 +19,7 @@ import java.awt.Graphics2D
 import java.awt.Shape
 import java.awt.image.ImageObserver
 
+import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
@@ -43,6 +44,11 @@ class DrawGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( shape )
+        if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
+                shape.getParameterValue("asShape") ){
+           g.draw( shape.getClip(g,observer) )
+        }else{
+           g.draw( shape )
+        }
     }
 }

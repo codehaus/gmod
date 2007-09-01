@@ -51,7 +51,7 @@ class PathGraphicsOperation extends AbstractGraphicsOperation {
          throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")
       }
       pathOperations.each { pathOperation ->
-         pathOperation.apply( path )
+         pathOperation.apply( path, g, observer )
       }
       path.closePath()
       return path
