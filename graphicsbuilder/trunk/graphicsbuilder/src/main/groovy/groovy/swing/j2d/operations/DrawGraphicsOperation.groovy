@@ -38,7 +38,13 @@ class DrawGraphicsOperation extends AbstractGraphicsOperation {
 
     public Shape getClip( Graphics2D g, ImageObserver observer ){
         if( parameterHasValue("shape") ){
-            return getParameterValue("shape")
+            def shape = getParameterValue("shape")
+            if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
+                    shape.getParameterValue("asShape") ){
+                return shape.getClip(g,observer)
+            }else{
+                return shape
+            }
         }
         return null
     }
