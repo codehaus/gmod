@@ -2,14 +2,15 @@
  * Test to verify that builder constructs valid Relational Schema
  * 
  * @author <a href="mailto:jeremy.rayner@bigfoot.com">Jeremy Rayner</a>
- * @version $Revision: 3058 $
+ * @version $Revision: 1.1 $
  */
 
 package org.javanicus.gsql
 
 class RelationalBuilderTest extends GroovyTestCase {
-    @Property database
-    @Property table
+    def build
+    def database
+    def table
               
     void setUp() {
         build = new RelationalBuilder(new TypeMap())
