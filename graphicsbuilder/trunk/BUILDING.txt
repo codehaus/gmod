@@ -12,4 +12,9 @@ it on your local Maven2 repo with the following commands
  mvn install:install-file -DgroupId=org.jdesktop -Dversion=2007_08_12 \
      -Dpackaging=jar -DartifactId=swingx -Dfile=<jarfile>
 
+Note that you need exactly this version - not a later one.
+
+You also need to set your JAVA_HOME environment variable to a 
+JDK 1.6 installation.
+
 Have fun!
