@@ -39,8 +39,8 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
     }
 
     public void addPropertyChangeListener( PropertyChangeListener listener ) {
-        InvokerHelper.invokeMethod( getDelegate(), "addPropertyChangeListener",
-                new Object[] { listener } );
+        super.addPropertyChangeListener( listener );
+        getDelegate().addPropertyChangeListener( listener );
     }
 
     public Shape getClip( Graphics2D g, ImageObserver observer ) {
@@ -70,8 +70,8 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
     }
 
     public void removePropertyChangeListener( PropertyChangeListener listener ) {
-        InvokerHelper.invokeMethod( getDelegate(), "removePropertyChangeListener",
-                new Object[] { listener } );
+        super.removePropertyChangeListener( listener );
+        getDelegate().removePropertyChangeListener( listener );
     }
 
     public void setProperty( String name, Object value ) {

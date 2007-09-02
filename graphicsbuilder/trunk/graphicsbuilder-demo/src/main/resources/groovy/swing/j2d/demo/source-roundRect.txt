@@ -1,3 +1,2 @@
-rect( x: 10, y: 10, width: 300, height: 80,
-      color: 'blue', strokeWidth: 2, fill: 'cyan',
+rect( x: 10, y: 10, width: 300, height: 80, color: 'blue', strokeWidth: 2, fill: 'cyan',
       arcWidth: 20, arcHeight: 20 )

@@ -18,16 +18,17 @@ package groovy.swing.j2d;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeListener;
 
 /**
  * A GraphicsOperation abstracts an operation on a Graphics2D instance.
- * 
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface GraphicsOperation {
     /**
      * Executes the operation.
-     * 
+     *
      * @param g the Graphics2D instance used to draw over
      * @param observer an ImageObserver needed when drawing image related
      *        operations
@@ -36,7 +37,7 @@ public interface GraphicsOperation {
 
     /**
      * Returns the clip defined by this operation.
-     * 
+     *
      * @param g the Graphics2D instance used to draw over
      * @param observer an ImageObserver needed when drawing image related
      *        operations
@@ -47,7 +48,7 @@ public interface GraphicsOperation {
 
     /**
      * Returns the name of this operation.
-     * 
+     *
      * @return the name of this operation
      */
     String getName();
@@ -66,7 +67,7 @@ public interface GraphicsOperation {
 
     /**
      * Returns the value of the specified parameter.<br>
-     * 
+     *
      * @param name the name of the parameter
      * @return the value of the specified parameter
      */
@@ -74,7 +75,7 @@ public interface GraphicsOperation {
 
     /**
      * Returns true if specified parameter has a value != null.<br>
-     * 
+     *
      * @param name the name of the parameter
      * @return true if value is not null
      */
@@ -82,7 +83,7 @@ public interface GraphicsOperation {
 
     /**
      * Sets the value of the specified parameter.
-     * 
+     *
      * @param name the name of the parameter
      * @param value the value of the specified parameter
      */
@@ -90,8 +91,33 @@ public interface GraphicsOperation {
 
     /**
      * Verifies that all parameters have a value.
-     * 
+     *
      * @throws IllegalStateException if any parameter has not a value.
      */
     void verify();
+
+    // Observable properties support
+
+    /**
+     * Add a PropertyChangeListener to the listener list. The listener is
+     * registered for all properties. The same listener object may be added more
+     * than once, and will be called as many times as it is added. If
+     * <code>listener</code> is null, no exception is thrown and no action is
+     * taken.
+     *
+     * @param listener The PropertyChangeListener to be added
+     */
+    void addPropertyChangeListener( PropertyChangeListener listener );
+
+    /**
+     * Remove a PropertyChangeListener from the listener list. This removes a
+     * PropertyChangeListener that was registered for all properties. If
+     * <code>listener</code> was added more than once to the same event
+     * source, it will be notified one less time after being removed. If
+     * <code>listener</code> is null, or was never added, no exception is
+     * thrown and no action is taken.
+     *
+     * @param listener The PropertyChangeListener to be removed
+     */
+    void removePropertyChangeListener( PropertyChangeListener listener );
 }

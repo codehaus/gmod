@@ -1,2 +1,1 @@
-ellipse( cx: 120, cy: 80, radiusx: 100, radiusy: 50,
-         color: 'red', strokeWidth: 3, fill: 'magenta' )
+ellipse( cx: 120, cy: 80, radiusx: 100, radiusy: 50, color: 'red', strokeWidth: 3, fill: 'magenta' )

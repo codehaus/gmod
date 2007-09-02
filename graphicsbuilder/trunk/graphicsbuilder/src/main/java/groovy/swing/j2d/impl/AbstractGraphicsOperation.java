@@ -99,10 +99,6 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         propertyChangeSupport.addPropertyChangeListener( listener );
     }
 
-    public void addPropertyChangeListener( String propertyName, PropertyChangeListener listener ) {
-        propertyChangeSupport.addPropertyChangeListener( propertyName, listener );
-    }
-
     public void execute( Graphics2D g, ImageObserver observer ) {
         applyParameters();
         doExecute( g, observer );
@@ -131,14 +127,6 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         return null;
     }
 
-    public PropertyChangeListener[] getPropertyChangeListeners() {
-        return propertyChangeSupport.getPropertyChangeListeners();
-    }
-
-    public PropertyChangeListener[] getPropertyChangeListeners( String propertyName ) {
-        return propertyChangeSupport.getPropertyChangeListeners( propertyName );
-    }
-
     public boolean hasListeners( String propertyName ) {
         return propertyChangeSupport.hasListeners( propertyName );
     }
@@ -152,10 +140,6 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
 
     public void removePropertyChangeListener( PropertyChangeListener listener ) {
         propertyChangeSupport.removePropertyChangeListener( listener );
-    }
-
-    public void removePropertyChangeListener( String propertyName, PropertyChangeListener listener ) {
-        propertyChangeSupport.removePropertyChangeListener( propertyName, listener );
     }
 
     public void setParameterValue( String name, Object value ) {

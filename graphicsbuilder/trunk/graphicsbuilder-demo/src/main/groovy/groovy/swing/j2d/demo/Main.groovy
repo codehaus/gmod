@@ -16,16 +16,16 @@
 package groovy.swing.j2d.demo
 
 import java.awt.BorderLayout as BL
-import java.awt.Color
-import java.awt.Component
-import java.awt.Font
+import java.awt.*
 import javax.swing.*
 import javax.swing.border.*
 import javax.swing.event.*
+import javax.swing.text.DefaultStyledDocument
 import org.jdesktop.swingx.JXTitledPanel
 import org.jdesktop.swingx.border.*
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
+import groovy.ui.ConsoleTextEditor
 
 import org.codehaus.groovy.control.CompilationFailedException
 
@@ -33,25 +33,31 @@ import org.codehaus.groovy.control.CompilationFailedException
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class Main {
-    private def frame
     private def graphicsBuilder
     private def swing
     private def gsh = new GroovyShell()
+    private def inputEditor
+    private def runThread = null
+    private def runWaitDialog
+    private def frame
+
+    public static void main(String[] args) {
+       SwingUtilities.invokeLater {
+          def app = new Main()
+          app.run()
+       }
+    }
 
     Main(){
        buildUI()
        setupGraphicsBuilder()
     }
 
-    public void setVisible( boolean visible ){
-       frame.visible = visible
-    }
-
-    public static void main(String[] args) {
-       SwingUtilities.invokeLater {
-          def app = new Main()
-          app.setVisible( true )
-       }
+    public void run(){
+       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+       System.setProperty("apple.laf.useScreenMenuBar", "true")
+       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GroovyConsole")
+       frame.visible = true
     }
 
     private void setupGraphicsBuilder(){
@@ -61,9 +67,121 @@ class Main {
     }
 
     private void buildUI(){
+       inputEditor = new ConsoleTextEditor()
        swing = new SwingBuilder()
+
+       swing.actions {
+          action(id: 'exitAction',
+             name: 'Exit',
+             closure: this.&exit,
+             mnemonic: 'X'
+          )
+          action(inputEditor.undoAction,
+             id: 'undoAction',
+             name: 'Undo',
+             mnemonic: 'U',
+             accelerator: shortcut('Z')
+          )
+          action(inputEditor.redoAction,
+             id: 'redoAction',
+             name: 'Redo',
+             closure: this.&redo,
+             mnemonic: 'Y',
+             accelerator: shortcut('Y')
+          )
+          action(id: 'cutAction',
+             name: 'Cut',
+             closure: this.&cut,
+             mnemonic: 't',
+             accelerator: shortcut('X')
+          )
+          action(id: 'copyAction',
+             name: 'Copy',
+             closure: this.&copy,
+             mnemonic: 'C',
+             accelerator: shortcut('C')
+          )
+          action(id: 'pasteAction',
+             name: 'Paste',
+             closure: this.&paste,
+             mnemonic: 'P',
+             accelerator: shortcut('V')
+          )
+          action(id: 'selectAllAction',
+             name: 'Select All',
+             closure: this.&selectAll,
+             mnemonic: 'A',
+             accelerator: shortcut('A')
+          )
+          action(id: 'runAction',
+             name: 'Run',
+             closure: this.&executeCode,
+             mnemonic: 'R',
+             keyStroke: 'ctrl ENTER',
+             accelerator: shortcut('R')
+          )
+          action(id: 'largerFontAction',
+             name: 'Larger Font',
+             closure: this.&largerFont,
+             mnemonic: 'L',
+             accelerator: shortcut('shift L')
+          )
+          action(id: 'smallerFontAction',
+             name: 'Smaller Font',
+             closure: this.&smallerFont,
+             mnemonic: 'S',
+             accelerator: shortcut('shift S')
+          )
+          action(id: 'aboutAction',
+             name: 'About',
+             closure: this.&showAbout,
+             mnemonic: 'A'
+          )
+          action(id: 'interruptAction',
+             name: 'Interrupt',
+             closure: this.&confirmRunInterrupt
+          )
+          action(id: 'clearAction',
+             name: 'Clear',
+             closure: this.&clearCode,
+             mnemonic: 'L',
+             accelerator: shortcut('L')
+          )
+       }
+
        frame = swing.frame( title: "GraphicsBuilder - Demo", size: [1024,800],
-             locationRelativeTo: null, defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE ){
+             locationRelativeTo: null ){
+           menuBar {
+              menu(text: 'File', mnemonic: 'F') {
+                  menuItem(exitAction)
+              }
+
+              menu(text: 'Edit', mnemonic: 'E') {
+                  menuItem(undoAction)
+                  menuItem(redoAction)
+                  separator()
+                  menuItem(cutAction)
+                  menuItem(copyAction)
+                  menuItem(pasteAction)
+                  separator()
+                  menuItem(selectAllAction)
+                  menuItem(clearAction)
+              }
+
+              menu(text: 'View', mnemonic: 'V') {
+                 menuItem(largerFontAction)
+                 menuItem(smallerFontAction)
+             }
+
+             menu(text: 'Script', mnemonic: 'S') {
+                 menuItem(runAction)
+             }
+
+             menu(text: 'Help', mnemonic: 'H') {
+                 menuItem(aboutAction)
+             }
+          }
+
           panel( border: BorderFactory.createEmptyBorder(5, 5, 5, 5) ){
              borderLayout()
              widget( buildListPanel(swing), constraints: BL.WEST )
@@ -73,6 +191,21 @@ class Main {
                 widget( buildCodePanel(swing) )
                 widget( buildTextPanel(swing) )
              }
+          }
+       }
+
+       frame.windowClosing = this.&exit
+
+       runWaitDialog = swing.dialog(title: 'Groovy executing',
+             owner: frame,
+             modal: true ) {
+          vbox(border: BorderFactory.createEmptyBorder(6, 6, 6, 6)) {
+             label(text: "Groovy is now executing. Please wait.", alignmentX: 0.5f)
+             vstrut()
+             button(interruptAction,
+                 margin: new Insets(10, 20, 10, 20),
+                 alignmentX: 0.5f
+             )
           }
        }
     }
@@ -89,8 +222,8 @@ class Main {
        def graphicsPanel = new GraphicsPanel()
        graphicsPanel.border = BorderFactory.createEmptyBorder()
        graphicsPanel.background = Color.white
-       graphicsPanel.addGraphicsErrorListener({ event ->
-           displayError( event.cause.localizedMessage )
+       graphicsPanel.addGraphicsErrorListener({ evt ->
+           displayError( evt.cause.localizedMessage )
        } as GraphicsErrorListener )
 
        swing.panel( new JXTitledPanel(), title: 'View', border: createShadowBorder() ){
@@ -106,8 +239,10 @@ class Main {
           panel {
              borderLayout()
              scrollPane( constraints: BL.CENTER, border: BorderFactory.createEmptyBorder() ) {
-                textArea( id: 'source', border: BorderFactory.createEmptyBorder(),
-                          font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) )
+                widget( inputEditor, id: 'source', border: BorderFactory.createEmptyBorder(),
+                          font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) ){
+                   action(runAction)
+                }
              }
              panel( constraints: BL.SOUTH ){
                 borderLayout()
@@ -173,47 +308,131 @@ class Main {
 
     // ---------- ACTIONS -----------
 
-    private def displayDemo = { event ->
-       def demo = event.source.selectedValue
+    void exit(EventObject evt = null) {
+        frame.hide()
+        frame.dispose()
+    }
+
+    void largerFont(EventObject evt = null) {
+       if (inputEditor.textEditor.font.size > 40) return
+       def newFont = new Font('Monospaced', Font.PLAIN, inputEditor.textEditor.font.size + 2)
+       inputEditor.textEditor.font = newFont
+    }
+
+    void smallerFont(EventObject evt = null){
+       if (inputEditor.textEditor.font.size < 5) return
+       def newFont = new Font('Monospaced', Font.PLAIN, inputEditor.textEditor.font.size - 2)
+       inputEditor.textEditor.font = newFont
+    }
+
+    void showAbout(EventObject evt = null) {
+       def pane = swing.optionPane()
+        // work around GROOVY-1048
+       pane.setMessage('Welcome to the Groovy GraphicsBuilder Demo')
+       def dialog = pane.createDialog(frame, 'About GraphicsBuilder - Demo')
+       dialog.show()
+    }
+
+    void invokeTextAction(evt, closure) {
+       def source = evt.getSource()
+       if (source != null) {
+           closure(inputEditor.textEditor)
+       }
+    }
+
+    void cut(EventObject evt = null) {
+       invokeTextAction(evt, { source -> source.cut() })
+    }
+
+    void copy(EventObject evt = null) {
+       invokeTextAction(evt, { source -> source.copy() })
+    }
+
+    void paste(EventObject evt = null) {
+       invokeTextAction(evt, { source -> source.paste() })
+    }
+
+    void selectAll(EventObject evt = null) {
+       invokeTextAction(evt, { source -> source.selectAll() })
+    }
+
+    void displayDemo(EventObject evt = null) {
+       def demo = evt.source.selectedValue
        swing.description.text = descriptionCache.get( demo, loadDescription(demo) )
        swing.description.caretPosition = 0
     }
 
-    private def onClickDemoOption = { event ->
-       if( event.eventType == HyperlinkEvent.EventType.ACTIVATED ){
-          def demo = event.description
-          swing.source.text = sourceCache.get( demo, loadSource(demo) )
-          swing.source.caretPosition = 0
+    void onClickDemoOption(EventObject evt = null) {
+       if( evt.eventType == HyperlinkEvent.EventType.ACTIVATED ){
+          def demo = evt.description
+          inputEditor.textEditor.text = sourceCache.get( demo, loadSource(demo) )
+          inputEditor.textEditor.caretPosition = 0
           executeCode()
        }
     }
 
-    private def executeCode = {
-        if( !swing.source.text.trim() ){
+    // Confirm whether to interrupt the running thread
+    void confirmRunInterrupt(EventObject evt) {
+        def rc = JOptionPane.showConfirmDialog(frame, "Attempt to interrupt script?",
+            "GroovyConsole", JOptionPane.YES_NO_OPTION)
+        if (rc == JOptionPane.YES_OPTION && runThread != null) {
+            runThread.interrupt()
+        }
+    }
+
+    void executeCode( EventObject evt = null ){
+        if( !inputEditor.textEditor.text.trim() ){
            displayError( "Please type some code" )
         }else{
-           swing.error.text = ""
-           try {
-              def go = graphicsBuilder.build(gsh.evaluate("""
-              import java.awt.*
-              import java.awt.geom.*
-              import org.jdesktop.swingx.geom.*
+           runThread = Thread.start {
+              try {
+                  SwingUtilities.invokeLater { showRunWaitDialog() }
+                  swing.error.text = ""
+                  def go = graphicsBuilder.build(gsh.evaluate("""
+                        import java.awt.*
+                        import java.awt.geom.*
+                        import org.jdesktop.swingx.geom.*
 
-              go = {
-                 ${swing.source.text}
-              }"""))
-              if( go.operations.size() == 0 ){
-                 throw new RuntimeException("An operation is not recognized. Please check the code.")
+                        go = {
+                           ${inputEditor.textEditor.text}
+                        }"""))
+                  if( go.operations.size() == 0 ){
+                     throw new RuntimeException("An operation is not recognized. Please check the code.")
+                  }
+                  SwingUtilities.invokeLater { finishNormal(go) }
+              } catch (Throwable t) {
+                  SwingUtilities.invokeLater { finishException(t) }
+              } finally {
+                  SwingUtilities.invokeLater {
+                      runWaitDialog.hide()
+                      runThread = null
+                  }
               }
-              swing.view.graphicsOperation = go
-           }catch( Exception e ){
-              displayError( e.localizedMessage )
            }
         }
     }
 
-    private def clearCode = {
-       swing.source.text = ""
+    def finishException(Throwable t) {
+       displayError( t.localizedMessage )
+    }
+
+    def finishNormal(Object go) {
+       if( go instanceof GraphicsOperation ){
+          swing.view.@graphicsOperation = null
+          swing.view.graphicsOperation = go
+       }
+    }
+
+    void showRunWaitDialog() {
+       runWaitDialog.pack()
+       int x = frame.x + (frame.width - runWaitDialog.width) / 2
+       int y = frame.y + (frame.height - runWaitDialog.height) / 2
+       runWaitDialog.setLocation(x, y)
+       runWaitDialog.show()
+    }
+
+    void clearCode( EventObject evt = null ){
+       inputEditor.textEditor.text = ""
        swing.error.text = ""
     }
 

@@ -1,2 +1,1 @@
-quadCurve( x1: 20, y1: 20, ctrlx: 300, ctrly: 60, x2: 20, y2: 100,
-           color: 'red', strokeWidth: 4 )
+quadCurve( x1: 20, y1: 20, ctrlx: 300, ctrly: 60, x2: 20, y2: 100, color: 'red', strokeWidth: 4 )

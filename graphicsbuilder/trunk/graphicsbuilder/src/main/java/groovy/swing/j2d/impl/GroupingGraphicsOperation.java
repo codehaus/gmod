@@ -58,7 +58,7 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         super.addPropertyChangeListener( listener );
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();
-            InvokerHelper.invokeMethod( go, "addPropertyChangeListener", new Object[] { listener } );
+            go.addPropertyChangeListener( listener );
         }
     }
 
@@ -86,8 +86,7 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         super.removePropertyChangeListener( listener );
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();
-            InvokerHelper.invokeMethod( go, "removePropertyChangeListener",
-                    new Object[] { listener } );
+            go.removePropertyChangeListener( listener );
         }
     }
 

@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.codehaus.groovy.runtime.InvokerHelper;
-
 /**
  * Decorator that adds a GraphicsContext to its delegate.<br>
  * A GraphicsContext takes care of restoring the state of the Graphics2D object
@@ -53,7 +51,7 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         super.addPropertyChangeListener( listener );
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();
-            InvokerHelper.invokeMethod( go, "addPropertyChangeListener", new Object[] { listener } );
+            go.addPropertyChangeListener( listener );
         }
     }
 
@@ -65,8 +63,7 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         super.removePropertyChangeListener( listener );
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();
-            InvokerHelper.invokeMethod( go, "removePropertyChangeListener",
-                    new Object[] { listener } );
+            go.removePropertyChangeListener( listener );
         }
     }
 
