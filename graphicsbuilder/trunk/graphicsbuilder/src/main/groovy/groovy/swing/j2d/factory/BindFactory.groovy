@@ -20,9 +20,7 @@ import groovy.util.FactoryBuilderSupport;
 import org.codehaus.groovy.binding.ClosureSourceBinding;
 import org.codehaus.groovy.binding.EventTriggerBinding;
 import org.codehaus.groovy.binding.FullBinding;
-import org.codehaus.groovy.binding.PropertyChangeTriggerBinding;
-import org.codehaus.groovy.binding.PropertySourceBinding;
-import org.codehaus.groovy.binding.PropertyTargetBinding;
+import org.codehaus.groovy.binding.PropertyBinding;
 import org.codehaus.groovy.binding.TargetBinding;
 import org.codehaus.groovy.binding.TriggerBinding;
 
@@ -56,16 +54,15 @@ public class BindFactory extends AbstractFactory {
         TargetBinding tb = null;
         if (target != null) {
             String targetProperty = (String) properties.remove("targetProperty");
-            tb = new PropertyTargetBinding(target, targetProperty);
+            tb = new PropertyBinding(target, targetProperty);
         }
         FullBinding fb;
 
         if (properties.containsKey("sourceProperty")) {
             String property = (String) properties.remove("sourceProperty");
-            PropertySourceBinding psb = new PropertySourceBinding(source, property);
+            PropertyBinding psb = new PropertyBinding(source, property);
+            TriggerBinding trigger = psb;
             Class currentClass = source.getClass();
-            //TODO inspect the bean info and throw an error if the property is not obserbable
-            TriggerBinding trigger = new PropertyChangeTriggerBinding(source, property);
             fb = trigger.createBinding(psb, tb);
         } else if (properties.containsKey("sourceEvent") && properties.containsKey("sourceValue")) {
             Closure queryValue = (Closure) properties.remove("sourceValue");
@@ -79,7 +76,7 @@ public class BindFactory extends AbstractFactory {
 
         if (target != null) {
             fb.bind();
-            fb.forceUpdate();
+            fb.update();
         }
         return fb;
     }

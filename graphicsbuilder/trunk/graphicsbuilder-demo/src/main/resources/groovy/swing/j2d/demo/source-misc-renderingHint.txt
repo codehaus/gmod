@@ -1,0 +1,3 @@
+rect( x: 10, y: 10, width: 150, height: 80, color: 'blue', strokeWidth: 2, fill: 'cyan', arcWidth: 30, arcHeight: 30 )
+renderingHint( key: 'antialiasing', value: 'antialias on' )
+rect( x: 170, y: 10, width: 150, height: 80, color: 'blue', strokeWidth: 2, fill: 'cyan', arcWidth: 30, arcHeight: 30 )

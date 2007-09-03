@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.ContextualGraphicsOperation
+import groovy.swing.j2d.impl.ShapeProviderGraphicsOperation
 import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
 
 import java.awt.Graphics2D
@@ -36,7 +37,8 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
     private String name
 
     public AreaGraphicsOperation( String name, String areaMethod ){
-        super( new StrokingAndFillingGraphicsOperation(new DrawGraphicsOperation()) )
+        super( new StrokingAndFillingGraphicsOperation(
+                new ShapeProviderGraphicsOperation(new DrawGraphicsOperation())) )
         this.areaMethod = areaMethod
         this.name = name
         drawDelegate = this.delegate

@@ -28,7 +28,7 @@ import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
 import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 import org.codehaus.groovy.binding.FullBinding
-import org.codehaus.groovy.binding.PropertyTargetBinding
+import org.codehaus.groovy.binding.PropertyBinding
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -39,11 +39,11 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
          attributes.each { property, value ->
              if (value instanceof FullBinding) {
                  FullBinding fb = (FullBinding) value;
-                 PropertyTargetBinding ptb = new PropertyTargetBinding(node, property);
+                 PropertyBinding ptb = new PropertyBinding(node, property);
                  fb.setTargetBinding(ptb);
                  fb.bind();
                  try {
-                     fb.forceUpdate();
+                     fb.update();
                  } catch (Exception e) {
                      // just eat it?
                  }

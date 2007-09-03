@@ -153,84 +153,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
         factories.put( name, factory );
     }
 
-    /**
-     * A hook to allow names to be converted into some other object such as a
-     * QName in XML or ObjectName in JMX.
-     *
-     * @param methodName the name of the desired method
-     * @return the object representing the name
-     */
-    protected Object getName( String methodName ) {
-        if( nameMappingClosure != null ){
-            return nameMappingClosure.call( methodName );
-        }
-        return methodName;
-    }
-
-    protected void newContext() {
-        contexts.push( new HashMap() );
-    }
-
-    protected Map popContext() {
-        return (Map) contexts.pop();
-    }
-
-    /**
-     * A hook after the factory creates the node and before attributes are set
-     */
-    protected void postIstantiate( Object name, Map attributes, Object node ) {
-    }
-
-    /**
-     * A hook to allow nodes to be processed once they have had all of their
-     * children applied and allows the actual node object that represents the
-     * Markup element to be changed
-     *
-     * @param node the current node being processed
-     * @param parent the parent of the node being processed
-     * @return the node, possibly new, that represents the markup element
-     */
-    protected Object postNodeCompletion( Object parent, Object node ) {
-        return node;
-    }
-
-    /**
-     * A hook before the factory creates the node
-     */
-    protected void preInstantiate( Object name, Map attributes, Object value ) {
-    }
-
-    /**
-     * A strategy method to allow derived builders to use builder-trees and
-     * switch in different kinds of builders. This method should call the
-     * setDelegate() method on the closure which by default passes in this but
-     * if node is-a builder we could pass that in instead (or do something wacky
-     * too)
-     *
-     * @param closure the closure on which to call setDelegate()
-     * @param node the node value that we've just created, which could be a
-     *        builder
-     */
-    protected void setClosureDelegate( Closure closure, Object node ) {
-        closure.setDelegate( this );
-    }
-
-    /**
-     * Maps attributes key/values to properties on node.
-     */
-    protected void setNodeAttributes( Object node, Map attributes ) {
-        // set the properties
-        for( Iterator iter = attributes.entrySet()
-                .iterator(); iter.hasNext(); ){
-            Map.Entry entry = (Map.Entry) iter.next();
-            String property = entry.getKey()
-                    .toString();
-            Object value = entry.getValue();
-            InvokerHelper.setProperty( node, property, value );
-        }
-    }
-
-    private Object createNode( Object name, Map attributes, Object value ) {
+    protected Object createNode( Object name, Map attributes, Object value ) {
         Object node = null;
 
         Factory factory = (Factory) factories.get( name );
@@ -259,7 +182,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
         return node;
     }
 
-    private Object doInvokeMethod( String methodName, Object name, Object args ) {
+    protected Object doInvokeMethod( String methodName, Object name, Object args ) {
         Object node = null;
         Closure closure = null;
         List list = InvokerHelper.asList( args );
@@ -344,7 +267,7 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
         }
 
         if( closure != null ){
-            if( getCurrentFactory().isLeaf() ){
+            if( getCurrentFactory() != null && getCurrentFactory().isLeaf() ){
                 throw new RuntimeException( "'" + name + "' doesn't support nesting." );
             }
             // push new node on stack
@@ -364,15 +287,41 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
         return proxyBuilder.postNodeCompletion( current, node );
     }
 
-    private void handleNodeAttributes( Object node, Map attributes ) {
+    /**
+     * A hook to allow names to be converted into some other object such as a
+     * QName in XML or ObjectName in JMX.
+     *
+     * @param methodName the name of the desired method
+     * @return the object representing the name
+     */
+    protected Object getName( String methodName ) {
+        if( nameMappingClosure != null ){
+            return nameMappingClosure.call( methodName );
+        }
+        return methodName;
+    }
+
+    protected FactoryBuilderSupport getProxyBuilder() {
+        return proxyBuilder;
+    }
+
+    protected void handleNodeAttributes( Object node, Map attributes ) {
         // first, short circuit
         if( attributes.isEmpty() || (node == null) ){
             return;
         }
 
-        if( getCurrentFactory().onHandleNodeAttributes( this, node, attributes ) ){
+        if( getCurrentFactory() != null ){
+            if( getCurrentFactory().onHandleNodeAttributes( this, node, attributes ) ){
+                setNodeAttributes( node, attributes );
+            }
+        }else{
             setNodeAttributes( node, attributes );
         }
+    }
+
+    protected void newContext() {
+        contexts.push( new HashMap() );
     }
 
     /**
@@ -382,11 +331,76 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
      * @param node the current node being processed
      * @param parent the parent of the node being processed
      */
-    private void nodeCompleted( Object parent, Object node ) {
-        getCurrentFactory().onNodeCompleted( this, parent, node );
+    protected void nodeCompleted( Object parent, Object node ) {
+        if( getCurrentFactory() != null ){
+            getCurrentFactory().onNodeCompleted( this, parent, node );
+        }
     }
 
-    private void setParent( Object parent, Object child ) {
+    protected Map popContext() {
+        return (Map) contexts.pop();
+    }
+
+    /**
+     * A hook after the factory creates the node and before attributes are set
+     */
+    protected void postIstantiate( Object name, Map attributes, Object node ) {
+    }
+
+    /**
+     * A hook to allow nodes to be processed once they have had all of their
+     * children applied and allows the actual node object that represents the
+     * Markup element to be changed
+     *
+     * @param node the current node being processed
+     * @param parent the parent of the node being processed
+     * @return the node, possibly new, that represents the markup element
+     */
+    protected Object postNodeCompletion( Object parent, Object node ) {
+        return node;
+    }
+
+    /**
+     * A hook before the factory creates the node
+     */
+    protected void preInstantiate( Object name, Map attributes, Object value ) {
+    }
+
+    /**
+     * A strategy method to allow derived builders to use builder-trees and
+     * switch in different kinds of builders. This method should call the
+     * setDelegate() method on the closure which by default passes in this but
+     * if node is-a builder we could pass that in instead (or do something wacky
+     * too)
+     *
+     * @param closure the closure on which to call setDelegate()
+     * @param node the node value that we've just created, which could be a
+     *        builder
+     */
+    protected void setClosureDelegate( Closure closure, Object node ) {
+        closure.setDelegate( this );
+    }
+
+    /**
+     * Maps attributes key/values to properties on node.
+     */
+    protected void setNodeAttributes( Object node, Map attributes ) {
+        // set the properties
+        for( Iterator iter = attributes.entrySet()
+                .iterator(); iter.hasNext(); ){
+            Map.Entry entry = (Map.Entry) iter.next();
+            String property = entry.getKey()
+                    .toString();
+            Object value = entry.getValue();
+            InvokerHelper.setProperty( node, property, value );
+        }
+    }
+
+    protected void setParent( Object parent, Object child ) {
         getCurrentFactory().setParent( this, parent, child );
+    }
+
+    protected void setProxyBuilder( FactoryBuilderSupport proxyBuilder ) {
+        this.proxyBuilder = proxyBuilder;
     }
 }

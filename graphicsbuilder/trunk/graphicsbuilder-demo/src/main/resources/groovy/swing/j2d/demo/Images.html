@@ -3,7 +3,12 @@
 <h3>Images</h3>
 <table border="0">
 <tr>
-   <td valign="top"><strong><a href="image">image</a></strong></td><td></td>
+   <td valign="top"><strong><a href="image">image</a></strong></td><td>Draws an image on the specified coordinates (x,y). You will need to specify one of the following properties to locate the image<ul>
+   <li>image: must a BufferedImage</li>
+   <li>file: a filename (absolute)</li>
+   <li>url: an URL like http://groovy.codehaus.org/download/attachments/1866/groovydukemed.jpg</li>
+   <li>classpath: a resource available in the current classpath</li>
+</ul>properties [[image|file|url|classpath],x,y]</td>
 </tr>
 </table>
 </body>

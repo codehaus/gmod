@@ -36,12 +36,14 @@ class SwingGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, ImageObserver observer ){
+        // observer is usally a GraphicsPanel instance
         Component[] components = container.components
-        def p = new CellRendererPane()
-        components.each { component ->
-           def bounds = component.bounds
-           SU.paintComponent( g, component, p, bounds.x as int,
-                   bounds.y as int, bounds.width as int, bounds.height as int)
+        if( observer instanceof Container ){
+           components.each { component ->
+              if( !observer.isAncestorOf(component) ){
+                  observer.add( component )
+              }
+           }
         }
     }
 }

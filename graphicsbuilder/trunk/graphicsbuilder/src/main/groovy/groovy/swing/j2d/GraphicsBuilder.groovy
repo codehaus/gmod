@@ -28,8 +28,7 @@ import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.*
 
 import groovy.swing.SwingBuilder
-import org.codehaus.groovy.binding.FullBinding
-import org.codehaus.groovy.binding.PropertyTargetBinding
+//import groovy.swing.SwingBuilderAdapter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -77,19 +76,31 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return operation
     }
 
-    public def swing( Closure closure ) {
-        return swing( new SwingBuilder(), closure )
+    public def swingView( Closure closure ) {
+        return swingView( new SwingBuilder(), closure )
     }
 
-    public def swing( SwingBuilder builder, Closure closure ) {
-        closure.setDelegate( builder )
-        def container = builder.panel( closure )
-        def go = new SwingGraphicsOperation( container )
-        def parent = getCurrent()
-        if( parent instanceof GroupingGraphicsOperation || parent instanceof ContextualGraphicsOperation ){
-            parent.addOperation( go )
-        }else{
-            operations.add( go )
+    public def swingView( SwingBuilder builder, Closure closure ) {
+        def proxyBuilder = getProxyBuilder()
+        //def adapter = new SwingBuilderAdapter( builder )
+        //setProxyBuilder( adapter )
+        def container = null
+        try {
+            /*
+            closure.setDelegate( adapter )
+            container = adapter.panel {
+               closure.call()
+            }
+            */
+            def go = new SwingGraphicsOperation( container )
+            def parent = getCurrent()
+            if( parent instanceof GroupingGraphicsOperation || parent instanceof ContextualGraphicsOperation ){
+                parent.addOperation( go )
+            }else{
+                operations.add( go )
+            }
+        } finally {
+            setProxyBuilder( proxyBuilder )
         }
         return container
     }

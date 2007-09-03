@@ -211,7 +211,8 @@ class Main {
     }
 
     private def buildListPanel( swing ){
-       def data = ["Shapes","Painting","Transformations","Groups","Images","Areas","Swing"]
+       def data = ["Shapes","Painting","Transformations","Groups",
+                   "Images","Areas","Binding",/*"Swing",*/"Miscellaneous"]
        swing.panel( new JXTitledPanel(), title: 'Topics', border: createShadowBorder() ){
           list( listData: data as Object[], mouseClicked: this.&displayDemo,
                 cellRenderer: new OptionCellRenderer() )
@@ -388,10 +389,14 @@ class Main {
               try {
                   SwingUtilities.invokeLater { showRunWaitDialog() }
                   swing.error.text = ""
+                  swing.view.removeAll()
                   def go = graphicsBuilder.build(gsh.evaluate("""
                         import java.awt.*
                         import java.awt.geom.*
                         import org.jdesktop.swingx.geom.*
+                        import groovy.swing.j2d.demo.BoundBean
+                        import groovy.swing.j2d.operations.*
+                        import groovy.swing.SwingBuilder
 
                         go = {
                            ${inputEditor.textEditor.text}
