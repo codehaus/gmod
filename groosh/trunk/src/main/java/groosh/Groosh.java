@@ -112,9 +112,11 @@ public class Groosh extends GroovyObjectSupport {
 					command.add(name);
 					command.addAll(getArgs(args));
 				}
-				System.out.println(listAsString(command));
+				// System.out.println(listAsString(command));
 				process = new ShellProcess(command, env, execDir);
-				process.fromString(password);
+				if (withSudo) {
+					process.fromString(password);
+				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -123,14 +125,14 @@ public class Groosh extends GroovyObjectSupport {
 		return process;
 	}
 
-	private String listAsString(List<String> args) {
-		StringBuilder str = new StringBuilder();
-		for (String string : args) {
-			str.append(string);
-			str.append(" ");
-		}
-		return str.toString();
-	}
+//	private String listAsString(List<String> args) {
+//		StringBuilder str = new StringBuilder();
+//		for (String string : args) {
+//			str.append(string);
+//			str.append(" ");
+//		}
+//		return str.toString();
+//	}
 
 	private GrooshProcess createInternalProcess(
 			Class<? extends GrooshProcess> class1, List<String> args) {

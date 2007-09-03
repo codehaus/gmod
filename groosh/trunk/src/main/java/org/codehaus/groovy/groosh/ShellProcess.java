@@ -51,4 +51,8 @@ public class ShellProcess extends GrooshProcess {
 	public Source getSource() {
 		return process.getOutput();
 	}
+
+	public void destroy() {
+		process.destroy();
+	}
 }

@@ -129,4 +129,8 @@ public class JavaProcess implements AppProcess {
 			}
 		}
 	}
+
+	public void destroy() {
+		process.destroy();
+	}
 }

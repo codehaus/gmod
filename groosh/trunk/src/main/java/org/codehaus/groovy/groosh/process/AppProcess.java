@@ -35,4 +35,6 @@ public interface AppProcess {
 	int result();
 
 	boolean hadError();
+
+	void destroy();
 }
