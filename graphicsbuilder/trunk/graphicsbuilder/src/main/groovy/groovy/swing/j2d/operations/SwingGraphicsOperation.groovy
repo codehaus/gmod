@@ -30,6 +30,8 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
 class SwingGraphicsOperation extends AbstractGraphicsOperation {
     private Container container
 
+    static contextual = true
+
     SwingGraphicsOperation( Container container ) {
         super( "swing", [] as String[] )
         this.container = container

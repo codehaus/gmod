@@ -39,6 +39,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private boolean building = false
     private List operations
     private Map variables = [:]
+    private GroovyShell shell
 
     public GraphicsBuilder() {
         registerOperations()
@@ -92,6 +93,15 @@ class GraphicsBuilder extends FactoryBuilderSupport {
                closure.call()
             }
             */
+            Binding binding = new Binding()
+            binding.setVariable( "closure", closure )
+            binding.setVariable( "s", builder )
+            shell = new GroovyShell( binding )
+            closure.setDelegate( builder )
+            container = shell.evaluate("container = s.panel{ closure.call() }")
+            println container
+            println container.componentCount
+
             def go = new SwingGraphicsOperation( container )
             def parent = getCurrent()
             if( parent instanceof GroupingGraphicsOperation || parent instanceof ContextualGraphicsOperation ){
@@ -170,5 +180,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         // binding
         //
         registerFactory( "bind", new BindFactory() )
+        registerFactory( "animate", new AnimateFactory() )
     }
 }

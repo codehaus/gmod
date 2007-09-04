@@ -13,8 +13,14 @@
    <artifactId>graphicsbuilder-demo</artifactId>
    <packaging>jar</packaging>
    <name>GraphicsBuilder [demo]</name>
+   <organization>
+      <name>GraphicsBuilderDemo</name>
+      <url>http://groovy.codehaus.org/GraphicsBuilder</url>
+   </organization>
 
-   <description></description>
+   <description>
+      GraphicsBuilder lets you work with Java2D the Groovy way
+   </description>
 
    <dependencies>
       <dependency>
@@ -62,12 +68,57 @@
             <configuration>
                <programs>
                   <program>
-                     <mainClass>
-                        groovy.swing.j2d.demo.Main
-                     </mainClass>
+                     <mainClass>groovy.swing.j2d.demo.Main</mainClass>
                      <name>graphicsBuilderDemo</name>
                   </program>
                </programs>
+            </configuration>
+         </plugin>
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+           <execution>
+              <goals>
+                 <goal>sign</goal>
+              </goals>
+           </execution>
+        </executions>
+        <configuration>
+	   <keystore>${basedir}/src/groovy.ks</keystore>
+           <alias>groovy_public</alias>
+           <keypass>groovy_public</keypass>
+           <storepass>groovy_public</storepass>
+           <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>
+           <verify>true</verify>
+        </configuration>
+      </plugin>
+      -->
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>webstart-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>jnlp</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <jnlp>
+                  <outputFile>graphicsbuilder.jnlp</outputFile>
+                  <mainClass>groovy.swing.j2d.demo.Main</mainClass>
+               </jnlp>
+               <sign>
+                  <keystore>${project.basedir}/src/groovy.ks</keystore>
+                  <keypass>groovy_public</keypass>
+                  <storepass>groovy_public</storepass>
+                  <alias>groovy_public</alias>
+                  <validity>180</validity>
+                  <verify>true</verify>
+               </sign>
+               <verbose>false</verbose>
             </configuration>
          </plugin>
       </plugins>
