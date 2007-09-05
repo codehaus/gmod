@@ -17,6 +17,7 @@ package org.codehaus.groovy.groosh;
 import java.io.File;
 import java.io.IOException;
 
+import org.codehaus.groovy.groosh.process.DevNull;
 import org.codehaus.groovy.groosh.process.FileStreams;
 import org.codehaus.groovy.groosh.process.Sink;
 import org.codehaus.groovy.groosh.process.Source;
@@ -48,9 +49,11 @@ public abstract class GrooshProcess {
 	public void toFile(File f) throws IOException {
 		Sink sink = FileStreams.sink(f, false);
 
-		getSource().connect(sink);
-		start();
-		waitForExit();
+		processSink(sink);
+	}
+
+	public void toFile(String fn) throws IOException {
+		toFile(new File(fn));
 	}
 
 	// needs to be asynchronous so they can continue the chain
@@ -67,9 +70,18 @@ public abstract class GrooshProcess {
 	public void toStdOut() throws IOException {
 		Sink sink = StandardStreams.stdout();
 
+		processSink(sink);
+	}
+
+	public void toDevNull() throws IOException {
+		Sink sink = DevNull.createSink();
+
+		processSink(sink);
+	}
+
+	private void processSink(Sink sink) throws IOException {
 		getSource().connect(sink);
 		start();
-
 		waitForExit();
 	}
 
