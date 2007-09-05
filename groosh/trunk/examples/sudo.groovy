@@ -15,6 +15,5 @@
 gsh = new groosh.Groosh()
 
 gsh.setSudoUser("user","password")
-gsh.withSudo(true)
 
-gsh.cat("/var/log/messages").toStdOut()
+gsh.sudo_cat("/var/log/messages").toStdOut()

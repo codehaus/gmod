@@ -55,7 +55,6 @@ public class Groosh extends GroovyObjectSupport {
 
 	private String user;
 	private String password;
-	private boolean withSudo;
 
 	static {
 		registerStreamClosureProcess("groovy", StreamClosureProcess.class);
@@ -84,10 +83,15 @@ public class Groosh extends GroovyObjectSupport {
 
 	public Object invokeMethod(String name, Object args) {
 		GrooshProcess process;
+		boolean withSudo = false;
+
+		if (name.startsWith("sudo_")) {
+			name = name.substring("sudo_".length());
+			withSudo = true;
+		}
 		// gsh.grep results in Groovies grep methode to be called
 		// not into the shell command created. Adding _ as a prefix
 		// tells us that we mean the shell command.
-
 		if (name.startsWith("_")) {
 			name = name.substring(1);
 		}
@@ -125,14 +129,14 @@ public class Groosh extends GroovyObjectSupport {
 		return process;
 	}
 
-//	private String listAsString(List<String> args) {
-//		StringBuilder str = new StringBuilder();
-//		for (String string : args) {
-//			str.append(string);
-//			str.append(" ");
-//		}
-//		return str.toString();
-//	}
+	// private String listAsString(List<String> args) {
+	// StringBuilder str = new StringBuilder();
+	// for (String string : args) {
+	// str.append(string);
+	// str.append(" ");
+	// }
+	// return str.toString();
+	// }
 
 	private GrooshProcess createInternalProcess(
 			Class<? extends GrooshProcess> class1, List<String> args) {
@@ -180,10 +184,6 @@ public class Groosh extends GroovyObjectSupport {
 	public void setSudoUser(String user, String password) {
 		this.user = user;
 		this.password = password;
-	}
-
-	public void withSudo(boolean withSudo) {
-		this.withSudo = withSudo;
 	}
 
 	protected List<String> getArgs(Object arg1) {
