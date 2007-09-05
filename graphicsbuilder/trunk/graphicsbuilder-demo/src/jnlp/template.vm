@@ -18,5 +18,7 @@
      <j2se java-vm-args="-Xss1M -Xmx256M" version="1.5+"/>
      $dependencies
   </resources>
-  <application-desc main-class="$mainClass"/>
+  <application-desc main-class="$mainClass">
+    <argument>http://localhost:8080/webstart</argument>
+  </application-desc>
 </jnlp>

@@ -17,6 +17,7 @@ package groovy.swing.j2d.demo
 
 import java.awt.BorderLayout as BL
 import java.awt.*
+import java.security.*
 import javax.swing.*
 import javax.swing.border.*
 import javax.swing.event.*
@@ -40,23 +41,26 @@ class Main {
     private def runThread = null
     private def runWaitDialog
     private def frame
+    private String codeBase
 
     public static void main(String[] args) {
        SwingUtilities.invokeLater {
-          def app = new Main()
+          def app = new Main(args && args.length == 1 ? args[0]: null)
           app.run()
        }
     }
 
-    Main(){
+    Main( String codeBase ){
+       this.codeBase = codeBase
        buildUI()
        setupGraphicsBuilder()
+       Policy.setPolicy( new DemoPolicy() )
     }
 
     public void run(){
        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
        System.setProperty("apple.laf.useScreenMenuBar", "true")
-       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GroovyConsole")
+       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsBuilderDemo")
        frame.visible = true
     }
 
@@ -390,7 +394,7 @@ class Main {
                   SwingUtilities.invokeLater { showRunWaitDialog() }
                   swing.error.text = ""
                   swing.view.removeAll()
-                  def go = graphicsBuilder.build(gsh.evaluate("""
+                  def script = """
                         import java.awt.*
                         import java.awt.geom.*
                         import org.jdesktop.swingx.geom.*
@@ -400,7 +404,9 @@ class Main {
 
                         go = {
                            ${inputEditor.textEditor.text}
-                        }"""))
+                        }"""
+                   def go = graphicsBuilder.build( !codeBase ? gsh.evaluate(script) :
+                      gsh.evaluate(script,"RestrictedScript",codeBase) )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
                   }
