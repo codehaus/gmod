@@ -79,8 +79,7 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
             parent.transformations = node
         }else if( parent instanceof GroupingGraphicsOperation ){
             parent.addOperation( node )
-        }
-        else{
+        }else{
             List operations = builder.getOperations()
             if( operations != null && node instanceof GraphicsOperation ){
                 operations.add( node )

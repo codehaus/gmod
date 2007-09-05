@@ -46,6 +46,10 @@ public class TransformationsGraphicsOperation extends AbstractGraphicsOperation 
         }
     }
 
+    public final int size() {
+        return operations.size();
+    }
+
     public void verify() {
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();

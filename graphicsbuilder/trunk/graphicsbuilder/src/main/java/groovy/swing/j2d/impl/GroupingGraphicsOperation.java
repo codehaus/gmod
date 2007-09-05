@@ -112,6 +112,10 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         this.transformations = transformations;
     }
 
+    public final int size() {
+        return operations.size();
+    }
+
     public void verify() {
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();
@@ -124,6 +128,9 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
 
     protected void doExecute( Graphics2D g, ImageObserver observer ) {
         saveContext( g, observer );
+        if( transformations != null ){
+            transformations.execute( g, observer );
+        }
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
@@ -138,9 +145,6 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
                 }
                 go.execute( g, observer );
             }
-        }
-        if( transformations != null ){
-            transformations.execute( g, observer );
         }
         restoreClip( g );
         restoreContext( g );
