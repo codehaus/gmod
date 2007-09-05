@@ -43,6 +43,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
 
    static supportsFill = true
 
+   // TODO support isDirty()
    RadialGradientPaintGraphicsOperation() {
       super( "radialGradient", ["cx","cy","fx","fy","radius"] as String[], ["cycle"] as String[] )
    }

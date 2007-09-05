@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -25,29 +25,24 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class LineGraphicsOperation extends AbstractGraphicsOperation {
+class LineGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x1
     def x2
     def y1
     def y2
 
     static strokable = true
-    static contextual = true
-    static hasShape = true
 
     LineGraphicsOperation() {
         super( "line", ["x1", "y1", "x2", "y2"] as String[] )
+        fillable = false
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         double x1 = getParameterValue( "x1" )
         double x2 = getParameterValue( "x2" )
         double y1 = getParameterValue( "y1" )
         double y2 = getParameterValue( "y2" )
         return new Line2D.Double( x1, y1, x2, y2 )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

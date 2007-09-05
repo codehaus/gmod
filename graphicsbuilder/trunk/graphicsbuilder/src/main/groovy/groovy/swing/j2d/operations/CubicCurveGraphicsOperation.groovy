@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -25,7 +25,7 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CubicCurveGraphicsOperation extends AbstractGraphicsOperation {
+class CubicCurveGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x1
     def x2
     def y1
@@ -36,15 +36,14 @@ class CubicCurveGraphicsOperation extends AbstractGraphicsOperation {
     def ctrly2
 
     static strokable = true
-    static contextual = true
-    static hasShape = true
 
     CubicCurveGraphicsOperation() {
         super( "cubicCurve", ["x1", "x2", "y1", "y2", "ctrlx1", "ctrlx2", "ctrly1",
                 "ctrly2" ] as String[] )
+        fillable = false
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         double x1 = getParameterValue( "x1" )
         double x2 = getParameterValue( "x2" )
         double y1 = getParameterValue( "y1" )
@@ -54,9 +53,5 @@ class CubicCurveGraphicsOperation extends AbstractGraphicsOperation {
         double ctrly1 = getParameterValue( "ctrly1" )
         double ctrly2 = getParameterValue( "ctrly2" )
         return new CubicCurve2D.Double( x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2 )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

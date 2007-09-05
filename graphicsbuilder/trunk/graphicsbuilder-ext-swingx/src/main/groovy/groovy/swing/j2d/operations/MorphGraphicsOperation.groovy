@@ -16,7 +16,7 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -27,39 +27,39 @@ import org.jdesktop.swingx.geom.Morphing2D
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MorphGraphicsOperation extends AbstractGraphicsOperation {
+class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
    def start
    def end
    def morph
-
-   static fillable = true
-   static contextual = true
-   static hasShape = true
 
    MorphGraphicsOperation() {
       super( "morph", ["start", "end", "morph"] as String[] )
    }
 
-   public Shape getClip(Graphics2D g, ImageObserver observer) {
-      def from = getParameterValue( "start" )
-      def to = getParameterValue( "end" )
-      double morphing = getParameterValue( "morph" )
-
-      if( from instanceof GraphicsOperation && from.parameterHasValue("asShape") &&
-            from.getParameterValue("asShape") ){
-         from = from.getClip(g,observer)
-      }
-      if( to instanceof GraphicsOperation && to.parameterHasValue("asShape") &&
-            to.getParameterValue("asShape") ){
-         to = to.getClip(g,observer)
-      }
-
-      Morphing2D morph = new Morphing2D( from, to )
-      morph.setMorphing( morphing )
-      return morph
+   public boolean isDirty() {
+      def start = getParameterValue( "start" )
+      def end = getParameterValue( "end" )
+      boolean startIsDirty = start instanceof GraphicsOperation ? start?.isDirty() : false;
+      boolean endIsDirty = end instanceof GraphicsOperation ? end?.isDirty() : false;
+      return startIsDirty || endIsDirty || super.isDirty()
    }
 
-   protected void doExecute( Graphics2D g, ImageObserver observer ){
-      g.draw( getClip( g, observer ) )
+   protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
+      def start = getParameterValue( "start" )
+      def end = getParameterValue( "end" )
+      double morphing = getParameterValue( "morph" )
+
+      if( start instanceof GraphicsOperation && start.parameterHasValue("asShape") &&
+            start.getParameterValue("asShape") ){
+         start = start.getClip(g,observer)
+      }
+      if( end instanceof GraphicsOperation && end.parameterHasValue("asShape") &&
+            end.getParameterValue("asShape") ){
+         end = end.getClip(g,observer)
+      }
+
+      Morphing2D morph = new Morphing2D( start, end )
+      morph.setMorphing( morphing )
+      return morph
    }
 }

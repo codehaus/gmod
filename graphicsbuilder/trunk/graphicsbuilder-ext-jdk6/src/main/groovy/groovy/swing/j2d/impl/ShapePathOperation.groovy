@@ -16,6 +16,7 @@
 package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.impl.AbstractPathOperation
 import java.awt.Graphics2D
 import java.awt.image.ImageObserver
 import java.awt.geom.Path2D
@@ -23,9 +24,14 @@ import java.awt.geom.Path2D
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ShapePathOperation implements PathOperation {
+class ShapePathOperation extends AbstractPathOperation {
     def shape
     boolean connect
+
+    public boolean isDirty() {
+       boolean shapetIsDirty = shape instanceof GraphicsOperation ? shape?.isDirty() : false
+       return shapeIsDirty || super.isDirty()
+    }
 
     public void apply( Path2D path, Graphics2D g, ImageObserver observer ) {
        if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&

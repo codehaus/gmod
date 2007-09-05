@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 import groovy.swing.j2d.impl.PathOperation
 import groovy.swing.j2d.impl.MoveToPathOperation
 
@@ -28,14 +28,10 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class PathGraphicsOperation extends AbstractGraphicsOperation {
+class PathGraphicsOperation extends AbstractShapeGraphicsOperation {
    def winding
 
    private List pathOperations = []
-
-   static fillable = true
-   static contextual = true
-   static hasShape = true
 
    PathGraphicsOperation() {
       super( "path", [] as String[], ["winding"] as String[] )
@@ -45,20 +41,30 @@ class PathGraphicsOperation extends AbstractGraphicsOperation {
       pathOperations.add( operation )
    }
 
-   public Shape getClip( Graphics2D g, ImageObserver observer ) {
+   public boolean isDirty() {
+      // shortcut
+      if( super.isDirty() ){
+         return true
+      }
+      for( po in pathOperations ){
+         if( po.isDirty() ){
+             return true
+         }
+     }
+     return false
+   }
+
+   protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
       Path2D path = new GeneralPath( getWindingRule() )
       if( pathOperations.size() > 0 && !(pathOperations[0] instanceof MoveToPathOperation) ){
          throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")
       }
       pathOperations.each { pathOperation ->
          pathOperation.apply( path, g, observer )
+         pathOperation.setDirty( false )
       }
       path.closePath()
       return path
-   }
-
-   protected void doExecute( Graphics2D g, ImageObserver observer ){
-      g.draw( getClip( g, observer ) )
    }
 
    private int getWindingRule() {

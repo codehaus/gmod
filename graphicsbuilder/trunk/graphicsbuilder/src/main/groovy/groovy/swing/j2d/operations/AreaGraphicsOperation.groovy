@@ -35,6 +35,8 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
     private def drawDelegate
     private String areaMethod
     private String name
+    private List shapeProviderOperations = []
+    private Shape shape
 
     public AreaGraphicsOperation( String name, String areaMethod ){
         super( new StrokingAndFillingGraphicsOperation(
@@ -48,9 +50,27 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         return name
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ){
-        drawDelegate.shape = computeShape(g, observer)
-        return drawDelegate.getClip( g, observer )
+    public boolean isDirty(){
+        // shortcut
+        if( super.isDirty() ){
+           return true
+        }
+        findShapeProviderOperations()
+        for( go in shapeProviderOperations ){
+            if( go.isDirty() ){
+                return true
+            }
+        }
+        return false
+    }
+
+    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+        if( shape == null || isDirty() ){
+            shape = computeShape( g, observer );
+            drawDelegate.shape = computeShape(g, observer)
+            setDirty( false );
+        }
+        return shape;
     }
 
     public void verify(){
@@ -82,22 +102,27 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         return false
     }
 
-    private Shape computeShape( Graphics2D g, ImageObserver observer ){
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ){
         Area area = new Area()
-        List operations = getOperations()
-        // find all operations with hasShape
-        List ops = operations.grep{ go -> hasShape(go) }
-
-        def size = ops.size()
+        findShapeProviderOperations()
+        def size = shapeProviderOperations.size()
         if( size ){
-            area = new Area( ops[0].getClip(g,observer) )
+            area = new Area( shapeProviderOperations[0].getClip(g,observer) )
         }
-        ops[1..(size-1)].each { go ->
+        shapeProviderOperations[1..<size].each { go ->
             Shape shape = go.getClip(g, observer)
             if( hasShape(go) && shape ){
                 area."${areaMethod}"( new Area(shape) )
             }
         }
         return area
+    }
+
+    private void findShapeProviderOperations(){
+        if( shapeProviderOperations.isEmpty() ){
+           List operations = getOperations()
+           // find all operations with hasShape
+           shapeProviderOperations = operations.grep{ go -> hasShape(go) }
+        }
     }
 }

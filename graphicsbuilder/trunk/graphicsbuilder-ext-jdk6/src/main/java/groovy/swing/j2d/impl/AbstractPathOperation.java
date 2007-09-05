@@ -13,20 +13,33 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.impl;
 
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.Graphics2D
-import java.awt.image.ImageObserver
-import java.awt.geom.Path2D
+import groovy.lang.GroovyObjectSupport;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class VLinePathOperation extends AbstractPathOperation {
-    double y
+public abstract class AbstractPathOperation extends GroovyObjectSupport implements PathOperation {
+   private boolean dirty;
 
-    public void apply( Path2D path, Graphics2D g, ImageObserver observer ) {
-       path.lineTo( path.currentPoint.x, y )
-    }
+   public AbstractPathOperation() {
+
+   }
+
+   public boolean isDirty() {
+      return dirty;
+   }
+
+   public void setProperty( String name, Object value ) {
+      Object oldValue = getProperty( name );
+      super.setProperty( name, value );
+      if( value != oldValue ){
+         dirty = true;
+      }
+   }
+
+   protected void setDirty( boolean dirty ) {
+      this.dirty = dirty;
+   }
 }

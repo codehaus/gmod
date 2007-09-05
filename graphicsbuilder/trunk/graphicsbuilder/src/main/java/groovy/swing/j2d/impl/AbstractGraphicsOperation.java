@@ -38,6 +38,7 @@ import java.util.Set;
  */
 public abstract class AbstractGraphicsOperation extends GroovyObjectSupport implements
         GraphicsOperation {
+    private boolean dirty;
     private String name;
     private String[] optionalParameters = new String[0];
     private Map parameterMap = new LinkedHashMap();
@@ -131,6 +132,10 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         return propertyChangeSupport.hasListeners( propertyName );
     }
 
+    public boolean isDirty() {
+        return dirty;
+    }
+
     public boolean parameterHasValue( String name ) {
         if( parameterMap.containsKey( name ) ){
             return getProperty( name ) != null;
@@ -152,6 +157,9 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         Object oldValue = getProperty( name );
         super.setProperty( name, value );
         if( parameterMap.containsKey( name ) ){
+            if( value != oldValue ){
+                dirty = true;
+            }
             firePropertyChange( name, oldValue, value );
         }
     }
@@ -214,5 +222,9 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
 
     protected final Map getParameterMap() {
         return Collections.unmodifiableMap( parameterMap );
+    }
+
+    protected void setDirty( boolean dirty ) {
+        this.dirty = dirty;
     }
 }

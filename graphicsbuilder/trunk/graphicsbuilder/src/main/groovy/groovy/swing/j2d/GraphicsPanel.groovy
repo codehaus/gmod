@@ -84,6 +84,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener {
      }
 
      protected void fireGraphicsErrorEvent( Throwable t ) {
+         t.printStackTrace()
          def event = new GraphicsErrorEvent( this, t )
          errorListeners.each { listener ->
             listener.errorOccurred( event )

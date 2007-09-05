@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.impl
 
-import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.impl.AbstractPathOperation
 import java.awt.Graphics2D
 import java.awt.image.ImageObserver
 import java.awt.geom.Path2D
@@ -23,7 +23,7 @@ import java.awt.geom.Path2D
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CurveToPathOperation implements PathOperation {
+class CurveToPathOperation extends AbstractPathOperation {
     double x1
     double x2
     double x3

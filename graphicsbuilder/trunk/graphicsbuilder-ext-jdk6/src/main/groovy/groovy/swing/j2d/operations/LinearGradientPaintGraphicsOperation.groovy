@@ -43,6 +43,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
 
    static supportsFill = true
 
+   // TODO support isDirty()
    LinearGradientPaintGraphicsOperation() {
       super( "linearGradient", ["x1", "x2", "y1", "y2"] as String[], ["cycle"] as String[] )
    }

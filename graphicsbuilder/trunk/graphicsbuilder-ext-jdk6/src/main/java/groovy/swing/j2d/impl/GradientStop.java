@@ -22,6 +22,7 @@ import java.awt.Color;
  */
 public class GradientStop {
    private Color color;
+   private boolean dirty;
    private float offset;
 
    public Color getColor() {
@@ -33,10 +34,24 @@ public class GradientStop {
    }
 
    public void setColor( Color color ) {
+      if( this.color != color ){
+         dirty = true;
+      }
       this.color = color;
    }
 
    public void setOffset( float offset ) {
+      if( this.offset != offset ){
+         dirty = true;
+      }
       this.offset = offset;
+   }
+
+   protected boolean isDirty() {
+      return dirty;
+   }
+
+   protected void setDirty( boolean dirty ) {
+      this.dirty = dirty;
    }
 }

@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -25,7 +25,7 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class QuadCurveGraphicsOperation extends AbstractGraphicsOperation {
+class QuadCurveGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x1
     def x2
     def y1
@@ -34,14 +34,13 @@ class QuadCurveGraphicsOperation extends AbstractGraphicsOperation {
     def ctrly
 
     static strokable = true
-    static contextual = true
-    static hasShape = true
 
     QuadCurveGraphicsOperation() {
         super( "quadCurve", ["x1", "x2", "y1", "y2", "ctrlx", "ctrly"] as String[] )
+        fillable = false
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         double x1 = getParameterValue( "x1" )
         double x2 = getParameterValue( "x2" )
         double y1 = getParameterValue( "y1" )
@@ -49,9 +48,5 @@ class QuadCurveGraphicsOperation extends AbstractGraphicsOperation {
         double ctrlx = getParameterValue( "ctrlx" )
         double ctrly = getParameterValue( "ctrly" )
         return new QuadCurve2D.Double( x1, y1, ctrlx, ctrly, x2, y2 )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

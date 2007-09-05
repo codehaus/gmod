@@ -16,8 +16,9 @@
    * limitations under the License.
    */
 -->
-   
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -28,9 +29,8 @@
    <version>${graphicsbuilder-version}</version>
    <name>GraphicsBuilder</name>
 
-   <url/>
-   <description>
-   </description>
+   <url />
+   <description></description>
    <inceptionYear>2007</inceptionYear>
 
    <licenses>
@@ -41,8 +41,8 @@
       </license>
    </licenses>
 
-   <scm/>
-   <issueManagement/>
+   <scm />
+   <issueManagement />
 
    <developers>
       <developer>
@@ -62,7 +62,7 @@
       <module>graphicsbuilder-ext-swingx</module>
       <module>graphicsbuilder-demo</module>
       <!--
-      <module>graphicsbuilder-ext-svg</module>
+         <module>graphicsbuilder-ext-svg</module>
       -->
    </modules>
 
@@ -71,18 +71,18 @@
          <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-	    <version>3.8.2</version>
-	    <scope>test</scope>
+            <version>3.8.2</version>
+            <scope>test</scope>
          </dependency>
          <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-	    <version>${groovy-version}</version>
+            <version>${groovy-version}</version>
          </dependency>
          <dependency>
             <groupId>org.codehaus.groovy-contrib</groupId>
             <artifactId>graphicsbuilder</artifactId>
-	    <version>${graphicsbuilder-version}</version>
+            <version>${graphicsbuilder-version}</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
@@ -110,8 +110,8 @@
             <executions>
                <execution>
                   <goals>
-                    <!--
-                     <goal>groovydoc</goal>
+                     <!--
+                        <goal>groovydoc</goal>
                      -->
                      <goal>compile</goal>
                      <goal>testCompile</goal>

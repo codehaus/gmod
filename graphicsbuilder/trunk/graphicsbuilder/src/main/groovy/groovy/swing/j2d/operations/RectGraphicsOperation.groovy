@@ -20,34 +20,25 @@ import java.awt.Shape
 import java.awt.image.ImageObserver
 import java.awt.geom.Rectangle2D
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class RectGraphicsOperation extends AbstractGraphicsOperation {
+class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x
     def y
     def width
     def height
-
-    static fillable = true
-    static contextual = true
-    static hasShape = true
-
     RectGraphicsOperation() {
         super( "rect", ["x", "y", "width", "height"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         double x = getParameterValue( "x" )
         double y = getParameterValue( "y" )
         double width = getParameterValue( "width" )
         double height = getParameterValue( "height" )
         return new Rectangle2D.Double( x, y, width, height )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

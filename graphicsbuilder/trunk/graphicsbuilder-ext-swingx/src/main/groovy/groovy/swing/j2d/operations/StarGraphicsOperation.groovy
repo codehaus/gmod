@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -26,31 +26,23 @@ import org.jdesktop.swingx.geom.Star2D
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class StarGraphicsOperation extends AbstractGraphicsOperation {
+class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
    def x
    def y
    def ir
    def or
    def count
 
-   static fillable = true
-   static contextual = true
-   static hasShape = true
-
-   public StarGraphicsOperation() {
+   StarGraphicsOperation() {
       super( "star", ["x", "y", "ir", "or", "count"] as String[] )
    }
 
-   public Shape getClip(Graphics2D g, ImageObserver observer) {
+   protected Shape computeShape(Graphics2D g, ImageObserver observer) {
       double x = getParameterValue( "x" )
       double y = getParameterValue( "y" )
       double ir = getParameterValue( "ir" )
       double or = getParameterValue( "or" )
       int count = getParameterValue( "count" )
       return new Star2D( x, y, ir, or, count )
-   }
-
-   protected void doExecute( Graphics2D g, ImageObserver observer ){
-      g.draw( getClip( g, observer ) )
    }
 }

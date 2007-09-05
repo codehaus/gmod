@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.impl
 
-import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.impl.AbstractPathOperation
 import java.awt.Graphics2D
 import java.awt.image.ImageObserver
 import java.awt.geom.Path2D
@@ -23,7 +23,11 @@ import java.awt.geom.Path2D
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ClosePathOperation implements PathOperation {
+class ClosePathOperation extends AbstractPathOperation {
+    public boolean isDirty(){
+       return false
+    }
+
     public void apply( Path2D path, Graphics2D g, ImageObserver observer ) {
        path.closePath()
     }

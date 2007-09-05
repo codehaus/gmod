@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Polygon
@@ -25,18 +25,14 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class PolygonGraphicsOperation extends AbstractGraphicsOperation {
+class PolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
     List points
-
-    static fillable = true
-    static contextual = true
-    static hasShape = true
 
     PolygonGraphicsOperation() {
         super( "polygon", ["points"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         List points = getParameterValue( "points" )
         if( points.size() == 0 ){
             return null
@@ -58,21 +54,14 @@ class PolygonGraphicsOperation extends AbstractGraphicsOperation {
         return new Polygon( xpoints, ypoints, npoints )
     }
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
-    }
-
     private int convertToInteger( Object o, int index ) {
         int p = 0
         if( o == null ){
             throw new IllegalStateException( ((index % 2 == 0) ? "x" : "y") + "[" + index
                     + "] is null" )
         }
-        if( o instanceof Closure ){
-            o = o.call()
-        }
         if( o instanceof Number ){
-            p = o
+            p = o.intValue()
         }else{
             throw new IllegalStateException( ((index % 2 == 0) ? "x" : "y") + "[" + index
                     + "] is not a number" )

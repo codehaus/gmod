@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -32,29 +32,21 @@ import java.awt.image.ImageObserver
  * </ul>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class EllipseGraphicsOperation extends AbstractGraphicsOperation {
+class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
     def cx
     def cy
     def radiusx
     def radiusy
 
-    static fillable = true
-    static contextual = true
-    static hasShape = true
-
-    public EllipseGraphicsOperation() {
+    EllipseGraphicsOperation() {
         super( "ellipse", ["cx", "cy", "radiusx","radiusy"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         int cx = getParameterValue( "cx" )
         int cy = getParameterValue( "cy" )
         int radiusx = getParameterValue( "radiusx" )
         int radiusy = getParameterValue( "radiusy" )
         return new Ellipse2D.Double( cx - radiusx, cy - radiusy, radiusx * 2, radiusy * 2 )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

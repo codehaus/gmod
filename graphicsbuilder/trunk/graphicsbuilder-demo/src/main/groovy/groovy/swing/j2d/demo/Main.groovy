@@ -418,6 +418,7 @@ class Main {
     }
 
     def finishException(Throwable t) {
+       t.printStackTrace()
        displayError( t.localizedMessage )
     }
 

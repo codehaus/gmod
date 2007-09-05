@@ -24,4 +24,6 @@ import java.awt.image.ImageObserver;
  */
 public interface PathOperation {
    void apply( Path2D path, Graphics2D g, ImageObserver observer );
+
+   boolean isDirty();
 }

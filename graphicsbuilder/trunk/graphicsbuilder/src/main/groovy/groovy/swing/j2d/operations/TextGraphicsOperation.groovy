@@ -24,32 +24,24 @@ import java.awt.font.TextLayout
 import java.awt.geom.AffineTransform
 import java.awt.geom.Rectangle2D
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TextGraphicsOperation extends AbstractGraphicsOperation {
+class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
     def text
     def x
     def y
-
-    static fillable = true
-    static contextual = true
-    static hasShape = true
 
     TextGraphicsOperation() {
         super( "text", ["text", "x", "y"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ){
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ){
         FontRenderContext frc = g.getFontRenderContext()
         TextLayout layout = new TextLayout( text, g.font, frc )
         Rectangle2D bounds = layout.getBounds()
         return layout.getOutline( AffineTransform.getTranslateInstance( x, y + bounds.height ) )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip(g,observer) )
     }
 }

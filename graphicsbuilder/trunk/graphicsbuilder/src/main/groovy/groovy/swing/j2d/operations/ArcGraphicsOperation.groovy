@@ -15,13 +15,12 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
-import java.awt.Rectangle
 import java.awt.Shape
 import java.awt.image.ImageObserver
-import java.awt.geom.*
+import java.awt.geom.Arc2D
 
 /**
  * Draws an Arc2D<br>
@@ -37,7 +36,7 @@ import java.awt.geom.*
  * </ul>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ArcGraphicsOperation extends AbstractGraphicsOperation {
+class ArcGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x
     def y
     def width
@@ -46,16 +45,12 @@ class ArcGraphicsOperation extends AbstractGraphicsOperation {
     def extent
     def close
 
-    static fillable = true
-    static contextual = true
-    static hasShape = true
-
     public ArcGraphicsOperation() {
         super( "arc", ["x", "y", "width", "height", "start", "extent"] as String[],
                ["close"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ){
         double x = getParameterValue( "x" )
         double y = getParameterValue( "y" )
         double width = getParameterValue( "width" )
@@ -64,10 +59,6 @@ class ArcGraphicsOperation extends AbstractGraphicsOperation {
         double extent = getParameterValue( "extent" )
         int close = getCloseParameter()
         return new Arc2D.Double( x, y, width, height, start, extent, close )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip(g, observer) )
     }
 
     private int getCloseParameter() {

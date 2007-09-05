@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -31,27 +31,19 @@ import java.awt.image.ImageObserver
  * </ul>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class CircleGraphicsOperation extends AbstractGraphicsOperation {
+class CircleGraphicsOperation extends AbstractShapeGraphicsOperation {
     def cx
     def cy
     def radius
-
-    static fillable = true
-    static contextual = true
-    static hasShape = true
 
     public CircleGraphicsOperation() {
         super( "circle", ["cx", "cy", "radius"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         int radius = getParameterValue( "radius" )
         int cx = getParameterValue( "cx" )
         int cy = getParameterValue( "cy" )
         return new Ellipse2D.Double( cx - radius, cy - radius, radius * 2, radius * 2 )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

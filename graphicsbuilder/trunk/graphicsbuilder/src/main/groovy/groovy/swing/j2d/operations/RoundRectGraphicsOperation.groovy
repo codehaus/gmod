@@ -20,12 +20,12 @@ import java.awt.Shape
 import java.awt.geom.RoundRectangle2D
 import java.awt.image.ImageObserver
 
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class RoundRectGraphicsOperation extends AbstractGraphicsOperation {
+class RoundRectGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x
     def y
     def width
@@ -33,15 +33,11 @@ class RoundRectGraphicsOperation extends AbstractGraphicsOperation {
     def arcWidth
     def arcHeight
 
-    static fillable = true
-    static contextual = true
-    static hasShape = true
-
     RoundRectGraphicsOperation() {
         super( "rect", ["x", "y", "width", "height", "arcWidth", "arcHeight"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
         double x = getParameterValue( "x" )
         double y = getParameterValue( "y" )
         double width = getParameterValue( "width" )
@@ -49,9 +45,5 @@ class RoundRectGraphicsOperation extends AbstractGraphicsOperation {
         double arcWidth = getParameterValue( "arcWidth" )
         double arcHeight = getParameterValue( "arcHeight" )
         return new RoundRectangle2D.Double( x, y, width, height, arcWidth, arcHeight )
-    }
-
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
-        g.draw( getClip( g, observer ) )
     }
 }

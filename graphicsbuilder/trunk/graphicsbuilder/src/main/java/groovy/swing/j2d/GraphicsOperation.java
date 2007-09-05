@@ -54,6 +54,13 @@ public interface GraphicsOperation {
     String getName();
 
     /**
+     * Returns true if a parameter has changed value.<br>
+     * This is useful for binding and animation as well as keeping a local cache
+     * of values to speed up execution if no value has changed.
+     */
+    boolean isDirty();
+
+    /**
      * Returns any optional parameters this operation may have.<br>
      * Optional parameters do not need to be verified.
      */
