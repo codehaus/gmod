@@ -1,0 +1,13 @@
+renderingHint( key: 'antialiasing', value: 'antialias on')
+group( color: 'darkRed', strokeWidth: 3, fill: 'red' ){
+    rect( x: 10, y: 10, width: 290, height: 80, arcWidth: 20, arcHeight: 20 )
+    circle( cx: 90, cy: 80, radius: 50 )
+    polygon(points: [175, 38, 229, 69, 229, 131, 175, 162, 121, 131, 121, 69])
+}
+group( color: 'darkRed', strokeWidth: 3, fill: 'red' ){
+    transformations { translate( x: 350, y: 0 ) }
+    clip( shape: rect( x: 20, y: 20, width: 260, height: 60, arcWidth: 20, arcHeight: 20, asShape: true ) )
+    rect( x: 10, y: 10, width: 290, height: 80, arcWidth: 20, arcHeight: 20 )
+    circle( cx: 90, cy: 80, radius: 50 )
+    polygon(points: [175, 38, 229, 69, 229, 131, 175, 162, 121, 131, 121, 69])
+}

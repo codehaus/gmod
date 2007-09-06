@@ -139,6 +139,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private void registerOperations() {
         registerGraphicsOperationBeanFactory( "arc", ArcGraphicsOperation )
         registerGraphicsOperationBeanFactory( "circle", CircleGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
         registerFactory( "color", new ColorFactory() )
         registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation )
         registerGraphicsOperationBeanFactory( "draw", DrawGraphicsOperation )

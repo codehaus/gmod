@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.impl;
 
+import groovy.lang.MissingPropertyException;
 import groovy.swing.j2d.GraphicsOperation;
 
 import java.awt.Graphics2D;
@@ -135,13 +136,13 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
                 if( color != null ){
-                    InvokerHelper.setProperty( go, "color", color );
+                    safeSetProperty( go, "color", color );
                 }
                 if( strokeWidth != null ){
-                    InvokerHelper.setProperty( go, "strokeWidth", strokeWidth );
+                    safeSetProperty( go, "strokeWidth", strokeWidth );
                 }
                 if( fill != null ){
-                    InvokerHelper.setProperty( go, "fill", fill );
+                    safeSetProperty( go, "fill", fill );
                 }
                 go.execute( g, observer );
             }
@@ -156,6 +157,14 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
 
     private void restoreContext( Graphics2D g ) {
         context.restore( g );
+    }
+
+    private void safeSetProperty( Object obj, String name, Object value ) {
+        try{
+            InvokerHelper.setProperty( obj, name, value );
+        }catch( MissingPropertyException mpe ){
+            // ignore
+        }
     }
 
     private void saveContext( Graphics2D g, ImageObserver observer ) {
