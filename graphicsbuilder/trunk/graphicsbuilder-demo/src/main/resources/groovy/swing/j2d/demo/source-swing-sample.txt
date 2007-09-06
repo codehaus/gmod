@@ -1,0 +1,5 @@
+def swing = new SwingBuilder()
+def panel = swing.panel {
+   swing.button( label: 'Swing', bounds: [100,10,120,30] as Rectangle )
+}
+operation( new SwingGraphicsOperation(panel) ) 

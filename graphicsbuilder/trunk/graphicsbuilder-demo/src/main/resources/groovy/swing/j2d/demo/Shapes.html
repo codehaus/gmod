@@ -46,7 +46,21 @@
    <li>vline[y] : adds a point to the path by drawing a vertical line to the specified coordinates (current.x,y)</li>
    <li>shape[shape,connect] : appends the geometry of the specified Shape object to the path, possibly connecting the new geometry to the existing path segments with a line segment.</li>
    <li>close : closes the current subpath by drawing a straight line back to the coordinates of the last moveTo.</li>
-   </ul>The first operation must be a moveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-jdk6<td></td>
+   </ul>The first operation must be moveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-jdk6<td></td>
+</tr>
+<tr>
+   <td valign="top"><strong><a href="xpath">xpath</a></strong></td>Draws an arbitrary geometric path using the Batik library. Paths are described by a series of pathOperations:
+   <ul>
+   <li>xmoveTo[x,y] : adds a point to the path by moving to the specified coordinates (x,y)</li>
+   <li>xlineTo[x,y] : adds a point to the path by drawing a straight line from the current coordinates to the new specified coordinates (x,y)</li>
+   <li>xcurveTo[x1,y1,x2,y2,x3,y3] : adds a curved segment, defined by three new points, to the path by drawing a Bézier curve that intersects both the current coordinates and the specified coordinates (x3,y3), using the specified points (x1,y1) and (x2,y2) as Bézier control points.</li>
+   <li>xquadTo[x1,y1,x2,y2] : adds a curved segment, defined by two new points, to the path by drawing a Quadratic curve that intersects both the current coordinates and the specified coordinates (x2,y2), using the specified point (x1,y1) as a quadratic parametric control point.</li>
+   <li>xhline[x] : adds a point to the path by drawing an horizontal line to the specified coordinates (x,current.y)</li>
+   <li>xvline[y] : adds a point to the path by drawing a vertical line to the specified coordinates (current.x,y)</li>
+   <li>xshape[shape,connect] : appends the geometry of the specified Shape object to the path, possibly connecting the new geometry to the existing path segments with a line segment.</li>
+   <li>xclose : closes the current subpath by drawing a straight line back to the coordinates of the last moveTo.</li>
+   <li>xarcTo[x,y,rx,ry,angle,sweep,largeArc] : adds an elliptical arc, defined by two radii (rx,ry), an angle from the x-axis, a flag to choose the large arc or not, a flag to indicate if we increase or decrease the angles and the final point of the arc (x,y).</li>
+   </ul>The first operation must be xmoveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-svg<td></td>
 </tr>
 <tr>
    <td valign="top"><strong><a href="star">star</a></strong></td><td>Draws a star shape. A star is defined by two radii and a number of branches. Each branch spans between the two radii. The inner radius is the distance between the center of the star and the origin of the branches. The outer radius is the distance between the center of the star and the tips of the branches. properties [x,y,ir,or,count]. Requires graphicsbuilder-ext-swingx</td>

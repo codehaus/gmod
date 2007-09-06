@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <jnlp
     spec="1.5+"
-    codebase="http://localhost:8080/webstart"
+    codebase="http://almiray.net/groovy/"
     href="$outputFile">
   <information>
     <title>GraphicsBuilder Demo</title>
-    <vendor>Groovy<vendor/>
+    <vendor>Groovy</vendor>
     <homepage href="http://groovy.codehaus.org"/>
     <description>GraphicsBuilder Demo</description>
     <description kind="short">GraphicsBuilder lets you work with Java2D the Groovy way</description>
@@ -19,6 +19,6 @@
      $dependencies
   </resources>
   <application-desc main-class="$mainClass">
-    <argument>http://localhost:8080/webstart</argument>
+     <argument>http://almiray.net/groovy/</argument>
   </application-desc>
 </jnlp>

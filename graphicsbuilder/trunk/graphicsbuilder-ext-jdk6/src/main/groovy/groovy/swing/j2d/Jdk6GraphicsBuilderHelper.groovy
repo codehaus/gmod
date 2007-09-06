@@ -18,7 +18,6 @@ package groovy.swing.j2d
 import groovy.swing.j2d.factory.GradientStopFactory
 import groovy.swing.j2d.factory.PathOperationFactory
 import groovy.swing.j2d.impl.MoveToPathOperation
-import groovy.swing.j2d.impl.MoveToPathOperation
 import groovy.swing.j2d.impl.LineToPathOperation
 import groovy.swing.j2d.impl.QuadToPathOperation
 import groovy.swing.j2d.impl.CurveToPathOperation

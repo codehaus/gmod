@@ -68,6 +68,7 @@ class Main {
        graphicsBuilder = new GraphicsBuilder()
        Jdk6GraphicsBuilderHelper.registerOperations( graphicsBuilder )
        SwingXGraphicsBuilderHelper.registerOperations( graphicsBuilder )
+       BatikGraphicsBuilderHelper.registerOperations( graphicsBuilder )
     }
 
     private void buildUI(){
@@ -216,7 +217,7 @@ class Main {
 
     private def buildListPanel( swing ){
        def data = ["Shapes","Painting","Transformations","Groups",
-                   "Images","Areas","Binding",/*"Swing",*/"Miscellaneous"]
+                   "Images","Areas","Binding","Swing","Miscellaneous"]
        swing.panel( new JXTitledPanel(), title: 'Topics', border: createShadowBorder() ){
           list( listData: data as Object[], mouseClicked: this.&displayDemo,
                 cellRenderer: new OptionCellRenderer() )

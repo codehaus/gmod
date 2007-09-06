@@ -1,0 +1,6 @@
+xpath( color: 'darkRed', fill: 'red', strokeWidth: 4 ){  
+   xmoveTo( x: 50, y: 10 )  
+   xhline( x: 200 )  
+   xvline( y: 60 )
+   xarcTo( x: 50, y: 60, rx: 150, ry: 150, angle: 90, sweep: true, largeArc: false )
+} 
