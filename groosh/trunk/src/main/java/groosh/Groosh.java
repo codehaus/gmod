@@ -53,8 +53,8 @@ public class Groosh extends GroovyObjectSupport {
 
 	private ExecDir execDir = new ExecDir();
 
-	private String user;
-	private String password;
+	private String sudoUser;
+	private String sudoPassword = "";
 
 	static {
 		registerStreamClosureProcess("groovy", StreamClosureProcess.class);
@@ -111,7 +111,7 @@ public class Groosh extends GroovyObjectSupport {
 					command = new ArrayList<String>();
 					command.add("sudo");
 					command.add("-u");
-					command.add(user);
+					command.add(sudoUser);
 					command.add("-S");
 					command.add(name);
 					command.addAll(getArgs(args));
@@ -119,7 +119,7 @@ public class Groosh extends GroovyObjectSupport {
 				// System.out.println(listAsString(command));
 				process = new ShellProcess(command, env, execDir);
 				if (withSudo) {
-					process.fromString(password);
+					process.fromString(sudoPassword);
 				}
 			}
 		} catch (IOException e) {
@@ -181,11 +181,6 @@ public class Groosh extends GroovyObjectSupport {
 		return env;
 	}
 
-	public void setSudoUser(String user, String password) {
-		this.user = user;
-		this.password = password;
-	}
-
 	protected List<String> getArgs(Object arg1) {
 		if (arg1 == null)
 			return new ArrayList<String>();
@@ -205,6 +200,14 @@ public class Groosh extends GroovyObjectSupport {
 		} else
 			throw new IllegalStateException("no support for args of type "
 					+ arg1.getClass());
+	}
+
+	public void setSudoUser(String sudoUser) {
+		this.sudoUser = sudoUser;
+	}
+
+	public void setSudoPassword(String sudoPassword) {
+		this.sudoPassword = sudoPassword;
 	}
 
 }

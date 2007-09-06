@@ -58,11 +58,11 @@ public class JavaProcess implements AppProcess {
 		// somewhere.
 		if (!outHandled)
 			IOUtil.pumpAsync(process.getInputStream(), StandardStreams.stderr()
-					.getStream());
+					.getOutputStream());
 
 		if (!errHandled)
 			IOUtil.pumpAsync(process.getErrorStream(), StandardStreams.stderr()
-					.getStream());
+					.getOutputStream());
 	}
 
 	public Sink getInput() {
@@ -90,25 +90,28 @@ public class JavaProcess implements AppProcess {
 	}
 
 	public class InSink extends Sink {
-		public OutputStream getStream() {
+		@Override
+		public OutputStream getOutputStream() {
 			inHandled = true;
 			return process.getOutputStream();
 		}
 
-		public boolean providesStream() {
+		@Override
+		public boolean providesOutputStream() {
 			return true;
 		}
 	}
 
 	public class OutSource extends Source {
 		public void connect(Sink sink) {
-			if (sink.providesStream()) {
+			if (sink.providesOutputStream()) {
 				outHandled = true;
 				// TODO handle result
-				IOUtil.pumpAsync(process.getInputStream(), sink.getStream());
+				IOUtil.pumpAsync(process.getInputStream(), sink
+						.getOutputStream());
 			} else if (sink.receivesStream()) {
 				outHandled = true;
-				sink.setStream(process.getInputStream());
+				sink.setInputStream(process.getInputStream());
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}
@@ -117,13 +120,14 @@ public class JavaProcess implements AppProcess {
 
 	public class ErrSource extends Source {
 		public void connect(Sink sink) {
-			if (sink.providesStream()) {
+			if (sink.providesOutputStream()) {
 				errHandled = true;
 				// TODO handle result
-				IOUtil.pumpAsync(process.getInputStream(), sink.getStream());
+				IOUtil.pumpAsync(process.getInputStream(), sink
+						.getOutputStream());
 			} else if (sink.receivesStream()) {
 				errHandled = true;
-				sink.setStream(process.getInputStream());
+				sink.setInputStream(process.getInputStream());
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}

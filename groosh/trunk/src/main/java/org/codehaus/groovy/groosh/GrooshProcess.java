@@ -16,6 +16,7 @@ package org.codehaus.groovy.groosh;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import org.codehaus.groovy.groosh.process.DevNull;
 import org.codehaus.groovy.groosh.process.FileStreams;
@@ -40,7 +41,7 @@ public abstract class GrooshProcess {
 		StringStreams.StringSink sink = StringStreams.stringSink();
 
 		getSource().connect(sink);
-		start();
+		startStreamHandling();
 
 		return sink.toString();
 	}
@@ -60,7 +61,7 @@ public abstract class GrooshProcess {
 	public GrooshProcess pipeTo(GrooshProcess process) throws IOException {
 		getSource().connect(process.getSink());
 
-		start();
+		startStreamHandling();
 
 		// return other process so chaining is possible
 		return process;
@@ -81,8 +82,9 @@ public abstract class GrooshProcess {
 
 	private void processSink(Sink sink) throws IOException {
 		getSource().connect(sink);
-		start();
+		startStreamHandling();
 		waitForExit();
+
 	}
 
 	public GrooshProcess fromStdIn() throws IOException {
@@ -101,7 +103,12 @@ public abstract class GrooshProcess {
 		return this;
 	}
 
-	public abstract void start() throws IOException;
+	public void waitForStreamsHandled() throws InterruptedException,
+			ExecutionException {
+		getSource().waitForStreamsHandled();
+	}
+
+	public abstract void startStreamHandling() throws IOException;
 
 	public abstract void waitForExit() throws IOException;
 }

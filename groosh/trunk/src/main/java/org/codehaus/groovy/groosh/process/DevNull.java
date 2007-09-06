@@ -26,7 +26,8 @@ import java.io.OutputStream;
  */
 public class DevNull {
 	public static class NullSink extends Sink {
-		public OutputStream getStream() {
+		@Override
+		public OutputStream getOutputStream() {
 			return new OutputStream() {
 				public void write(int b) throws IOException {
 					// do nothing
@@ -34,15 +35,17 @@ public class DevNull {
 			};
 		}
 
-		public void setStream(final InputStream is) {
+		@Override
+		public void setInputStream(final InputStream is) {
 			// TODO handle result/exception?
-			IOUtil.pumpAsync(is, getStream());
+			IOUtil.pumpAsync(is, getOutputStream());
 		}
-
-		public boolean providesStream() {
+		@Override
+		public boolean providesOutputStream() {
 			return true;
 		}
 
+		@Override
 		public boolean receivesStream() {
 			return true;
 		}
@@ -50,14 +53,14 @@ public class DevNull {
 
 	public static class NullSource extends Source {
 		public void connect(Sink sink) {
-			if (sink.providesStream()) {
+			if (sink.providesOutputStream()) {
 				try {
-					sink.getStream().close();
+					sink.getOutputStream().close();
 				} catch (IOException e) {
 					throw new RuntimeException(e);
 				}
 			} else if (sink.receivesStream()) {
-				sink.setStream(new ByteArrayInputStream(new byte[0]));
+				sink.setInputStream(new ByteArrayInputStream(new byte[0]));
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}

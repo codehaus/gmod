@@ -47,12 +47,12 @@ public class StreamClosureProcess extends GrooshProcess implements
 		this.closure = closure;
 	}
 
-	public void start() {
+	public void startStreamHandling() {
 		if (is == null)
 			throw new RuntimeException("closure processes need a source");
 
 		if (os == null)
-			os = StandardStreams.stdout().getStream();
+			os = StandardStreams.stdout().getOutputStream();
 
 		result = IOUtil.getExecutor().submit(this);
 	}
@@ -89,7 +89,7 @@ public class StreamClosureProcess extends GrooshProcess implements
 
 	public class ClosureSink extends Sink {
 
-		public void setStream(InputStream is) {
+		public void setInputStream(InputStream is) {
 			StreamClosureProcess.this.is = is;
 		}
 
@@ -104,13 +104,13 @@ public class StreamClosureProcess extends GrooshProcess implements
 
 	public class ClosureSource extends Source {
 		public void connect(Sink sink) throws IOException {
-			if (sink.providesStream()) {
-				StreamClosureProcess.this.os = sink.getStream();
+			if (sink.providesOutputStream()) {
+				StreamClosureProcess.this.os = sink.getOutputStream();
 			} else if (sink.receivesStream()) {
 				Pipe pipe = Pipe.open();
 				StreamClosureProcess.this.os = Channels.newOutputStream(pipe
 						.sink());
-				sink.setStream(Channels.newInputStream(pipe.source()));
+				sink.setInputStream(Channels.newInputStream(pipe.source()));
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}

@@ -12,8 +12,5 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh()
-
-gsh.setSudoUser("user","password")
-
+gsh = new groosh.Groosh(sudoUser:"user",sudoPassword:"password")
 gsh.sudo_cat("/var/log/messages").toStdOut()

@@ -32,13 +32,10 @@ public class StandardStreams {
 		public void connect(Sink sink) {
 			InputStream is = new FileInputStream(FileDescriptor.in);
 
-			if (sink.providesStream()) {
-				// TODO feels better if this is line based, rather than fixed
-				// buffer size based
-				// TODO handle result
-				IOUtil.pumpAsync(is, sink.getStream());
+			if (sink.providesOutputStream()) {
+				streamPumpResult = IOUtil.pumpAsync(is, sink.getOutputStream());
 			} else if (sink.receivesStream()) {
-				sink.setStream(is);
+				sink.setInputStream(is);
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}
@@ -50,7 +47,8 @@ public class StandardStreams {
 	}
 
 	public static class ErrSink extends Sink {
-		public OutputStream getStream() {
+		@Override
+		public OutputStream getOutputStream() {
 			return new FileOutputStream(FileDescriptor.err) {
 				public void close() throws IOException {
 					// ignore close
@@ -59,7 +57,8 @@ public class StandardStreams {
 			};
 		}
 
-		public boolean providesStream() {
+		@Override
+		public boolean providesOutputStream() {
 			return true;
 		}
 	}
@@ -69,7 +68,8 @@ public class StandardStreams {
 	}
 
 	public static class OutSink extends Sink {
-		public OutputStream getStream() {
+		@Override
+		public OutputStream getOutputStream() {
 			return new FileOutputStream(FileDescriptor.out) {
 				public void close() throws IOException {
 					// ignore close
@@ -78,7 +78,8 @@ public class StandardStreams {
 			};
 		}
 
-		public boolean providesStream() {
+		@Override
+		public boolean providesOutputStream() {
 			return true;
 		}
 	}

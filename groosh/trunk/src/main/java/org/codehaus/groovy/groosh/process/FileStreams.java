@@ -34,11 +34,10 @@ public class FileStreams {
 		}
 
 		public void connect(Sink sink) {
-			if (sink.providesStream()) {
-				// TODO handle result
-				IOUtil.pumpAsync(is, sink.getStream());
+			if (sink.providesOutputStream()) {
+				streamPumpResult = IOUtil.pumpAsync(is, sink.getOutputStream());
 			} else if (sink.receivesStream()) {
-				sink.setStream(is);
+				sink.setInputStream(is);
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}
@@ -56,11 +55,13 @@ public class FileStreams {
 			this.os = new FileOutputStream(f, append);
 		}
 
-		public OutputStream getStream() {
+		@Override
+		public OutputStream getOutputStream() {
 			return os;
 		}
 
-		public boolean providesStream() {
+		@Override
+		public boolean providesOutputStream() {
 			return true;
 		}
 	}

@@ -15,12 +15,35 @@
 package org.codehaus.groovy.groosh.process;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * 
  * @author Yuri Schimke
+ * @author Alexander Egger
  * 
  */
 public abstract class Source {
+	protected Future<Integer> streamPumpResult;
+
 	public abstract void connect(Sink sink) throws IOException;
+
+	/**
+	 * The input stream is pumped to the output stream asynchronosly. Call this
+	 * method to wait until the output stream and input stream are fully
+	 * processed and closed.
+	 * 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
+	 */
+	public void waitForStreamsHandled() throws InterruptedException,
+			ExecutionException {
+		if (streamPumpResult == null) {
+			return;
+		} else {
+			streamPumpResult.get();
+		}
+
+	}
 }

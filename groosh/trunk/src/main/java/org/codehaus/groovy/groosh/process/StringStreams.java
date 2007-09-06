@@ -34,7 +34,7 @@ public class StringStreams {
 			return true;
 		}
 
-		public void setStream(InputStream is) {
+		public void setInputStream(InputStream is) {
 			result = IOUtil.pumpAsync(is, baos);
 		}
 
@@ -74,11 +74,10 @@ public class StringStreams {
 		}
 
 		public void connect(Sink sink) {
-			if (sink.providesStream()) {
-				// TODO handle result
-				IOUtil.pumpAsync(is, sink.getStream());
+			if (sink.providesOutputStream()) {
+				streamPumpResult = IOUtil.pumpAsync(is, sink.getOutputStream());
 			} else if (sink.receivesStream()) {
-				sink.setStream(is);
+				sink.setInputStream(is);
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}

@@ -40,7 +40,7 @@ public class ShellProcess extends GrooshProcess {
 		process.result();
 	}
 
-	public void start() throws IOException {
+	public void startStreamHandling() throws IOException {
 		process.start();
 	}
 

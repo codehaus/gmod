@@ -85,7 +85,7 @@ public class CdProcess extends GrooshProcess {
 		return;
 	}
 
-	public void start() throws IOException {
+	public void startStreamHandling() throws IOException {
 
 	}
 

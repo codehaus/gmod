@@ -22,23 +22,22 @@ import java.io.OutputStream;
  * @author Yuri Schimke
  * 
  */
-// TODO need an isFinished method
-// in general process.waitForExit() knows when input has finished
-// but not aware of output has reached destination neccesarily!
 public class Sink {
+
 	public boolean receivesStream() {
 		return false;
 	}
 
-	public boolean providesStream() {
+	public boolean providesOutputStream() {
 		return false;
 	}
 
-	public OutputStream getStream() {
+	public OutputStream getOutputStream() {
 		throw new UnsupportedOperationException();
 	}
 
-	public void setStream(InputStream channel) {
+	public void setInputStream(InputStream channel) {
 		throw new UnsupportedOperationException();
 	}
+
 }
