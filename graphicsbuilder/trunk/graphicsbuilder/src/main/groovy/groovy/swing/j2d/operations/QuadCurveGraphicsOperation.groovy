@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
+import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -25,7 +25,7 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class QuadCurveGraphicsOperation extends AbstractShapeGraphicsOperation {
+class QuadCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
     def x1
     def x2
     def y1
@@ -33,11 +33,8 @@ class QuadCurveGraphicsOperation extends AbstractShapeGraphicsOperation {
     def ctrlx
     def ctrly
 
-    static strokable = true
-
     QuadCurveGraphicsOperation() {
         super( "quadCurve", ["x1", "x2", "y1", "y2", "ctrlx", "ctrly"] as String[] )
-        fillable = false
     }
 
     protected Shape computeShape( Graphics2D g, ImageObserver observer ) {

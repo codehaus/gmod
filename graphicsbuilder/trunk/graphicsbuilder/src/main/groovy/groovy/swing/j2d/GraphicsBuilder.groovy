@@ -52,7 +52,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         building = true
         operations = []
         closure.setDelegate( this )
-        GraphicsOperation go
+        GraphicsOperation go = null
         try {
             closure.call()
             go = new BuiltGraphicsOperation( operations, variables )

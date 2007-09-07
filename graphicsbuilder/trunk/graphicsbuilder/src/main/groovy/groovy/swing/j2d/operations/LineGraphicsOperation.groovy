@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
+import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -25,17 +25,14 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class LineGraphicsOperation extends AbstractShapeGraphicsOperation {
+class LineGraphicsOperation extends AbstractOutlineGraphicsOperation {
     def x1
     def x2
     def y1
     def y2
 
-    static strokable = true
-
     LineGraphicsOperation() {
         super( "line", ["x1", "y1", "x2", "y2"] as String[] )
-        fillable = false
     }
 
     protected Shape computeShape( Graphics2D g, ImageObserver observer ) {

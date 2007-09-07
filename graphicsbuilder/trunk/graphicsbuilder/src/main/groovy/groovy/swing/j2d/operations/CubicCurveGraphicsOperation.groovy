@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
+import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
@@ -25,7 +25,7 @@ import java.awt.image.ImageObserver
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CubicCurveGraphicsOperation extends AbstractShapeGraphicsOperation {
+class CubicCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
     def x1
     def x2
     def y1
@@ -35,12 +35,9 @@ class CubicCurveGraphicsOperation extends AbstractShapeGraphicsOperation {
     def ctrlx2
     def ctrly2
 
-    static strokable = true
-
     CubicCurveGraphicsOperation() {
         super( "cubicCurve", ["x1", "x2", "y1", "y2", "ctrlx1", "ctrlx2", "ctrly1",
                 "ctrly2" ] as String[] )
-        fillable = false
     }
 
     protected Shape computeShape( Graphics2D g, ImageObserver observer ) {

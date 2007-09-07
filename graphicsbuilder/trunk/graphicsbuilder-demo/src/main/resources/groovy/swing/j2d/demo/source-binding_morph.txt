@@ -1,0 +1,16 @@
+renderingHint( key: 'antialiasing', value: 'antialias on' )
+def rect = rect( x: 20, y: 20, width: 100, height: 100, arcWidth: 20, arcHeight: 20, asShape: true)
+def star = star( x: 20, y: 20, ir: 50, or: 80, count: 5, asShape: true )
+def circle = circle( cx: 150, cy: 80, radius: 50, asShape: true )
+def bean = new BoundBean( x: 0 )
+def morph = morph( start: rect, end: star, morph: bind(source:bean, sourceProperty:'x'), 
+       strokeWidth: 3, color: 'orange', fill: 'yellow' )
+Thread.start {
+   sleep( 1000 )
+   (1..10).each { sleep( 50 ); bean.x = 0.1*it }
+   morph.color = 'blue'; morph.fill = 'cyan'
+   morph.start = star; morph.morph = 0; morph.end = circle
+   sleep( 1000 )
+   (1..10).each { sleep( 50 ); bean.x = 0.1*it }
+   morph.color = 'darkRed'; morph.fill = 'red'
+}

@@ -133,7 +133,14 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
 
     public Object invokeMethod( String methodName, Object args ) {
         Object name = getName( methodName );
-        return doInvokeMethod( methodName, name, args );
+        Object result = null;
+        try{
+            result = doInvokeMethod( methodName, name, args );
+        }catch( RuntimeException e ){
+            reset();
+            throw e;
+        }
+        return result;
     }
 
     public void registerBeanFactory( String theName, final Class beanClass ) {
@@ -364,6 +371,10 @@ public abstract class FactoryBuilderSupport extends GroovyObjectSupport {
      * A hook before the factory creates the node
      */
     protected void preInstantiate( Object name, Map attributes, Object value ) {
+    }
+
+    protected void reset() {
+        contexts = new Stack();
     }
 
     /**

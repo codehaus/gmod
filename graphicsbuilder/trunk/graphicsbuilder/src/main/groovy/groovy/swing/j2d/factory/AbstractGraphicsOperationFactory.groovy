@@ -48,7 +48,7 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
                      // just eat it?
                  }
              } else {
-                 node."${property}" = value
+                 node.setProperty( property, value )
              }
          }
          return false
