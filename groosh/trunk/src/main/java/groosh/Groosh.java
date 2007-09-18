@@ -95,6 +95,9 @@ public class Groosh extends GroovyObjectSupport {
 		if (name.startsWith("_")) {
 			name = name.substring(1);
 		}
+		
+		name = name.replaceAll("___", "-");
+		
 		try {
 			if (registeredStreamClosureProcesses.containsKey(name)) {
 				process = createStreamClosureProcess(
