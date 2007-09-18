@@ -40,7 +40,7 @@ public abstract class Source {
 	public void waitForStreamsHandled() throws InterruptedException,
 			ExecutionException {
 		if (streamPumpResult == null) {
-			return;
+			throw new NullPointerException("streamPumpResult must not be null");
 		} else {
 			streamPumpResult.get();
 		}

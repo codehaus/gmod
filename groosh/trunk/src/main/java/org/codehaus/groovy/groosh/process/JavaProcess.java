@@ -33,6 +33,12 @@ public class JavaProcess implements AppProcess {
 	private boolean outHandled = false;
 	private boolean inHandled = false;
 
+	private Sink inSink;
+
+	private Source outSource;
+
+	private Source errSource;
+
 	private JavaProcess(List<String> command, Map<String, String> env,
 			ExecDir execDir) throws IOException {
 		ProcessBuilder builder = new ProcessBuilder(command);
@@ -66,15 +72,24 @@ public class JavaProcess implements AppProcess {
 	}
 
 	public Sink getInput() {
-		return new InSink();
+		if (inSink == null) {
+			inSink = new InSink();
+		}
+		return inSink;
 	}
 
 	public Source getOutput() {
-		return new OutSource();
+		if (outSource == null) {
+			outSource = new OutSource();
+		}
+		return outSource;
 	}
 
 	public Source getError() {
-		return new ErrSource();
+		if (errSource == null) {
+			errSource = new ErrSource();
+		}
+		return errSource;
 	}
 
 	public int result() {
@@ -107,7 +122,7 @@ public class JavaProcess implements AppProcess {
 			if (sink.providesOutputStream()) {
 				outHandled = true;
 				// TODO handle result
-				IOUtil.pumpAsync(process.getInputStream(), sink
+				streamPumpResult = IOUtil.pumpAsync(process.getInputStream(), sink
 						.getOutputStream());
 			} else if (sink.receivesStream()) {
 				outHandled = true;
@@ -123,7 +138,7 @@ public class JavaProcess implements AppProcess {
 			if (sink.providesOutputStream()) {
 				errHandled = true;
 				// TODO handle result
-				IOUtil.pumpAsync(process.getInputStream(), sink
+				streamPumpResult = IOUtil.pumpAsync(process.getInputStream(), sink
 						.getOutputStream());
 			} else if (sink.receivesStream()) {
 				errHandled = true;
