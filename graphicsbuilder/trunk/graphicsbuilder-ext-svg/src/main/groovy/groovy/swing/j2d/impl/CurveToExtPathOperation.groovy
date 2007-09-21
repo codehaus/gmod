@@ -17,7 +17,7 @@ package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.impl.AbstractExtPathOperation
 import java.awt.Graphics2D
-import java.awt.image.ImageObserver
+import java.awt.Component
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -31,7 +31,7 @@ class CurveToExtPathOperation extends AbstractExtPathOperation {
     float y2
     float y3
 
-    public void apply( ExtendedGeneralPath path, Graphics2D g, ImageObserver observer ) {
+    public void apply( ExtendedGeneralPath path, Graphics2D g, Component target ) {
        path.curveTo( x1, y1, x2, y2, x3, y3 )
     }
 }

@@ -19,12 +19,13 @@ import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 import java.awt.Color
+import java.awt.Component
 import java.awt.Graphics2D
 import java.awt.Image
+import java.awt.MediaTracker
 import java.awt.Rectangle
 import java.awt.Shape
 import java.awt.Toolkit
-import java.awt.image.ImageObserver
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -36,35 +37,28 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
     def classpath
     def x
     def y
-    def width
-    def height
     def bgcolor
-    def observer
+
+    private Image loadedImage
 
     static contextual = true
 
     ImageGraphicsOperation() {
-        super( "image", ["x", "y"] as String[], ["image", "file", "url", "classpath", "width", "height",
-                "bgcolor", "observer"] as String[] )
+        super( "image", ["x", "y"] as String[], ["image", "file", "url", "classpath", "bgcolor"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    public Shape getClip( Graphics2D g, Component target ) {
         int x = getParameterValue( "x" )
         int y = getParameterValue( "y" )
-        int width = -1
-        int height = -1
-        if( parameterHasValue( "width" ) ){
-            width = getParameterValue( "width" )
+
+        if( !loadedImage ){
+            loadedImage = loadImage( target )
         }
-        if( parameterHasValue( "height" ) ){
-            width = getParameterValue( "height" )
+        if( !loadedImage ){
+            throw new IllegalStateException("Couldn't locate the image")
         }
-        if( width < 0 || height < 0 ){
-            Image image = loadImage()
-            width = image.getWidth( observer )
-            height = image.getHeight( observer )
-        }
-        return new Rectangle( x, y, width, height )
+
+        return new Rectangle( x, y, loadedImage.getWidth(null), loadedImage.getHeight(null) )
     }
 
     public void verify() {
@@ -80,66 +74,53 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ) {
+    protected void doExecute( Graphics2D g, Component target ) {
         int x = getParameterValue( "x" )
         int y = getParameterValue( "y" )
-        int width = -1
-        int height = -1
-        if( parameterHasValue( "width" ) ){
-            width = getParameterValue( "width" )
-        }
-        if( parameterHasValue( "height" ) ){
-            width = getParameterValue( "height" )
-        }
         Color bgcolor = null;
         if( parameterHasValue( "bgcolor" ) ){
             bgcolor = ColorCache.getInstance().getColor( getParameterValue( "bgcolor" ) )
         }
 
-        ImageObserver previousObserver = observer
-        if( parameterHasValue( "observer" ) ){
-            observer = (ImageObserver) getParameterValue( "observer" )
-            if( observer == null ){
-                observer = previousObserver
-            }
+        if( !loadedImage ){
+            loadedImage = loadImage( target )
         }
-
-        // TODO scale image if needed
-        Image image = loadImage()
-        image.getWidth( observer )
-        if( !image.bufferedImage ){
+        if( !loadedImage ){
             throw new IllegalStateException("Couldn't locate the image")
         }
         if( bgcolor != null ){
-            if( width > -1 && height > -1 ){
-                g.drawImage( image, x, y, width, height, bgcolor, observer )
-            }else{
-                g.drawImage( image, x, y, bgcolor, observer )
-            }
+            g.drawImage( loadedImage, x, y, bgcolor, null )
         }else{
-            if( width > -1 && height > -1 ){
-                g.drawImage( image, x, y, width, height, observer )
-            }else{
-                g.drawImage( image, x, y, observer )
-            }
+            g.drawImage( loadedImage, x, y, null )
         }
     }
 
-    private Image loadImage() {
+    private Image loadImage( Component comp ) {
+        Image image = null;
         if( parameterHasValue( "image" ) ){
-            return (Image) getParameterValue( "image" )
+            image = getParameterValue( "image" )
         }else if( parameterHasValue( "file" ) ){
-            return Toolkit.getDefaultToolkit()
+            image = Toolkit.getDefaultToolkit()
                     .getImage( (String) getParameterValue( "file" ) )
         }else if( parameterHasValue( "url" ) ){
-            return Toolkit.getDefaultToolkit()
+            image = Toolkit.getDefaultToolkit()
                     .getImage( getParameterValue( "url" ).toURL() )
         }else if( parameterHasValue( "classpath" ) ){
             URL url = Thread.currentThread().getContextClassLoader()
                         .getResource( getParameterValue( "classpath" ) )
-            return Toolkit.getDefaultToolkit().getImage( url )
+            image = Toolkit.getDefaultToolkit().getImage( url )
         }else{
             throw new IllegalStateException("Couldn't locate the image")
         }
+
+        MediaTracker tracker = new MediaTracker( comp )
+        tracker.addImage( image, 0 )
+        try {
+            tracker.waitForID( 0 )
+        }catch( InterruptedException e ){
+            return null
+        }
+
+        return image
     }
 }

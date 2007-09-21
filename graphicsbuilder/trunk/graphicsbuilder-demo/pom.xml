@@ -68,7 +68,7 @@
       <dependency>
          <groupId>org.jdesktop</groupId>
          <artifactId>swingx</artifactId>
-         <version>2007_08_12</version>
+         <version>2007_09_16</version>
       </dependency>
       <dependency>
          <groupId>org.tango-project</groupId>

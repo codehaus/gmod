@@ -22,7 +22,7 @@ import groovy.swing.j2d.operations.Rect3DGraphicsOperation
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Paint
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * Decorator that adds 'color', 'strokeWidth' and 'fill' properties.
@@ -41,7 +41,7 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
         return (optional + [ "fill" ]) as String[]
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
         if( parameterHasValue( "fill" ) ){
             Object fillValue = getParameterValue( "fill" )
             if( fillValue instanceof Color ){
@@ -49,33 +49,33 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
                 // we need to check it first
                 Color color = g.getColor()
                 g.setColor( (Color) fillValue )
-                invokeFillMethod( g, observer )
+                invokeFillMethod( g, target )
                 g.setColor( color )
             }else if( fillValue instanceof Paint ){
                 Paint paint = g.getPaint()
                 g.setPaint( (Paint) fillValue )
-                invokeFillMethod( g, observer )
+                invokeFillMethod( g, target )
                 g.setPaint( paint )
             }else if( fillValue instanceof PaintSupportGraphicsOperation ){
                 Paint paint = g.getPaint()
-                fillValue.execute( g, observer )
-                g.setPaint( fillValue.adjustPaintToBounds(getClip(g,observer).bounds) )
-                invokeFillMethod( g, observer )
+                fillValue.execute( g, target )
+                g.setPaint( fillValue.adjustPaintToBounds(getClip(g,target).bounds) )
+                invokeFillMethod( g, target )
                 g.setPaint( paint )
             }else if( fillValue instanceof String ){
                 Color color = g.getColor()
                 g.setColor( ColorCache.getInstance()
                         .getColor( fillValue ) )
-                invokeFillMethod( g, observer )
+                invokeFillMethod( g, target )
                 g.setColor( color )
             }else if( fillValue instanceof Boolean && fillValue ){
-                invokeFillMethod( g, observer )
+                invokeFillMethod( g, target )
             }
         }
-        super.beforeDelegateExecutes( g, observer )
+        super.beforeDelegateExecutes( g, target )
     }
 
-    private void invokeFillMethod( Graphics2D g, ImageObserver observer ) {
+    private void invokeFillMethod( Graphics2D g, Component target ) {
         // some special cases
         GraphicsOperation go = getDelegate()
         if( delegate instanceof Rect3DGraphicsOperation ){
@@ -83,7 +83,7 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
                     delegate.raised )
         }else{
             // general case
-            g.fill( getDelegate().getClip( g, observer ) )
+            g.fill( getDelegate().getClip( g, target ) )
         }
     }
 }

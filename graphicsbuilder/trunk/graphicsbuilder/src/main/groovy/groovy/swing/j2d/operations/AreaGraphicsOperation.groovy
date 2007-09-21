@@ -23,7 +23,7 @@ import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
 import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 import java.awt.geom.*
 
 /**
@@ -64,10 +64,10 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         return false
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    public Shape getClip( Graphics2D g, Component target ) {
         if( shape == null || isDirty() ){
-            shape = computeShape( g, observer );
-            drawDelegate.shape = computeShape(g, observer)
+            shape = computeShape( g, target );
+            drawDelegate.shape = computeShape(g, target)
             setDirty( false );
         }
         return shape;
@@ -80,16 +80,16 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         }
     }
 
-    protected void executeDelegate( Graphics2D g, ImageObserver observer ){
+    protected void executeDelegate( Graphics2D g, Component target ){
         if( !drawDelegate.shape ){
-            drawDelegate.shape = computeShape(g, observer)
+            drawDelegate.shape = computeShape(g, target)
         }
-        super.executeDelegate( g, observer )
+        super.executeDelegate( g, target )
     }
 
-    protected void executeChildOperation( Graphics2D g, ImageObserver observer, GraphicsOperation go ) {
+    protected void executeChildOperation( Graphics2D g, Component target, GraphicsOperation go ) {
         if( !hasShape(go) ){
-           go.execute( g, observer )
+           go.execute( g, target )
         }
     }
 
@@ -102,15 +102,15 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         return false
     }
 
-    protected Shape computeShape( Graphics2D g, ImageObserver observer ){
+    protected Shape computeShape( Graphics2D g, Component target ){
         Area area = new Area()
         findShapeProviderOperations()
         def size = shapeProviderOperations.size()
         if( size ){
-            area = new Area( shapeProviderOperations[0].getClip(g,observer) )
+            area = new Area( shapeProviderOperations[0].getClip(g,target) )
         }
         shapeProviderOperations[1..<size].each { go ->
-            Shape shape = go.getClip(g, observer)
+            Shape shape = go.getClip(g, target)
             if( hasShape(go) && shape ){
                 area."${areaMethod}"( new Area(shape) )
             }

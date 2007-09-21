@@ -17,7 +17,7 @@ package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.impl.AbstractExtPathOperation
 import java.awt.Graphics2D
-import java.awt.image.ImageObserver
+import java.awt.Component
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -26,7 +26,7 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 class VLineExtPathOperation extends AbstractExtPathOperation {
     float y
 
-    public void apply( ExtendedGeneralPath path, Graphics2D g, ImageObserver observer ) {
+    public void apply( ExtendedGeneralPath path, Graphics2D g, Component target ) {
        path.lineTo( path.currentPoint.x as float, y )
     }
 }

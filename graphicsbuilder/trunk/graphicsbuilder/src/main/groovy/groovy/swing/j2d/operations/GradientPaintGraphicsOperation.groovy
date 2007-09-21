@@ -24,7 +24,7 @@ import java.awt.GradientPaint
 import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.Rectangle
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -94,7 +94,7 @@ class GradientPaintGraphicsOperation extends AbstractGraphicsOperation implement
         }
     }
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
+    protected void doExecute( Graphics2D g, Component target ){
         g.paint = getPaint()
     }
 }

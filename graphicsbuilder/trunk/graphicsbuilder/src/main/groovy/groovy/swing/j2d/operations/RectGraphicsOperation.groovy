@@ -17,7 +17,7 @@ package groovy.swing.j2d.operations
 
 import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 import java.awt.geom.Rectangle2D
 
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
@@ -34,7 +34,7 @@ class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "rect", ["x", "y", "width", "height"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, Component target ) {
         double x = getParameterValue( "x" )
         double y = getParameterValue( "y" )
         double width = getParameterValue( "width" )

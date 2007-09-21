@@ -15,9 +15,9 @@
 
 package groovy.swing.j2d.impl;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.image.ImageObserver;
 
 /**
  * Base class for shape drawing operations
@@ -42,18 +42,18 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractGraphicsOpe
         super( name, parameters, optional );
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    public Shape getClip( Graphics2D g, Component target ) {
         if( shape == null || isDirty() ){
-            shape = computeShape( g, observer );
+            shape = computeShape( g, target );
             setDirty( false );
         }
         return shape;
     }
 
-    protected abstract Shape computeShape( Graphics2D g, ImageObserver observer );
+    protected abstract Shape computeShape( Graphics2D g, Component target );
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ) {
-        g.draw( getClip( g, observer ) );
+    protected void doExecute( Graphics2D g, Component target ) {
+        g.draw( getClip( g, target ) );
     }
 
     protected Shape getShape() {

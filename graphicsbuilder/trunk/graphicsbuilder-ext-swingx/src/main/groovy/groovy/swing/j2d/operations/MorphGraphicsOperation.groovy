@@ -20,7 +20,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 import org.jdesktop.swingx.geom.Morphing2D
 
@@ -44,18 +44,18 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
       return startIsDirty || endIsDirty || super.isDirty()
    }
 
-   protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
+   protected Shape computeShape( Graphics2D g, Component target ) {
       def start = getParameterValue( "start" )
       def end = getParameterValue( "end" )
       double morphing = getParameterValue( "morph" )
 
       if( start instanceof GraphicsOperation && start.parameterHasValue("asShape") &&
             start.getParameterValue("asShape") ){
-         start = start.getClip(g,observer)
+         start = start.getClip(g,target)
       }
       if( end instanceof GraphicsOperation && end.parameterHasValue("asShape") &&
             end.getParameterValue("asShape") ){
-         end = end.getClip(g,observer)
+         end = end.getClip(g,target)
       }
 
       Morphing2D morph = new Morphing2D( start, end )

@@ -27,7 +27,7 @@ import java.awt.Rectangle
 import java.awt.MultipleGradientPaint.*
 import java.awt.geom.AffineTransform
 import java.awt.geom.Point2D
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -117,7 +117,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       return paint
    }
 
-   protected void doExecute( Graphics2D g, ImageObserver observer ){
+   protected void doExecute( Graphics2D g, Component target ){
       g.setPaint( getPaint() )
    }
 /*

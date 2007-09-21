@@ -20,7 +20,7 @@ import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
 import java.awt.Graphics2D
 import java.awt.Shape
 import java.awt.geom.CubicCurve2D
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -40,7 +40,7 @@ class CubicCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
                 "ctrly2" ] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, Component target ) {
         double x1 = getParameterValue( "x1" )
         double x2 = getParameterValue( "x2" )
         double y1 = getParameterValue( "y1" )

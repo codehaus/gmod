@@ -17,8 +17,8 @@ package groovy.swing.j2d.impl;
 
 import groovy.swing.j2d.GraphicsOperation;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.image.ImageObserver;
 
 /**
  * Decorator that adds 'color' and 'strokeWidth' properties.
@@ -49,9 +49,9 @@ public class ShapeProviderGraphicsOperation extends DelegatingGraphicsOperation 
         this.asShape = asShape;
     }
 
-    protected void executeDelegate( Graphics2D g, ImageObserver observer ) {
+    protected void executeDelegate( Graphics2D g, Component target ) {
         if( !asShape ){
-            super.executeDelegate( g, observer );
+            super.executeDelegate( g, target );
         }
     }
 }

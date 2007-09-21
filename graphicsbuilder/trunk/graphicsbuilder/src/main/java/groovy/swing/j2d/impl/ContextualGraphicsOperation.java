@@ -17,8 +17,8 @@ package groovy.swing.j2d.impl;
 
 import groovy.swing.j2d.GraphicsOperation;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,32 +82,32 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         }
     }
 
-    protected void afterDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void afterDelegateExecutes( Graphics2D g, Component target ) {
         if( operations.size() > 0 || transformations != null ){
             restoreContext( g );
         }
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
         if( operations.size() > 0 || transformations != null ){
-            saveContext( g, observer );
+            saveContext( g, target );
         }
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
-                executeChildOperation( g, observer, go );
+                executeChildOperation( g, target, go );
             }
         }
         if( transformations != null ){
-            transformations.execute( g, observer );
+            transformations.execute( g, target );
         }
         if( operations.size() > 0 || transformations != null ){
             restoreClip( g );
         }
     }
 
-    protected void executeChildOperation( Graphics2D g, ImageObserver observer, GraphicsOperation go ) {
-        go.execute( g, observer );
+    protected void executeChildOperation( Graphics2D g, Component target, GraphicsOperation go ) {
+        go.execute( g, target );
     }
 
     protected List getOperations() {
@@ -122,7 +122,7 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         context.restore( g );
     }
 
-    private void saveContext( Graphics2D g, ImageObserver observer ) {
-        context.save( g, getClip( g, observer ) );
+    private void saveContext( Graphics2D g, Component target ) {
+        context.save( g, getClip( g, target ) );
     }
 }

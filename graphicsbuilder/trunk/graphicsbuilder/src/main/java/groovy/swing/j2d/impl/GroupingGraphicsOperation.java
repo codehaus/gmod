@@ -18,8 +18,8 @@ package groovy.swing.j2d.impl;
 import groovy.lang.MissingPropertyException;
 import groovy.swing.j2d.GraphicsOperation;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,10 +127,10 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ) {
-        saveContext( g, observer );
+    protected void doExecute( Graphics2D g, Component target ) {
+        saveContext( g, target );
         if( transformations != null ){
-            transformations.execute( g, observer );
+            transformations.execute( g, target );
         }
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
@@ -144,7 +144,7 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
                 if( fill != null ){
                     safeSetProperty( go, "fill", fill );
                 }
-                go.execute( g, observer );
+                go.execute( g, target );
             }
         }
         restoreClip( g );
@@ -167,7 +167,7 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    private void saveContext( Graphics2D g, ImageObserver observer ) {
-        context.save( g, getClip( g, observer ) );
+    private void saveContext( Graphics2D g, Component target ) {
+        context.save( g, getClip( g, target ) );
     }
 }

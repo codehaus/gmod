@@ -18,9 +18,9 @@ package groovy.swing.j2d.impl;
 import groovy.lang.MissingPropertyException;
 import groovy.swing.j2d.GraphicsOperation;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 
 import org.codehaus.groovy.runtime.InvokerHelper;
@@ -43,8 +43,8 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
         getDelegate().addPropertyChangeListener( listener );
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
-        return delegate.getClip( g, observer );
+    public Shape getClip( Graphics2D g, Component target ) {
+        return delegate.getClip( g, target );
     }
 
     public final GraphicsOperation getDelegate() {
@@ -87,19 +87,19 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
         super.verify();
     }
 
-    protected void afterDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void afterDelegateExecutes( Graphics2D g, Component target ) {
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
     }
 
-    protected final void doExecute( Graphics2D g, ImageObserver observer ) {
-        beforeDelegateExecutes( g, observer );
-        executeDelegate( g, observer );
-        afterDelegateExecutes( g, observer );
+    protected final void doExecute( Graphics2D g, Component target ) {
+        beforeDelegateExecutes( g, target );
+        executeDelegate( g, target );
+        afterDelegateExecutes( g, target );
     }
 
-    protected void executeDelegate( Graphics2D g, ImageObserver observer ) {
-        delegate.execute( g, observer );
+    protected void executeDelegate( Graphics2D g, Component target ) {
+        delegate.execute( g, target );
     }
 }

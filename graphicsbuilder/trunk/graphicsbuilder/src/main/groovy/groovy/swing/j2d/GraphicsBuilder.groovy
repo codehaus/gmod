@@ -21,7 +21,7 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 import groovy.swing.j2d.impl.*
 import groovy.swing.j2d.factory.*

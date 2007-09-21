@@ -23,7 +23,7 @@ import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.Shape
 import java.awt.Stroke
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -46,7 +46,7 @@ public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
                 "dash", "dashphase", "red", "green", "blue", "alpha"] as String[] )
     }
 
-    public void doExecute( Graphics2D g, ImageObserver observer ) {
+    public void doExecute( Graphics2D g, Component target ) {
         if( parameterHasValue( "color" ) ){
             Object colorValue = getParameterValue( "color" )
             if( colorValue instanceof String ){

@@ -19,7 +19,7 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -35,7 +35,7 @@ class PolylineGraphicsOperation extends AbstractGraphicsOperation {
         super( "polyline", ["points"] as String[] )
     }
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ){
+    protected void doExecute( Graphics2D g, Component target ){
         List points = getParameterValue( "points" )
         if( points.size() == 0 ){
             return null

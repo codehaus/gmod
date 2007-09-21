@@ -18,7 +18,7 @@ package groovy.swing.j2d.operations
 import java.awt.Font
 import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 import java.awt.font.FontRenderContext
 import java.awt.font.TextLayout
 import java.awt.geom.AffineTransform
@@ -38,7 +38,7 @@ class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "text", ["text", "x", "y"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, ImageObserver observer ){
+    protected Shape computeShape( Graphics2D g, Component target ){
         FontRenderContext frc = g.getFontRenderContext()
         TextLayout layout = new TextLayout( text, g.font, frc )
         Rectangle2D bounds = layout.getBounds()

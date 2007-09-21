@@ -20,7 +20,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 import java.awt.Graphics2D
 import java.awt.Polygon
 import java.awt.Shape
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -32,7 +32,7 @@ class PolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "polygon", ["points"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, Component target ) {
         List points = getParameterValue( "points" )
         if( points.size() == 0 ){
             return null

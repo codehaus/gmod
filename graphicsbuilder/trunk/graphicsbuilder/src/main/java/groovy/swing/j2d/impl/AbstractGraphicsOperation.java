@@ -18,9 +18,9 @@ package groovy.swing.j2d.impl;
 import groovy.lang.GroovyObjectSupport;
 import groovy.swing.j2d.GraphicsOperation;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
@@ -100,12 +100,11 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         propertyChangeSupport.addPropertyChangeListener( listener );
     }
 
-    public void execute( Graphics2D g, ImageObserver observer ) {
-        applyParameters();
-        doExecute( g, observer );
+    public void execute( Graphics2D g, Component target ) {
+        doExecute( g, target );
     }
 
-    public Shape getClip( Graphics2D g, ImageObserver observer ) {
+    public Shape getClip( Graphics2D g, Component target ) {
         return null;
     }
 
@@ -203,18 +202,10 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         parameterMap.put( name, verify ? Boolean.TRUE : Boolean.FALSE );
     }
 
-    protected final void applyParameters() {
-        /*
-         * for( int i = 0; i < parameters.length; i++ ){ String param =
-         * parameters[i]; Object value = getProperty( param ); if( value
-         * instanceof Closure ){ setProperty( param, ((Closure) value).call() ); } }
-         */
-    }
-
     /**
      * Executes the operation
      */
-    protected abstract void doExecute( Graphics2D g, ImageObserver observer );
+    protected abstract void doExecute( Graphics2D g, Component target );
 
     protected void firePropertyChange( String name, Object oldValue, Object newValue ) {
         propertyChangeSupport.firePropertyChange( name, oldValue, newValue );

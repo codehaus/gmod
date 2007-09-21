@@ -20,7 +20,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 import java.awt.Graphics2D
 import java.awt.Shape
 import java.awt.geom.Ellipse2D
-import java.awt.image.ImageObserver
+import java.awt.Component
 
 /**
  * Draws an Ellipse2D as a circle<br>
@@ -42,7 +42,7 @@ class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "ellipse", ["cx", "cy", "radiusx","radiusy"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, ImageObserver observer ) {
+    protected Shape computeShape( Graphics2D g, Component target ) {
         int cx = getParameterValue( "cx" )
         int cy = getParameterValue( "cy" )
         int radiusx = getParameterValue( "radiusx" )

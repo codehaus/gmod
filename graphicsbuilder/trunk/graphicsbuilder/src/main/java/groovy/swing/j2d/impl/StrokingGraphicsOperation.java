@@ -20,9 +20,9 @@ import groovy.swing.j2d.GraphicsOperation;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.image.ImageObserver;
 
 /**
  * Decorator that adds 'color' and 'strokeWidth' properties.
@@ -66,7 +66,7 @@ public class StrokingGraphicsOperation extends DelegatingGraphicsOperation {
         this.strokeWidth = strokeWidth;
     }
 
-    protected void afterDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void afterDelegateExecutes( Graphics2D g, Component target ) {
         if( previousStroke != null ){
             g.setStroke( previousStroke );
         }
@@ -75,7 +75,7 @@ public class StrokingGraphicsOperation extends DelegatingGraphicsOperation {
         }
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, ImageObserver observer ) {
+    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
         if( parameterHasValue( "color" ) ){
             Object value = getParameterValue( "color" );
             if( value instanceof String ){

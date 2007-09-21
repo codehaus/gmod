@@ -17,7 +17,7 @@ package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.impl.AbstractPathOperation
 import java.awt.Graphics2D
-import java.awt.image.ImageObserver
+import java.awt.Component
 import java.awt.geom.Path2D
 
 /**
@@ -29,7 +29,7 @@ class QuadToPathOperation extends AbstractPathOperation {
     double y1
     double y2
 
-    public void apply( Path2D path, Graphics2D g, ImageObserver observer ) {
+    public void apply( Path2D path, Graphics2D g, Component target ) {
        path.quadTo( x1, y1, x2, y2 )
     }
 }

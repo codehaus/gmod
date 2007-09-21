@@ -15,9 +15,9 @@
 
 package groovy.swing.j2d;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.image.ImageObserver;
 import java.beans.PropertyChangeListener;
 
 /**
@@ -30,21 +30,21 @@ public interface GraphicsOperation {
      * Executes the operation.
      *
      * @param g the Graphics2D instance used to draw over
-     * @param observer an ImageObserver needed when drawing image related
+     * @param target an ImageObserver needed when drawing image related
      *        operations
      */
-    void execute( Graphics2D g, ImageObserver observer );
+    void execute( Graphics2D g, Component target );
 
     /**
      * Returns the clip defined by this operation.
      *
      * @param g the Graphics2D instance used to draw over
-     * @param observer an ImageObserver needed when drawing image related
+     * @param target an ImageObserver needed when drawing image related
      *        operations
      * @return a Shape instance, it may return null if this operation doesn't
      *         have a clip
      */
-    Shape getClip( Graphics2D g, ImageObserver observer );
+    Shape getClip( Graphics2D g, Component target );
 
     /**
      * Returns the name of this operation.

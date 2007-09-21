@@ -17,8 +17,8 @@ package groovy.swing.j2d.impl;
 
 import groovy.swing.j2d.GraphicsOperation;
 
+import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,10 +57,10 @@ public class TransformationsGraphicsOperation extends AbstractGraphicsOperation 
         }
     }
 
-    protected void doExecute( Graphics2D g, ImageObserver observer ) {
+    protected void doExecute( Graphics2D g, Component target ) {
         for( Iterator i = operations.iterator(); i.hasNext(); ){
             GraphicsOperation go = (GraphicsOperation) i.next();
-            go.execute( g, observer );
+            go.execute( g, target );
         }
     }
 }
