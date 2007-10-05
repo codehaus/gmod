@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+   <bannerLeft>
+      <name>JideBuilder</name>
+      <!--<src>/images/logo.png</src>-->
+      <href>http://jidebuilder.sourceforge.net/</href>
+   </bannerLeft>
+
+   <poweredBy>
+      <logo name="Hosted at SourceForge.net" href="http://sourceforge.net" img="http://sflogo.sourceforge.net/sflogo.php?group_id=199363&amp;type=2" />
+      <logo name="Build with Maven 2" href="http://maven.apache.org" img="images/logos/maven-feather.png" />
+   </poweredBy>
+
+   <body>
+      <links>
+         <item name="Groovy" href="http://groovy.codehaus.org/" />
+         <item name="Jide" href="http://www.jidesoft.com/" />
+         <item name="Maven 2" href="http://maven.apache.org/maven2/" />
+      </links>
+
+      <menu name="JideBuilder">
+         <item name="Introduction" href="index.html" />
+         <item name="Download" href="https://sourceforge.net/project/showfiles.php?group_id=199363" />
+         <item name="Getting Started" href="usage.html" />
+         <item name="Screenshots" href="screenshots.html" />
+         <item name="Changes" href="changes-report.html" />
+      </menu>
+
+    ${reports}
+
+  </body>
+</project>

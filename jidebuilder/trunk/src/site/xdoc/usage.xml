@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+
+   <properties>
+      <title>JideBuilder::Getting Started</title>
+   </properties>
+
+   <body>
+      <section name="Table of Contents">
+         <ol>
+            <li><a href="#Getting Started">Getting Started</a></li>	   
+            <li><a href="#Alphabetical List">Alphabetical List</a></li>	   
+            <li><a href="#Albafetical List (Non JIDE components)">Albafetical List (Non JIDE components)</a></li>	   
+            <li><a href="#Extras">Extras</a></li>	   
+         </ol>
+      </section>
+	   
+      <section name="Getting Started">
+         <p>JideBuilder will let you create Jide components and standard Swing components
+            as SwingBuilder does, because it doesn't override the default names of
+            previosuly registered components in SwingBuilder, this means that you can mix
+            both types of components with the same builder.<br/>
+       <textarea name="srccode" class="groovy:nogutter:nocontrols" cols="80" rows="8">   def jide = new JideBuilder()
+   def frame = jide.frame( id: 'frame', title: 'JideBuilder' ){
+      panel( layout: new BorderLayout(5,5) ){
+         button( label: "Swing", constraints: BorderLayout.WEST )
+         jideButton( label: "Jide", constraints: BorderLayout.EAST )
+         textField( constraints: BorderLayout.NORTH )
+         calculator( constraints: BorderLayout.CENTER )
+      }
+   }</textarea>
+         </p>
+    <p>There are 5 *Searchable components that will add searching capabilities to a previously created widget
+       or an internal one, and at the same time will expose the wrapped widget if an 'id' attribute was provided,
+       for example ComboBoxSearchable:<br/>
+       <textarea name="srccode" class="groovy:nogutter:nocontrols" cols="80" rows="10">   def jide = new JideBuilder()
+   def frame = jide.frame( id: 'frame', title: 'JideBuilder' ){
+      panel( layout: new BorderLayout(5,5) ){
+         comboBox( id: "mycombo", items: [1,2,3] )
+         comboBoxSearchable( id: "c1", comboBox: jide.mycombo )
+         comboBoxSearchable( id: "c2", items: [4,5,6] )
+      }
+   }
+   assert jide.ci_comboBox == jide.mycombo
+   assert jide.c2_comboBox.class == JComboBox</textarea>
+    </p>
+    <p>JIDE Common Layer defines a basic structure for dialogs with StandardDialog, which is an abstract class, you may
+    create your own dialogs based on that template by calling 'standardDialog()', by default all 3 panels will be empty,
+    but yout can provide your own content by calling 'dialogBannerPanel()', 'dialogContentPanel()' and 'dialogButtonPanel()' 
+    inside its closure.
+    </p>
+      </section>
+      <section name="Alphabetical List">
+         <p>
+<table>
+<thead><tr><th>Element</th><th>Class</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>animator</td><td>Animator</td><td> </td></tr>
+<tr><td>autoCompletion</td><td>AutoCompletion</td><td>Wraps an existing JComboBox with 'comboBox' attribute<br/>
+Wraps an existing JTextComponent with 'textComponent' attribute<br/>
+Will create an internal JTextField if 'textComponent' and 'comboBox' are ommitted<br/>
+Accepts 'overlayable' property which will create an OverlayTextField<br/>
+If 'textComponent' is specified (or internal JTextField is created), 'searchable' or 'list'<br/>
+must also be specified<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>autoCompletionComboBox</td><td>AutoCompletionComboBox</td><td> </td></tr>
+<tr><td>autoResizingTextArea</td><td>AutoResizingTextArea</td><td> </td></tr>
+<tr><td>bannerPanel</td><td>BannerPanel</td><td> </td></tr>
+<tr><td>bottom</td><td> - </td><td>JideSwingUtilities.createBottomPanel</td></tr>
+<tr><td>buttonPanel</td><td>ButtonPanel</td><td> </td></tr>
+<tr><td>calculator</td><td>Calculator</td><td> </td></tr>
+<tr><td>center</td><td> - </td><td>JideSwingUtilities.createCenterPanel</td></tr>
+<tr><td>checkBoxList</td><td>CheckBoxList</td><td> </td></tr>
+<tr><td>checkBoxListWithSelectable</td><td>CheckBoxListWithSelectable</td><td> </td></tr>
+<tr><td>checkBoxTree</td><td>CheckBoxTree</td><td> </td></tr>
+<tr><td>clickThroughLabel</td><td>ClickThroughLabel</td><td> </td></tr>
+<tr><td>comboBoxSearchable</td><td>ComboBoxSearchable</td><td>Wraps an existing JComboBox with 'comboBox' attribute<br/>
+Will create an internal JComboBox if 'comboBox' is ommitted<br/>
+Accepts 'overlayable' property which will create an OverlayTextField<br/>
+Additional attributes may be set on the wrapped component<br/>
+Obeys 'items' when creating an internal JComboBox.</td></tr>
+<tr><td>contentContainer</td><td>ContentContainer</td><td> </td></tr>
+<tr><td>dateSpinner</td><td>DateSpinner</td><td> </td></tr>
+<tr><td>dialogBannerPanel</td><td>DialogBannerPanel (from JideBuilder)</td><td>Use it inside standardDialog</td></tr>
+<tr><td>dialogButtonPanel</td><td>DialogButtonPanel (from JideBuilder)</td><td>Use it inside standardDialog</td></tr>
+<tr><td>dialogContentPanel</td><td>DialogContentPanel (from JideBuilder)</td><td>Use it inside standardDialog</td></tr>
+<tr><td>dialogPage</td><td>DefaultDialogPage (from JideBuilder)</td><td>Use it inside a multiplePageDialog<br/>
+Add a 'closure' attribute as the body of lazyInitialize() default does nothing</td></tr>
+<tr><td>fileIntelliHints</td><td>FileIntelliHints</td><td>Needs 'textComponent' attribute<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>folderChooser</td><td>FolderChooser</td><td> </td></tr>
+<tr><td>gripper</td><td>Gripper</td><td> </td></tr>
+<tr><td>headerBox</td><td>HeaderBox</td><td> </td></tr>
+<tr><td>jideButton</td><td>JideButton</td><td> </td></tr>
+<tr><td>jideBorderLayout</td><td>JideBorderLayout</td><td> </td></tr>
+<tr><td>jideBoxLayout</td><td>JideBoxLayout</td><td> </td></tr>
+<tr><td>jideMenu</td><td>JideMenu</td><td>Use a closure with 'customize' attribute to create a PopupMenuConfigurer</td></tr>
+<tr><td>jideOptionPane</td><td>JideOptionPane</td><td> </td></tr>
+<tr><td>jidePopup</td><td>JidePopup</td><td> </td></tr>
+<tr><td>jidePopupMenu</td><td>JidePopupMenu</td><td> </td></tr>
+<tr><td>jideScrollPane</td><td>JideScrollPane</td><td> </td></tr>
+<tr><td>jideSplitButton</td><td>JideSplitButton</td><td>Use a closure with 'customize' attribute to create a PopupMenuConfigurer</td></tr>
+<tr><td>jideSplitPane</td><td>JideSplitPane</td><td> </td></tr>
+<tr><td>jideTabbedPane</td><td>JideTabbedPane</td><td> </td></tr>
+<tr><td>jideToggleButton</td><td>JideToggleButton</td><td> </td></tr>
+<tr><td>jideToggleSplitButton</td><td>JideToggleSplitButton</td><td>Use a closure with 'customize' attribute to create a PopupMenuConfigurer</td></tr>
+<tr><td>labeledTextField</td><td>LabeledTextField</td><td> </td></tr>
+<tr><td>left</td><td> - </td><td>JideSwingUtilities.createLeftPanel</td></tr>
+<tr><td>listDataIntelliHints</td><td>ListDataIntelliHints</td><td>Needs 'textComponent' and 'completionList' attributes,<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>listSearchable</td><td>ListSearchable</td><td>Wraps an existing JList with 'list' attribute<br/>
+Will create an internal JList if 'list' is ommitted<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>multilineLabel</td><td>MultilineLabel</td><td> </td></tr>
+<tr><td>multiplePageDialog</td><td>MultiplePageDialog</td><td> </td></tr>
+<tr><td>multiplePageDialogPane</td><td>MultiplePageDialogPane</td><td> </td></tr>
+<tr><td>nullButton</td><td>NullButton</td><td> </td></tr>
+<tr><td>nullCheckBox</td><td>NullCheckBox</td><td> </td></tr>
+<tr><td>nullJideButton</td><td>NullJideButton</td><td> </td></tr>
+<tr><td>nullLabel</td><td>NullLabel</td><td> </td></tr>
+<tr><td>nullPanel</td><td>NullPanel</td><td> </td></tr>
+<tr><td>nullRadioButton</td><td>NullRadioButton</td><td> </td></tr>
+<tr><td>nullTristateCheckBox</td><td>NullTristateCheckBox</td><td> </td></tr>
+<tr><td>overlayCheckBox</td><td>OverlayCheckBox</td><td> </td></tr>
+<tr><td>overlayComboBox</td><td>OverlayComboBox</td><td> </td></tr>
+<tr><td>overlayRadioButton</td><td>OverlayRadioButton</td><td> </td></tr>
+<tr><td>overlayTextArea</td><td>OverlayTextArea</td><td> </td></tr>
+<tr><td>overlayTextField</td><td>OverlayTextField</td><td> </td></tr>
+<tr><td>paintPanel</td><td>PaintPanel</td><td> </td></tr>
+<tr><td>pointSpinner</td><td>PointSpinner</td><td> </td></tr>
+<tr><td>popupMenuCustomizer</td><td>DefaultPopupMenuCustomizer  (from JideBuilder)</td><td>Use 'closure' attribute to define the body of customize()</td></tr>
+<tr><td>rangeSlider</td><td>RangeSlider</td><td> </td></tr>
+<tr><td>resizableDialog</td><td>ResizableDialog</td><td> </td></tr>
+<tr><td>resizableFrame</td><td>ResizableFrame</td><td> </td></tr>
+<tr><td>resizablePanel</td><td>ResizablePanel</td><td> </td></tr>
+<tr><td>resizableWindow</td><td>ResizableWindow</td><td> </td></tr>
+<tr><td>right</td><td> - </td><td>JideSwingUtilities.createRightPanel</td></tr>
+<tr><td>searchableBar</td><td>SearchableBar</td><td>Wraps an existing Searchable with 'searchable' attribute<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>simpleScrollPane</td><td>SimpleScrollPane</td><td> </td></tr>
+<tr><td>splitButtonGroup</td><td>SplitButtonGroup</td><td> </td></tr>
+<tr><td>standardDialog</td><td>DefaultStandardDialog  (from JideBuilder)</td><td>Use 'dialogBannerPanel, 'dialodContentPanel' and 'dialogButtonPanel'<br/>
+to provide additional configuration for each panel</td></tr>
+<tr><td>styledLabel</td><td>StyledLabel</td><td> </td></tr>
+<tr><td>tableSearchable</td><td>TableSearchable</td><td>Wraps an existing JTable with 'table' attribute<br/>
+Will create an internal JTable if 'table' is ommitted<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>textComponentSearchable</td><td>TextComponentSearchable</td><td>Wraps an existing JTextComponent with 'textComponent' attribute<br/>
+Will create an internal JTextField if 'textComponent' is ommitted<br/>
+Accepts 'overlayable' property which will create an OverlayTextField<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>top</td><td> - </td><td>JideSwingUtilities.createTopPanel</td></tr>
+<tr><td>treeSearchable</td><td>TreeSearchable</td><td>Wraps an existing JTree with 'tree' attribute<br/>
+Will create an internal JTree if 'tree' is ommitted<br/>
+Additional attributes may be set on the wrapped component</td></tr>
+<tr><td>tristateCheckBox</td><td>TristateCheckBox</td><td> </td></tr>
+</tbody>
+</table>
+         </p>
+      </section>
+      <section name="Albafetical List (Non JIDE components)">
+         <p>
+<table>
+<thead><tr><th>Element</th><th>Class</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>svgIcon</td><td>ResizableSVGIcon</td><td>Additional properties:<ul>
+<li>path: same as svgResourcePath but allows aliases</li>
+<li>trackSize: enables/disables resizing (default: false)</li>
+<li>resizePercentage: controls how much the icon will change size, value must be in range 10..100 (default: 100)</li>
+<li>retainAspectRatio: controls how resizing will take effect (default: true)</li>
+<li>size: alias for 'preferredSize'</li>
+</ul></td></tr>
+</tbody>
+</table>
+         </p>
+      </section>
+      <section name="Extras">
+<ul>
+<li>All JTextComponents (even those created with regular SwingBuilder methods) will accept a 'selectAll' property,
+which will call <code>com.jidesoft.swing.SelectAllUtils.install()</code> on the component.</li>
+<li>SearchableBar has an additional property 'install' which will register a SearchableBar.Installer automatically
+into the inmediate container. This property must be a Map and may have the following properties:<ul>
+<li>constraints: must be a valid Object accepted by the container's layout [required].</li>
+<li>keyStroke: must be a javax.swing.KeyStroke, defaults to CTRL + F [optional].</li>
+</ul></li>
+</ul>	      
+      </section>
+   </body>
+
+</document>

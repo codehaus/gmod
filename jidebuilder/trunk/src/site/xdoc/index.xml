@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+
+   <properties>
+      <title>JideBuilder::Welcome</title>
+   </properties>
+
+   <body>
+      <section name="Welcome to JideBuilder">
+         <p>
+	 JideBuilder is a Groovy builder for the open source JIDE Common Layer 
+	 (<a href="http://jide-oss.dev.java.net">http://jide-oss.dev.java.net</a>).It 
+	 is based on the original <a href="http://groovy.codehaus.org/GUI+Programming+with+Groovy">SwingBuilder</a>. The goal of the project is 
+	 having a builder for swing apps that seamlessly integrates default 
+	 swing and jide components.
+         </p>
+         <p>JideBuilder requires Groovy 1.1-BETA-2 or later.
+         </p>
+      </section>
+   </body>
+</document>

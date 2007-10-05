@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+   <properties>
+      <title>JideBuilder::Changelog</title>
+      <author email="aalmiray@users.sourceforge.net">
+         Andres Almiray
+      </author>
+   </properties>
+   <body>
+
+      <release
+         version="1.0a3"
+         date="N/A"
+         desc="Current development version">
+         <action
+            dev="Andres Almiray"
+            type="update">
+            Add components to parentbuilder automatically
+         </action>
+      </release>
+
+      <release
+         version="1.0a2"
+         date="2007-06-29"
+         desc="Second alpha release">
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Added left() right() top() bottom() center()
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Added 'install' property to searchableBar()
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Added 'selectAll' property to all JTextComponents
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="update">
+            Added automatic textComponent relationship to calculator()
+            with 'textComponent' attribute
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="update">
+            textComponentSearchable() will create a JTextField if no
+            'textComponent' property is specified
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Added autoCompletion()
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Added svgIcon()
+         </action>
+      </release>
+
+      <release
+         version="1.0a1"
+         date="2007-06-25"
+         desc="First alpha release">
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Default StandardDialog implementation
+         </action>
+         <action
+            dev="Andres Almiray"
+            type="add">
+            Wrappers for *Searchable widgets
+         </action>
+      </release>
+
+   </body>
+</document>

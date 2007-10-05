@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+
+   <properties>
+      <title>JideBuilder::Screenshots</title>
+   </properties>
+
+   <body>
+      <section name="">
+         <p>
+This example shows some JCL components along side standard swing components and GlazedLists.<br/> 	 
+<img src="images/screenshots/groovynews.png"/>
+<br/>
+<div class="section" onclick="showOrHideCode('example1')"><h3>Click to view/hide source</h3></div>
+<div id="example1" style="display:none">
+<textarea name="srccode" class="groovy:nocontrols:nogutter" cols="80" rows="104">package swing
+
+import java.awt.*
+import javax.swing.*
+import javax.swing.event.*
+
+import groovy.swing.*
+import groovy.swing.jide.*
+import ca.odell.glazedlists.*
+import ca.odell.glazedlists.gui.*
+import ca.odell.glazedlists.swing.*
+import com.jidesoft.swing.*
+
+class GlazedListsMain {
+   def frame
+   EventList newsEventList
+
+   public GlazedListsMain() {
+      newsEventList = new BasicEventList()
+      buildUI()
+   }
+
+   private void buildUI(){
+      def swing = new JideBuilder()
+      def resourcedir =  new File(".").absolutePath + "/src/main/resources"
+      def columnNames = ["Published","Title"]
+
+      SortedList sortedNews = new SortedList(newsEventList,
+            { a, b -> b.published.text() &lt;=&gt; a.published.text() } as Comparator)
+
+      frame = swing.frame( title: "Groovy News", size: [600,480],
+            resizable:false, locationRelativeTo: null,
+            defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE ){
+         panel( layout: new BorderLayout(5,5)){
+            bannerPanel(title:"Latests news",
+                  subtitle: "from http://aboutgroovy.com",
+                  titleIcon: new ImageIcon(resourcedir+ 
+                     "/images/groovy-logo.png"),
+                  constraints: BorderLayout.NORTH )
+            vbox( constraints: BorderLayout.CENTER ){
+               scrollPane(){
+                  tableSearchable( id: "table", mainIndex: 1, model:
+                     new EventTableModel( sortedNews, [
+                        getColumnCount: { return 2 },
+                        getColumnName: { index ->
+                           columnNames[index]
+                        },
+                        getColumnValue: { object, index ->
+                           def value = 
+                             object."${columnNames[index].toLowerCase()}".text()
+                           if( index == 0 ){
+                              return (value =~ /T/).replaceAll(" - ")
+                           }else{
+                              return value
+                           }
+                        }] as TableFormat))
+                  def tableSorter = new TableComparatorChooser(swing.table_table,
+                        sortedNews, AbstractTableComparatorChooser.SINGLE_COLUMN )
+               }
+               scrollPane(){
+                  editorPane( id: "content", contentType: "text/html",
+                        text: "&lt;html&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;/html&gt;",
+                        editable: false )
+               }
+            }
+            searchableBar( searchable: swing.table,
+                  constraints: BorderLayout.SOUTH )
+         }
+      }
+
+      // connect events
+      swing.table_table.selectionModel.addListSelectionListener([
+         valueChanged: { event ->
+            def selectedIndex = swing.table_table.selectedRow
+            if( selectedIndex != -1 ){
+               selectedIndex = sortedNews.getSourceIndex(selectedIndex)
+               swing.content.text = 
+                  newsEventList[selectedIndex].content.div.text()
+            }
+         }
+      ] as ListSelectionListener )
+   }
+
+   public void loadData(){
+      // populate news from http://aboutgroovy.com
+      def news = new XmlSlurper().parseText(
+            new URL("http://aboutgroovy.com/item/atom").getText() )
+      newsEventList.addAll( news.entry.list() )
+   }
+
+   public void setVisible( boolean visible ){
+     frame.visible = visible
+   }
+
+   public static void main(String[] args) {
+      SwingUtilities.invokeLater {
+         def app = new GlazedListsMain()
+         app.loadData()
+         app.setVisible( true )
+      }
+   }
+   }</textarea></div><br/>
+This is a more elaborate version of the previous example, it includes a menubar
+and a custom dialog, icons from the Tango desktop project, a custom cell renderer
+in the table and uses JGoodies FormLayout as the base layout. 
+It also uses the Windows L&amp;F and has cleartype enabled.<br/> 	 
+<img src="images/screenshots/simplerssreader.png"/>
+<br/>
+<div class="section" onclick="showOrHideCode('example2')"><h3>Click to view/hide source</h3></div>
+<div id="example2" style="display:none">
+<textarea name="srccode" class="groovy:nocontrols:nogutter" cols="80" rows="209">package swing
+
+import java.awt.*
+import java.awt.event.*
+import javax.swing.*
+import javax.swing.border.*
+import javax.swing.event.*
+import javax.swing.table.DefaultTableCellRenderer
+
+import groovy.swing.*
+import groovy.swing.jide.*
+import org.jdesktop.swingx.painter.*
+import ca.odell.glazedlists.*
+import ca.odell.glazedlists.gui.*
+import ca.odell.glazedlists.swing.*
+import com.jidesoft.swing.*
+import com.jidesoft.swing.SearchableBar as SB
+import com.jidesoft.plaf.LookAndFeelFactory
+import com.jidesoft.utils.SystemInfo
+import com.jgoodies.forms.layout.*
+import com.jgoodies.forms.debug.FormDebugPanel
+
+class SimpleRSSReader {
+   def frame
+   def aboutDialog
+   EventList newsEventList
+
+   public SimpleRSSReader() {
+      newsEventList = new BasicEventList()
+      buildUI()
+   }
+
+   private void buildUI(){
+      def jide = new JideBuilder()
+      def resourcedir =  new File(".").absolutePath + "/src/main/resources"
+      def cc = new CellConstraints()
+
+      SortedList sortedNews = new SortedList(newsEventList,
+            { a, b -> b.published.text() &lt;=&gt; a.published.text() } as Comparator)
+
+      frame = jide.frame( title: "Groovy News", size: [600,480],
+            resizable:false, locationRelativeTo: null,
+            defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE ){
+
+         menuBar(){
+            menu(text: "File", mnemonic: "F"){
+               menuItem(){
+                  action(name:"Reload", mnemonic: "R", closure: this.&amp;loadData,
+                        accelerator: KeyStroke.getKeyStroke("alt R"))
+               }
+               separator()
+               menuItem(){
+                  action(name:"Quit", mnemonic: "Q", closure: {System.exit(0)},
+                        accelerator: KeyStroke.getKeyStroke("alt Q"))
+               }
+            }
+            menu(text:"Help", mnemonic:"H"){
+               menuItem(){
+                  action(name:"About", mnemonic: "A", closure: this.&amp;showAbout,
+                        accelerator: KeyStroke.getKeyStroke("alt A"))
+               }
+            }
+         }
+         panel(layout: new FormLayout("2dlu, p:g, 2dlu",
+                      "2dlu, p, 2dlu, 140dlu:g, 4dlu, p:g, 2dlu"),
+               background: Color.LIGHT_GRAY ){
+            bannerPanel(title:"Latests news",
+                  subtitle: "from http://aboutgroovy.com",
+                  titleIcon: new ImageIcon(resourcedir+ "/images/groovy-logo.png"),
+                  opaque: false, constraints: cc.xy(2,2))
+            panel(layout: new BorderLayout(), constraints: cc.xy(2,4)){
+               scrollPane( constraints: BorderLayout.CENTER ){
+                  widget(jide.tableSearchable( id: "table", mainIndex: 2, model: createTableModel(sortedNews) ))
+                  def tableSorter = new TableComparatorChooser(jide.table_table,
+                        sortedNews, AbstractTableComparatorChooser.SINGLE_COLUMN )
+               }
+               searchableBar( searchable: jide.table, compact: true,
+                     visibleButtons: SB.SHOW_ALL &amp; ~ SB.SHOW_CLOSE &amp; ~ SB.SHOW_REPEATS,
+                     constraints: BorderLayout.PAGE_END )
+            }
+            panel(layout: new BorderLayout(), constraints: cc.xy(2,6)){
+               scrollPane(){
+                  editorPane( id: "content", contentType: "text/html",
+                        text: "&lt;html&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;/html&gt;",
+                        editable: false )
+               }
+            }
+         }
+      }
+
+      aboutDialog = jide.dialog( id: "about", title: "About Groovy News", owner: frame,
+            size: [320,240], resizable:false, locationRelativeTo: frame){
+         panel( layout: new FormLayout("10dlu, c:p:g, p, 10dlu","10dlu, p, 6dlu, p:g, 6dlu, p, 10dlu") ){
+            label(icon:new ImageIcon(resourcedir+ "/images/groovy-logo.png"),
+                  constraints: cc.xyw(2,2,2,"center,top"))
+            multilineLabel(text:"Groovy News is a simple application that shows "+
+                                "JideBuilder, GlazedLists and JGoodies working "+
+                                "together",
+                constraints: cc.xyw(2,4,2))
+            button(constraints: cc.xy(2,6)){
+               action(name:"Close", mnemonic:"C", closure: {jide.about.dispose()})
+            }
+         }
+      }
+
+      installRenderers( jide )
+      installListeners( jide, sortedNews )
+   }
+
+   private def loadData = {
+      print "loading data..."
+      // populate news from http://aboutgroovy.com
+      def news = new XmlSlurper().parseText(
+            new URL("http://aboutgroovy.com/item/atom").getText() )
+      newsEventList.clear()
+      newsEventList.addAll( news.entry.list() )
+      println "done"
+   }
+
+   private def showAbout = {
+      aboutDialog.setVisible(true)
+   }
+
+   private def createTableModel( sortedNews ){
+      def columnNames = ["","Published","Title"]
+      return new EventTableModel( sortedNews, [
+         getColumnCount: { return 3 },
+         getColumnName: { index ->
+            columnNames[index]
+         },
+         getColumnValue: { object, index ->
+            if( index == 0){
+               return object.content.div.p[0].text() - "Category: "
+            }
+            def value = object."${columnNames[index].toLowerCase()}".text()
+            if( index == 1 ){
+               return (value =~ /T/).replaceAll(" - ")
+            }else{
+               return value
+            }
+          }] as TableFormat)
+   }
+
+   private void installRenderers( jide ){
+      def column = jide.table_table.columnModel.getColumn(0)
+      column.width = 20
+      column.minWidth = 20
+      column.maxWidth = 20
+      column.setCellRenderer(new IconTableCellRenderer())
+
+      column = jide.table_table.columnModel.getColumn(1)
+      column.width = 160
+      column.minWidth = 160
+      column.maxWidth = 160
+   }
+
+   private void installListeners( jide, sortedNews ){
+      // connect table with editor
+      jide.table_table.selectionModel.addListSelectionListener([
+         valueChanged: { event ->
+            def selectedIndex = jide.table_table.selectedRow
+            if( selectedIndex != -1 ){
+               def content = newsEventList[sortedNews.getSourceIndex(selectedIndex)].content.div
+               def text = """${content.p[1].a.@href}&lt;br/&gt;&lt;br/&gt;
+               ${content.p[2].text()}"""
+               jide.content.text = text
+            }
+         }
+      ] as ListSelectionListener )
+   }
+
+   public void setVisible( boolean visible ){
+      frame.visible = visible
+   }
+
+   public static void main(String[] args) {
+      SwingUtilities.invokeLater {
+         def app = new SimpleRSSReader()
+         if( SystemInfo.isWindows() ){
+            UIManager.setLookAndFeel(LookAndFeelFactory.WINDOWS_LNF)
+            //System.setProperty("awt.useSystemAAFontSettings","lcd")
+         }
+         app.setVisible( true )
+         app.loadData()
+      }
+   }
+}
+
+class IconTableCellRenderer extends DefaultTableCellRenderer {
+   static Map iconCache = [:]
+   static Map translate =[
+      news: "internet-news-reader",
+      tutorial: "accessories-text-editor"
+   ]
+
+   Component getTableCellRendererComponent(JTable table, Object value,
+         boolean isSelected, boolean hasFocus, int row, int column){
+      Component renderer = super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column)
+      renderer.setIcon( IconTableCellRenderer.iconCache.get(value,getIcon(value)) )
+      renderer.setText("")
+      return renderer
+   }
+
+   static ImageIcon getIcon( name ){
+      String fileName = "org/tango-project/tango-icon-theme/16x16/apps/${translate.get(name,'news')}.png"
+      def url = Thread.currentThread().contextClassLoader.getResource( fileName )
+      return new ImageIcon( url )
+   }
+}</textarea></div><br/>
+This example shows support for SVG enabled icons.<br/>
+<img src="images/screenshots/svg-buttons.png"/>
+<br/>
+<div class="section" onclick="showOrHideCode('example3')"><h3>Click to view/hide source</h3></div>
+<div id="example3" style="display:none">
+<textarea name="srccode" class="groovy:nocontrols:nogutter" cols="80" rows="60">package swing
+
+import java.awt.*
+import javax.swing.*
+
+import groovy.swing.jide.*
+import com.jidesoft.dialog.*
+import com.jidesoft.swing.*
+
+class SVGMain {
+   def frame
+   def jide
+
+   public SVGMain() {
+      jide = new JideBuilder()
+
+	  jide.registerSVGAlias( "tango",
+        "org/tango-project/tango-icon-theme/scalable/" )
+      def iconPath = "tango:apps/help-browser.svg"
+
+      frame = jide.frame( title: "SVG Test",
+            resizable:false, locationRelativeTo: null,
+            defaultCloseOperation: WindowConstants.EXIT_ON_CLOSE ){
+		 panel( layout: new FlowLayout() ){
+		    button( preferredSize: [48,48] ){
+		       svgIcon( path: iconPath )
+		    }
+		    button( preferredSize: [48,48] ){
+		       svgIcon( path: iconPath, size: [32,32] )
+		    }
+		    button( preferredSize: [64,64] ){
+		       svgIcon( path: iconPath )
+		    }
+		    button( preferredSize: [64,64] ){
+		       svgIcon( path: iconPath, trackSize: true )
+		    }
+		    button( preferredSize: [64,64] ){
+		       svgIcon( path: iconPath, trackSize: true,
+		             resizePercentage: 50 )
+		    }
+		    button( preferredSize: [64,100] ){
+		       svgIcon( path: iconPath, trackSize: true )
+		    }
+		    button( preferredSize: [64,100] ){
+		       svgIcon( path: iconPath, trackSize: true,
+		             retainAspectRatio: false )
+		    }
+		 }
+      }
+      frame.pack()
+   }
+
+   public void setVisible( boolean visible ){
+     frame.visible = visible
+   }
+
+   public static void main(String[] args) {
+      SwingUtilities.invokeLater { new SVGMain().setVisible(true) }
+   }
+}</textarea>
+</div>
+         </p>
+      </section>
+   </body>
+</document>
