@@ -27,16 +27,16 @@
    <td valign="top"><strong><a href="ellipse">ellipse</a></strong></td><td>Draws a circle that is defined by a framing rectangle. properties: [cx,cy,fx,fy,radiusx,radiusy]. If fx or fy don't have an specific value they will use cx and cy accordingly.</td>
 </tr>
 <tr>
-   <td valign="top"><strong><a href="arc">arc</a></strong></td>Draws an arc defined by a framing rectangle, start angle, angular extent (length of the arc), and a closure type (OPEN, CHORD, or PIE). properties [x,y,width,height,start,extent], optional [close=open,chord,pie]<td></td>
+	<td valign="top"><strong><a href="arc">arc</a></strong></td><td>Draws an arc defined by a framing rectangle, start angle, angular extent (length of the arc), and a closure type (OPEN, CHORD, or PIE). properties [x,y,width,height,start,extent], optional [close=open,chord,pie]</td>
 </tr>
 <tr>
-   <td valign="top"><strong><a href="polygon">polygon</a></strong></td>Draws a closed, two-dimensional region within a coordinate space. This region is bounded by an arbitrary number of line segments, each of which is one side of the polygon. Internally, a polygon comprises of a list of (x,y)  coordinate pairs, where each pair defines a vertex of the polygon, and two successive pairs are the endpoints of a line that is a side of the polygon. The first and final pairs of (x,y) points are joined by a line segment that closes the polygon. properties [points]<td></td>
+	<td valign="top"><strong><a href="polygon">polygon</a></strong></td><td>Draws a closed, two-dimensional region within a coordinate space. This region is bounded by an arbitrary number of line segments, each of which is one side of the polygon. Internally, a polygon comprises of a list of (x,y)  coordinate pairs, where each pair defines a vertex of the polygon, and two successive pairs are the endpoints of a line that is a side of the polygon. The first and final pairs of (x,y) points are joined by a line segment that closes the polygon. properties [points]</td>
 </tr>
 <tr>
-   <td valign="top"><strong><a href="text">text</a></strong></td>Draws a string at the specified coordinates. properties [text,x,y]<td></td>
+	<td valign="top"><strong><a href="text">text</a></strong></td><td>Draws a string at the specified coordinates. properties [text,x,y]</td>
 </tr>
 <tr>
-   <td valign="top"><strong><a href="path">path</a></strong></td>Draws an arbitrary geometric path. Paths are described by a series of pathOperations:
+	<td valign="top"><strong><a href="path">path</a></strong></td><td>Draws an arbitrary geometric path. Paths are described by a series of pathOperations:
    <ul>
    <li>moveTo[x,y] : adds a point to the path by moving to the specified coordinates (x,y)</li>
    <li>lineTo[x,y] : adds a point to the path by drawing a straight line from the current coordinates to the new specified coordinates (x,y)</li>
@@ -46,10 +46,10 @@
    <li>vline[y] : adds a point to the path by drawing a vertical line to the specified coordinates (current.x,y)</li>
    <li>shape[shape,connect] : appends the geometry of the specified Shape object to the path, possibly connecting the new geometry to the existing path segments with a line segment.</li>
    <li>close : closes the current subpath by drawing a straight line back to the coordinates of the last moveTo.</li>
-   </ul>The first operation must be moveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-jdk6<td></td>
+   </ul>The first operation must be moveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-jdk6</td>
 </tr>
 <tr>
-   <td valign="top"><strong><a href="xpath">xpath</a></strong></td>Draws an arbitrary geometric path using the Batik library. Paths are described by a series of pathOperations:
+	<td valign="top"><strong><a href="xpath">xpath</a></strong></td><td>Draws an arbitrary geometric path using the Batik library. Paths are described by a series of pathOperations:
    <ul>
    <li>xmoveTo[x,y] : adds a point to the path by moving to the specified coordinates (x,y)</li>
    <li>xlineTo[x,y] : adds a point to the path by drawing a straight line from the current coordinates to the new specified coordinates (x,y)</li>
@@ -60,7 +60,7 @@
    <li>xshape[shape,connect] : appends the geometry of the specified Shape object to the path, possibly connecting the new geometry to the existing path segments with a line segment.</li>
    <li>xclose : closes the current subpath by drawing a straight line back to the coordinates of the last moveTo.</li>
    <li>xarcTo[x,y,rx,ry,angle,sweep,largeArc] : adds an elliptical arc, defined by two radii (rx,ry), an angle from the x-axis, a flag to choose the large arc or not, a flag to indicate if we increase or decrease the angles and the final point of the arc (x,y).</li>
-   </ul>The first operation must be xmoveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-svg<td></td>
+   </ul>The first operation must be xmoveTo. The path will be closed automatically.<br>Requires graphicsbuilder-ext-svg</td>
 </tr>
 <tr>
    <td valign="top"><strong><a href="star">star</a></strong></td><td>Draws a star shape. A star is defined by two radii and a number of branches. Each branch spans between the two radii. The inner radius is the distance between the center of the star and the origin of the branches. The outer radius is the distance between the center of the star and the tips of the branches. properties [x,y,ir,or,count]. Requires graphicsbuilder-ext-swingx</td>
