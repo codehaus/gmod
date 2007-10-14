@@ -115,7 +115,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return container
     }
 
-    protected void postIstantiate( Object name, Map attributes, Object node ) {
+    protected void postInstantiate( Object name, Map attributes, Object node ) {
         Map context = getContext()
         String operationName = context.get( OPERATION_NAME )
         if( operationName != null && node != null ){
