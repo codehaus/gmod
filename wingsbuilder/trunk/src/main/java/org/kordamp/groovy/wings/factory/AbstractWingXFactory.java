@@ -15,25 +15,24 @@
 
 package org.kordamp.groovy.wings.factory;
 
-import groovy.swing.SwingBuilder;
-import groovy.swing.factory.Factory;
-
 import java.util.Map;
 
+import org.kordamp.groovy.wings.WingSBuilder;
 import org.kordamp.groovy.wings.WingXBuilder;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public abstract class AbstractWingXFactory implements Factory {
-   public abstract Object doNewInstance( WingXBuilder builder, Object name, Object value,
-         Map properties ) throws InstantiationException, IllegalAccessException;
+public abstract class AbstractWingXFactory extends AbstractWingSFactory {
+   public final Object doNewInstance( WingSBuilder builder, Object name, Object value,
+         Map properties ) throws InstantiationException, IllegalAccessException {
 
-   public Object newInstance( SwingBuilder builder, Object name, Object value, Map properties )
-         throws InstantiationException, IllegalAccessException {
       if( !(builder instanceof WingXBuilder) ){
          throw new RuntimeException( "This factory must be registered to a WingXBuilder" );
       }
-      return doNewInstance( (WingXBuilder) builder, name, value, properties );
+      return doNewInstanceX( (WingXBuilder) builder, name, value, properties );
    }
+
+   public abstract Object doNewInstanceX( WingXBuilder builder, Object name, Object value,
+         Map properties ) throws InstantiationException, IllegalAccessException;
 }

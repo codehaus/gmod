@@ -16,6 +16,9 @@
 
 package org.kordamp.groovy.wings;
 
+import java.util.Map;
+
+import org.kordamp.groovy.wings.factory.AbstractWingXFactory;
 import org.kordamp.groovy.wings.factory.STextArgWidgetFactory;
 import org.kordamp.groovy.wings.factory.XColorPickerFactory;
 import org.kordamp.groovy.wings.factory.XDivisionFactory;
@@ -31,7 +34,7 @@ import org.wingx.XTable;
 import org.wingx.XTreeTable;
 
 /**
- * A helper class for creating WingS widgets using GroovyMarkup.<br>
+ * A helper class for creating WingS &amp; WingX widgets using GroovyMarkup.<br>
  *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -40,18 +43,31 @@ public class WingXBuilder extends WingSBuilder {
       registerXWidgets();
    }
 
+   public void registerXBeanFactory( String theName, final Class beanClass ) {
+      registerFactory( theName, new AbstractWingXFactory(){
+         public Object doNewInstanceX( WingXBuilder builder, Object name, Object value,
+               Map properties ) throws InstantiationException, IllegalAccessException {
+            if( checkValueIsTypeNotString( value, name, beanClass ) ){
+               return value;
+            }else{
+               return beanClass.newInstance();
+            }
+         }
+      } );
+   }
+
    protected void registerXWidgets() {
-      registerBeanFactory( "calendar", XCalendar.class );
+      registerXBeanFactory( "calendar", XCalendar.class );
       registerFactory( "colorPicker", new XColorPickerFactory() );
       registerFactory( "division", new XDivisionFactory() );
-      registerBeanFactory( "inplaceEditor", XInplaceEditor.class );
-      registerBeanFactory( "xpageScroller", XPageScroller.class );
+      registerXBeanFactory( "inplaceEditor", XInplaceEditor.class );
+      registerXBeanFactory( "xpageScroller", XPageScroller.class );
       registerFactory( "popupFrame", new XPopupFrameFactory() );
-      registerBeanFactory( "scrollablePanel", XScrollablePanel.class );
+      registerXBeanFactory( "scrollablePanel", XScrollablePanel.class );
       registerFactory( "xscrollPane", new XScrollPaneFactory() );
       registerFactory( "suggest", new STextArgWidgetFactory( XSuggest.class ) );
-      registerBeanFactory( "xtable", XTable.class );
-      registerBeanFactory( "treeTable", XTreeTable.class );
+      registerXBeanFactory( "xtable", XTable.class );
+      registerXBeanFactory( "treeTable", XTreeTable.class );
       registerFactory( "yuixGrid", new YUIxGridFactory() );
    }
 }

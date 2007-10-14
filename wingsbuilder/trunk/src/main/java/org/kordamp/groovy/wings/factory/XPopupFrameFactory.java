@@ -16,10 +16,9 @@
 
 package org.kordamp.groovy.wings.factory;
 
-import org.kordamp.groovy.wings.WingXBuilder;
-
 import java.util.Map;
 
+import org.kordamp.groovy.wings.WingXBuilder;
 import org.wings.SFrame;
 import org.wingx.XPopupFrame;
 
@@ -27,7 +26,7 @@ import org.wingx.XPopupFrame;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class XPopupFrameFactory extends AbstractWingXFactory {
-   public Object doNewInstance( WingXBuilder builder, Object name, Object value, Map properties )
+   public Object doNewInstanceX( WingXBuilder builder, Object name, Object value, Map properties )
          throws InstantiationException, IllegalAccessException {
       WingXBuilder.checkValueIsNull( value, name );
       XPopupFrame popupFrame = null;

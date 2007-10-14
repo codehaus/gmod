@@ -19,22 +19,34 @@ package org.kordamp.groovy.wings.factory;
 import java.util.Map;
 
 import org.kordamp.groovy.wings.WingSBuilder;
-import org.wings.SComponent;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class SWidgetFactory extends AbstractWingSFactory {
+   protected boolean leaf;
+   private Class restrictedType;
+
+   public SWidgetFactory( Class restrictedType, boolean leaf ) {
+      this.restrictedType = restrictedType;
+      this.leaf = leaf;
+   }
+
    public Object doNewInstance( WingSBuilder builder, Object name, Object value, Map properties )
          throws InstantiationException, IllegalAccessException {
-      if( WingSBuilder.checkValueIsType( value, name, SComponent.class ) ){
+      if( value == null ){
+         value = properties.remove( name );
+      }
+      if( (value != null) && WingSBuilder.checkValueIsType( value, name, restrictedType ) ){
          return value;
-      }else if( properties.get( name ) instanceof SComponent ){
-         return properties.remove( name );
       }else{
          throw new RuntimeException( name
-               + " must have a value argument of type org.wings.SComponent or a property named "
-               + name + " of type java.awt.Component" );
+               + " must have either a value argument or an attribute named " + name
+               + " that must be of type " + restrictedType.getName() );
       }
+   }
+
+   public boolean isLeaf() {
+      return leaf;
    }
 }

@@ -16,26 +16,38 @@
 
 package org.kordamp.groovy.wings.factory;
 
-import groovy.swing.SwingBuilder;
-import groovy.swing.factory.TextArgWidgetFactory;
-
 import java.util.Map;
 
+import org.codehaus.groovy.runtime.InvokerHelper;
 import org.kordamp.groovy.wings.WingSBuilder;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class STextArgWidgetFactory extends TextArgWidgetFactory {
+public class STextArgWidgetFactory extends AbstractWingSFactory {
+   private Class klass;
+
    public STextArgWidgetFactory( Class klass ) {
-      super( klass );
+      this.klass = klass;
    }
 
-   public Object newInstance( SwingBuilder builder, Object name, Object value, Map properties )
+   public Object doNewInstance( WingSBuilder builder, Object name, Object value, Map attributes )
          throws InstantiationException, IllegalAccessException {
       if( !(builder instanceof WingSBuilder) ){
          throw new RuntimeException( "This factory must be registered to a WingSBuilder" );
       }
-      return super.newInstance( builder, name, value, properties );
+      if( WingSBuilder.checkValueIsTypeNotString( value, name, klass ) ){
+         return value;
+      }
+
+      Object widget = klass.newInstance();
+
+      if( value instanceof String ){
+         // this does not create property setting order issues, since the value
+         // arg preceeds all attributes in the builder element
+         InvokerHelper.setProperty( widget, "text", value );
+      }
+
+      return widget;
    }
 }

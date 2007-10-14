@@ -367,7 +367,7 @@ class WingSBuilderTest extends GroovyTestCase {
             }
         }
 
-        assert table.columnModel.class.name == 'org.kordamp.groovy.wings.impl.STableColumnModelAdapter'
+        assert table.columnModel.class.name == 'org.wings.table.SDefaultTableColumnModel'
     }
 
     void testSetConstraints() {
