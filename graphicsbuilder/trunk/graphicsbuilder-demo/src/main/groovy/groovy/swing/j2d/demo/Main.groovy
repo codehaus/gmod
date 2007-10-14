@@ -189,7 +189,7 @@ class Main {
 
           panel( border: BorderFactory.createEmptyBorder(5, 5, 5, 5) ){
              borderLayout()
-             widget( buildListPanel(swing), constraints: BL.WEST )
+             panel( buildListPanel(swing), constraints: BL.WEST )
              panel( constraints: BL.CENTER ){
                 gridLayout( cols: 1, rows: 3 )
                 widget( buildViewPanel(swing) )
@@ -245,7 +245,7 @@ class Main {
           panel {
              borderLayout()
              scrollPane( constraints: BL.CENTER, border: BorderFactory.createEmptyBorder() ) {
-                widget( inputEditor, id: 'source', border: BorderFactory.createEmptyBorder(),
+                container( inputEditor, id: 'source', border: BorderFactory.createEmptyBorder(),
                           font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) ){
                    action(runAction)
                 }
