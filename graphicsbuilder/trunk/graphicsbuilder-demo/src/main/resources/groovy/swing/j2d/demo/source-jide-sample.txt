@@ -1,0 +1,9 @@
+swingView( new org.kordamp.groovy.swing.jide.JideBuilder() ) {
+   button( label: 'Swing', x: 100, y: 10 )
+   jideSplitButton( label: 'Jide', x: 100, y: 40, customize: { m ->
+      m.removeAll()
+      m.add( "Option 1")
+      m.add( "Option 2")
+      m.add( "Option 3") 
+   })
+}

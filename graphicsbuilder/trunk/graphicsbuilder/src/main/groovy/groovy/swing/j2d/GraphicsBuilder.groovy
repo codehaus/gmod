@@ -28,7 +28,6 @@ import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.*
 
 import groovy.swing.SwingBuilder
-//import groovy.swing.SwingBuilderAdapter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -77,31 +76,31 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return operation
     }
 
+    /*
     public def swingView( Closure closure ) {
         return swingView( new SwingBuilder(), closure )
     }
+    */
 
-    public def swingView( SwingBuilder builder, Closure closure ) {
-        def proxyBuilder = getProxyBuilder()
-        //def adapter = new SwingBuilderAdapter( builder )
-        //setProxyBuilder( adapter )
+    public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
+        builder.addAttributeDelegate({ fbs, node, attrs ->
+            fbs.context.x = attrs.remove("x")
+            fbs.context.y = attrs.remove("y")
+        })
+        builder.addPostNodeCompletionDelegate({ fbs, parent, node ->
+            def x = fbs.context.x
+            def y = fbs.context.y
+            if( x && y ){
+                def size = node.preferredSize
+                node.bounds = [x,y,size.width as int,size.height as int] as java.awt.Rectangle
+            }
+        })
+
+        def proxyBuilderRef = getProxyBuilder()
+        setProxyBuilder( builder )
         def container = null
         try {
-            /*
-            closure.setDelegate( adapter )
-            container = adapter.panel {
-               closure.call()
-            }
-            */
-            Binding binding = new Binding()
-            binding.setVariable( "closure", closure )
-            binding.setVariable( "s", builder )
-            shell = new GroovyShell( binding )
-            closure.setDelegate( builder )
-            container = shell.evaluate("container = s.panel{ closure.call() }")
-            println container
-            println container.componentCount
-
+            container = builder.panel( closure )
             def go = new SwingGraphicsOperation( container )
             def parent = getCurrent()
             if( parent instanceof GroupingGraphicsOperation || parent instanceof ContextualGraphicsOperation ){
@@ -110,7 +109,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
                 operations.add( go )
             }
         } finally {
-            setProxyBuilder( proxyBuilder )
+            setProxyBuilder( proxyBuilderRef )
         }
         return container
     }
