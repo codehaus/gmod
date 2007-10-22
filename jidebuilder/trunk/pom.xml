@@ -55,7 +55,7 @@
       <dependency>
          <groupId>org.codehaus.groovy</groupId>
          <artifactId>groovy-all-minimal</artifactId>
-         <version>1.1-rc-1</version>
+         <version>1.1-rc-2-SNAPSHOT</version>
       </dependency>
       <dependency>
          <groupId>com.jidesoft</groupId>
