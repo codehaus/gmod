@@ -28,6 +28,6 @@ class LineToPathOperation extends AbstractPathOperation {
     double y
 
     public void apply( Path2D path, Graphics2D g, Component target ) {
-       path.moveTo( x, y )
+       path.lineTo( x, y )
     }
 }
