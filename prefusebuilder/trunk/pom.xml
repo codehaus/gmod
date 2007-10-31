@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.codehaus.groovy-contrib</groupId>
+    <artifactId>prefusebuilder</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>PrefuseBuilder</name>
+    
+    <url>http://groovy.codehaus.org/PrefuseBuilder</url>
+    
+    <description>
+        PrefuseBuilder is a Groovy builder for the Prefuse Visualization Library
+    </description>
+    
+    <inceptionYear>2007</inceptionYear>
+    
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <scm>
+        <connection>scm:svn:http://svn.codehaus.org/groovy-contrib/prefusebuilder</connection>
+        <url>http://svn.codehaus.org/groovy-contrib/prefusesbuilder</url>
+    </scm>
+    
+    <developers>
+        <developer>
+            <name>Craig MacKay</name>
+            <id>craig2600</id>
+            <email>craigmackay@users.sourceforge.net</email>
+            <timezone>-7</timezone>
+            <roles>
+                <role>Founder</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>1.1-rc-1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.prefuse</groupId>
+            <artifactId>prefuse</artifactId>
+            <version>beta-20060220</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin> 
+        </plugins>
+    </build>
+    
+</project>
