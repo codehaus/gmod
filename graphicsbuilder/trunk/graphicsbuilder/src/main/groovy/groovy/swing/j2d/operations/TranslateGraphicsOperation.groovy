@@ -29,8 +29,8 @@ import java.awt.Component
  */
 class TranslateGraphicsOperation extends AbstractGraphicsOperation implements
    TransformSupportGraphicsOperation {
-    def x
-    def y
+    def x = 0
+    def y = 0
 
     TranslateGraphicsOperation() {
         super( "translate", ["x","y"] as String[] )

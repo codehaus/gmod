@@ -37,12 +37,12 @@ import java.awt.geom.Arc2D
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ArcGraphicsOperation extends AbstractShapeGraphicsOperation {
-    def x
-    def y
-    def width
-    def height
-    def start
-    def extent
+    def x = 0
+    def y = 0
+    def width = 10
+    def height = 10
+    def start = 0
+    def extent = 90
     def close
 
     public ArcGraphicsOperation() {

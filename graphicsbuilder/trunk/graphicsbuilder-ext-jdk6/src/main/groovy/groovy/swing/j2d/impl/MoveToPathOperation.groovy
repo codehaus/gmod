@@ -24,8 +24,8 @@ import java.awt.geom.Path2D
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MoveToPathOperation extends AbstractPathOperation {
-    double x
-    double y
+    double x = 0
+    double y = 0
 
     public void apply( Path2D path, Graphics2D g, Component target ) {
        path.moveTo( x, y )

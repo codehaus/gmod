@@ -30,9 +30,9 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
-    def text
-    def x
-    def y
+    def text = "Groovy"
+    def x = 0
+    def y = 0
 
     TextGraphicsOperation() {
         super( "text", ["text", "x", "y"] as String[] )

@@ -28,9 +28,9 @@ import java.awt.Component
  */
 class RotateGraphicsOperation extends AbstractGraphicsOperation implements
    TransformSupportGraphicsOperation {
-    def angle
-    def cx
-    def cy
+    def angle = 0
+    def cx = 0
+    def cy = 0
 
     RotateGraphicsOperation() {
         super( "rotate", ["angle","cx","cy"] as String[] )

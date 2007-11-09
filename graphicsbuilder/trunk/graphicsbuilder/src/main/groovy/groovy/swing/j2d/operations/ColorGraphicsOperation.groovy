@@ -33,6 +33,7 @@ class ColorGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, Component target ){
+        if( !color ) return;
         g.setColor( color )
     }
 }

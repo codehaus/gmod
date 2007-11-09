@@ -27,11 +27,11 @@ import org.jdesktop.swingx.geom.Star2D
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
-   def x
-   def y
-   def ir
-   def or
-   def count
+   def x = 0
+   def y = 0
+   def ir = 5
+   def or = 15
+   def count = 5
 
    StarGraphicsOperation() {
       super( "star", ["x", "y", "ir", "or", "count"] as String[] )

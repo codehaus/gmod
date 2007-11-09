@@ -35,8 +35,8 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
     def file
     def url
     def classpath
-    def x
-    def y
+    def x = 0
+    def y = 0
     def bgcolor
 
     private Image loadedImage

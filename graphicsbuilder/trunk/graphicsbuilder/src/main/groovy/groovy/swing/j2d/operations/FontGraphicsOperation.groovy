@@ -33,6 +33,7 @@ class FontGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, Component target ){
+        if( !font ) return;
         g.setFont( font )
     }
 }

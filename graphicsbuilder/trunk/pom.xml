@@ -151,7 +151,7 @@
 
    <properties>
       <graphicsbuilder-version>1.0-SNAPSHOT</graphicsbuilder-version>
-      <groovy-version>1.1-rc-2-SNAPSHOT</groovy-version>
+      <groovy-version>1.1-rc-2</groovy-version>
    </properties>
 
 </project>

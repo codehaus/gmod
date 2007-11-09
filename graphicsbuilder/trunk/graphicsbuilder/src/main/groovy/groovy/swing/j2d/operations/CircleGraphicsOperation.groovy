@@ -32,9 +32,9 @@ import java.awt.Component
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class CircleGraphicsOperation extends AbstractShapeGraphicsOperation {
-    def cx
-    def cy
-    def radius
+    def cx = 5
+    def cy = 5
+    def radius = 5
 
     public CircleGraphicsOperation() {
         super( "circle", ["cx", "cy", "radius"] as String[] )

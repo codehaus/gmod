@@ -33,10 +33,10 @@ import java.awt.Component
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
-    def cx
-    def cy
-    def radiusx
-    def radiusy
+    def cx = 10
+    def cy = 5
+    def radiusx = 10
+    def radiusy = 5
 
     EllipseGraphicsOperation() {
         super( "ellipse", ["cx", "cy", "radiusx","radiusy"] as String[] )

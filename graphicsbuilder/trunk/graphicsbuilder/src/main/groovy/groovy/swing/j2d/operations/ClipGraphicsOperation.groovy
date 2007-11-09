@@ -46,6 +46,7 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, Component target ){
+        if( !shape ) return;
         if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
                 shape.getParameterValue("asShape") ){
            g.clip( shape.getClip(g,target) )

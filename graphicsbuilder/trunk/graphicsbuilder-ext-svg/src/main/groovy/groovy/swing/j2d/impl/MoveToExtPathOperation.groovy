@@ -24,8 +24,8 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MoveToExtPathOperation extends AbstractExtPathOperation {
-    float x
-    float y
+    float x = 0
+    float y = 0
 
     public void apply( ExtendedGeneralPath path, Graphics2D g, Component target ) {
        path.moveTo( x, y )

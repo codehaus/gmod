@@ -26,10 +26,10 @@ import java.awt.Component
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class LineGraphicsOperation extends AbstractOutlineGraphicsOperation {
-    def x1
-    def x2
-    def y1
-    def y2
+    def x1 = 0
+    def x2 = 10
+    def y1 = 0
+    def y2 = 0
 
     LineGraphicsOperation() {
         super( "line", ["x1", "y1", "x2", "y2"] as String[] )

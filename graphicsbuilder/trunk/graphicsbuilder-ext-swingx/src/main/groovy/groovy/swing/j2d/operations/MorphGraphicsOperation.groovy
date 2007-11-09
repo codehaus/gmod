@@ -30,7 +30,7 @@ import org.jdesktop.swingx.geom.Morphing2D
 class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
    def start
    def end
-   def morph
+   def morph = 0
 
    MorphGraphicsOperation() {
       super( "morph", ["start", "end", "morph"] as String[] )

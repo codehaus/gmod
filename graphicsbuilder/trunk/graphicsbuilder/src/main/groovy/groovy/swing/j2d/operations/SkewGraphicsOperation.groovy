@@ -28,8 +28,8 @@ import java.awt.Component
  */
 class SkewGraphicsOperation extends AbstractGraphicsOperation implements
    TransformSupportGraphicsOperation {
-    def x
-    def y
+    def x = 0
+    def y = 0
 
     SkewGraphicsOperation() {
         super( "scale", ["x","y"] as String[] )

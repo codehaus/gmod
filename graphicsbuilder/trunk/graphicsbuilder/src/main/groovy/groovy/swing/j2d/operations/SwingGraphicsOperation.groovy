@@ -38,6 +38,7 @@ class SwingGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, Component target ){
+        if( !container ) return;
         // target is usally a GraphicsPanel instance
         Component[] components = container.components
         if( target instanceof Container ){

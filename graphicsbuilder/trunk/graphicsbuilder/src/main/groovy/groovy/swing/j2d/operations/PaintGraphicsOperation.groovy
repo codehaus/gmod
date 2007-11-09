@@ -33,6 +33,7 @@ class PaintGraphicsOperation extends AbstractGraphicsOperation {
     }
 
     protected void doExecute( Graphics2D g, Component target ){
+        if( !paint ) return;
         g.setPaint( paint )
     }
 }

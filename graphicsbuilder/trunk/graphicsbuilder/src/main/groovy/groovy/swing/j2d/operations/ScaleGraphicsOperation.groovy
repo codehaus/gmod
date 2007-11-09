@@ -28,8 +28,8 @@ import java.awt.Component
  */
 class ScaleGraphicsOperation extends AbstractGraphicsOperation implements
    TransformSupportGraphicsOperation {
-    def x
-    def y
+    def x = 1
+    def y = 1
 
     ScaleGraphicsOperation() {
         super( "scale", ["x","y"] as String[] )

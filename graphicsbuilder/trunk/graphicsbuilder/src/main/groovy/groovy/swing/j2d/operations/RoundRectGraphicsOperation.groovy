@@ -26,12 +26,12 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class RoundRectGraphicsOperation extends AbstractShapeGraphicsOperation {
-    def x
-    def y
-    def width
-    def height
-    def arcWidth
-    def arcHeight
+    def x = 0
+    def y = 0
+    def width = 10
+    def height = 10
+    def arcWidth = 2
+    def arcHeight = 2
 
     RoundRectGraphicsOperation() {
         super( "rect", ["x", "y", "width", "height", "arcWidth", "arcHeight"] as String[] )

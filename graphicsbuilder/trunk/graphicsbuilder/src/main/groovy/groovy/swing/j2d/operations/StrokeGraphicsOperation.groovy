@@ -31,7 +31,7 @@ import java.awt.Component
 public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
 	def paint
 	def color
-	def width
+	def width = 1
 	def cap
 	def join
 	def miterlimit

@@ -26,10 +26,10 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
-    def x
-    def y
-    def width
-    def height
+    def x = 0
+    def y = 0
+    def width = 10
+    def height = 10
     RectGraphicsOperation() {
         super( "rect", ["x", "y", "width", "height"] as String[] )
     }
