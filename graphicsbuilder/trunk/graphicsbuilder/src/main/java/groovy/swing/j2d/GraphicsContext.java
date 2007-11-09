@@ -15,21 +15,29 @@
 
 package groovy.swing.j2d;
 
-import java.util.EventObject;
+import java.awt.Component;
+import java.awt.Graphics2D;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GraphicsErrorEvent extends EventObject {
-    private static final long serialVersionUID = 7207511004157442719L;
-    private Throwable cause;
+public class GraphicsContext {
+    private Graphics2D g;
+    private Component target;
 
-    public GraphicsErrorEvent( Object source, Throwable cause ) {
-        super( source );
-        this.cause = cause;
+    public Graphics2D getG() {
+        return g;
     }
 
-    public Throwable getCause() {
-        return cause;
+    public Component getTarget() {
+        return target;
+    }
+
+    public void setG( Graphics2D g ) {
+        this.g = g;
+    }
+
+    public void setTarget( Component target ) {
+        this.target = target;
     }
 }

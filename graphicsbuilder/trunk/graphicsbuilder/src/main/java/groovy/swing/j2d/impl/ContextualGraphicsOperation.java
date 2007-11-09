@@ -26,20 +26,20 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Decorator that adds a GraphicsContext to its delegate.<br>
- * A GraphicsContext takes care of restoring the state of the Graphics2D object
+ * Decorator that adds a GraphicsScope to its delegate.<br>
+ * A GraphicsScope takes care of restoring the state of the Graphics2D object
  * after this operation's delegate has been executed.
  *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
-    private GraphicsContext context;
     private List operations;
+    private GraphicsScope scope;
     private TransformationsGraphicsOperation transformations;
 
     public ContextualGraphicsOperation( GraphicsOperation delegate ) {
         super( delegate );
-        this.context = new GraphicsContext();
+        this.scope = new GraphicsScope();
         this.operations = new ArrayList();
     }
 
@@ -55,8 +55,8 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         }
     }
 
-    public GraphicsContext getContext() {
-        return context;
+    public GraphicsScope getScope() {
+        return scope;
     }
 
     public void removePropertyChangeListener( PropertyChangeListener listener ) {
@@ -84,13 +84,13 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
 
     protected void afterDelegateExecutes( Graphics2D g, Component target ) {
         if( operations.size() > 0 || transformations != null ){
-            restoreContext( g );
+            restoreScope( g );
         }
     }
 
     protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
         if( operations.size() > 0 || transformations != null ){
-            saveContext( g, target );
+            saveScope( g, target );
         }
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
@@ -115,14 +115,14 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
     }
 
     private void restoreClip( Graphics2D g ) {
-        context.restoreClip( g );
+        scope.restoreClip( g );
     }
 
-    private void restoreContext( Graphics2D g ) {
-        context.restore( g );
+    private void restoreScope( Graphics2D g ) {
+        scope.restore( g );
     }
 
-    private void saveContext( Graphics2D g, Component target ) {
-        context.save( g, getClip( g, target ) );
+    private void saveScope( Graphics2D g, Component target ) {
+        scope.save( g, getClip( g, target ) );
     }
 }

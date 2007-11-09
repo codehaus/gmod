@@ -76,12 +76,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return operation
     }
 
-    /*
-    public def swingView( Closure closure ) {
-        return swingView( new SwingBuilder(), closure )
-    }
-    */
-
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
         builder.addAttributeDelegate({ fbs, node, attrs ->
             fbs.context.x = attrs.remove("x")

@@ -27,7 +27,7 @@ import java.awt.geom.AffineTransform;
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GraphicsContext {
+public class GraphicsScope {
     private Color background;
     private Shape clip;
     private Color color;
