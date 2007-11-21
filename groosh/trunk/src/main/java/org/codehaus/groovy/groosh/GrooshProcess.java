@@ -16,10 +16,12 @@ package org.codehaus.groovy.groosh;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 
 import org.codehaus.groovy.groosh.process.DevNull;
 import org.codehaus.groovy.groosh.process.FileStreams;
+import org.codehaus.groovy.groosh.process.IOStreams;
 import org.codehaus.groovy.groosh.process.Sink;
 import org.codehaus.groovy.groosh.process.Source;
 import org.codehaus.groovy.groosh.process.StandardStreams;
@@ -39,6 +41,15 @@ public abstract class GrooshProcess {
 
 	public String toStringOut() throws IOException {
 		StringStreams.StringSink sink = StringStreams.stringSink();
+
+		getSource().connect(sink);
+		startStreamHandling();
+
+		return sink.toString();
+	}
+
+	public String toStream(OutputStream os) throws IOException {
+		Sink sink = IOStreams.sink(os);
 
 		getSource().connect(sink);
 		startStreamHandling();
