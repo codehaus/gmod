@@ -16,7 +16,6 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 import org.kordamp.groovy.swing.jide.impl.DefaultPopupMenuCustomizer
 import com.jidesoft.swing.JideMenu
@@ -24,7 +23,11 @@ import com.jidesoft.swing.JideMenu
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class JideMenuFactory extends AbstractFactory {
+class JideMenuFactory extends AbstractJideComponentFactory {
+   public JideMenuFactory() {
+      super( JideMenu )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       Closure customize = properties.remove("customize")

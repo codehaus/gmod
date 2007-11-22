@@ -21,6 +21,7 @@ import javax.swing.*
 import org.kordamp.groovy.swing.jide.JideBuilder
 import org.kordamp.groovy.swing.jide.impl.*
 import com.jidesoft.dialog.*
+import com.jidesoft.hints.*
 import com.jidesoft.popup.*
 import com.jidesoft.spinner.*
 import com.jidesoft.swing.*
@@ -130,11 +131,12 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         comboBoxSearchable( id: "searchable", items: [1,2,3] )
+         comboBoxSearchable( id: "comboBox", items: [1,2,3] )
       }
-      assertNotNull jide.searchable
-      assertNotNull jide.searchable_comboBox
-      assert jide.searchable_comboBox.class == JComboBox
+      assertNotNull jide.comboBox
+      assertNotNull jide.comboBox_searchable
+      assert jide.comboBox.class == JComboBox
+      assert jide.comboBox_searchable.class == ComboBoxSearchable
    }
 
    void testComboBoxSearchable_withOverlayableProperty(){
@@ -142,11 +144,12 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         comboBoxSearchable( id: "searchable", items: [1,2,3], overlayable: true )
+         comboBoxSearchable( id: "comboBox", items: [1,2,3], overlayable: true )
       }
-      assertNotNull jide.searchable
-      assertNotNull jide.searchable_comboBox
-      assert jide.searchable_comboBox.class == OverlayComboBox
+      assertNotNull jide.comboBox
+      assertNotNull jide.comboBox_searchable
+      assert jide.comboBox.class == OverlayComboBox
+      assert jide.comboBox_searchable.class == ComboBoxSearchable
    }
 
    void testComboBoxSearchableWithComboBox(){
@@ -155,11 +158,13 @@ public class ComponentsTest extends GroovyTestCase {
       def jide = new JideBuilder()
       jide.panel(){
          comboBox( id: "combo", items: [1,2,3] )
-         comboBoxSearchable( id: "searchable", comboBox: jide.combo )
+         comboBoxSearchable( id: "comboBox", comboBox: combo )
       }
-      assertNotNull jide.combo
-      assertNotNull jide.searchable
-      assert jide.combo == jide.searchable_comboBox
+      assertNotNull jide.comboBox
+      assertNotNull jide.comboBox_searchable
+      assert jide.comboBox.class == JComboBox
+      assert jide.comboBox == jide.combo
+      assert jide.comboBox_searchable.class == ComboBoxSearchable
    }
 
    void testListSearchable(){
@@ -167,11 +172,12 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         listSearchable( id: "searchable", listData: [1,2,3] )
+         listSearchable( id: "list", listData: [1,2,3] )
       }
-      assertNotNull jide.searchable
-      assertNotNull jide.searchable_list
-      assert jide.searchable_list.class == JList
+      assertNotNull jide.list
+      assertNotNull jide.list_searchable
+      assert jide.list.class == JList
+      assert jide.list_searchable.class == ListSearchable
    }
 
    void testListSearchableWithList(){
@@ -179,12 +185,14 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         list( id: "list", listData: [1,2,3] )
-         listSearchable( id: "searchable", list: jide.list )
+         list( id: "srclist", listData: [1,2,3] as Object[] )
+         listSearchable( id: "list", list: srclist )
       }
       assertNotNull jide.list
-      assertNotNull jide.searchable
-      assert jide.list == jide.searchable_list
+      assertNotNull jide.list_searchable
+      assert jide.list.class == JList
+      assert jide.list == jide.srclist
+      assert jide.list_searchable.class == ListSearchable
    }
 
    void testTextComponentSearchable(){
@@ -192,12 +200,13 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         textComponentSearchable( id: "searchable", text: "text" )
+         textComponentSearchable( id: "text", text: "text" )
       }
-      assertNotNull jide.searchable
-      assertNotNull jide.searchable_textComponent
-      assert jide.searchable_textComponent.class == JTextField
-      assert jide.searchable_textComponent.text == "text"
+      assertNotNull jide.text
+      assertNotNull jide.text_searchable
+      assert jide.text.class == JTextField
+      assert jide.text.text == "text"
+      assert jide.text_searchable.class == TextComponentSearchable
    }
 
    void testTextComponentSearchable_withOverlayableProperty(){
@@ -205,12 +214,13 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         textComponentSearchable( id: "searchable", text: "text", overlayable: true )
+         textComponentSearchable( id: "text", text: "text", overlayable: true )
       }
-      assertNotNull jide.searchable
-      assertNotNull jide.searchable_textComponent
-      assert jide.searchable_textComponent.class == OverlayTextField
-      assert jide.searchable_textComponent.text == "text"
+      assertNotNull jide.text
+      assertNotNull jide.text_searchable
+      assert jide.text.class == OverlayTextField
+      assert jide.text.text == "text"
+      assert jide.text_searchable.class == TextComponentSearchable
    }
 
    void testTextComponentSearchableWithTextComponent(){
@@ -218,12 +228,15 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         textField( id: "textComponent", text: "text" )
-         textComponentSearchable( id: "searchable", textComponent: jide.textComponent )
+         textField( id: "srctext", text: "text" )
+         textComponentSearchable( id: "text", textComponent: srctext )
       }
-      assertNotNull jide.textComponent
-      assertNotNull jide.searchable
-      assert jide.textComponent == jide.searchable_textComponent
+      assertNotNull jide.text
+      assertNotNull jide.text_searchable
+      assert jide.text.class == JTextField
+      assert jide.text.text == "text"
+      assert jide.text == jide.srctext
+      assert jide.text_searchable.class == TextComponentSearchable
    }
 
    void testSearchableBar(){
@@ -231,14 +244,14 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         comboBoxSearchable( id: "searchable", items: [1,2,3] )
-         searchableBar( id: "searchBar", searchable: jide.searchable )
+         comboBoxSearchable( id: "combo", items: [1,2,3] )
+         searchableBar( id: "searchBar", searchable: combo_searchable )
       }
-      assertNotNull jide.searchable
+      assertNotNull jide.combo_searchable
       assertNotNull jide.searchBar
-      assert jide.searchBar.searchable == jide.searchable
+      assert jide.searchBar.searchable == jide.combo_searchable
    }
-
+/*
    void testFileIntelliHintsWithTextComponent(){
       if (isHeadless()) return
 
@@ -249,7 +262,8 @@ public class ComponentsTest extends GroovyTestCase {
       }
       assertNotNull jide.textComponent
       assertNotNull jide.hints
-      assert jide.textComponent == jide.hints_textComponent
+      assert jide.hints.class == FileIntelliHints
+      assert jide.hints.textComponent == jide.textComponent
       assertTrue jide.hints.showFullPath
       assertTrue jide.hints.folderOnly
    }
@@ -261,13 +275,15 @@ public class ComponentsTest extends GroovyTestCase {
       def jide = new JideBuilder()
       jide.panel(){
          textField( id: "textComponent", text: "text" )
-         listDataIntelliHints( id: "hints", textComponent: jide.textComponent, completionList: completionList )
+         listDataIntelliHints( id: "hints", textComponent: textComponent, completionList: completionList )
       }
       assertNotNull jide.textComponent
       assertNotNull jide.hints
-      assert jide.textComponent == jide.hints_textComponent
+      assert jide.hints.class == ListDataIntelliHints
+      assert jide.hints.textComponent == jide.textComponent
       assert jide.hints.completionList == completionList
    }
+*/
 
    void testJideMenuWithAutomaticPopupMenuCustomizer(){
       def customize = { m ->
@@ -313,9 +329,9 @@ public class ComponentsTest extends GroovyTestCase {
          autoCompletion( id: "auto", list: ["a","b","c"], text: "text" )
       }
       assertNotNull jide.auto
-      assertNotNull jide.auto_textComponent
-      assert jide.auto_textComponent.class == JTextField
-      assert jide.auto_textComponent.text == "a"
+      assertNotNull jide.auto_autocompletion
+      assert jide.auto.class == JTextField
+      assert jide.auto.text == "a"
    }
 
    void testAutoCompletion_TextComponentAndList_withOverlayableProperty(){
@@ -326,9 +342,9 @@ public class ComponentsTest extends GroovyTestCase {
          autoCompletion( id: "auto", list: ["a","b","c"], text: "text", overlayable: true )
       }
       assertNotNull jide.auto
-      assertNotNull jide.auto_textComponent
-      assert jide.auto_textComponent.class == OverlayTextField
-      assert jide.auto_textComponent.text == "a"
+      assertNotNull jide.auto_autocompletion
+      assert jide.auto.class == OverlayTextField
+      assert jide.auto.text == "a"
    }
 
    void testAutoCompletion_TextComponentAndSearchable(){
@@ -336,14 +352,14 @@ public class ComponentsTest extends GroovyTestCase {
 
       def jide = new JideBuilder()
       jide.panel(){
-         listSearchable( id: "searchable", listData: [1,2,3] )
-         autoCompletion( id: "auto", searchable: jide.searchable, text: "3" )
+         listSearchable( id: "list", listData: [1,2,3] )
+         autoCompletion( id: "auto", searchable: list_searchable, text: "3" )
       }
       assertNotNull jide.auto
-      assertNotNull jide.auto_textComponent
-      assert jide.auto.searchable == jide.searchable
-      assert jide.auto_textComponent.class == JTextField
-      assert jide.auto_textComponent.text == "3"
+      assertNotNull jide.auto_autocompletion
+      assert jide.auto_autocompletion.searchable == jide.list_searchable
+      assert jide.auto.class == JTextField
+      assert jide.auto.text == "3"
    }
 
    void testAutoCompletionWithTextComponentAndList(){
@@ -352,12 +368,12 @@ public class ComponentsTest extends GroovyTestCase {
       def jide = new JideBuilder()
       jide.panel(){
          textField( id: "textComponent", text: "text" )
-         autoCompletion( id: "auto", textComponent: jide.textComponent, list: ["a","b","c"] )
+         autoCompletion( id: "auto", textComponent: textComponent, list: ["a","b","c"] )
       }
       assertNotNull jide.auto
-      assertNotNull jide.auto_textComponent
-      assert jide.auto_textComponent == jide.textComponent
-      assert jide.auto_textComponent.text == "a"
+      assertNotNull jide.auto_autocompletion
+      assert jide.auto == jide.textComponent
+      assert jide.auto.text == "a"
    }
 
    void testAutoCompletionWithTextComponentAndSearchable(){
@@ -366,17 +382,16 @@ public class ComponentsTest extends GroovyTestCase {
       def jide = new JideBuilder()
       jide.panel(){
          textField( id: "textComponent", text: "text" )
-         listSearchable( id: "searchable", listData: [1,2,3] )
-         autoCompletion( id: "auto", searchable: jide.searchable, textComponent: jide.textComponent )
+         listSearchable( id: "list", listData: [1,2,3] )
+         autoCompletion( id: "auto", searchable: list_searchable, textComponent: textComponent )
       }
       assertNotNull jide.auto
-      assertNotNull jide.auto_textComponent
-      assert jide.auto.searchable == jide.searchable
-      assert jide.auto_textComponent == jide.textComponent
-      assert jide.auto_textComponent.text == "1"
+      assertNotNull jide.auto_autocompletion
+      assert jide.auto_autocompletion.searchable == jide.list_searchable
+      assert jide.auto == jide.textComponent
+      assert jide.auto.text == "1"
    }
 
-   /*
    void testAnimator(){
       def count = 0
       def animatorListener = [
@@ -393,12 +408,11 @@ public class ComponentsTest extends GroovyTestCase {
       def jide = new JideBuilder()
       jide.panel(){
          button(id: "button")
-         animator(id: "animator", source: jide.button,
+         animator(id: "animator", source: button,
                  totalSteps: 9, animatorListener: animatorListener )
       }
       jide.animator.start()
       Thread.sleep( 300 )
       assert count == 10
    }
-   */
 }

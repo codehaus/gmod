@@ -17,15 +17,20 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.JComboBox
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.ComboBoxSearchableWrapper
+import com.jidesoft.swing.ComboBoxSearchable
 import com.jidesoft.swing.OverlayComboBox
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ComboBoxSearchableFactory extends AbstractFactory {
+class ComboBoxSearchableFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public static final String COMBOBOX_SEARCHABLE = "_COMBOBOX_SEARCHABLE_"
+
+   public ComboBoxSearchableFactory() {
+      super( ComboBoxSearchable )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       Object items = properties.remove("items")
@@ -59,6 +64,18 @@ class ComboBoxSearchableFactory extends AbstractFactory {
             }
          }
       }
-      return new ComboBoxSearchableWrapper( comboBox )
+      def searchable = new ComboBoxSearchable( comboBox )
+      builder.context[(COMBOBOX_SEARCHABLE)] = searchable
+      if( properties.id ){
+         builder.setVariable( properties.id+"_searchable", searchable )
+      }
+
+      return comboBox
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     setWidgetAttributes( builder, builder.context[(COMBOBOX_SEARCHABLE)], attributes, true )
+     return true
    }
 }

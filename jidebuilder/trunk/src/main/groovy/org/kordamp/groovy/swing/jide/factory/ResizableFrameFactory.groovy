@@ -16,20 +16,20 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
+import groovy.swing.factory.FrameFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.ResizableFrame
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ResizableFrameFactory extends AbstractFactory {
+class ResizableFrameFactory extends FrameFactory {
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       if( FactoryBuilderSupport.checkValueIsType(value, name, ResizableFrame) ){
          return value
       }
       ResizableFrame frame = new ResizableFrame()
-      builder.getContainingWindows().add( frame )
+      handleRootPaneTasks(builder, frame, properties)
       return frame
    }
 }

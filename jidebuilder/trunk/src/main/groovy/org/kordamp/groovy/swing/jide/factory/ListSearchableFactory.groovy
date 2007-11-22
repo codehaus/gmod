@@ -17,20 +17,42 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.JList
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.ListSearchableWrapper
+import com.jidesoft.swing.ListSearchable
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ListSearchableFactory extends AbstractFactory {
+class ListSearchableFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public static final String LIST_SEARCHABLE = "_LIST_SEARCHABLE_"
+
+   public ListSearchableFactory() {
+      super( ListSearchable )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JList list = properties.remove("list")
       if( !list ){
          list =  new JList()
       }
-      return new ListSearchableWrapper( list )
+      def searchable = new ListSearchable( list )
+      builder.context[(LIST_SEARCHABLE)] = searchable
+      if( properties.id ){
+         builder.setVariable( properties.id+"_searchable", searchable )
+      }
+      if( properties.listData ){
+         def listData = properties.listData
+         if( listData instanceof List && !(listData instanceof Vector) ){
+            properties.listData = new Vector(listData)
+         }
+      }
+      return list
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     setWidgetAttributes( builder, builder.context[(LIST_SEARCHABLE)], attributes, true )
+     return true
    }
 }

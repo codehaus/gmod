@@ -16,14 +16,17 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.LabeledTextField
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class LabeledTextFieldFactory extends AbstractFactory {
+class LabeledTextFieldFactory extends AbstractJideComponentFactory {
+   public LabeledTextFieldFactory() {
+      super( LabeledTextField )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       def icon = properties.remove("icon")

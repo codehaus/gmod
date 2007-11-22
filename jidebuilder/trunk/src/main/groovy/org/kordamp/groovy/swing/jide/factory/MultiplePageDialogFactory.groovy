@@ -18,7 +18,7 @@ package org.kordamp.groovy.swing.jide.factory
 
 import java.awt.Dialog
 import java.awt.Frame
-import groovy.util.AbstractFactory
+import groovy.swing.factory.DialogFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.dialog.MultiplePageDialog
 import com.jidesoft.dialog.PageList
@@ -26,25 +26,27 @@ import com.jidesoft.dialog.PageList
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MultiplePageDialogFactory extends AbstractFactory {
+class MultiplePageDialogFactory extends DialogFactory {
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
-      if( FactoryBuilderSupport.checkValueIsType(value, name, MultiplePageDialog) ){
-         return value
-      }
       MultiplePageDialog dialog
-      Object owner = properties.remove("owner")
-      LinkedList containingWindows = builder.getContainingWindows()
-      // if owner not explicit, use the last window type in the list
-      if( (owner == null) && !containingWindows.isEmpty() ){
-         owner = containingWindows.getLast()
+      if (FactoryBuilderSupport.checkValueIsType(value, name, MultiplePageDialog)) {
+          dialog = value
+      } else {
+          Object owner = properties.remove("owner")
+          LinkedList containingWindows = builder.containingWindows
+          // if owner not explicit, use the last window type in the list
+          if ((owner == null) && !containingWindows.isEmpty()) {
+              owner = containingWindows.getLast()
+          }
+          if (owner instanceof Frame || owner instanceof Dialog) {
+              dialog = new MultiplePageDialog(owner)
+          } else {
+              dialog = new MultiplePageDialog()
+          }
       }
-      if( owner instanceof Frame || owner instanceof Dialog ){
-         dialog = new MultiplePageDialog( owner )
-      }else{
-         dialog = new MultiplePageDialog()
-      }
-      dialog.setPageList( new PageList() )
-      containingWindows.add( dialog )
+
+      handleRootPaneTasks(builder, dialog, properties)
+
       return dialog
    }
 }

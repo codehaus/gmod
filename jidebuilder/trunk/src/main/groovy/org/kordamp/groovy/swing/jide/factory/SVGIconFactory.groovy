@@ -19,8 +19,8 @@ package org.kordamp.groovy.swing.jide.factory
 import java.util.logging.Level
 import java.util.logging.Logger
 import java.awt.Component
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
+import org.codehaus.groovy.runtime.InvokerHelper
 import org.kordamp.groovy.swing.jide.impl.ResizableSVGIcon
 
 import com.kitfox.svg.SVGCache
@@ -29,8 +29,12 @@ import com.kitfox.svg.SVGUniverse
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class SVGIconFactory extends AbstractFactory {
+class SVGIconFactory extends AbstractJideComponentFactory {
    static Map aliases = [:]
+
+   public SVGIconFactory() {
+      super( ResizableSVGIcon )
+   }
 
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
@@ -53,6 +57,19 @@ class SVGIconFactory extends AbstractFactory {
       }
 
       return svgIcon
+   }
+
+   public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+      try{
+         MetaClass mc = InvokerHelper.getInstance().getMetaClass( parent )
+         mc.setProperty( parent, "icon", child )
+         child.installSizeTracker( parent )
+         if( parent.preferredSizeSet && !child.sizeSet ){
+            child.setSize( parent.preferredSize )
+         }
+      }catch( MissingPropertyException mpe ){
+         // ignore
+      }
    }
 
    public static void registerSVGAlias( String alias, String path ){

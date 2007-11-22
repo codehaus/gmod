@@ -17,20 +17,36 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.JTable
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.TableSearchableWrapper
+import com.jidesoft.swing.TableSearchable
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TableSearchableFactory extends AbstractFactory {
+class TableSearchableFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public static final String TABLE_SEARCHABLE = "_TABLE_SEARCHABLE_"
+
+   public TableSearchableFactory() {
+      super( TableSearchable )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JTable table = properties.remove("table")
       if( !table ){
          table =  new JTable()
       }
-      return new TableSearchableWrapper( table )
+      def searchable = new TableSearchable( table )
+      builder.context[(TABLE_SEARCHABLE)] = searchable
+      if( properties.id ){
+         builder.setVariable( properties.id+"_searchable", searchable )
+      }
+      return table
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     setWidgetAttributes( builder, builder.context[(TABLE_SEARCHABLE)], attributes, true )
+     return true
    }
 }

@@ -17,20 +17,36 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.JTree
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.TreeSearchableWrapper
+import com.jidesoft.swing.TreeSearchable
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TreeSearchableFactory extends AbstractFactory {
+class TreeSearchableFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public static final String TREE_SEARCHABLE = "_TREE_SEARCHABLE_"
+
+   public TreeSearchableFactory() {
+      super( TreeSearchable )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JTree tree = properties.remove("tree")
       if( !tree ){
          tree =  new JTree()
       }
-      return new TreeSearchableWrapper( tree )
+      def searchable = new TreeSearchable( tree )
+      builder.context[(TREE_SEARCHABLE)] = searchable
+      if( properties.id ){
+         builder.setVariable( properties.id+"_searchable", searchable )
+      }
+      return table
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     setWidgetAttributes( builder, builder.context[(TREE_SEARCHABLE)], attributes, true )
+     return true
    }
 }

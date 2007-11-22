@@ -16,20 +16,35 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
+import groovy.swing.factory.WindowFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.ResizableWindow
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ResizableWindowFactory extends AbstractFactory {
+class ResizableWindowFactory extends WindowFactory {
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
-      if( FactoryBuilderSupport.checkValueIsType(value, name, ResizableWindow) ){
-         return value
+      ResizableWindow window
+      if (FactoryBuilderSupport.checkValueIsType(value, name, ResizableWindow)) {
+          window = value
+      } else {
+          LinkedList containingWindows = builder.containingWindows
+          Object owner = properties.remove("owner")
+          // if owner not explicit, use the last window type in the list
+          if ((owner == null) && !containingWindows.empty) {
+              owner = containingWindows.last
+          }
+          if (owner) {
+              // the joys of the MOP!
+              window = new ResizableWindow(owner)
+          } else {
+              window = new ResizableWindow()
+          }
       }
-      ResizableWindow window = new ResizableWindow()
-      builder.getContainingWindows().add( window )
-      return window
+
+      handleRootPaneTasks(builder, window, properties)
+
+      return window;
    }
 }

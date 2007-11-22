@@ -17,14 +17,18 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import java.awt.Container
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
+import groovy.swing.factory.LayoutFactory
 import com.jidesoft.swing.JideBoxLayout
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class JideBoxLayoutFactory extends AbstractFactory {
+class JideBoxLayoutFactory extends LayoutFactory {
+   public JideBoxLayoutFactory() {
+      super( JideBoxLayout )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       def container = properties.remove("container")

@@ -17,24 +17,38 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.text.JTextComponent
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.ListDataIntelliHintsWrapper
+import com.jidesoft.hints.ListDataIntelliHints
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ListDataIntelliHintsFactory extends AbstractFactory {
+class ListDataIntelliHintsFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public ListDataIntelliHintsFactory() {
+      super( ListDataIntelliHints )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JTextComponent textComponent = properties.remove("textComponent")
       Object completionList = properties.remove("completionList")
       if( !textComponent ){
-         throw new RuntimeException("Failed to create component for '" + name + "' reason: missing 'textComponent' attribute")
+         throw new RuntimeException("Failed to create component for '${name}' reason: missing 'textComponent' attribute")
       }
       if( !completionList ){
-         throw new RuntimeException("Failed to create component for '" + name + "' reason: missing 'completionList' attribute")
+         throw new RuntimeException("Failed to create component for '${name}' reason: missing 'completionList' attribute")
       }
-      return new ListDataIntelliHintsWrapper( textComponent, completionList )
+      return new ListDataIntelliHints( textComponent, completionList )
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     def id = attributes.remove("id")
+     def constraints = attributes.remove("constraints")
+     setWidgetAttributes( builder, node, attributes, true )
+     setWidgetAttributes( builder, node.textComponent, attributes, false )
+     attributes.id = id
+     attributes.constraints = constraints
+     return true
    }
 }

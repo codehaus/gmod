@@ -18,31 +18,34 @@ package org.kordamp.groovy.swing.jide.factory
 
 import java.awt.Dialog
 import java.awt.Frame
-import groovy.util.AbstractFactory
+import groovy.swing.factory.DialogFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.ResizableDialog
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ResizableDialogFactory extends AbstractFactory {
+class ResizableDialogFactory extends DialogFactory {
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
-      if( FactoryBuilderSupport.checkValueIsType(value, name, ResizableDialog) ){
-         return value
-      }
       ResizableDialog dialog
-      Object owner = properties.remove("owner")
-      LinkedList containingWindows = builder.getContainingWindows()
-      // if owner not explicit, use the last window type in the list
-      if( (owner == null) && !containingWindows.isEmpty() ){
-         owner = containingWindows.getLast()
+      if (FactoryBuilderSupport.checkValueIsType(value, name, ResizableDialog)) {
+          dialog = value
+      } else {
+          Object owner = properties.remove("owner")
+          LinkedList containingWindows = builder.containingWindows
+          // if owner not explicit, use the last window type in the list
+          if ((owner == null) && !containingWindows.isEmpty()) {
+              owner = containingWindows.getLast()
+          }
+          if (owner instanceof Frame || owner instanceof Dialog) {
+              dialog = new ResizableDialog(owner)
+          } else {
+              dialog = new ResizableDialog()
+          }
       }
-      if( owner instanceof Frame || owner instanceof Dialog ){
-         dialog = new ResizableDialog( owner )
-      }else{
-         dialog = new ResizableDialog()
-      }
-      containingWindows.add( dialog )
+
+      handleRootPaneTasks(builder, dialog, properties)
+
       return dialog
    }
 }

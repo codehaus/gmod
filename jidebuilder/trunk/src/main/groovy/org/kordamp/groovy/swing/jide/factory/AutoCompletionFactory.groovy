@@ -20,9 +20,8 @@ import javax.swing.JComboBox
 import javax.swing.JTextField
 import javax.swing.text.JTextComponent
 
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.AutoCompletionWrapper
+import com.jidesoft.swing.AutoCompletion
 import com.jidesoft.swing.AutoCompletionComboBox
 import com.jidesoft.swing.OverlayTextField
 import com.jidesoft.swing.Searchable
@@ -30,7 +29,13 @@ import com.jidesoft.swing.Searchable
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class AutoCompletionFactory extends AbstractFactory {
+class AutoCompletionFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+    public static final String AUTOCOMPLETION = "_AUTOCOMPLETION_"
+
+    public AutoCompletionFactory() {
+         super( AutoCompletion )
+    }
+
     public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JComboBox comboBox = properties.remove("comboBox")
@@ -40,7 +45,12 @@ class AutoCompletionFactory extends AbstractFactory {
       def list = properties.remove("list")
 
       if( comboBox ){
-         return buildAutoCompletionComboBox( name, comboBox, searchable )
+         def autocompletion = buildAutoCompletionComboBox( name, comboBox, searchable )
+         builder.context[(AUTOCOMPLETION)] = autocompletion
+         if( properties.id ){
+            builder.setVariable( properties.id+"_autocompletion", autocompletion )
+         }
+         return comboBox
       }else{
          if( !textComponent ){
             if( !overlayable ){
@@ -49,15 +59,26 @@ class AutoCompletionFactory extends AbstractFactory {
                textComponent = new OverlayTextField()
             }
          }
-         return buildAutoCompletionTextComponent( name, textComponent, searchable, list )
+         def autocompletion = buildAutoCompletionTextComponent( name, textComponent, searchable, list )
+         builder.context[(AUTOCOMPLETION)] = autocompletion
+         if( properties.id ){
+            builder.setVariable( properties.id+"_autocompletion", autocompletion )
+         }
+         return textComponent
       }
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+          Map attributes ) {
+      setWidgetAttributes( builder, builder.context[(AUTOCOMPLETION)], attributes, true )
+      return true
    }
 
    private Object buildAutoCompletionComboBox( name, comboBox, searchable ){
       if( !searchable ){
-         return new AutoCompletionWrapper( comboBox )
+         return new AutoCompletion( comboBox )
       }else{
-         return new AutoCompletionWrapper( comboBox, searchable )
+         return new AutoCompletion( comboBox, searchable )
       }
    }
 
@@ -67,10 +88,10 @@ class AutoCompletionFactory extends AbstractFactory {
             throw new RuntimeException("Failed to create component for '" + name +
                   "' reason: specify one of ['searchable','list'] ")
          }else{
-            return new AutoCompletionWrapper( textComponent, list )
+            return new AutoCompletion( textComponent, list )
          }
       }else{
-         return new AutoCompletionWrapper( textComponent, searchable )
+         return new AutoCompletion( textComponent, searchable )
       }
    }
 }

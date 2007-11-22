@@ -16,14 +16,14 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import java.util.List
-import java.util.Map
-import java.util.Vector
 import com.jidesoft.swing.OverlayComboBox
 
-class OverlayComboBoxFactory extends AbstractFactory {
+class OverlayComboBoxFactory extends AbstractJideComponentFactory {
+    public OverlayComboBoxFactory() {
+       super( OverlayComboBox )
+    }
+
     public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
        FactoryBuilderSupport.checkValueIsNull(value, name)
         //TODO expand to allow the value arg to be items

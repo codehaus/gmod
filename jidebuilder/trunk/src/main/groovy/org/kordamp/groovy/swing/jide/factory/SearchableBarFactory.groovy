@@ -17,7 +17,6 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import java.awt.Container
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.Searchable
 import org.kordamp.groovy.swing.jide.impl.SearchableBarWrapper
@@ -25,7 +24,11 @@ import org.kordamp.groovy.swing.jide.impl.SearchableBarWrapper
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class SearchableBarFactory extends AbstractFactory {
+class SearchableBarFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+    public SearchableBarFactory() {
+       super( SearchableBarWrapper )
+    }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       def searchable = properties.remove("searchable")
@@ -41,5 +44,17 @@ class SearchableBarFactory extends AbstractFactory {
       if( initialText == null ) initialText = ""
       if( compact == null ) compact = false
       return new SearchableBarWrapper( searchable, initialText, compact )
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     setWidgetAttributes( builder, node.searchable, attributes, true )
+     return true
+   }
+
+   public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
+      if( child.install ){
+         child.installOnContainer( parent )
+      }
    }
 }

@@ -14,29 +14,12 @@
  * limitations under the License.
  */
 
-package org.kordamp.groovy.swing.jide.impl
+package org.kordamp.groovy.swing.jide.factory
 
-import javax.swing.JTree
-import com.jidesoft.swing.TreeSearchable
-
-import org.codehaus.groovy.runtime.InvokerHelper
+import groovy.util.Factory
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TreeSearchableWrapper extends TreeSearchable implements SearchableWrapper {
-   private JTree tree
-
-   TreeSearchableWrapper( JTree tree ){
-      super( tree )
-      this.tree = tree
-   }
-
-   def getDelegateWidget(){ tree }
-
-   public String toString(){ "${super.toString()} -> ${tree.toString()}" }
-
-   public Object invokeMethod( String name, Object args ){
-      return InvokerHelper.invokeMethod( tree, name, args )
-   }
+interface DelegatingJideFactory extends Factory {
 }

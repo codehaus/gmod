@@ -16,14 +16,16 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.AutoCompletionComboBox
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class AutoCompletionComboBoxFactory extends AbstractFactory {
+class AutoCompletionComboBoxFactory extends AbstractJideComponentFactory {
+   public AutoCompletionComboBoxFactory() {
+      super( AutoCompletionComboBox )
+   }
     public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
        FactoryBuilderSupport.checkValueIsNull(value, name)
       Object items = properties.remove("items")

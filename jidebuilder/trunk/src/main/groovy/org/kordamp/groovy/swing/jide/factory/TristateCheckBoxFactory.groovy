@@ -16,14 +16,17 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.TristateCheckBox
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TristateCheckBoxFactory extends AbstractFactory {
+class TristateCheckBoxFactory extends AbstractJideComponentFactory {
+   public TristateCheckBoxFactory() {
+      super( TristateCheckBox )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       def text = properties.remove("text")

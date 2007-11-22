@@ -40,9 +40,7 @@ import org.codehaus.groovy.runtime.InvokerHelper
  */
 class JideBuilder extends SwingBuilder {
    private Logger log = Logger.getLogger(getClass().getName())
-   private Map jideWidgets = [:]
    private SwingBuilder parentBuilder
-   private static Object constraintsCopy
 
    public JideBuilder( SwingBuilder parentBuilder = null ){
       super()
@@ -50,73 +48,11 @@ class JideBuilder extends SwingBuilder {
       registerJideComponents()
    }
 
-   public Object getProperty( String name ){
-      Object widget = jideWidgets.get( name )
-      return widget ? widget : super.getProperty( name )
-   }
-
    public void registerSVGAlias( String alias, String path ){
       SVGIconFactory.registerSVGAlias( alias, path )
    }
 
-   protected void handleWidgetAttributes( Object widget, Map attributes ){
-      // first, short circuit
-      if( attributes.isEmpty() || !widget ){
-         return
-      }
-
-      if( widget instanceof JTextComponent ){
-         if( attributes.remove("selectAll") ){
-            SelectAllUtils.install( widget )
-         }
-      }
-
-      // handle JIDE components
-      if( widget instanceof ListSearchableWrapper ){
-         setAttributes( widget.delegateWidget, attributes )
-         return
-      }
-
-      if( widget instanceof ComboBoxSearchableWrapper ||
-          widget instanceof TableSearchableWrapper ||
-          widget instanceof TextComponentSearchableWrapper ||
-          widget instanceof TreeSearchableWrapper ||
-          widget instanceof FileIntelliHintsWrapper ||
-          widget instanceof ListDataIntelliHintsWrapper ||
-          widget instanceof AutoCompletionWrapper ){
-         setWrapperAttributes( widget, attributes )
-         setAttributes( widget.delegateWidget, attributes )
-         return
-      }
-
-      if( widget instanceof SearchableBarWrapper ){
-         setWrapperAttributes( widget, attributes )
-         def searchable = widget.searchable
-         if( searchable instanceof SearchableWrapper ){
-            setAttributes( searchable.delegateWidget, attributes )
-         }else{
-            setAttributes( searchable, attributes )
-         }
-         return
-      }
-
-      if( widget instanceof Calculator ){
-         JTextComponent textComponent = attributes.remove("textComponent")
-         if( textComponent ){
-            SelectAllUtils.install( textComponent )
-            textComponent.setHorizontalAlignment(JTextField.TRAILING)
-            widget.registerKeyboardActions(textComponent, JComponent.WHEN_FOCUSED)
-            widget.addPropertyChangeListener(Calculator.PROPERTY_DISPLAY_TEXT,[
-               propertyChange: { event ->
-                  textComponent.text = "" + event.getNewValue()
-               }] as PropertyChangeListener )
-         }
-      }
-
-      // let super class handle the rest
-      super.handleWidgetAttributes( widget, attributes )
-   }
-
+   // TODO refactor this!
    protected void setParent( Object parent, Object child ){
       // handle JIDE components
       if( child instanceof JideMenu.PopupMenuCustomizer ){
@@ -139,56 +75,16 @@ class JideBuilder extends SwingBuilder {
          parent.buttonPanel = child
          return
       }
-      if( child instanceof ResizableSVGIcon ){
-         try{
-            MetaClass mc = InvokerHelper.getInstance().getMetaClass( parent )
-            mc.setProperty( parent, "icon", child )
-            child.installSizeTracker( parent )
-            if( parent.preferredSizeSet && !child.sizeSet ){
-               child.setSize( parent.preferredSize )
-            }
-            return
-         }catch( MissingPropertyException mpe ){
-            // empty
-         }
-      }
-      if( child instanceof SearchableBarWrapper && child.install ){
-         child.installOnContainer( parent )
-         return
-      }
 
       // let super class handle the rest
       super.setParent( parent, child )
    }
 
+   /*
    protected Object createNode( Object name, Map attributes, Object value ){
       String id = attributes.get("id")
       Object constraintsCopy = attributes.get("constraints")
       Object widget = super.createNode( name, attributes, value )
-
-      if( widget instanceof ComboBoxSearchableWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget, "_comboBox" )
-      }
-      if( widget instanceof ListSearchableWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget, "_list" )
-      }
-      if( widget instanceof TableSearchableWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget, "_table" )
-      }
-      if( widget instanceof TextComponentSearchableWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget, "_textComponent" )
-      }
-      if( widget instanceof TreeSearchableWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget, "_tree" )
-      }
-      if( widget instanceof FileIntelliHintsWrapper ||
-          widget instanceof ListDataIntelliHintsWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget, "_textComponent" )
-      }
-      if( widget instanceof AutoCompletionWrapper ){
-         return exposeDelegate( widget, id, widget.delegateWidget,
-               widget.delegateWidget instanceof JComboBox? "_comboBox":"_textComponent" )
-      }
 
       if( id && parentBuilder ){
          parentBuilder.widgets.put( id, widget )
@@ -199,6 +95,7 @@ class JideBuilder extends SwingBuilder {
       }
       return widget
    }
+   */
 
    private void registerJideComponents() {
       registerFactory("animator", new AnimatorFactory())
@@ -261,8 +158,8 @@ class JideBuilder extends SwingBuilder {
       registerFactory("tristateCheckBox", new TristateCheckBoxFactory())
 
       // hints
-      registerFactory("fileIntelliHints", new FileIntelliHintsFactory())
-      registerFactory("listDataIntelliHints", new ListDataIntelliHintsFactory())
+      //registerFactory("fileIntelliHints", new FileIntelliHintsFactory())
+      //registerFactory("listDataIntelliHints", new ListDataIntelliHintsFactory())
 
       registerBeanFactory("dialogPage", DefaultDialogPage)
       registerFactory("standardDialog", new StandardDialogFactory())
@@ -292,41 +189,40 @@ class JideBuilder extends SwingBuilder {
       registerFactory("overlayRadioButton", new RichActionWidgetFactory(OverlayRadioButton))
       registerFactory("overlayTextArea", new TextArgWidgetFactory(OverlayTextArea))
       registerFactory("overlayTextField", new TextArgWidgetFactory(OverlayTextField))
-   }
 
-   private void setAttributes( Object widget, Map attributes ){
-      if( widget instanceof JTextComponent ){
-         if( attributes.remove("selectAll") ){
-            SelectAllUtils.install( widget )
-         }
-      }
-
-      InvokerHelper.setProperties( widget, attributes )
-   }
-
-   private void setWrapperAttributes( Object widget, Map attributes ){
-      MetaClass mc = InvokerHelper.getInstance().getMetaClass( widget )
-      attributes.each { name, value ->
-         try{
-            mc.setProperty( widget, name, value )
-         }catch( MissingPropertyException mpe ){
-            // empty
-         }
-      }
-   }
-
-   protected Object exposeDelegate( widget, id, delegateWidget, suffix ){
-      if( id ){
-         jideWidgets.put( id + suffix, delegateWidget )
-         if( parentBuilder ){
-            parentBuilder.widgets.put( id, widget )
-            parentBuilder.widgets.put( id + suffix, delegateWidget )
-            if( parentBuilder.getCurrent() ){
-               parentBuilder.@constraints = constraintsCopy
-               parentBuilder.setParent( parentBuilder.getCurrent(), widget )
+      // delegates
+      addAttributeDelegate({ builder, node, attributes ->
+         if( node instanceof JTextComponent ){
+            if( attributes.remove("selectAll") ){
+               SelectAllUtils.install( node )
             }
          }
+      })
+
+      addAttributeDelegate({ builder, node, attributes ->
+         if( node instanceof Calculator ){
+            JTextComponent textComponent = attributes.remove("textComponent")
+            if( textComponent ){
+               SelectAllUtils.install( textComponent )
+               textComponent.setHorizontalAlignment(JTextField.TRAILING)
+               node.registerKeyboardActions(textComponent, JComponent.WHEN_FOCUSED)
+               node.addPropertyChangeListener(Calculator.PROPERTY_DISPLAY_TEXT,[
+                  propertyChange: { event ->
+                     textComponent.text = "" + event.getNewValue()
+                  }] as PropertyChangeListener )
+            }
+         }
+      })
+   }
+
+   protected void handleNodeAttributes( Object node, Map attributes ) {
+      def factory = getCurrentFactory()
+      if( factory instanceof DelegatingJideFactory ){
+         if( factory.onHandleNodeAttributes( this, node, attributes ) ){
+            super.handleNodeAttributes( node, attributes )
+         }
+      }else{
+         super.handleNodeAttributes( node, attributes )
       }
-      return delegateWidget
    }
 }

@@ -17,20 +17,34 @@
 package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.text.JTextComponent
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.FileIntelliHintsWrapper
+import com.jidesoft.hints.FileIntelliHints
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class FileIntelliHintsFactory extends AbstractFactory {
+class FileIntelliHintsFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public FileIntelliHintsFactory() {
+      super( FileIntelliHints )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JTextComponent textComponent = properties.remove("textComponent")
       if( !textComponent ){
-         throw new RuntimeException("Failed to create component for '" + name + "' reason: missing 'textComponent' attribute")
+         throw new RuntimeException("Failed to create component for '${name}' reason: missing 'textComponent' attribute")
       }
-      return new FileIntelliHintsWrapper( textComponent )
+      return new FileIntelliHints( textComponent )
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+      def id = attributes.remove("id")
+      def constraints = attributes.remove("constraints")
+      setWidgetAttributes( builder, node, attributes, true )
+      setWidgetAttributes( builder, node.textComponent, attributes, false )
+      attributes.id = id
+      attributes.constraints = constraints
+      return true
    }
 }

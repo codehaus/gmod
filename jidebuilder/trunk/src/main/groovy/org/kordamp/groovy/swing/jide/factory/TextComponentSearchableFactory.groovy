@@ -18,15 +18,20 @@ package org.kordamp.groovy.swing.jide.factory
 
 import javax.swing.JTextField
 import javax.swing.text.JTextComponent
-import groovy.util.AbstractFactory
 import groovy.util.FactoryBuilderSupport
-import org.kordamp.groovy.swing.jide.impl.TextComponentSearchableWrapper
+import com.jidesoft.swing.TextComponentSearchable
 import com.jidesoft.swing.OverlayTextField
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TextComponentSearchableFactory extends AbstractFactory {
+class TextComponentSearchableFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public static final String TEXT_SEARCHABLE = "_TEXT_SEARCHABLE_"
+
+   public TextComponentSearchableFactory() {
+      super( TextComponentSearchable )
+   }
+
    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
       FactoryBuilderSupport.checkValueIsNull(value, name)
       JTextComponent textComponent = properties.remove("textComponent")
@@ -38,6 +43,17 @@ class TextComponentSearchableFactory extends AbstractFactory {
             textComponent = new OverlayTextField()
          }
       }
-      return new TextComponentSearchableWrapper( textComponent )
+      def searchable = new TextComponentSearchable( textComponent )
+      builder.context[(TEXT_SEARCHABLE)] = searchable
+      if( properties.id ){
+         builder.setVariable( properties.id+"_searchable", searchable )
+      }
+      return textComponent
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
+         Map attributes ) {
+     setWidgetAttributes( builder, builder.context[(TEXT_SEARCHABLE)], attributes, true )
+     return true
    }
 }
