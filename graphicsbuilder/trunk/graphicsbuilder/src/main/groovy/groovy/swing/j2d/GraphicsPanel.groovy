@@ -16,6 +16,13 @@
 package groovy.swing.j2d
 
 import java.awt.Graphics
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
+import java.awt.event.MouseMotionListener
+import java.awt.event.MouseWheelEvent
+import java.awt.event.MouseWheelListener
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import javax.swing.JPanel
@@ -26,13 +33,20 @@ import groovy.swing.j2d.GraphicsOperation
  *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsPanel extends JPanel implements PropertyChangeListener {
+class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListener,
+   MouseMotionListener, MouseWheelListener, KeyListener {
      private GraphicsOperation graphicsOperation
+     private GraphicsContext context = new GraphicsContext()
      private boolean displayed
      private List errorListeners = []
+     private List graphicsInputListeners = []
 
      GraphicsPanel(){
          super( null )
+         addMouseListener( this )
+         addMouseMotionListener( this )
+         addMouseWheelListener( this )
+         addKeyListener( this )
      }
 
      /**
@@ -61,26 +75,46 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener {
      }
 
      public void paintComponent( Graphics g ){
+         context.g = g
+         context.target = this
          if( graphicsOperation ){
              g.clearRect( 0, 0, size.width as int, size.height as int )
              try{
-                 graphicsOperation.execute( g, this )
+                 graphicsOperation.execute( context )
              }catch( Exception e ){
                  fireGraphicsErrorEvent( e )
              }
          }
      }
 
-     public void addGraphicsErrorListener( GraphicsErrorListener l ){
-         errorListeners.add( l )
+     public void addGraphicsErrorListener( GraphicsErrorListener listener ){
+         if( !listener ) return;
+         if( errorListeners.contains(listener) ) return;
+         errorListeners.add( listener )
      }
 
-     public void removeGraphicsErrorListener( GraphicsErrorListener l ){
-         errorListeners.remove( l )
+     public void removeGraphicsErrorListener( GraphicsErrorListener listener ){
+         if( !listener ) return;
+         errorListeners.remove( listener )
+     }
+
+     public void addGraphicsInputListener( GraphicsInputListener listener ){
+         if( !listener ) return;
+         if( graphicsInputListeners.contains(listener) ) return;
+         graphicsInputListeners.add( listener )
+     }
+
+     public void removeGraphicsInputListener( GraphicsInputListener listener ){
+         if( !listener ) return;
+         graphicsInputListeners.remove( listener )
      }
 
      public List getGraphicsErrorListeners(){
          return Collections.unmodifiableList( errorListeners )
+     }
+
+     public List getGraphicsInputListeners(){
+         return Collections.unmodifiableList( graphicsInputListeners )
      }
 
      protected void fireGraphicsErrorEvent( Throwable t ) {
@@ -94,6 +128,82 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener {
      public void propertyChange( PropertyChangeEvent event ){
          if( visible ){
              repaint()
+         }
+     }
+
+     /* ===== MouseListener ===== */
+
+     public void mouseEntered( MouseEvent e ){
+         fireMouseEvent( e, "mouseEntered" )
+     }
+
+     public void mouseExited( MouseEvent e ){
+         fireMouseEvent( e, "mouseExited" )
+     }
+
+     public void mousePressed( MouseEvent e ){
+         fireMouseEvent( e, "mousePressed" )
+     }
+
+     public void mouseReleased( MouseEvent e ){
+         fireMouseEvent( e, "mouseReleased" )
+     }
+
+     public void mouseClicked( MouseEvent e ){
+         fireMouseEvent( e, "mouseClicked" )
+     }
+
+
+     /* ===== MouseMotionListener ===== */
+
+     public void mouseMoved( MouseEvent e ){
+         fireMouseEvent( e, "mouseMoved" )
+     }
+
+     public void mouseDragged( MouseEvent e ){
+         fireMouseEvent( e, "mouseDragged" )
+     }
+
+     /* ===== MouseWheelListener ===== */
+
+     public void mouseWheelMoved( MouseWheelEvent e ){
+         fireMouseEvent( e, "mouseWheelMoved" )
+     }
+
+     /* ===== KeyListener ===== */
+
+     public void keyPressed( KeyEvent e ){
+
+     }
+
+     public void keyReleased( KeyEvent e ){
+
+     }
+
+     public void keyTyped( KeyEvent e ){
+
+     }
+
+     /* ===== PRIVATE ===== */
+
+     private void fireMouseEvent( MouseEvent e, String mouseEventMethod ){
+         /*
+         def shape = getSourceShape(e)
+         def inputEvent = new GraphicsInputEvent( this, e, shape )
+         graphicsInputListeners.each { listener ->
+             if( listener instanceof GraphicsOperation && listener != shape ) return;
+             listener."$mouseEventMethod"( inputEvent )
+         }
+         */
+     }
+
+     private def getSourceShape( MouseEvent e ){
+         def shapes = context.shapes
+         for( shape in shapes.reverse() ){
+             def s = shape.getClip(context)
+             if( s.contains(e.point)){
+                 return shape
+             }
          }
      }
  }

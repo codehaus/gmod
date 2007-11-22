@@ -15,8 +15,7 @@
 
 package groovy.swing.j2d.impl;
 
-import java.awt.Component;
-import java.awt.Graphics2D;
+import groovy.swing.j2d.GraphicsContext;
 
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
 
@@ -24,7 +23,7 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface ExtPathOperation {
-   void apply( ExtendedGeneralPath path, Graphics2D g, Component target );
+   void apply( ExtendedGeneralPath path, GraphicsContext context );
 
    boolean isDirty();
 }

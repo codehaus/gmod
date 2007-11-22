@@ -15,12 +15,11 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
-import java.awt.Graphics2D
 import java.awt.Shape
 import java.awt.geom.Ellipse2D
-import java.awt.Component
 
 /**
  * Draws an Ellipse2D as a circle<br>
@@ -40,7 +39,7 @@ class CircleGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "circle", ["cx", "cy", "radius"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, Component target ) {
+    protected Shape computeShape( GraphicsContext context ) {
         int radius = getParameterValue( "radius" )
         int cx = getParameterValue( "cx" )
         int cy = getParameterValue( "cy" )

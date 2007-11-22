@@ -15,6 +15,8 @@
 
 package groovy.swing.j2d.impl;
 
+import groovy.swing.j2d.GraphicsContext;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -74,7 +76,8 @@ public class GraphicsScope {
         return y;
     }
 
-    public void restore( Graphics2D g ) {
+    public void restore( GraphicsContext context ) {
+        Graphics2D g = context.getG();
         if( background != null ){
             g.setBackground( background );
         }
@@ -95,7 +98,8 @@ public class GraphicsScope {
         }
     }
 
-    public void restoreClip( Graphics2D g ) {
+    public void restoreClip( GraphicsContext context ) {
+        Graphics2D g = context.getG();
         Shape clip = getClip();
         if( clip != null ){
             g.translate( getX() * -1, getY() * -1 );
@@ -103,7 +107,8 @@ public class GraphicsScope {
         }
     }
 
-    public void save( Graphics2D g, Shape newclip ) {
+    public void save( GraphicsContext context, Shape newclip ) {
+        Graphics2D g = context.getG();
         background = g.getBackground();
         color = g.getColor();
         font = g.getFont();

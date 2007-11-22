@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.demo
+package groovy.swing.j2d
 
 import java.awt.BorderLayout as BL
 import java.awt.*
-import java.security.*
 import javax.swing.*
+import javax.swing.BorderFactory as BF
 import javax.swing.border.*
 import javax.swing.event.*
 import javax.swing.text.DefaultStyledDocument
-import org.jdesktop.swingx.JXTitledPanel
-import org.jdesktop.swingx.border.*
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
 import groovy.ui.ConsoleTextEditor
@@ -33,7 +31,7 @@ import org.codehaus.groovy.control.CompilationFailedException
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class Main {
+class GraphicsPad {
     private def graphicsBuilder
     private def swing
     private def gsh = new GroovyShell()
@@ -45,30 +43,36 @@ class Main {
 
     public static void main(String[] args) {
        SwingUtilities.invokeLater {
-          def app = new Main(args && args.length == 1 ? args[0]: null)
+          def app = new GraphicsPad()
           app.run()
        }
     }
 
-    Main( String codeBase ){
-       this.codeBase = codeBase
+    GraphicsPad( String codeBase ){
        buildUI()
        setupGraphicsBuilder()
-       Policy.setPolicy( new DemoPolicy() )
     }
 
     public void run(){
        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
        System.setProperty("apple.laf.useScreenMenuBar", "true")
-       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsBuilderDemo")
+       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsPad")
        frame.visible = true
     }
 
     private void setupGraphicsBuilder(){
        graphicsBuilder = new GraphicsBuilder()
-       Jdk6GraphicsBuilderHelper.registerOperations( graphicsBuilder )
-       SwingXGraphicsBuilderHelper.registerOperations( graphicsBuilder )
-       BatikGraphicsBuilderHelper.registerOperations( graphicsBuilder )
+       def helpers = ["Jdk6GraphicsBuilderHelper",
+                      "SwingXGraphicsBuilderHelper",
+                      "BatikGraphicsBuilderHelper"]
+       helpers.each { helper ->
+           try{
+              Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
+              helperClass."registerOperations"( graphicsBuilder )
+           }catch( Exception e ){
+               System.err.println("Couldn't register ${helper}")
+           }
+       }
     }
 
     private void buildUI(){
@@ -154,7 +158,7 @@ class Main {
           )
        }
 
-       frame = swing.frame( title: "GraphicsBuilder - Demo", size: [1024,800],
+       frame = swing.frame( title: "GraphicsPad", size: [1024,800],
              locationRelativeTo: null ){
            menuBar {
               menu(text: 'File', mnemonic: 'F') {
@@ -187,16 +191,9 @@ class Main {
              }
           }
 
-          panel( border: BorderFactory.createEmptyBorder(5, 5, 5, 5) ){
-             borderLayout()
-             panel( buildListPanel(swing), constraints: BL.WEST )
-             panel( constraints: BL.CENTER ){
-                gridLayout( cols: 1, rows: 3 )
-                widget( buildViewPanel(swing) )
-                widget( buildCodePanel(swing) )
-                widget( buildTextPanel(swing) )
-             }
-          }
+          gridLayout( cols: 1, rows: 2 )
+          widget( buildViewPanel(swing) )
+          widget( buildCodePanel(swing) )
        }
 
        frame.windowClosing = this.&exit
@@ -204,7 +201,7 @@ class Main {
        runWaitDialog = swing.dialog(title: 'Groovy executing',
              owner: frame,
              modal: true ) {
-          vbox(border: BorderFactory.createEmptyBorder(6, 6, 6, 6)) {
+          vbox(border: BF.createEmptyBorder(6, 6, 6, 6)) {
              label(text: "Groovy is now executing. Please wait.", alignmentX: 0.5f)
              vstrut()
              button(interruptAction,
@@ -215,106 +212,35 @@ class Main {
        }
     }
 
-    private def buildListPanel( swing ){
-       def data = ["Shapes","Painting","Transformations","Groups",
-                   "Images","Areas","Binding","Swing","Miscellaneous"]
-       swing.panel( new JXTitledPanel(), title: 'Topics', border: createShadowBorder() ){
-          list( listData: data as Object[], mouseClicked: this.&displayDemo,
-                cellRenderer: new OptionCellRenderer() )
-       }
-    }
-
     private def buildViewPanel( swing ){
        def graphicsPanel = new GraphicsPanel()
-       graphicsPanel.border = BorderFactory.createEmptyBorder()
+       graphicsPanel.border = BF.createEmptyBorder()
        graphicsPanel.background = Color.white
        graphicsPanel.addGraphicsErrorListener({ evt ->
            displayError( evt.cause.localizedMessage )
        } as GraphicsErrorListener )
 
-       swing.panel( new JXTitledPanel(), title: 'View', border: createShadowBorder() ){
-          scrollPane( border: BorderFactory.createEmptyBorder() ) {
-             widget( graphicsPanel, id: 'view' )
-          }
+       swing.scrollPane( border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "View") ){
+          panel( graphicsPanel, id: 'view' )
        }
     }
 
     private def buildCodePanel( swing ){
-       def sourcePanel = swing.panel( new JXTitledPanel(), title: 'Source - Type your own code!',
-          border: createShadowBorder() ){
-          panel {
-             borderLayout()
-             scrollPane( constraints: BL.CENTER, border: BorderFactory.createEmptyBorder() ) {
-                container( inputEditor, id: 'source', border: BorderFactory.createEmptyBorder(),
-                          font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) ){
-                   action(runAction)
-                }
-             }
-             panel( constraints: BL.SOUTH ){
-                borderLayout()
-                button( constraints: BL.WEST, label: 'Clear', icon: Main.getIcon('clear'),
-                        actionPerformed: this.&clearCode )
-                scrollPane( constraints: BL.CENTER ) {
-                   textArea( id: 'error', border: BorderFactory.createEmptyBorder(), rows: 2 )
-                }
-                button( constraints: BL.EAST, label: 'Eval', icon: Main.getIcon('eval'),
-                        actionPerformed: this.&executeCode )
-             }
-          }
-       }
+        def sourcePanel = swing.panel {
+           borderLayout( )
+           scrollPane( constraints: BL.CENTER, border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "Source") ) {
+              container( inputEditor, id: 'source', border: BF.createEmptyBorder(),
+                        font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) ){
+                 action(runAction)
+              }
+           }
+           scrollPane( constraints: BL.SOUTH, border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "Errors") ) {
+              textArea( id: 'error',  rows: 4 )
+           }
+        }
 
-       return sourcePanel
-    }
-
-    private def buildTextPanel( swing ){
-       swing.panel( new JXTitledPanel(), title: 'Description', border: createShadowBorder() ){
-          scrollPane( horizontalScrollBarPolicy: ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER,
-                border: BorderFactory.createEmptyBorder() ) {
-             editorPane( id: 'description', border: BorderFactory.createEmptyBorder(),
-                   editable: false, background: Color.white, contentType: 'text/html',
-                   hyperlinkUpdate: this.&onClickDemoOption )
-          }
-       }
-    }
-
-    private def createShadowBorder() {
-       BorderFactory.createCompoundBorder( BorderFactory.createCompoundBorder(
-             BorderFactory.createEmptyBorder(5, 5, 5, 5),
-             new DropShadowBorder() ),
-          BorderFactory.createLineBorder(Color.black, 1), )
-    }
-
-    private def descriptionCache = [:]
-    private def sourceCache = [:]
-    private static def iconCache = [:]
-    private static def translateMap = [
-        "clear":"16x16/actions/view-refresh",
-        "eval":"16x16/actions/go-next",
-        "option":"16x16/categories/applications-system",
-    ]
-
-    private def loadDescription( demo ){
-       swing.doOutside {
-          Thread.currentThread().contextClassLoader.getResourceAsStream("groovy/swing/j2d/demo/${demo}.html").text
-       }
-    }
-
-    private def loadSource( demo ){
-       swing.doOutside {
-          Thread.currentThread().contextClassLoader.getResourceAsStream("groovy/swing/j2d/demo/source-${demo}.txt").text
-       }
-    }
-
-    private static ImageIcon getIcon( name ){
-       Icon icon = iconCache[name]
-       if( !icon ){
-          String fileName = "org/tango-project/tango-icon-theme/${translateMap[name]}.png"
-          def url = Thread.currentThread().contextClassLoader.getResource( fileName )
-          icon = new ImageIcon( url )
-          iconCache[name] = icon
-       }
-       return icon
-    }
+        return sourcePanel
+     }
 
     // ---------- ACTIONS -----------
 
@@ -338,8 +264,8 @@ class Main {
     void showAbout(EventObject evt = null) {
        def pane = swing.optionPane()
         // work around GROOVY-1048
-       pane.setMessage('Welcome to the Groovy GraphicsBuilder Demo')
-       def dialog = pane.createDialog(frame, 'About GraphicsBuilder - Demo')
+       pane.setMessage('Welcome to the Groovy GraphicsPad')
+       def dialog = pane.createDialog(frame, 'About GraphicsPad')
        dialog.show()
     }
 
@@ -366,55 +292,10 @@ class Main {
        invokeTextAction(evt, { source -> source.selectAll() })
     }
 
-    void displayDemo(EventObject evt = null) {
-       def demo = evt.source.selectedValue
-       def text = descriptionCache[(demo)]
-       if( !text ){
-          swing.doOutside {
-             text = Thread.currentThread().contextClassLoader.getResourceAsStream("groovy/swing/j2d/demo/${demo}.html").text
-             descriptionCache[(demo)] = text
-             setDescriptionText( text )
-          }
-       }else{
-          setDescriptionText( text )
-       }
-    }
-
-    private void setDescriptionText( text ) {
-       swing.doLater {
-          description.text = text
-          description.caretPosition = 0
-       }
-    }
-
-    void onClickDemoOption(EventObject evt = null) {
-       if( evt.eventType == HyperlinkEvent.EventType.ACTIVATED ){
-          def demo = evt.description
-          def text = sourceCache[(demo)]
-          if( !text ){
-             swing.doOutside {
-                text = Thread.currentThread().contextClassLoader.getResourceAsStream("groovy/swing/j2d/demo/source-${demo}.txt").text
-                sourceCache[(demo)] = text
-                setSourceAndExecute( text )
-             }
-          }else{
-             setSourceAndExecute( text )
-          }
-       }
-    }
-
-    private void setSourceAndExecute( source ) {
-       swing.doLater {
-          inputEditor.textEditor.text = source
-          inputEditor.textEditor.caretPosition = 0
-          executeCode()
-       }
-    }
-
     // Confirm whether to interrupt the running thread
     void confirmRunInterrupt(EventObject evt) {
         def rc = JOptionPane.showConfirmDialog(frame, "Attempt to interrupt script?",
-            "GroovyConsole", JOptionPane.YES_NO_OPTION)
+            "GraphicsPad", JOptionPane.YES_NO_OPTION)
         if (rc == JOptionPane.YES_OPTION && runThread != null) {
             runThread.interrupt()
         }
@@ -426,7 +307,7 @@ class Main {
         }else{
            runThread = Thread.start {
               try {
-                  swing.doLater { showRunWaitDialog() }
+                  SwingUtilities.invokeLater { showRunWaitDialog() }
                   swing.error.text = ""
                   swing.view.removeAll()
                   def script = """
@@ -445,11 +326,11 @@ class Main {
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
                   }
-                  swing.doLater { finishNormal(go) }
+                  SwingUtilities.invokeLater { finishNormal(go) }
               } catch (Throwable t) {
-                  swing.doLater { finishException(t) }
+                  SwingUtilities.invokeLater { finishException(t) }
               } finally {
-                  swing.doLater {
+                  SwingUtilities.invokeLater {
                       runWaitDialog.hide()
                       runThread = null
                   }
@@ -487,12 +368,4 @@ class Main {
        swing.error.text = text
        swing.error.caretPosition = 0
     }
-}
-
-class OptionCellRenderer extends DefaultListCellRenderer {
-   public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus){
-      Component renderer = super.getListCellRendererComponent(list,value,index,isSelected,cellHasFocus)
-      renderer.setIcon( Main.getIcon('option') )
-      return renderer
-   }
 }

@@ -15,15 +15,14 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 import groovy.swing.j2d.impl.PathOperation
 import groovy.swing.j2d.impl.MoveToPathOperation
 
-import java.awt.Graphics2D
 import java.awt.Shape
 import java.awt.geom.GeneralPath
 import java.awt.geom.Path2D
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -54,13 +53,13 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation {
      return false
    }
 
-   protected Shape computeShape( Graphics2D g, Component target ) {
+   protected Shape computeShape( GraphicsContext context ) {
       Path2D path = new GeneralPath( getWindingRule() )
       if( pathOperations.size() > 0 && !(pathOperations[0] instanceof MoveToPathOperation) ){
          throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")
       }
       pathOperations.each { pathOperation ->
-         pathOperation.apply( path, g, target )
+         pathOperation.apply( path, context )
          pathOperation.setDirty( false )
       }
       path.closePath()

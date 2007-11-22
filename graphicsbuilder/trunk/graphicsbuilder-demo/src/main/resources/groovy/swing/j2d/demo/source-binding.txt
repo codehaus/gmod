@@ -1,5 +1,5 @@
 renderingHint( key: 'antialiasing', value: 'antialias on')
-def bean = new BoundBean( x: 0 )
+def bean = [x: 0] as ObservableMap
 rect( x: bind(source:bean, sourceProperty:'x'), y: 40,
       width: 100, height: 80, arcWidth: 20, arcHeight: 20,
       color: 'blue', strokeWidth: 2, fill: 'cyan' )

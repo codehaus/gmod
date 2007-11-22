@@ -15,11 +15,11 @@
 
 package groovy.swing.j2d.impl;
 
+import groovy.lang.MissingMethodException;
 import groovy.lang.MissingPropertyException;
+import groovy.swing.j2d.GraphicsContext;
 import groovy.swing.j2d.GraphicsOperation;
 
-import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.beans.PropertyChangeListener;
 
@@ -43,8 +43,8 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
         getDelegate().addPropertyChangeListener( listener );
     }
 
-    public Shape getClip( Graphics2D g, Component target ) {
-        return delegate.getClip( g, target );
+    public Shape getClip( GraphicsContext context ) {
+        return delegate.getClip( context );
     }
 
     public final GraphicsOperation getDelegate() {
@@ -69,6 +69,16 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
         return value;
     }
 
+    public Object invokeMethod( String name, Object arg ) {
+        Object result = null;
+        try{
+            result = super.invokeMethod( name, arg );
+        }catch( MissingMethodException mme ){
+            result = InvokerHelper.invokeMethod( delegate, name, arg );
+        }
+        return result;
+    }
+
     public void removePropertyChangeListener( PropertyChangeListener listener ) {
         super.removePropertyChangeListener( listener );
         getDelegate().removePropertyChangeListener( listener );
@@ -87,19 +97,19 @@ public abstract class DelegatingGraphicsOperation extends AbstractGraphicsOperat
         super.verify();
     }
 
-    protected void afterDelegateExecutes( Graphics2D g, Component target ) {
+    protected void afterDelegateExecutes( GraphicsContext context ) {
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
+    protected void beforeDelegateExecutes( GraphicsContext context ) {
     }
 
-    protected final void doExecute( Graphics2D g, Component target ) {
-        beforeDelegateExecutes( g, target );
-        executeDelegate( g, target );
-        afterDelegateExecutes( g, target );
+    protected final void doExecute( GraphicsContext context ) {
+        beforeDelegateExecutes( context );
+        executeDelegate( context );
+        afterDelegateExecutes( context );
     }
 
-    protected void executeDelegate( Graphics2D g, Component target ) {
-        delegate.execute( g, target );
+    protected void executeDelegate( GraphicsContext context ) {
+        delegate.execute( context );
     }
 }

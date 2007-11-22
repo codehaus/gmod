@@ -16,14 +16,13 @@
 package groovy.swing.j2d.operations
 
 import java.awt.Font
-import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.Component
 import java.awt.font.FontRenderContext
 import java.awt.font.TextLayout
 import java.awt.geom.AffineTransform
 import java.awt.geom.Rectangle2D
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
@@ -38,9 +37,9 @@ class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "text", ["text", "x", "y"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, Component target ){
-        FontRenderContext frc = g.getFontRenderContext()
-        TextLayout layout = new TextLayout( text, g.font, frc )
+    protected Shape computeShape( GraphicsContext context ){
+        FontRenderContext frc = context.g.getFontRenderContext()
+        TextLayout layout = new TextLayout( text, context.g.font, frc )
         Rectangle2D bounds = layout.getBounds()
         return layout.getOutline( AffineTransform.getTranslateInstance( x, y + bounds.height ) )
     }

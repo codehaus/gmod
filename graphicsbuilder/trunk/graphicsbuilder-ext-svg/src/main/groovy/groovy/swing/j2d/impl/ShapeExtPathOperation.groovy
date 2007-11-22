@@ -15,10 +15,9 @@
 
 package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.AbstractExtPathOperation
-import java.awt.Graphics2D
-import java.awt.Component
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -33,10 +32,10 @@ class ShapeExtPathOperation extends AbstractExtPathOperation {
        return shapeIsDirty || super.isDirty()
     }
 
-    public void apply( ExtendedGeneralPath path, Graphics2D g, Component target ) {
+    public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
        if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
              shape.getParameterValue("asShape") ){
-          shape = shape.getClip(g,target)
+          shape = shape.getClip(context)
        }
        path.append( shape, connect )
     }

@@ -13,24 +13,28 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d;
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import java.util.EventObject;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CurveToPathOperation extends AbstractPathOperation {
-    double x1
-    double x2
-    double x3
-    double y1
-    double y2
-    double y3
+public class GraphicsInputEvent extends EventObject {
+    private EventObject event;
+    private GraphicsOperation sourceShape;
 
-    public void apply( Path2D path, GraphicsContext context ) {
-       path.curveTo( x1, y1, x2, y2, x3, y3 )
+    public GraphicsInputEvent( Object source, EventObject event, GraphicsOperation sourceShape ) {
+        super( source );
+        this.event = event;
+        this.sourceShape = sourceShape;
+    }
+
+    public EventObject getEvent() {
+        return event;
+    }
+
+    public GraphicsOperation getSourceShape() {
+        return sourceShape;
     }
 }

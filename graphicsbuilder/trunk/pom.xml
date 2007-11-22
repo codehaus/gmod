@@ -150,8 +150,8 @@
    </reporting>
 
    <properties>
-      <graphicsbuilder-version>1.0-SNAPSHOT</graphicsbuilder-version>
-      <groovy-version>1.1-rc-2</groovy-version>
+      <graphicsbuilder-version>0.4</graphicsbuilder-version>
+      <groovy-version>1.1-final-SNAPSHOT</groovy-version>
    </properties>
 
 </project>

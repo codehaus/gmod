@@ -17,11 +17,8 @@ package groovy.swing.j2d.operations
 
 import java.awt.Component
 import java.awt.Container
-import java.awt.Graphics2D
-import java.awt.Component
-import javax.swing.SwingUtilities as SU
-import javax.swing.CellRendererPane
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
@@ -37,14 +34,14 @@ class SwingGraphicsOperation extends AbstractGraphicsOperation {
         this.container = container
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         if( !container ) return;
-        // target is usally a GraphicsPanel instance
+        // context.target is usally a GraphicsPanel instance
         Component[] components = container.components
-        if( target instanceof Container ){
+        if( context.target instanceof Container ){
            components.each { component ->
-              if( !target.isAncestorOf(component) ){
-                  target.add( component )
+              if( !context.target.isAncestorOf(component) ){
+                  context.target.add( component )
               }
            }
         }

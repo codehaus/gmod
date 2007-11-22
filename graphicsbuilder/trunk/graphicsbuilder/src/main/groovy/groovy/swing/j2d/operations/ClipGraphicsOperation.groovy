@@ -15,10 +15,9 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.Component
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
@@ -32,12 +31,12 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation {
         super( "clip", ["shape"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, Component target ){
+    public Shape getClip( GraphicsContext context ){
         if( parameterHasValue("shape") ){
             def shape = getParameterValue("shape")
             if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
                     shape.getParameterValue("asShape") ){
-                return shape.getClip(g,target)
+                return shape.getClip(context)
             }else{
                 return shape
             }
@@ -45,13 +44,13 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation {
         return null
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         if( !shape ) return;
         if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
                 shape.getParameterValue("asShape") ){
-           g.clip( shape.getClip(g,target) )
+           context.g.clip( shape.getClip(context) )
         }else{
-           g.clip( shape )
+           context.g.clip( shape )
         }
     }
 }

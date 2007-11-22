@@ -23,6 +23,8 @@ import java.awt.Paint
 import java.awt.Shape
 import java.awt.Component
 
+import groovy.swing.factory.BindFactory
+import groovy.swing.factory.ModelFactory
 import groovy.swing.j2d.impl.*
 import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.*
@@ -33,15 +35,16 @@ import groovy.swing.SwingBuilder
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class GraphicsBuilder extends FactoryBuilderSupport {
-    public static final String OPERATION_NAME = "_OPERATION_NAME_"
-
     private boolean building = false
     private List operations
-    private Map variables = [:]
     private GroovyShell shell
 
     public GraphicsBuilder() {
         registerOperations()
+    }
+
+    public List getOperations() {
+        return operations;
     }
 
     public GraphicsOperation build( Closure closure ) {
@@ -64,17 +67,13 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return go
     }
 
-    public List getOperations() {
-        return operations;
+    /*
+    public def gc( Closure closure ) {
+        def go = new GraphicsContextGraphicsOperation( closure:closure )
+        operations.add( go )
+        return go
     }
-
-    public Object getProperty( String name ) {
-        Object operation = variables.get( name )
-        if( operation == null ){
-            return super.getProperty( name )
-        }
-        return operation
-    }
+    */
 
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
         builder.addAttributeDelegate({ fbs, node, attrs ->
@@ -108,19 +107,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return container
     }
 
-    protected void postInstantiate( Object name, Map attributes, Object node ) {
-        Map context = getContext()
-        String operationName = context.get( OPERATION_NAME )
-        if( operationName != null && node != null ){
-            variables.put( operationName, node )
-        }
-    }
-
-    protected void preInstantiate( Object name, Map attributes, Object value ) {
-        Map context = getContext()
-        context.put( OPERATION_NAME, attributes.remove( "id" ) )
-    }
-
     private registerGraphicsOperationBeanFactory( String name, Class beanClass ){
         registerFactory( name, new GraphicsOperationBeanFactory(beanClass,false) )
     }
@@ -130,6 +116,13 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     }
 
     private void registerOperations() {
+        addAttributeDelegate({ builder, node, attributes ->
+           def id = attributes.remove("id")
+           if( id && node ){
+               builder.setVariable( id, node )
+           }
+        })
+
         registerGraphicsOperationBeanFactory( "arc", ArcGraphicsOperation )
         registerGraphicsOperationBeanFactory( "circle", CircleGraphicsOperation )
         registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
@@ -174,6 +167,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         // binding
         //
         registerFactory( "bind", new BindFactory() )
-        registerFactory( "animate", new AnimateFactory() )
+        addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
+        registerFactory( "model", new ModelFactory() )
     }
 }

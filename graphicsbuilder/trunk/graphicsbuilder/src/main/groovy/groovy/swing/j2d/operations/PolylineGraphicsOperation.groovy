@@ -15,11 +15,10 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
-import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -35,7 +34,7 @@ class PolylineGraphicsOperation extends AbstractGraphicsOperation {
         super( "polyline", ["points"] as String[] )
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         List points = getParameterValue( "points" )
         if( points.size() == 0 ){
             return null
@@ -54,7 +53,7 @@ class PolylineGraphicsOperation extends AbstractGraphicsOperation {
             xpoints[i] = convertToInteger( ox, 2 * 1 )
             ypoints[i] = convertToInteger( oy, (2 * i) + 1 )
         }
-        g.drawPolyline( xpoints, ypoints, npoints )
+        context.g.drawPolyline( xpoints, ypoints, npoints )
     }
 
     private int convertToInteger( Object o, int index ) {

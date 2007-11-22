@@ -15,18 +15,28 @@
 
 package groovy.swing.j2d;
 
+import groovy.swing.j2d.impl.ShapeProviderGraphicsOperation;
+
 import java.awt.Component;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class GraphicsContext {
     private Graphics2D g;
+    private List shapes = new ArrayList();
     private Component target;
 
     public Graphics2D getG() {
         return g;
+    }
+
+    public List getShapes() {
+        return Collections.unmodifiableList( shapes );
     }
 
     public Component getTarget() {
@@ -39,5 +49,11 @@ public class GraphicsContext {
 
     public void setTarget( Component target ) {
         this.target = target;
+    }
+
+    public void addShape( ShapeProviderGraphicsOperation shape ) {
+        if( !shapes.contains( shape ) ){
+            shapes.add( shape );
+        }
     }
 }

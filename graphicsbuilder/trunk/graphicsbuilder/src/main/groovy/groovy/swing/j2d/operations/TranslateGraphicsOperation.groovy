@@ -15,14 +15,11 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
 
-import java.awt.Graphics2D
-import java.awt.Shape
-import java.awt.geom.Line2D
 import java.awt.geom.AffineTransform
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -36,7 +33,7 @@ class TranslateGraphicsOperation extends AbstractGraphicsOperation implements
         super( "translate", ["x","y"] as String[] )
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
-        g.transform( AffineTransform.getTranslateInstance( x, y ) )
+    protected void doExecute( GraphicsContext context ){
+        context.g.transform( AffineTransform.getTranslateInstance( x, y ) )
     }
 }

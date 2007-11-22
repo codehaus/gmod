@@ -15,11 +15,10 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
-import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.Component
 
 import org.jdesktop.swingx.geom.Star2D
 
@@ -37,7 +36,7 @@ class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
       super( "star", ["x", "y", "ir", "or", "count"] as String[] )
    }
 
-   protected Shape computeShape(Graphics2D g, Component target) {
+   protected Shape computeShape(GraphicsContext context) {
       double x = getParameterValue( "x" )
       double y = getParameterValue( "y" )
       double ir = getParameterValue( "ir" )

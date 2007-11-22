@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CurveToPathOperation extends AbstractPathOperation {
-    double x1
-    double x2
-    double x3
-    double y1
-    double y2
-    double y3
+class GraphicsContextGraphicsOperation extends AbstractGraphicsOperation {
+    def closure
 
-    public void apply( Path2D path, GraphicsContext context ) {
-       path.curveTo( x1, y1, x2, y2, x3, y3 )
+    GraphicsContextGraphicsOperation() {
+        super( "gc" )
+    }
+
+    protected void doExecute( GraphicsContext context ){
+        if( !closure ) return;
+        closure.delegate = context
+        closure.call()
     }
 }

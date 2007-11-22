@@ -15,10 +15,9 @@
 
 package groovy.swing.j2d.impl;
 
+import groovy.swing.j2d.GraphicsContext;
 import groovy.swing.j2d.GraphicsOperation;
 
-import java.awt.Component;
-import java.awt.Graphics2D;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +58,10 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         return scope;
     }
 
+    public TransformationsGraphicsOperation getTransformations() {
+        return transformations;
+    }
+
     public void removePropertyChangeListener( PropertyChangeListener listener ) {
         super.removePropertyChangeListener( listener );
         for( Iterator i = operations.iterator(); i.hasNext(); ){
@@ -82,47 +85,47 @@ public class ContextualGraphicsOperation extends DelegatingGraphicsOperation {
         }
     }
 
-    protected void afterDelegateExecutes( Graphics2D g, Component target ) {
+    protected void afterDelegateExecutes( GraphicsContext context ) {
         if( operations.size() > 0 || transformations != null ){
-            restoreScope( g );
+            restoreScope( context );
         }
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
+    protected void beforeDelegateExecutes( GraphicsContext context ) {
         if( operations.size() > 0 || transformations != null ){
-            saveScope( g, target );
+            saveScope( context );
         }
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
                 GraphicsOperation go = (GraphicsOperation) i.next();
-                executeChildOperation( g, target, go );
+                executeChildOperation( context, go );
             }
         }
         if( transformations != null ){
-            transformations.execute( g, target );
+            transformations.execute( context );
         }
         if( operations.size() > 0 || transformations != null ){
-            restoreClip( g );
+            restoreClip( context );
         }
     }
 
-    protected void executeChildOperation( Graphics2D g, Component target, GraphicsOperation go ) {
-        go.execute( g, target );
+    protected void executeChildOperation( GraphicsContext context, GraphicsOperation go ) {
+        go.execute( context );
     }
 
     protected List getOperations() {
         return Collections.unmodifiableList( operations );
     }
 
-    private void restoreClip( Graphics2D g ) {
-        scope.restoreClip( g );
+    private void restoreClip( GraphicsContext context ) {
+        scope.restoreClip( context );
     }
 
-    private void restoreScope( Graphics2D g ) {
-        scope.restore( g );
+    private void restoreScope( GraphicsContext context ) {
+        scope.restore( context );
     }
 
-    private void saveScope( Graphics2D g, Component target ) {
-        scope.save( g, getClip( g, target ) );
+    private void saveScope( GraphicsContext context ) {
+        scope.save( context, getClip( context ) );
     }
 }

@@ -15,9 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Graphics2D
-import java.awt.Component
-
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
@@ -32,8 +30,8 @@ class FontGraphicsOperation extends AbstractGraphicsOperation {
         super( "font", ["font"] as String[] )
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         if( !font ) return;
-        g.setFont( font )
+        context.g.setFont( font )
     }
 }

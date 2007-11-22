@@ -16,11 +16,10 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.ColorCache
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 import java.awt.Color
-import java.awt.Component
-import java.awt.Graphics2D
 import java.awt.Image
 import java.awt.MediaTracker
 import java.awt.Rectangle
@@ -47,12 +46,12 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
         super( "image", ["x", "y"] as String[], ["image", "file", "url", "classpath", "bgcolor"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, Component target ) {
+    public Shape getClip( GraphicsContext context ) {
         int x = getParameterValue( "x" )
         int y = getParameterValue( "y" )
 
         if( !loadedImage ){
-            loadedImage = loadImage( target )
+            loadedImage = loadImage( context )
         }
         if( !loadedImage ){
             throw new IllegalStateException("Couldn't locate the image")
@@ -74,7 +73,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    protected void doExecute( Graphics2D g, Component target ) {
+    protected void doExecute( GraphicsContext context ) {
         int x = getParameterValue( "x" )
         int y = getParameterValue( "y" )
         Color bgcolor = null;
@@ -83,19 +82,19 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
         }
 
         if( !loadedImage ){
-            loadedImage = loadImage( target )
+            loadedImage = loadImage( context )
         }
         if( !loadedImage ){
             throw new IllegalStateException("Couldn't locate the image")
         }
         if( bgcolor != null ){
-            g.drawImage( loadedImage, x, y, bgcolor, null )
+            context.g.drawImage( loadedImage, x, y, bgcolor, null )
         }else{
-            g.drawImage( loadedImage, x, y, null )
+            context.g.drawImage( loadedImage, x, y, null )
         }
     }
 
-    private Image loadImage( Component comp ) {
+    private Image loadImage( GraphicsContext context ) {
         Image image = null;
         if( parameterHasValue( "image" ) ){
             image = getParameterValue( "image" )
@@ -113,7 +112,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
             throw new IllegalStateException("Couldn't locate the image")
         }
 
-        MediaTracker tracker = new MediaTracker( comp )
+        MediaTracker tracker = new MediaTracker( context.target )
         tracker.addImage( image, 0 )
         try {
             tracker.waitForID( 0 )

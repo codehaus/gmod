@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.impl;
 
-import java.awt.Component;
-import java.awt.Graphics2D;
+import groovy.swing.j2d.GraphicsContext;
+
 import java.awt.Shape;
 
 /**
@@ -26,8 +26,8 @@ import java.awt.Shape;
  */
 public abstract class AbstractOutlineGraphicsOperation extends AbstractGraphicsOperation {
     public static boolean contextual = true;
-    public static boolean strokable = true;
     public static boolean hasShape = true;
+    public static boolean strokable = true;
     private Shape shape;
 
     public AbstractOutlineGraphicsOperation( String name ) {
@@ -42,18 +42,19 @@ public abstract class AbstractOutlineGraphicsOperation extends AbstractGraphicsO
         super( name, parameters, optional );
     }
 
-    public Shape getClip( Graphics2D g, Component target ) {
+    public Shape getClip( GraphicsContext context ) {
         if( shape == null || isDirty() ){
-            shape = computeShape( g, target );
+            shape = computeShape( context );
             setDirty( false );
         }
         return shape;
     }
 
-    protected abstract Shape computeShape( Graphics2D g, Component target );
+    protected abstract Shape computeShape( GraphicsContext context );
 
-    protected void doExecute( Graphics2D g, Component target ) {
-        g.draw( getClip( g, target ) );
+    protected void doExecute( GraphicsContext context ) {
+        context.getG()
+                .draw( getClip( context ) );
     }
 
     protected Shape getShape() {

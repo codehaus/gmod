@@ -15,10 +15,9 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.Component
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
@@ -36,12 +35,12 @@ class DrawGraphicsOperation extends AbstractGraphicsOperation {
         super( "draw", ["shape"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, Component target ){
+    public Shape getClip( GraphicsContext context ){
         if( parameterHasValue("shape") ){
             def shape = getParameterValue("shape")
-            if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
-                    shape.getParameterValue("asShape") ){
-                return shape.getClip(g,target)
+            if( shape instanceof GraphicsOperation && shape.parameterHasValue("hasShape") /*&&
+                    shape.getParameterValue("asShape")*/ ){
+                return shape.getClip(context)
             }else{
                 return shape
             }
@@ -49,13 +48,25 @@ class DrawGraphicsOperation extends AbstractGraphicsOperation {
         return null
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         if( !shape ) return;
+        /*
         if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
                 shape.getParameterValue("asShape") ){
-           g.draw( shape.getClip(g,target) )
+           context.g.draw( shape.getClip(context) )
         }else{
-           g.draw( shape )
+           context.g.draw( shape )
+        }
+        */
+
+        if( shape instanceof GraphicsOperation ){
+           if( shape.parameterHasValue("asShape") && !shape.getParameterValue("asShape") ){
+              context.g.draw( shape.getClip(context) )
+           }else{
+               // draw nothing
+           }
+        }else{
+           context.g.draw( shape )
         }
     }
 }

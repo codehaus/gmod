@@ -15,15 +15,15 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 import groovy.swing.j2d.impl.ContextualGraphicsOperation
 import groovy.swing.j2d.impl.ShapeProviderGraphicsOperation
 import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
 
-import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.Shape
-import java.awt.Component
 import java.awt.geom.*
 
 /**
@@ -31,12 +31,28 @@ import java.awt.geom.*
  *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
+ /*
+ class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
+     private def drawDelegate
+     private String areaMethod
+     static grouping = true
+
+     public AreaGraphicsOperation( String name, String areaMethod ){
+         super( name )
+         this.areaMethod = areaMethod
+         drawDelegate = new DrawGraphicsOperation()
+     }
+ }
+ */
 class AreaGraphicsOperation extends ContextualGraphicsOperation {
     private def drawDelegate
     private String areaMethod
     private String name
     private List shapeProviderOperations = []
+    private List operations = []
     private Shape shape
+
+    static grouping = true
 
     public AreaGraphicsOperation( String name, String areaMethod ){
         super( new StrokingAndFillingGraphicsOperation(
@@ -64,11 +80,11 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         return false
     }
 
-    public Shape getClip( Graphics2D g, Component target ) {
+    public Shape getClip( GraphicsContext context ) {
         if( shape == null || isDirty() ){
-            shape = computeShape( g, target );
-            drawDelegate.shape = computeShape(g, target)
-            setDirty( false );
+            shape = computeShape( context )
+            drawDelegate.shape = shape
+            setDirty( false )
         }
         return shape;
     }
@@ -80,16 +96,16 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         }
     }
 
-    protected void executeDelegate( Graphics2D g, Component target ){
+    protected void executeDelegate( GraphicsContext context ){
         if( !drawDelegate.shape ){
-            drawDelegate.shape = computeShape(g, target)
+            drawDelegate.shape = computeShape(context)
         }
-        super.executeDelegate( g, target )
+        super.executeDelegate( context )
     }
 
-    protected void executeChildOperation( Graphics2D g, Component target, GraphicsOperation go ) {
+    protected void executeChildOperation( GraphicsContext context, GraphicsOperation go ) {
         if( !hasShape(go) ){
-           go.execute( g, target )
+           go.execute( context )
         }
     }
 
@@ -102,15 +118,15 @@ class AreaGraphicsOperation extends ContextualGraphicsOperation {
         return false
     }
 
-    protected Shape computeShape( Graphics2D g, Component target ){
+    protected Shape computeShape( GraphicsContext context ){
         Area area = new Area()
         findShapeProviderOperations()
         def size = shapeProviderOperations.size()
         if( size ){
-            area = new Area( shapeProviderOperations[0].getClip(g,target) )
+            area = new Area( shapeProviderOperations[0].getClip(context) )
         }
         shapeProviderOperations[1..<size].each { go ->
-            Shape shape = go.getClip(g, target)
+            Shape shape = go.getClip(context)
             if( hasShape(go) && shape ){
                 area."${areaMethod}"( new Area(shape) )
             }

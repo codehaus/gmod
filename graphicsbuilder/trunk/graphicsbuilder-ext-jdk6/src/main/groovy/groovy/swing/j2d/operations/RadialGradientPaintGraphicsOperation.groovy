@@ -15,17 +15,16 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 import groovy.swing.j2d.impl.GradientStop
 import groovy.swing.j2d.impl.GradientSupportGraphicsOperation
 
 import java.awt.Color
-import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.RadialGradientPaint
 import java.awt.Rectangle
 import java.awt.MultipleGradientPaint.*
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -93,8 +92,8 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       }
    }
 
-   protected void doExecute( Graphics2D g, Component target ){
-      g.setPaint( adjustPaintToBounds( g.getClipBounds() ) )
+   protected void doExecute( GraphicsContext context){
+      context.g.setPaint( adjustPaintToBounds( context.g.getClipBounds() ) )
    }
 
    private CycleMethod getCycleMethod() {

@@ -15,9 +15,8 @@
 
 package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.Graphics2D
-import java.awt.Component
 import java.awt.geom.Path2D
 
 /**
@@ -26,7 +25,7 @@ import java.awt.geom.Path2D
 class VLinePathOperation extends AbstractPathOperation {
     double y
 
-    public void apply( Path2D path, Graphics2D g, Component target ) {
+    public void apply( Path2D path, GraphicsContext context ) {
        path.lineTo( path.currentPoint.x, y )
     }
 }

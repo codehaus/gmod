@@ -15,9 +15,8 @@
 
 package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractExtPathOperation
-import java.awt.Graphics2D
-import java.awt.Component
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -32,7 +31,7 @@ class ArcToExtPathOperation extends AbstractExtPathOperation {
     boolean largeArc
     boolean sweep
 
-    public void apply( ExtendedGeneralPath path, Graphics2D g, Component target ) {
+    public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
        path.arcTo( rx, ry, angle, largeArc, sweep, x, y )
     }
 }

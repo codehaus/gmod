@@ -52,7 +52,7 @@
       <dependency>
          <groupId>org.jdesktop</groupId>
          <artifactId>swingx</artifactId>
-         <version>2007_09_16</version>
+         <version>0.9.1</version>
       </dependency>
       <dependency>
          <groupId>org.jdesktop.animation</groupId>

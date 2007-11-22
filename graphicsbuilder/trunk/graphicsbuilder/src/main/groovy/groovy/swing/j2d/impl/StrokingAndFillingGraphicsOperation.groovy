@@ -16,6 +16,7 @@
 package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.ColorCache
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.operations.Rect3DGraphicsOperation
 
@@ -41,49 +42,49 @@ public class StrokingAndFillingGraphicsOperation extends StrokingGraphicsOperati
         return (optional + [ "fill" ]) as String[]
     }
 
-    protected void beforeDelegateExecutes( Graphics2D g, Component target ) {
+    protected void beforeDelegateExecutes( GraphicsContext context ) {
         if( parameterHasValue( "fill" ) ){
             Object fillValue = getParameterValue( "fill" )
             if( fillValue instanceof Color ){
                 // Color is a subclass of Paint
                 // we need to check it first
-                Color color = g.getColor()
-                g.setColor( (Color) fillValue )
-                invokeFillMethod( g, target )
-                g.setColor( color )
+                Color color = context.g.getColor()
+                context.g.setColor( (Color) fillValue )
+                invokeFillMethod( context )
+                context.g.setColor( color )
             }else if( fillValue instanceof Paint ){
-                Paint paint = g.getPaint()
-                g.setPaint( (Paint) fillValue )
-                invokeFillMethod( g, target )
-                g.setPaint( paint )
+                Paint paint = gcontext..getPaint()
+                context.g.setPaint( (Paint) fillValue )
+                invokeFillMethod( context )
+                context.g.setPaint( paint )
             }else if( fillValue instanceof PaintSupportGraphicsOperation ){
-                Paint paint = g.getPaint()
-                fillValue.execute( g, target )
-                g.setPaint( fillValue.adjustPaintToBounds(getClip(g,target).bounds) )
-                invokeFillMethod( g, target )
-                g.setPaint( paint )
+                Paint paint = context.g.getPaint()
+                fillValue.execute( context )
+                context.g.setPaint( fillValue.adjustPaintToBounds(getClip(context).bounds) )
+                invokeFillMethod( context )
+                context.g.setPaint( paint )
             }else if( fillValue instanceof String ){
-                Color color = g.getColor()
-                g.setColor( ColorCache.getInstance()
+                Color color = context.g.getColor()
+                context.g.setColor( ColorCache.getInstance()
                         .getColor( fillValue ) )
-                invokeFillMethod( g, target )
-                g.setColor( color )
+                invokeFillMethod( context )
+                context.g.setColor( color )
             }else if( fillValue instanceof Boolean && fillValue ){
-                invokeFillMethod( g, target )
+                invokeFillMethod( context )
             }
         }
-        super.beforeDelegateExecutes( g, target )
+        super.beforeDelegateExecutes( context )
     }
 
-    private void invokeFillMethod( Graphics2D g, Component target ) {
+    private void invokeFillMethod( GraphicsContext context ) {
         // some special cases
         GraphicsOperation go = getDelegate()
         if( delegate instanceof Rect3DGraphicsOperation ){
-            g.fill3DRect( delegate.x, delegate.y, delegate.width, delegate.height,
+            context.g.fill3DRect( delegate.x, delegate.y, delegate.width, delegate.height,
                     delegate.raised )
         }else{
             // general case
-            g.fill( getDelegate().getClip( g, target ) )
+            context.g.fill( getDelegate().getClip( context ) )
         }
     }
 }

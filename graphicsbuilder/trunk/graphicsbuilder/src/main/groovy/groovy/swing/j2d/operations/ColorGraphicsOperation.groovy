@@ -15,9 +15,7 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Graphics2D
-import java.awt.Component
-
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
@@ -32,8 +30,8 @@ class ColorGraphicsOperation extends AbstractGraphicsOperation {
         super( "color", ["color"] as String[] )
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         if( !color ) return;
-        g.setColor( color )
+        context.g.setColor( color )
     }
 }

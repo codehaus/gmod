@@ -16,14 +16,12 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.ColorCache
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 import java.awt.BasicStroke
-import java.awt.Graphics2D
 import java.awt.Paint
-import java.awt.Shape
 import java.awt.Stroke
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -46,27 +44,27 @@ public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
                 "dash", "dashphase", "red", "green", "blue", "alpha"] as String[] )
     }
 
-    public void doExecute( Graphics2D g, Component target ) {
+    public void doExecute( GraphicsContext context ) {
         if( parameterHasValue( "color" ) ){
             Object colorValue = getParameterValue( "color" )
             if( colorValue instanceof String ){
                 colorValue = ColorCache.getInstance().getColor( colorValue );
             }
-            g.color = colorValue
+            context.g.color = colorValue
         }
         if( parameterHasValue( "paint" ) ){
             Object paintValue = getParameterValue( "paint" );
             if( paintValue instanceof String ){
                 paintValue = ColorCache.getInstance().getColor( paintValue );
             }
-            g.paint = paintValue
+            context.g.paint = paintValue
         }
 
         if( stroke == null ){
             createStroke()
         }
 
-        g.stroke = stroke
+        context.g.stroke = stroke
     }
 
     public void verify() {

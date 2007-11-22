@@ -16,9 +16,9 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.ColorCache
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
-import java.awt.Graphics2D
 import java.awt.Image
 import java.awt.Paint
 import java.awt.Rectangle
@@ -49,7 +49,7 @@ class TexturePaintGraphicsOperation extends AbstractGraphicsOperation {
                ["image", "file", "url"] as String[] )
     }
 
-    public Shape getClip( Graphics2D g, Component target ) {
+    public Shape getClip( GraphicsContext context ) {
         int x1 = getParameterValue( "x1" )
         int x2 = getParameterValue( "x2" )
         int y1 = getParameterValue( "y1" )
@@ -78,20 +78,20 @@ class TexturePaintGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
+    protected void doExecute( GraphicsContext context ){
         int x1 = getParameterValue( "x1" )
         int x2 = getParameterValue( "x2" )
         int y1 = getParameterValue( "y1" )
         int y2 = getParameterValue( "y2" )
 
-        BufferedImage image = loadImage( g, target )
+        BufferedImage image = loadImage( context )
         if( image != null ){
             paint = new TexturePaint( image, new Rectangle( x1, y1, x2 - x1, y2 - y1 ) )
-            g.setPaint( paint )
+            context.g.setPaint( paint )
         }
     }
 
-    private BufferedImage loadImage( Graphics2D g, Component target ) {
+    private BufferedImage loadImage( GraphicsContext context ) {
         Image image = null
         if( parameterHasValue( "image" ) ){
             if( image instanceof BufferedImage ){
@@ -105,12 +105,12 @@ class TexturePaintGraphicsOperation extends AbstractGraphicsOperation {
             image = Toolkit.getDefaultToolkit()
                     .getImage( (URL) getParameterValue( "url" ) )
         }
-        if( image.getWidth( target ) <= 0 || image.getHeight( target ) <= 0 ){
+        if( image.getWidth( context.target ) <= 0 || image.getHeight( context.target ) <= 0 ){
             return null
         }
-        BufferedImage bi = g.getDeviceConfiguration()
-                .createCompatibleImage( image.getWidth( target ), image.getHeight( target ) )
-        bi.getGraphics().drawImage( image, 0, 0, target )
+        BufferedImage bi = context.g.getDeviceConfiguration()
+                .createCompatibleImage( image.getWidth( context.target ), image.getHeight( context.target ) )
+        bi.getGraphics().drawImage( image, 0, 0, context.target )
         return bi
     }
 }

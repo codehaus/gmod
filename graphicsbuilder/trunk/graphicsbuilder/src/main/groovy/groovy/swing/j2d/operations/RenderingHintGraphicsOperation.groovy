@@ -15,10 +15,9 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Graphics2D
 import java.awt.RenderingHints
-import java.awt.Component
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
@@ -32,8 +31,8 @@ class RenderingHintGraphicsOperation extends AbstractGraphicsOperation {
         super( "renderingHint", ["key","value"] as String[] )
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
-        g.setRenderingHint( convertKey(), convertValue() )
+    protected void doExecute( GraphicsContext context ){
+        context.g.setRenderingHint( convertKey(), convertValue() )
     }
 
     private RenderingHints.Key convertKey(){

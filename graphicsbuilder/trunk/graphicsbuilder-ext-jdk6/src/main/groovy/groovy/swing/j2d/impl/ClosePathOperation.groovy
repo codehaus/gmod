@@ -15,9 +15,8 @@
 
 package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.Graphics2D
-import java.awt.Component
 import java.awt.geom.Path2D
 
 /**
@@ -28,7 +27,7 @@ class ClosePathOperation extends AbstractPathOperation {
        return false
     }
 
-    public void apply( Path2D path, Graphics2D g, Component target ) {
+    public void apply( Path2D path, GraphicsContext context ) {
        path.closePath()
     }
 }

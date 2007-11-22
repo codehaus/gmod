@@ -15,11 +15,10 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
-import java.awt.Graphics2D
 import java.awt.Shape
-import java.awt.Component
 import java.awt.geom.Arc2D
 
 /**
@@ -50,7 +49,7 @@ class ArcGraphicsOperation extends AbstractShapeGraphicsOperation {
                ["close"] as String[] )
     }
 
-    protected Shape computeShape( Graphics2D g, Component target ){
+    protected Shape computeShape( GraphicsContext context ){
         double x = getParameterValue( "x" )
         double y = getParameterValue( "y" )
         double width = getParameterValue( "width" )

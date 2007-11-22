@@ -16,10 +16,9 @@
 package groovy.swing.j2d.impl;
 
 import groovy.lang.MissingPropertyException;
+import groovy.swing.j2d.GraphicsContext;
 import groovy.swing.j2d.GraphicsOperation;
 
-import java.awt.Component;
-import java.awt.Graphics2D;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,6 +82,10 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         return strokeWidth;
     }
 
+    public TransformationsGraphicsOperation getTransformations() {
+        return transformations;
+    }
+
     public void removePropertyChangeListener( PropertyChangeListener listener ) {
         super.removePropertyChangeListener( listener );
         for( Iterator i = operations.iterator(); i.hasNext(); ){
@@ -127,10 +130,10 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    protected void doExecute( Graphics2D g, Component target ) {
-        saveScope( g, target );
+    protected void doExecute( GraphicsContext context ) {
+        saveScope( context );
         if( transformations != null ){
-            transformations.execute( g, target );
+            transformations.execute( context );
         }
         if( operations.size() > 0 ){
             for( Iterator i = operations.iterator(); i.hasNext(); ){
@@ -144,19 +147,19 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
                 if( fill != null ){
                     safeSetProperty( go, "fill", fill );
                 }
-                go.execute( g, target );
+                go.execute( context );
             }
         }
-        restoreClip( g );
-        restoreScope( g );
+        restoreClip( context );
+        restoreScope( context );
     }
 
-    private void restoreClip( Graphics2D g ) {
-        graphicsScope.restoreClip( g );
+    private void restoreClip( GraphicsContext context ) {
+        graphicsScope.restoreClip( context );
     }
 
-    private void restoreScope( Graphics2D g ) {
-        graphicsScope.restore( g );
+    private void restoreScope( GraphicsContext context ) {
+        graphicsScope.restore( context );
     }
 
     private void safeSetProperty( Object obj, String name, Object value ) {
@@ -167,7 +170,7 @@ public class GroupingGraphicsOperation extends AbstractGraphicsOperation {
         }
     }
 
-    private void saveScope( Graphics2D g, Component target ) {
-        graphicsScope.save( g, getClip( g, target ) );
+    private void saveScope( GraphicsContext context ) {
+        graphicsScope.save( context, getClip( context ) );
     }
 }

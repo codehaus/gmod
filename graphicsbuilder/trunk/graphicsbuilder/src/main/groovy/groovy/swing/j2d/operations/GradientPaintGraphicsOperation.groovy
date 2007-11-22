@@ -16,15 +16,14 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.ColorCache
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 import groovy.swing.j2d.impl.PaintSupportGraphicsOperation
 
 import java.awt.Color
 import java.awt.GradientPaint
-import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.Rectangle
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -94,7 +93,7 @@ class GradientPaintGraphicsOperation extends AbstractGraphicsOperation implement
         }
     }
 
-    protected void doExecute( Graphics2D g, Component target ){
-        g.paint = getPaint()
+    protected void doExecute( GraphicsContext context ){
+        context.g.paint = getPaint()
     }
 }

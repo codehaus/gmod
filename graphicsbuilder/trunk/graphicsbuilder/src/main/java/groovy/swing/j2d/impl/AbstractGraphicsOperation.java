@@ -16,10 +16,9 @@
 package groovy.swing.j2d.impl;
 
 import groovy.lang.GroovyObjectSupport;
+import groovy.swing.j2d.GraphicsContext;
 import groovy.swing.j2d.GraphicsOperation;
 
-import java.awt.Component;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -100,11 +99,11 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
         propertyChangeSupport.addPropertyChangeListener( listener );
     }
 
-    public void execute( Graphics2D g, Component target ) {
-        doExecute( g, target );
+    public void execute( GraphicsContext context ) {
+        doExecute( context );
     }
 
-    public Shape getClip( Graphics2D g, Component target ) {
+    public Shape getClip( GraphicsContext context ) {
         return null;
     }
 
@@ -205,7 +204,7 @@ public abstract class AbstractGraphicsOperation extends GroovyObjectSupport impl
     /**
      * Executes the operation
      */
-    protected abstract void doExecute( Graphics2D g, Component target );
+    protected abstract void doExecute( GraphicsContext context );
 
     protected void firePropertyChange( String name, Object oldValue, Object newValue ) {
         propertyChangeSupport.firePropertyChange( name, oldValue, newValue );

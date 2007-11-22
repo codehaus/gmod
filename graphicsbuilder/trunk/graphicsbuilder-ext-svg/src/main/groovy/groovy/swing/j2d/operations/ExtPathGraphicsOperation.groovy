@@ -15,14 +15,13 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 import groovy.swing.j2d.impl.ExtPathOperation
 import groovy.swing.j2d.impl.MoveToExtPathOperation
 
-import java.awt.Graphics2D
 import java.awt.Shape
 import java.awt.geom.GeneralPath
-import java.awt.Component
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -54,13 +53,13 @@ class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
      return false
    }
 
-   protected Shape computeShape( Graphics2D g, Component target ) {
+   protected Shape computeShape( GraphicsContext context ) {
       ExtendedGeneralPath path = new ExtendedGeneralPath( getWindingRule() )
       if( pathOperations.size() > 0 && !(pathOperations[0] instanceof MoveToExtPathOperation) ){
          throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")
       }
       pathOperations.each { pathOperation ->
-         pathOperation.apply( path, g, target )
+         pathOperation.apply( path, context )
          pathOperation.setDirty( false )
       }
       path.closePath()

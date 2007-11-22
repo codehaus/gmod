@@ -15,10 +15,9 @@
 
 package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.Graphics2D
-import java.awt.Component
 import java.awt.geom.Path2D
 
 /**
@@ -33,10 +32,10 @@ class ShapePathOperation extends AbstractPathOperation {
        return shapeIsDirty || super.isDirty()
     }
 
-    public void apply( Path2D path, Graphics2D g, Component target ) {
+    public void apply( Path2D path, GraphicsContext context ) {
        if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
              shape.getParameterValue("asShape") ){
-          shape = shape.getClip(g,target)
+          shape = shape.getClip(context)
        }
        path.append( shape, connect )
     }

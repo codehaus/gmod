@@ -15,19 +15,18 @@
 
 package groovy.swing.j2d.operations
 
+import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractGraphicsOperation
 import groovy.swing.j2d.impl.GradientStop
 import groovy.swing.j2d.impl.GradientSupportGraphicsOperation
 
 import java.awt.Color
-import java.awt.Graphics2D
 import java.awt.LinearGradientPaint
 import java.awt.Paint
 import java.awt.Rectangle
 import java.awt.MultipleGradientPaint.*
 import java.awt.geom.AffineTransform
 import java.awt.geom.Point2D
-import java.awt.Component
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -117,8 +116,8 @@ class LinearGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       return paint
    }
 
-   protected void doExecute( Graphics2D g, Component target ){
-      g.setPaint( getPaint() )
+   protected void doExecute( GraphicsContext context ){
+      context.g.setPaint( getPaint() )
    }
 /*
    private CycleMethod getCycleMethod() {
