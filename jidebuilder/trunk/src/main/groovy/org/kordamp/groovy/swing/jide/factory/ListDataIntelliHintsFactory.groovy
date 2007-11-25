@@ -24,6 +24,8 @@ import com.jidesoft.hints.ListDataIntelliHints
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ListDataIntelliHintsFactory extends AbstractJideComponentFactory implements DelegatingJideFactory {
+   public static final String LIST_HINTS = "_LIST_HINTS_"
+
    public ListDataIntelliHintsFactory() {
       super( ListDataIntelliHints )
    }
@@ -39,16 +41,5 @@ class ListDataIntelliHintsFactory extends AbstractJideComponentFactory implement
          throw new RuntimeException("Failed to create component for '${name}' reason: missing 'completionList' attribute")
       }
       return new ListDataIntelliHints( textComponent, completionList )
-   }
-
-   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
-         Map attributes ) {
-     def id = attributes.remove("id")
-     def constraints = attributes.remove("constraints")
-     setWidgetAttributes( builder, node, attributes, true )
-     setWidgetAttributes( builder, node.textComponent, attributes, false )
-     attributes.id = id
-     attributes.constraints = constraints
-     return true
    }
 }

@@ -36,15 +36,4 @@ class FileIntelliHintsFactory extends AbstractJideComponentFactory implements De
       }
       return new FileIntelliHints( textComponent )
    }
-
-   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
-         Map attributes ) {
-      def id = attributes.remove("id")
-      def constraints = attributes.remove("constraints")
-      setWidgetAttributes( builder, node, attributes, true )
-      setWidgetAttributes( builder, node.textComponent, attributes, false )
-      attributes.id = id
-      attributes.constraints = constraints
-      return true
-   }
 }

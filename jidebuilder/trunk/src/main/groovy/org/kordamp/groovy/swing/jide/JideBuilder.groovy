@@ -80,22 +80,20 @@ class JideBuilder extends SwingBuilder {
       super.setParent( parent, child )
    }
 
-   /*
    protected Object createNode( Object name, Map attributes, Object value ){
       String id = attributes.get("id")
-      Object constraintsCopy = attributes.get("constraints")
+      Object constraints = attributes.get("constraints")
       Object widget = super.createNode( name, attributes, value )
 
       if( id && parentBuilder ){
-         parentBuilder.widgets.put( id, widget )
+         parentBuilder.setVariable( id, widget )
       }
-      if( parentBuilder && parentBuilder.getCurrent() ){
-         parentBuilder.@constraints = constraintsCopy
-         parentBuilder.setParent( parentBuilder.getCurrent(), widget )
+      if( parentBuilder && parentBuilder.current ){
+         parentBuilder.context.constraints = constraints
+         parentBuilder.setParent( parentBuilder.current, widget )
       }
       return widget
    }
-   */
 
    private void registerJideComponents() {
       registerFactory("animator", new AnimatorFactory())
@@ -158,8 +156,8 @@ class JideBuilder extends SwingBuilder {
       registerFactory("tristateCheckBox", new TristateCheckBoxFactory())
 
       // hints
-      //registerFactory("fileIntelliHints", new FileIntelliHintsFactory())
-      //registerFactory("listDataIntelliHints", new ListDataIntelliHintsFactory())
+      registerFactory("fileIntelliHints", new FileIntelliHintsFactory())
+      registerFactory("listDataIntelliHints", new ListDataIntelliHintsFactory())
 
       registerBeanFactory("dialogPage", DefaultDialogPage)
       registerFactory("standardDialog", new StandardDialogFactory())

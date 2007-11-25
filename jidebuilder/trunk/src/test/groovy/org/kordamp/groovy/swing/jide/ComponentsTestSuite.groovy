@@ -251,14 +251,14 @@ public class ComponentsTest extends GroovyTestCase {
       assertNotNull jide.searchBar
       assert jide.searchBar.searchable == jide.combo_searchable
    }
-/*
+
    void testFileIntelliHintsWithTextComponent(){
       if (isHeadless()) return
 
       def jide = new JideBuilder()
       jide.panel(){
          textField( id: "textComponent", text: "text" )
-         fileIntelliHints( id: "hints", textComponent: jide.textComponent, folderOnly: true )
+         fileIntelliHints( id: "hints", textComponent: textComponent, folderOnly: true )
       }
       assertNotNull jide.textComponent
       assertNotNull jide.hints
@@ -283,7 +283,6 @@ public class ComponentsTest extends GroovyTestCase {
       assert jide.hints.textComponent == jide.textComponent
       assert jide.hints.completionList == completionList
    }
-*/
 
    void testJideMenuWithAutomaticPopupMenuCustomizer(){
       def customize = { m ->
