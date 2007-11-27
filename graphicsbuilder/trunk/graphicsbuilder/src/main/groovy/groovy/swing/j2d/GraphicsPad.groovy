@@ -17,6 +17,7 @@ package groovy.swing.j2d
 
 import java.awt.BorderLayout as BL
 import java.awt.*
+import java.awt.event.*
 import javax.swing.*
 import javax.swing.BorderFactory as BF
 import javax.swing.border.*
@@ -24,14 +25,18 @@ import javax.swing.event.*
 import javax.swing.text.DefaultStyledDocument
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
+import groovy.text.SimpleTemplateEngine
+import groovy.ui.Console
 import groovy.ui.ConsoleTextEditor
+import groovy.ui.text.FindReplaceUtility
+import java.util.prefs.Preferences
 
 import org.codehaus.groovy.control.CompilationFailedException
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsPad {
+class GraphicsPad implements CaretListener {
     private def graphicsBuilder
     private def swing
     private def gsh = new GroovyShell()
@@ -39,25 +44,46 @@ class GraphicsPad {
     private def runThread = null
     private def runWaitDialog
     private def frame
-    private String codeBase
+
+    private boolean dirty
+    private def scriptFile
+    private File currentFileChooserDir = new File(Preferences.userNodeForPackage(GraphicsPad).get('currentFileChooserDir', '.'))
+    private static String ICON_PATH = '/groovy/ui/ConsoleIcon.png' // used by ObjectBrowser too
+
+        // row info
+    private def rootElement
+    private def cursorPos
+    private def rowNum
+    private def colNum
+
+    private int scriptNameCounter = 0
+    private def templateEngine = new SimpleTemplateEngine()
+    private static def simple_script_source
+    private static def export_script_source
 
     public static void main(String[] args) {
+       Thread.start {
+           simple_script_source = Thread.currentThread().contextClassLoader.
+                   getResourceAsStream("groovy/swing/j2d/simple-script.txt").text
+           export_script_source = Thread.currentThread().contextClassLoader.
+                   getResourceAsStream("groovy/swing/j2d/export-script.txt").text
+       }
        SwingUtilities.invokeLater {
           def app = new GraphicsPad()
           app.run()
        }
     }
 
-    GraphicsPad( String codeBase ){
+    GraphicsPad(){
        buildUI()
        setupGraphicsBuilder()
     }
 
     public void run(){
-       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
-       System.setProperty("apple.laf.useScreenMenuBar", "true")
-       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsPad")
-       frame.visible = true
+       swing.doLater {
+          frame.visible = true
+          inputEditor.textEditor.requestFocus()
+       }
     }
 
     private void setupGraphicsBuilder(){
@@ -79,108 +105,210 @@ class GraphicsPad {
        inputEditor = new ConsoleTextEditor()
        swing = new SwingBuilder()
 
+       swing.lookAndFeel('system')
+       System.setProperty("apple.laf.useScreenMenuBar", "true")
+       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsPad")
+
        swing.actions {
-          action(id: 'exitAction',
-             name: 'Exit',
-             closure: this.&exit,
-             mnemonic: 'X'
-          )
-          action(inputEditor.undoAction,
-             id: 'undoAction',
-             name: 'Undo',
-             mnemonic: 'U',
-             accelerator: shortcut('Z')
-          )
-          action(inputEditor.redoAction,
-             id: 'redoAction',
-             name: 'Redo',
-             closure: this.&redo,
-             mnemonic: 'Y',
-             accelerator: shortcut('Y')
-          )
-          action(id: 'cutAction',
-             name: 'Cut',
-             closure: this.&cut,
-             mnemonic: 't',
-             accelerator: shortcut('X')
-          )
-          action(id: 'copyAction',
-             name: 'Copy',
-             closure: this.&copy,
-             mnemonic: 'C',
-             accelerator: shortcut('C')
-          )
-          action(id: 'pasteAction',
-             name: 'Paste',
-             closure: this.&paste,
-             mnemonic: 'P',
-             accelerator: shortcut('V')
-          )
-          action(id: 'selectAllAction',
-             name: 'Select All',
-             closure: this.&selectAll,
-             mnemonic: 'A',
-             accelerator: shortcut('A')
-          )
-          action(id: 'runAction',
-             name: 'Run',
-             closure: this.&executeCode,
-             mnemonic: 'R',
-             keyStroke: 'ctrl ENTER',
-             accelerator: shortcut('R')
-          )
-          action(id: 'largerFontAction',
-             name: 'Larger Font',
-             closure: this.&largerFont,
-             mnemonic: 'L',
-             accelerator: shortcut('shift L')
-          )
-          action(id: 'smallerFontAction',
-             name: 'Smaller Font',
-             closure: this.&smallerFont,
-             mnemonic: 'S',
-             accelerator: shortcut('shift S')
-          )
-          action(id: 'aboutAction',
-             name: 'About',
-             closure: this.&showAbout,
-             mnemonic: 'A'
-          )
-          action(id: 'interruptAction',
-             name: 'Interrupt',
-             closure: this.&confirmRunInterrupt
-          )
-          action(id: 'clearAction',
-             name: 'Clear',
-             closure: this.&clearCode,
-             mnemonic: 'L',
-             accelerator: shortcut('L')
-          )
+           action(id: 'newFileAction',
+               name: 'New File',
+               closure: this.&fileNewFile,
+               mnemonic: 'N',
+               accelerator: shortcut('N'),
+               smallIcon: imageIcon(resource:"icons/page.png", class:Console),
+               shortDescription: 'New Groovy Script'
+           )
+           action(id: 'newWindowAction',
+               name: 'New Window',
+               closure: this.&fileNewWindow,
+               mnemonic: 'W',
+               accelerator: shortcut('shift N')
+           )
+           action(id: 'openAction',
+               name: 'Open',
+               closure: this.&fileOpen,
+               mnemonic: 'O',
+               accelerator: shortcut('O'),
+               smallIcon: imageIcon(resource:"icons/folder_page.png", class:Console),
+               shortDescription: 'Open Groovy Script'
+           )
+           action(id: 'saveAction',
+               name: 'Save',
+               closure: this.&fileSave,
+               mnemonic: 'S',
+               accelerator: shortcut('S'),
+               smallIcon: imageIcon(resource:"icons/disk.png", class:Console),
+               shortDescription: 'Save Groovy Script'
+           )
+           action(id: 'saveAsAction',
+               name: 'Save As...',
+               closure: this.&fileSaveAs,
+               mnemonic: 'A',
+           )
+           action(id: 'exportAction',
+               name: 'Export...',
+               closure: this.&fileExport
+           )
+           action(inputEditor.printAction,
+               id: 'printAction',
+               name: 'Print...',
+               mnemonic: 'P',
+               accelerator: shortcut('P')
+           )
+           action(id: 'exitAction',
+               name: 'Exit',
+               closure: this.&exit,
+               mnemonic: 'X'
+           )
+           // whether or not application exit should have an
+           // accellerator is debatable in usability circles
+           // at the very least a confirm dialog should dhow up
+           //accelerator: shortcut('Q')
+           action(inputEditor.undoAction,
+               id: 'undoAction',
+               name: 'Undo',
+               mnemonic: 'U',
+               accelerator: shortcut('Z'),
+               smallIcon: imageIcon(resource:"icons/arrow_undo.png", class:Console),
+               shortDescription: 'Undo'
+           )
+           action(inputEditor.redoAction,
+               id: 'redoAction',
+               name: 'Redo',
+               mnemonic: 'R',
+               accelerator: shortcut('shift Z'), // is control-shift-Z or control-Y more common?
+               smallIcon: imageIcon(resource:"icons/arrow_redo.png", class:Console),
+               shortDescription: 'Redo'
+           )
+           action(id: 'findAction',
+               name: 'Find...',
+               closure: this.&find,
+               mnemonic: 'F',
+               accelerator: shortcut('F'),
+               smallIcon: imageIcon(resource:"icons/find.png", class:Console),
+               shortDescription: 'Find'
+           )
+           action(id: 'findNextAction',
+               name: 'Find Next',
+               closure: this.&findNext,
+               mnemonic: 'N',
+               accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0)
+           )
+           action(id: 'findPreviousAction',
+               name: 'Find Previous',
+               closure: this.&findPrevious,
+               mnemonic: 'V',
+               accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK)
+           )
+           action(id: 'replaceAction',
+               name: 'Replace...',
+               closure: this.&replace,
+               mnemonic: 'E',
+               accelerator: shortcut('H'),
+               smallIcon: imageIcon(resource:"icons/text_replace.png", class:Console),
+               shortDescription: 'Replace'
+           )
+           action(id: 'cutAction',
+               name: 'Cut',
+               closure: this.&cut,
+               mnemonic: 'T',
+               accelerator: shortcut('X'),
+               smallIcon: imageIcon(resource:"icons/cut.png", class:Console),
+               shortDescription: 'Cut'
+           )
+           action(id: 'copyAction',
+               name: 'Copy',
+               closure: this.&copy,
+               mnemonic: 'C',
+               accelerator: shortcut('C'),
+               smallIcon: imageIcon(resource:"icons/page_copy.png", class:Console),
+               shortDescription: 'Copy'
+           )
+           action(id: 'pasteAction',
+               name: 'Paste',
+               closure: this.&paste,
+               mnemonic: 'P',
+               accelerator: shortcut('V'),
+               smallIcon: imageIcon(resource:"icons/page_paste.png", class:Console),
+               shortDescription: 'Paste'
+           )
+           action(id: 'selectAllAction',
+               name: 'Select All',
+               closure: this.&selectAll,
+               mnemonic: 'A',
+               accelerator: shortcut('A')
+           )
+           action(id: 'runAction',
+               name: 'Run',
+               closure: this.&executeCode,
+               mnemonic: 'R',
+               keyStroke: shortcut('ENTER'),
+               accelerator: shortcut('R'),
+               smallIcon: imageIcon(resource:"icons/script_go.png", class:Console),
+               shortDescription: 'Execute Groovy Script'
+           )
+           action(id: 'largerFontAction',
+               name: 'Larger Font',
+               closure: this.&largerFont,
+               mnemonic: 'L',
+               accelerator: shortcut('shift L')
+           )
+           action(id: 'smallerFontAction',
+               name: 'Smaller Font',
+               closure: this.&smallerFont,
+               mnemonic: 'S',
+               accelerator: shortcut('shift S')
+           )
+           action(id: 'aboutAction',
+               name: 'About',
+               closure: this.&showAbout,
+               mnemonic: 'A'
+           )
+           action(id: 'interruptAction',
+               name: 'Interrupt',
+               closure: this.&confirmRunInterrupt
+           )
        }
 
        frame = swing.frame( title: "GraphicsPad", size: [1024,800],
-             locationRelativeTo: null ){
+             locationRelativeTo: null,
+             iconImage: swing.imageIcon(ICON_PATH).image,
+             defaultCloseOperation: WindowConstants.DO_NOTHING_ON_CLOSE ){
            menuBar {
-              menu(text: 'File', mnemonic: 'F') {
-                  menuItem(exitAction)
-              }
+               menu(text: 'File', mnemonic: 'F') {
+                   menuItem(newFileAction)
+                   menuItem(newWindowAction)
+                   menuItem(openAction)
+                   separator()
+                   menuItem(saveAction)
+                   menuItem(saveAsAction)
+                   menuItem(exportAction)
+                   separator()
+                   menuItem(printAction)
+                   separator()
+                   menuItem(exitAction)
+               }
 
-              menu(text: 'Edit', mnemonic: 'E') {
-                  menuItem(undoAction)
-                  menuItem(redoAction)
-                  separator()
-                  menuItem(cutAction)
-                  menuItem(copyAction)
-                  menuItem(pasteAction)
-                  separator()
-                  menuItem(selectAllAction)
-                  menuItem(clearAction)
-              }
+               menu(text: 'Edit', mnemonic: 'E') {
+                   menuItem(undoAction)
+                   menuItem(redoAction)
+                   separator()
+                   menuItem(cutAction)
+                   menuItem(copyAction)
+                   menuItem(pasteAction)
+                   separator()
+                   menuItem(findAction)
+                   menuItem(findNextAction)
+                   menuItem(findPreviousAction)
+                   menuItem(replaceAction)
+                   separator()
+                   menuItem(selectAllAction)
+               }
 
               menu(text: 'View', mnemonic: 'V') {
                  menuItem(largerFontAction)
                  menuItem(smallerFontAction)
-             }
+              }
 
              menu(text: 'Script', mnemonic: 'S') {
                  menuItem(runAction)
@@ -191,9 +319,48 @@ class GraphicsPad {
              }
           }
 
-          gridLayout( cols: 1, rows: 2 )
-          widget( buildViewPanel(swing) )
-          widget( buildCodePanel(swing) )
+          borderLayout()
+
+           toolBar(rollover:true, constraints:BL.NORTH) {
+               button(newFileAction, text:null)
+               button(openAction, text:null)
+               button(saveAction, text:null)
+               separator(orientation:SwingConstants.VERTICAL)
+               button(undoAction, text:null)
+               button(redoAction, text:null)
+               separator(orientation:SwingConstants.VERTICAL)
+               button(cutAction, text:null)
+               button(copyAction, text:null)
+               button(pasteAction, text:null)
+               separator(orientation:SwingConstants.VERTICAL)
+               button(findAction, text:null)
+               button(replaceAction, text:null)
+               separator(orientation:SwingConstants.VERTICAL)
+               button(runAction, text:null)
+           }
+
+          panel {
+             gridLayout( cols: 1, rows: 2 )
+             widget( buildViewPanel(swing) )
+             widget( buildCodePanel(swing) )
+          }
+
+          panel(id: 'statusPanel', constraints: BL.SOUTH) {
+              gridBagLayout()
+              separator(constraints:gbc(gridwidth:GridBagConstraints.REMAINDER, fill:GridBagConstraints.HORIZONTAL))
+              label('Welcome to Groovy GraphicsPad.',
+                  id: 'status',
+                  constraints:gbc(weightx:1.0,
+                      anchor:GridBagConstraints.WEST,
+                      fill:GridBagConstraints.HORIZONTAL,
+                      insets: [1,3,1,3])
+              )
+              separator(orientation:SwingConstants.VERTICAL, constraints:gbc(fill:GridBagConstraints.VERTICAL))
+              label('1:1',
+                  id: 'rowNumAndColNum',
+                  constraints:gbc(insets: [1,3,1,3])
+              )
+          }
        }
 
        frame.windowClosing = this.&exit
@@ -210,6 +377,9 @@ class GraphicsPad {
              )
           }
        }
+
+       inputEditor.textEditor.addCaretListener(this)
+       rootElement = inputEditor.textEditor.document.defaultRootElement
     }
 
     private def buildViewPanel( swing ){
@@ -239,14 +409,79 @@ class GraphicsPad {
            }
         }
 
+        inputEditor.textEditor.document.addDocumentListener({ setDirty(true) } as DocumentListener)
+
         return sourcePanel
      }
 
     // ---------- ACTIONS -----------
 
     void exit(EventObject evt = null) {
-        frame.hide()
-        frame.dispose()
+        if (askToSaveFile()) {
+            frame.hide()
+            frame.dispose()
+            FindReplaceUtility.dispose()
+        }
+    }
+
+    void fileNewFile(EventObject evt = null) {
+        if (askToSaveFile()) {
+            scriptFile = null
+            setDirty(false)
+            inputEditor.textEditor.text = ''
+        }
+    }
+
+    void fileNewWindow(EventObject evt = null) {
+       SwingUtilities.invokeLater {
+          def app = new GraphicsPad()
+          app.run()
+       }
+    }
+
+    void fileOpen(EventObject evt = null) {
+        scriptFile = selectFilename()
+        if (scriptFile != null) {
+            inputEditor.textEditor.text = scriptFile.readLines().join('\n')
+            setDirty(false)
+            inputEditor.textEditor.caretPosition = 0
+        }
+    }
+
+    // Save file - return false if user cancelled save
+    boolean fileSave(EventObject evt = null) {
+        if (scriptFile == null) {
+            return fileSaveAs(evt)
+        } else {
+            scriptFile.write(inputEditor.textEditor.text)
+            setDirty(false)
+            return true
+        }
+    }
+
+    boolean fileSaveAs(EventObject evt = null) {
+        scriptFile = selectFilename("Save")
+        if (scriptFile != null) {
+            scriptFile.write(inputEditor.textEditor.text)
+            setDirty(false)
+            return true
+        } else {
+            return false
+        }
+    }
+
+    boolean fileExport(EventObject evt = null) {
+        scriptFile = selectFilename("Export")
+        if (scriptFile != null) {
+            def binding = [source:inputEditor.textEditor.text, title: scriptFile.name - ".groovy"]
+            def template = templateEngine.createTemplate(export_script_source).make(binding)
+            def script = template.toString()
+            scriptFile.write(script)
+            setDirty(false)
+            return true
+        } else {
+            return false
+        }
     }
 
     void largerFont(EventObject evt = null) {
@@ -261,12 +496,58 @@ class GraphicsPad {
        inputEditor.textEditor.font = newFont
     }
 
+    def selectFilename(name = "Open") {
+        def fc = new JFileChooser(currentFileChooserDir)
+        fc.fileSelectionMode = JFileChooser.FILES_ONLY
+        fc.acceptAllFileFilterUsed = true
+        if (fc.showDialog(frame, name) == JFileChooser.APPROVE_OPTION) {
+            currentFileChooserDir = fc.currentDirectory
+            Preferences.userNodeForPackage(GraphicsPad).put('currentFileChooserDir', currentFileChooserDir.path)
+            return fc.selectedFile
+        } else {
+            return null
+        }
+    }
+
+    void setDirty(boolean newDirty) {
+        dirty = newDirty
+        updateTitle()
+    }
+
     void showAbout(EventObject evt = null) {
        def pane = swing.optionPane()
         // work around GROOVY-1048
        pane.setMessage('Welcome to the Groovy GraphicsPad')
        def dialog = pane.createDialog(frame, 'About GraphicsPad')
        dialog.show()
+    }
+
+    void find(EventObject evt = null) {
+        FindReplaceUtility.showDialog()
+    }
+
+    void findNext(EventObject evt = null) {
+        FindReplaceUtility.FIND_ACTION.actionPerformed(evt)
+    }
+
+    void findPrevious(EventObject evt = null) {
+        def reverseEvt = new ActionEvent(
+            evt.getSource(), evt.getID(),
+            evt.getActionCommand(), evt.getWhen(),
+            ActionEvent.SHIFT_MASK) //reverse
+        FindReplaceUtility.FIND_ACTION.actionPerformed(reverseEvt)
+    }
+
+    void replace(EventObject evt = null) {
+        FindReplaceUtility.showDialog(true)
+    }
+
+    void updateTitle() {
+        if (scriptFile != null) {
+            frame.title = scriptFile.name + (dirty?" * ":"") + " - GraphicsPad"
+        } else {
+            frame.title = "GraphicsPad"
+        }
     }
 
     void invokeTextAction(evt, closure) {
@@ -292,37 +573,20 @@ class GraphicsPad {
        invokeTextAction(evt, { source -> source.selectAll() })
     }
 
-    // Confirm whether to interrupt the running thread
-    void confirmRunInterrupt(EventObject evt) {
-        def rc = JOptionPane.showConfirmDialog(frame, "Attempt to interrupt script?",
-            "GraphicsPad", JOptionPane.YES_NO_OPTION)
-        if (rc == JOptionPane.YES_OPTION && runThread != null) {
-            runThread.interrupt()
-        }
-    }
-
     void executeCode( EventObject evt = null ){
         if( !inputEditor.textEditor.text.trim() ){
            displayError( "Please type some code" )
         }else{
+           swing.status.text = 'Running Script...'
            runThread = Thread.start {
               try {
                   SwingUtilities.invokeLater { showRunWaitDialog() }
                   swing.error.text = ""
                   swing.view.removeAll()
-                  def script = """
-                        import java.awt.*
-                        import java.awt.geom.*
-                        import javax.swing.*
-                        import org.jdesktop.swingx.geom.*
-                        import groovy.swing.j2d.operations.*
-                        import groovy.swing.SwingBuilder
-
-                        go = {
-                           ${inputEditor.textEditor.text}
-                        }"""
-                   def go = graphicsBuilder.build( !codeBase ? gsh.evaluate(script) :
-                      gsh.evaluate(script,"RestrictedScript",codeBase) )
+                  def binding = [source:inputEditor.textEditor.text]
+                  def template = templateEngine.createTemplate(simple_script_source).make(binding)
+                  def script = template.toString()
+                  def go = graphicsBuilder.build( gsh.evaluate(script) )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
                   }
@@ -340,6 +604,7 @@ class GraphicsPad {
     }
 
     def finishException(Throwable t) {
+       swing.status.text = 'Execution terminated with exception.'
        t.printStackTrace()
        displayError( t.localizedMessage )
     }
@@ -348,6 +613,7 @@ class GraphicsPad {
        if( go instanceof GraphicsOperation ){
           swing.view.@graphicsOperation = null
           swing.view.graphicsOperation = go
+          swing.status.text = 'Execution complete.'
        }
     }
 
@@ -367,5 +633,44 @@ class GraphicsPad {
     private def displayError = { text ->
        swing.error.text = text
        swing.error.caretPosition = 0
+    }
+
+    //-----------------
+
+    // Return false if use elected to cancel
+    boolean askToSaveFile() {
+        if (scriptFile == null || !dirty) {
+            return true
+        }
+        switch (JOptionPane.showConfirmDialog(frame,
+            "Save changes to " + scriptFile.name + "?",
+            "GraphicsPad", JOptionPane.YES_NO_CANCEL_OPTION))
+        {
+            case JOptionPane.YES_OPTION:
+                return fileSave()
+            case JOptionPane.NO_OPTION:
+                return true
+            default:
+                return false
+        }
+    }
+
+    // Confirm whether to interrupt the running thread
+    void confirmRunInterrupt(EventObject evt) {
+        def rc = JOptionPane.showConfirmDialog(frame, "Attempt to interrupt script?",
+            "GraphicsPad", JOptionPane.YES_NO_OPTION)
+        if (rc == JOptionPane.YES_OPTION && runThread != null) {
+            runThread.interrupt()
+        }
+    }
+
+    void caretUpdate(CaretEvent e){
+        cursorPos = inputEditor.textEditor.getCaretPosition()
+        rowNum = rootElement.getElementIndex(cursorPos) + 1
+
+        def rowElement = rootElement.getElement(rowNum - 1)
+        colNum = cursorPos - rowElement.getStartOffset() + 1
+
+        swing.rowNumAndColNum.setText("$rowNum:$colNum")
     }
 }

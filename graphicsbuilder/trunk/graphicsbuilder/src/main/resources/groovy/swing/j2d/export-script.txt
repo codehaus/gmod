@@ -1,0 +1,19 @@
+import java.awt.*
+import java.awt.geom.*
+import javax.swing.*
+//import org.jdesktop.swingx.geom.*
+import groovy.swing.SwingBuilder
+import groovy.swing.j2d.*
+
+def gb = new GraphicsBuilder()
+def graphicsOperation = gb.build {
+   ${source}
+}
+
+def swing = SwingBuilder.build {
+   frame( id: 'frame', title: '${title}', size: [600,480], locationRelativeTo: null ){
+      panel( new GraphicsPanel(), graphicsOperation: graphicsOperation )
+   }
+}
+
+swing.doLater { frame.visible = true }
