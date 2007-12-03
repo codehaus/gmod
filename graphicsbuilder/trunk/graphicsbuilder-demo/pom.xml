@@ -70,6 +70,7 @@
          <artifactId>jidebuilder</artifactId>
          <version>1.0-SNAPSHOT</version>
       </dependency>
+      <!--
       <dependency>
          <groupId>org.jdesktop</groupId>
          <artifactId>swingx</artifactId>
@@ -85,6 +86,7 @@
          <artifactId>batik-awt-util</artifactId>
          <version>1.6-1</version>
       </dependency>
+      -->
    </dependencies>
 
    <build>

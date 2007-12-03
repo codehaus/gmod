@@ -6,6 +6,18 @@ import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
 
 def gb = new GraphicsBuilder()
+def helpers = ["Jdk6GraphicsBuilderHelper",
+               "SwingXGraphicsBuilderHelper",
+               "BatikGraphicsBuilderHelper"]
+helpers.each { helper ->
+   try{
+      Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
+      helperClass.registerOperations( gb )
+   }catch( Exception e ){
+      System.err.println("Couldn't register ${helper}")
+   }
+}
+
 def graphicsOperation = gb.build {
    ${source}
 }

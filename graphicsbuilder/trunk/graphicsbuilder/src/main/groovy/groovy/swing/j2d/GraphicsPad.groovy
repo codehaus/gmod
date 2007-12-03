@@ -94,9 +94,9 @@ class GraphicsPad implements CaretListener {
        helpers.each { helper ->
            try{
               Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
-              helperClass."registerOperations"( graphicsBuilder )
+              helperClass.registerOperations( graphicsBuilder )
            }catch( Exception e ){
-               System.err.println("Couldn't register ${helper}")
+              System.err.println("Couldn't register ${helper}")
            }
        }
     }
