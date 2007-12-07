@@ -13,25 +13,11 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
-
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+package groovy.swing.j2d
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ColorGraphicsOperation extends AbstractGraphicsOperation {
-    def color
-
-    static supportsFill = true
-
-    ColorGraphicsOperation() {
-        super( "color", ["color"] as String[] )
-    }
-
-    protected void doExecute( GraphicsContext context ){
-        if( !color ) return;
-        context.g.setColor( color )
-    }
+public interface GraphicsErrorListener {
+    void errorOccurred( GraphicsErrorEvent event )
 }

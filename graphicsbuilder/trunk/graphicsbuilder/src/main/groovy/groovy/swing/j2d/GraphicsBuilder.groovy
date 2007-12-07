@@ -15,8 +15,6 @@
 
 package groovy.swing.j2d
 
-import groovy.util.FactoryBuilderSupport
-
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Paint
@@ -36,45 +34,13 @@ import groovy.swing.SwingBuilder
  */
 class GraphicsBuilder extends FactoryBuilderSupport {
     private boolean building = false
-    private List operations
     private GroovyShell shell
 
     public GraphicsBuilder() {
         registerOperations()
     }
 
-    public List getOperations() {
-        return operations;
-    }
-
-    public GraphicsOperation build( Closure closure ) {
-        if( building ){
-            throw new IllegalStateException( "Can't nest build() calls" )
-        }
-        building = true
-        operations = []
-        closure.setDelegate( this )
-        GraphicsOperation go = null
-        try {
-            closure.call()
-            go = new BuiltGraphicsOperation( operations, variables )
-            go.verify()
-        }finally {
-            operations = []
-            variables.clear()
-            building = false
-        }
-        return go
-    }
-
     /*
-    public def gc( Closure closure ) {
-        def go = new GraphicsContextGraphicsOperation( closure:closure )
-        operations.add( go )
-        return go
-    }
-    */
-
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
         builder.addAttributeDelegate({ fbs, node, attrs ->
             fbs.context.x = attrs.remove("x")
@@ -91,21 +57,22 @@ class GraphicsBuilder extends FactoryBuilderSupport {
 
         def proxyBuilderRef = getProxyBuilder()
         setProxyBuilder( builder )
-        def container = null
+        def go = null
         try {
-            container = builder.panel( closure )
-            def go = new SwingGraphicsOperation( container )
-            def parent = getCurrent()
-            if( parent instanceof GroupingGraphicsOperation || parent instanceof ContextualGraphicsOperation ){
-                parent.addOperation( go )
-            }else{
-                operations.add( go )
-            }
+            def container = builder.panel( closure )
+            go = new SwingGraphicsOperation( container )
         } finally {
             setProxyBuilder( proxyBuilderRef )
         }
-        return container
+
+        def parent = getCurrent()
+        if( parent != null ){
+           setParent( parent, go )
+        }
+        nodeCompleted( parent, go )
+        return postNodeCompletion( parent, go )
     }
+    */
 
     private registerGraphicsOperationBeanFactory( String name, Class beanClass ){
         registerFactory( name, new GraphicsOperationBeanFactory(beanClass,false) )
@@ -123,28 +90,29 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            }
         })
 
+        registerGraphicsOperationBeanFactory( "draw", DrawGraphicsOperation )
+        registerFactory( "font", new FontFactory() )
+        registerGraphicsOperationBeanFactory( "group", GroupGraphicsOperation )
+        registerFactory( "operation", new OperationFactory() )
+        registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
+
+        //
+        // shapes
+        //
         registerGraphicsOperationBeanFactory( "arc", ArcGraphicsOperation )
         registerGraphicsOperationBeanFactory( "circle", CircleGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
-        registerFactory( "color", new ColorFactory() )
-        registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "draw", DrawGraphicsOperation )
         registerGraphicsOperationBeanFactory( "ellipse", EllipseGraphicsOperation )
-        registerFactory( "font", new FontFactory() )
-        registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
-        registerGraphicsOperationBeanFactory( "group", GroupingGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "image", ImageGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation )
-        registerFactory( "operation", new OperationFactory() )
-        registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "polygon", PolygonGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "rect", RectGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
+
+        //
+        // outlines
+        //
+        registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation )
         registerGraphicsOperationBeanFactory( "polyline", PolylineGraphicsOperation )
         registerGraphicsOperationBeanFactory( "quadCurve", QuadCurveGraphicsOperation )
-        registerFactory( "rect", new RectFactory() )
-        registerFactory( "stroke", new StrokeFactory() )
-        registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
-        registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
 
         //
         // area operations
@@ -157,11 +125,20 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         //
         // transformations
         //
-        registerGraphicsOperationBeanFactory( "transformations", TransformationsGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "rotate", RotateGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "scale", ScaleGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "skew", SkewGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "translate", TranslateGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "transformations", TransformationGroup )
+        registerGraphicsOperationBeanFactory( "rotate", RotateTransformation, false )
+        registerGraphicsOperationBeanFactory( "scale", ScaleTransformation, false )
+        registerGraphicsOperationBeanFactory( "skew", SkewTransformation, false )
+        registerGraphicsOperationBeanFactory( "translate", TranslateTransformation, false )
+
+        /*
+        registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
+        registerFactory( "color", new ColorFactory() )
+        registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
+        registerGraphicsOperationBeanFactory( "image", ImageGraphicsOperation )
+        registerFactory( "paint", new PaintFactory() )
+        registerFactory( "stroke", new StrokeFactory() )
+        registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
 
         //
         // binding
@@ -169,5 +146,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "bind", new BindFactory() )
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
         registerFactory( "model", new ModelFactory() )
+        */
     }
 }

@@ -13,25 +13,17 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d;
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import java.util.List;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class PaintGraphicsOperation extends AbstractGraphicsOperation {
-    def paint
+public interface Transformable extends GraphicsOperation {
+   void addTransformation( Transformation transformation );
 
-    static supportsFill = true
+   List getTransformations();
 
-    PaintGraphicsOperation() {
-        super( "paint", ["paint"] as String[] )
-    }
-
-    protected void doExecute( GraphicsContext context ){
-        if( !paint ) return;
-        context.g.setPaint( paint )
-    }
+   void removeTransformation( Transformation transformation );
 }

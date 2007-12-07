@@ -15,9 +15,6 @@
 
 package groovy.swing.j2d.factory;
 
-import groovy.swing.j2d.GraphicsOperation
-import groovy.util.FactoryBuilderSupport
-
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -35,11 +32,6 @@ class GraphicsOperationBeanFactory extends AbstractGraphicsOperationFactory {
      }
 
      public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
-             Map properties ) throws InstantiationException, IllegalAccessException {
-        return wrap( newBean( builder, name, value, properties ) )
-     }
-
-     private GraphicsOperation newBean( FactoryBuilderSupport builder, Object name, Object value,
              Map properties ) throws InstantiationException, IllegalAccessException {
          if( FactoryBuilderSupport.checkValueIsTypeNotString( value, name, beanClass ) ){
              return value

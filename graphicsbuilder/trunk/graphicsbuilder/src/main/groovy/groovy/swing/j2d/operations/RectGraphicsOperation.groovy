@@ -16,28 +16,40 @@
 package groovy.swing.j2d.operations
 
 import java.awt.Shape
+import java.awt.geom.RoundRectangle2D
 import java.awt.geom.Rectangle2D
-
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
+public class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
+    protected static required = ['x','y','width','height']
+    protected static optional = super.optional + ['arcWidth','arcHeight']
+
     def x = 0
     def y = 0
     def width = 10
     def height = 10
-    RectGraphicsOperation() {
-        super( "rect", ["x", "y", "width", "height"] as String[] )
+    def arcWidth
+    def arcHeight
+
+    public RectGraphicsOperation() {
+        super( "rect" )
     }
 
-    protected Shape computeShape( GraphicsContext context ) {
-        double x = getParameterValue( "x" )
-        double y = getParameterValue( "y" )
-        double width = getParameterValue( "width" )
-        double height = getParameterValue( "height" )
-        return new Rectangle2D.Double( x, y, width, height )
+    public Shape getShape( GraphicsContext context ) {
+        if( arcWidth && arcHeight ){
+           return new RoundRectangle2D.Double( x as double,
+                                               y as double,
+                                               width as double,
+                                               height as double,
+                                               arcWidth as double,
+                                               arcHeight as double )
+        }
+        return new Rectangle2D.Double( x as double,
+                                       y as double,
+                                       width as double,
+                                       height as double )
     }
 }

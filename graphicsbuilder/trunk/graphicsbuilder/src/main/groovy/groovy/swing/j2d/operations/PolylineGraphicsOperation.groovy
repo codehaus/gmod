@@ -15,62 +15,86 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
-
 import java.awt.Shape
+import java.awt.geom.GeneralPath
+import java.beans.PropertyChangeEvent
+import groovy.swing.j2d.GraphicsContext
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class PolylineGraphicsOperation extends AbstractGraphicsOperation {
-    List points
+public class PolylineGraphicsOperation extends AbstractOutlineGraphicsOperation {
+    protected static required = ['points']
 
-    static strokable = true
-    static contextual = true
-    static hasShape = true
+    private GeneralPath path
 
-    PolylineGraphicsOperation() {
-        super( "polyline", ["points"] as String[] )
+    def points
+
+    public PolylineGraphicsOperation() {
+        super( "polyline" )
     }
 
-    protected void doExecute( GraphicsContext context ){
-        List points = getParameterValue( "points" )
-        if( points.size() == 0 ){
-            return null
-        }
+    public Shape getOutline( GraphicsContext context) {
+       if( path == null ){
+          calculatePath()
+       }
+       path
+    }
 
-        if( points.size() % 2 == 1 ){
-            throw new IllegalStateException( "Odd number of points" )
-        }
+    public void propertyChange( PropertyChangeEvent event ) {
+       if( required.contains(event.propertyName) ){
+          path = null
+       }
+    }
 
-        int npoints = points.size() / 2
-        int[] xpoints = new int[npoints]
-        int[] ypoints = new int[npoints]
-        npoints.times { i ->
-            Object ox = points.get( 2 * i )
-            Object oy = points.get( (2 * i) + 1 )
-            xpoints[i] = convertToInteger( ox, 2 * 1 )
-            ypoints[i] = convertToInteger( oy, (2 * i) + 1 )
-        }
-        context.g.drawPolyline( xpoints, ypoints, npoints )
+    private void calculatePath() {
+       if( points.size() == 0 ){
+           // TODO throw exception
+           return null
+       }
+
+       if( points.size() % 2 == 1 ){
+           throw new IllegalStateException( "Odd number of points" )
+       }
+
+       int npoints = points.size() / 2
+       if( npoints < 2 ){
+           // TODO throw exception
+           return null
+       }
+
+       path = new GeneralPath()
+       npoints.times { i ->
+           Object ox = points.get( 2 * i )
+           Object oy = points.get( (2 * i) + 1 )
+           def x = convertToInteger( ox, 2 * 1 )
+           def y = convertToInteger( oy, (2 * i) + 1 )
+           switch( i ){
+              case 0:
+                 path.moveTo( x, y )
+                 break;
+              default:
+                 path.lineTo( x, y )
+                 break;
+           }
+       }
     }
 
     private int convertToInteger( Object o, int index ) {
-        int p = 0
-        if( o == null ){
-            throw new IllegalStateException( ((index % 2 == 0) ? "x" : "y") + "[" + index
-                    + "] is null" )
-        }
-        if( o instanceof Closure ){
-            o = o.call()
-        }
-        if( o instanceof Number ){
-            p = o
-        }else{
-            throw new IllegalStateException( ((index % 2 == 0) ? "x" : "y") + "[" + index
-                    + "] is not a number" )
-        }
-        return p
+       int p = 0
+       if( o == null ){
+           throw new IllegalStateException( ((index % 2 == 0) ? "x" : "y") + "[" + index
+                   + "] is null" )
+       }
+       if( o instanceof Closure ){
+           o = o.call()
+       }
+       if( o instanceof Number ){
+           p = o
+       }else{
+           throw new IllegalStateException( ((index % 2 == 0) ? "x" : "y") + "[" + index
+                   + "] is not a number" )
+       }
+       return p
     }
 }

@@ -16,7 +16,6 @@
 package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.operations.FontGraphicsOperation
-import groovy.util.FactoryBuilderSupport
 
 import java.awt.Font
 

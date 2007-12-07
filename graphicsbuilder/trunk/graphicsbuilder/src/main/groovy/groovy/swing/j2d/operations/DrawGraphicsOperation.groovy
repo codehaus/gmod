@@ -16,57 +16,37 @@
 package groovy.swing.j2d.operations
 
 import java.awt.Shape
-
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.OutlineProvider
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class DrawGraphicsOperation extends AbstractGraphicsOperation {
-    def shape
+public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
+    protected static required = ['target']
+    protected static optional = super.optional - ['asShape']
 
-    static fillable = true
-    static contextual = true
-    static hasShape = true
+    def target
 
-    DrawGraphicsOperation() {
-        super( "draw", ["shape"] as String[] )
+    public DrawGraphicsOperation() {
+        super( "draw" )
     }
 
-    public Shape getClip( GraphicsContext context ){
-        if( parameterHasValue("shape") ){
-            def shape = getParameterValue("shape")
-            if( shape instanceof GraphicsOperation && shape.parameterHasValue("hasShape") /*&&
-                    shape.getParameterValue("asShape")*/ ){
-                return shape.getClip(context)
-            }else{
-                return shape
-            }
+    public Shape getShape( GraphicsContext context) {
+        if( target instanceof ShapeProvider ){
+           return target.getShape(context)
+        }else if( target instanceof OutlineProvider ){
+           return target.getOutline(context)
+        }else if( target instanceof Shape ){
+           return target
+        }else{
+           throw new IllegalArgumentException("draw.target must be one of [java.awt.Shape,OutlineProvider,ShapeProvider]")
         }
-        return null
     }
 
-    protected void doExecute( GraphicsContext context ){
-        if( !shape ) return;
-        /*
-        if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
-                shape.getParameterValue("asShape") ){
-           context.g.draw( shape.getClip(context) )
-        }else{
-           context.g.draw( shape )
-        }
-        */
-
-        if( shape instanceof GraphicsOperation ){
-           if( shape.parameterHasValue("asShape") && !shape.getParameterValue("asShape") ){
-              context.g.draw( shape.getClip(context) )
-           }else{
-               // draw nothing
-           }
-        }else{
-           context.g.draw( shape )
-        }
+    protected void fill( GraphicsContext context ) {
+        if( target instanceof OutlineProvider ) return
+        super.fill( context )
     }
 }

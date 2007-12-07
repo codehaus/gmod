@@ -13,28 +13,24 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
+package groovy.swing.j2d.operations
 
-import java.util.EventObject;
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GraphicsInputEvent extends EventObject {
-    private EventObject event;
-    private GraphicsOperation sourceShape;
+public class ScaleTransformation extends AbstractTransformation {
+    protected static required = ['x','y']
 
-    public GraphicsInputEvent( Object source, EventObject event, GraphicsOperation sourceShape ) {
-        super( source );
-        this.event = event;
-        this.sourceShape = sourceShape;
+    def x = 0
+    def y = 0
+
+    public ScaleTransformation() {
+        super( "scale" )
     }
 
-    public EventObject getEvent() {
-        return event;
-    }
-
-    public GraphicsOperation getSourceShape() {
-        return sourceShape;
+    public AffineTransform getTransform() {
+       AffineTransform.getScaleInstance( x as double, y as double )
     }
 }

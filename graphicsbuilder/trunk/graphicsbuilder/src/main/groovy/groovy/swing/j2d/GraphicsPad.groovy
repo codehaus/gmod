@@ -88,6 +88,7 @@ class GraphicsPad implements CaretListener {
 
     private void setupGraphicsBuilder(){
        graphicsBuilder = new GraphicsBuilder()
+       /*
        def helpers = ["Jdk6GraphicsBuilderHelper",
                       "SwingXGraphicsBuilderHelper",
                       "BatikGraphicsBuilderHelper"]
@@ -99,6 +100,7 @@ class GraphicsPad implements CaretListener {
               System.err.println("Couldn't register ${helper}")
            }
        }
+       */
     }
 
     private void buildUI(){
@@ -580,13 +582,15 @@ class GraphicsPad implements CaretListener {
            swing.status.text = 'Running Script...'
            runThread = Thread.start {
               try {
-                  SwingUtilities.invokeLater { showRunWaitDialog() }
-                  swing.error.text = ""
-                  swing.view.removeAll()
+                  SwingUtilities.invokeLater { 
+                     showRunWaitDialog() 
+                     swing.error.text = ""
+                     swing.view.removeAll()
+                  }
                   def binding = [source:inputEditor.textEditor.text]
                   def template = templateEngine.createTemplate(simple_script_source).make(binding)
                   def script = template.toString()
-                  def go = graphicsBuilder.build( gsh.evaluate(script) )
+                  def go = graphicsBuilder.group( gsh.evaluate(script) )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
                   }

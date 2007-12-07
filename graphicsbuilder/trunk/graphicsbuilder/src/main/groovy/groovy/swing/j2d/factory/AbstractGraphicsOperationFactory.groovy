@@ -15,78 +15,16 @@
 
 package groovy.swing.j2d.factory
 
+import groovy.swing.j2d.Grouping
+import groovy.swing.j2d.Transformable
+import groovy.swing.j2d.Transformation
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.ContextualGraphicsOperation
-import groovy.swing.j2d.impl.DelegatingGraphicsOperation
-import groovy.swing.j2d.impl.GroupingGraphicsOperation
-import groovy.swing.j2d.impl.PaintSupportGraphicsOperation
-import groovy.swing.j2d.impl.ShapeProviderGraphicsOperation
-import groovy.swing.j2d.impl.StrokingGraphicsOperation
-import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
-import groovy.swing.j2d.impl.TransformationsGraphicsOperation
-import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
-import groovy.util.AbstractFactory
-import groovy.util.FactoryBuilderSupport
-import org.codehaus.groovy.binding.FullBinding
-import org.codehaus.groovy.binding.PropertyBinding
+import groovy.swing.j2d.impl.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
-     public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node,
-             Map attributes ) {
-         attributes.each { property, value ->
-             if (value instanceof FullBinding) {
-                 FullBinding fb = (FullBinding) value;
-                 PropertyBinding ptb = new PropertyBinding(node, property);
-                 fb.setTargetBinding(ptb);
-                 fb.bind();
-                 try {
-                     fb.update();
-                 } catch (Exception e) {
-                     // just eat it?
-                 }
-             } else {
-                 node.setProperty( property, value )
-             }
-         }
-         return false
-     }
-
-    public void onNodeCompleted( FactoryBuilderSupport builder, Object parent, Object node ) {
-        if( parent && safePropertyGet(parent, "fillable") && safePropertyGet(node, "supportsFill") ){
-           if( parent.fill instanceof Boolean && !parent.fill ){
-		       // do not override fill
-           }else if( node instanceof PaintSupportGraphicsOperation){
-               parent.fill = node
-           }else{
-               parent.fill = true
-           }
-        }
-
-        if( parent instanceof TransformationsGraphicsOperation &&
-            node instanceof TransformSupportGraphicsOperation ){
-            parent.addOperation( node )
-        }else if( safePropertyGet(parent, "contextual") ){
-            if( node instanceof TransformationsGraphicsOperation ){
-                parent.transformations = node
-            }else{
-                parent.addOperation( node )
-            }
-        }else if( parent instanceof GroupingGraphicsOperation &&
-                  node instanceof TransformationsGraphicsOperation ){
-            parent.transformations = node
-        }else if( parent instanceof GroupingGraphicsOperation ){
-            parent.addOperation( node )
-        }else{
-            List operations = builder.getOperations()
-            if( operations != null && node instanceof GraphicsOperation ){
-                operations.add( node )
-            }
-        }
-    }
-
     protected boolean safePropertyGet( Object bean, String name ){
         try{
             return bean?."${name}"
@@ -96,23 +34,26 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
         return null
     }
 
-    protected GraphicsOperation wrap( GraphicsOperation go ){
-        if( go instanceof DelegatingGraphicsOperation ){
-           // assume that the operation is ok
-           // TODO recheck this assumption
-           return go
-        }
-        if( safePropertyGet(go, "hasShape") ){
-            go = new ShapeProviderGraphicsOperation( go )
-        }
-        if( safePropertyGet(go, "fillable") ){
-            go = new StrokingAndFillingGraphicsOperation( go )
-        }else if( safePropertyGet(go, "strokable") ){
-            go = new StrokingGraphicsOperation( go )
-        }
-        if( safePropertyGet(go, "contextual") ){
-            go = new ContextualGraphicsOperation( go )
-        }
-        return go
-    }
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       if( child instanceof Transformation ){
+          if( parent instanceof TransformationGroup ){
+             parent.transformable.addTransformation(child)
+             return
+          }else{
+             throw new IllegalArgumentException("Transforms are not allowed outside a 'transformations' node")
+          }
+       }
+       if( child instanceof TransformationGroup ){
+          if( parent instanceof Transformable ){
+             child.transformable = parent
+             return
+          }else{
+             throw new IllegalArgumentException("$parent does not support transformations")
+          }
+       }
+       if( parent instanceof Grouping ){
+          parent.addOperation( child )
+          return
+       }
+   }
 }

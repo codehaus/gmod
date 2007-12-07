@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d;
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
-import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class SkewGraphicsOperation extends AbstractGraphicsOperation implements
-   TransformSupportGraphicsOperation {
-    def x = 0
-    def y = 0
-
-    SkewGraphicsOperation() {
-        super( "scale", ["x","y"] as String[] )
-    }
-
-    protected void doExecute( GraphicsContext context ){
-        context.g.shear( x, y )
-    }
+public interface Transformation {
+   AffineTransform getTransform();
 }

@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
+package groovy.swing.j2d
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.EventObject
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class BuiltGraphicsOperation extends GroupingGraphicsOperation {
-    private Map variables = new HashMap();
+public class GraphicsInputEvent extends EventObject {
+    private EventObject event
+    private GraphicsOperation sourceShape
 
-    public BuiltGraphicsOperation( List operations, Map variables ) {
-        super( operations );
-        this.variables.putAll( variables );
+    public GraphicsInputEvent( Object source, EventObject event, GraphicsOperation sourceShape ) {
+        super( source )
+        this.event = event
+        this.sourceShape = sourceShape
     }
 
-    public Object getProperty( String name ) {
-        Object operation = variables.get( name );
-        if( operation == null ){
-            return super.getProperty( name );
-        }
-        return operation;
+    public EventObject getEvent() {
+        return event
+    }
+
+    public GraphicsOperation getSourceShape() {
+        return sourceShape
     }
 }

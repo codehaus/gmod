@@ -1,5 +1,6 @@
 #!/bin/sh
 
+GROOVY_APP_NAME=GraphicsPad
 DIRNAME=`dirname "$0"`
 . "$DIRNAME/startGroovy"
 

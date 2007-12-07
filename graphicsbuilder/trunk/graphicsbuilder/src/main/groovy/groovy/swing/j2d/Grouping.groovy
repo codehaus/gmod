@@ -15,29 +15,15 @@
 
 package groovy.swing.j2d;
 
+import java.util.List;
+
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface GraphicsInputListener {
-    void keyPressed( GraphicsInputEvent e );
+public interface Grouping extends GraphicsOperation {
+   void addOperation( GraphicsOperation go );
 
-    void keyReleased( GraphicsInputEvent e );
+   void removeOperation( GraphicsOperation go );
 
-    void keyTyped( GraphicsInputEvent e );
-
-    void mouseClicked( GraphicsInputEvent e );
-
-    void mouseDragged( GraphicsInputEvent e );
-
-    void mouseEntered( GraphicsInputEvent e );
-
-    void mouseExited( GraphicsInputEvent e );
-
-    void mouseMoved( GraphicsInputEvent e );
-
-    void mousePressed( GraphicsInputEvent e );
-
-    void mouseReleased( GraphicsInputEvent e );
-
-    void mouseWheelMoved( GraphicsInputEvent e );
+   List getOperations();
 }

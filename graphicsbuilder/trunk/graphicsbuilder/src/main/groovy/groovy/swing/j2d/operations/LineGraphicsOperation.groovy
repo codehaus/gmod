@@ -15,30 +15,29 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
-
 import java.awt.Shape
 import java.awt.geom.Line2D
+import groovy.swing.j2d.GraphicsContext
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class LineGraphicsOperation extends AbstractOutlineGraphicsOperation {
-    def x1 = 0
-    def x2 = 10
-    def y1 = 0
-    def y2 = 0
+public class LineGraphicsOperation extends AbstractOutlineGraphicsOperation {
+    protected static required = ['x1','y1','x2','y2']
 
-    LineGraphicsOperation() {
-        super( "line", ["x1", "y1", "x2", "y2"] as String[] )
+    def x1 = 0
+    def y1 = 0
+    def x2 = 0
+    def y2 = 10
+
+    public LineGraphicsOperation() {
+        super( "line" )
     }
 
-    protected Shape computeShape( GraphicsContext context ) {
-        double x1 = getParameterValue( "x1" )
-        double x2 = getParameterValue( "x2" )
-        double y1 = getParameterValue( "y1" )
-        double y2 = getParameterValue( "y2" )
-        return new Line2D.Double( x1, y1, x2, y2 )
+    public Shape getOutline( GraphicsContext context ) {
+        return new Line2D.Double( x1 as double,
+                                  y1 as double,
+                                  x2 as double,
+                                  y2 as double )
     }
 }

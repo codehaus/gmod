@@ -21,26 +21,43 @@ import java.awt.font.FontRenderContext
 import java.awt.font.TextLayout
 import java.awt.geom.AffineTransform
 import java.awt.geom.Rectangle2D
+import java.beans.PropertyChangeEvent
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
+public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
+    protected static required = ['text','x','y']
+
+    private Shape outline
+
     def text = "Groovy"
     def x = 0
     def y = 0
 
     TextGraphicsOperation() {
-        super( "text", ["text", "x", "y"] as String[] )
+        super( "text" )
     }
 
-    protected Shape computeShape( GraphicsContext context ){
+    public Shape getShape( GraphicsContext context ){
+        if( outline == null ){
+           calculateOutline(context)
+        }
+        outline
+    }
+
+    public void propertyChange( PropertyChangeEvent event ) {
+       if( required.contains(event.propertyName) ){
+          outline = null
+       }
+    }
+
+    private void calculateOutline( GraphicsContext context ) {
         FontRenderContext frc = context.g.getFontRenderContext()
         TextLayout layout = new TextLayout( text, context.g.font, frc )
         Rectangle2D bounds = layout.getBounds()
-        return layout.getOutline( AffineTransform.getTranslateInstance( x, y + bounds.height ) )
+        outline = layout.getOutline( AffineTransform.getTranslateInstance( x, y + bounds.height ) )
     }
 }

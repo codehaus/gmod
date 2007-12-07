@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
+package groovy.swing.j2d
 
-import java.util.EventObject;
+import java.awt.Shape
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GraphicsErrorEvent extends EventObject {
-    private static final long serialVersionUID = 7207511004157442719L;
-    private Throwable cause;
-
-    public GraphicsErrorEvent( Object source, Throwable cause ) {
-        super( source );
-        this.cause = cause;
-    }
-
-    public Throwable getCause() {
-        return cause;
-    }
+public interface ShapeProvider extends GraphicsOperation {
+   /**
+    * Returns the shape defined by this operation.
+    *
+    * @return a Shape instance.
+    */
+   Shape getShape( GraphicsContext context )
 }

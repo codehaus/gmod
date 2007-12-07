@@ -16,7 +16,6 @@
 package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.GraphicsOperation
-import groovy.util.FactoryBuilderSupport
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -24,14 +23,18 @@ import groovy.util.FactoryBuilderSupport
 class OperationFactory extends AbstractGraphicsOperationFactory {
     public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
             Map properties ) throws InstantiationException, IllegalAccessException {
-        if( FactoryBuilderSupport.checkValueIsType( value, name, GraphicsOperation.class ) ){
-            return wrap(value)
+        if( FactoryBuilderSupport.checkValueIsType( value, name, GraphicsOperation ) ){
+            return value
         }else if( properties.get( name ) instanceof GraphicsOperation ){
-            return wrap(properties.remove( name ))
+            return properties.remove( name )
         }else{
             throw new RuntimeException( "'${name}' must have a value argument of "
                     + "${GraphicsOperation.class.name} or a property named '${name}'"
                     + " of type ${GraphicsOperation.class.name}" )
         }
+    }
+
+    public boolean isLeaf() {
+       true
     }
 }

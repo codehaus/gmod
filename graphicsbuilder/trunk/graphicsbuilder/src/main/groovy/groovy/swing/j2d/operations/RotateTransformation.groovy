@@ -15,24 +15,30 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
-import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class RotateGraphicsOperation extends AbstractGraphicsOperation implements
-   TransformSupportGraphicsOperation {
-    def angle = 0
-    def cx = 0
-    def cy = 0
+public class RotateTransformation extends AbstractTransformation {
+    protected static required = ['angle']
+    protected static optional = ['x','y']
 
-    RotateGraphicsOperation() {
-        super( "rotate", ["angle","cx","cy"] as String[] )
+    def angle = 0
+    def x
+    def y
+
+    public RotateTransformation() {
+        super( "rotate" )
     }
 
-    protected void doExecute( GraphicsContext context ){
-        context.g.rotate( angle, cx, cy )
+    public AffineTransform getTransform() {
+       if( angle == 0 ) {
+          return new AffineTransform()
+       }else if( x != null && y != null ){
+          return AffineTransform.getRotateInstance( angle as double, x as double, y as double )
+       }else{
+          return AffineTransform.getRotateInstance( angle as double )
+       }
     }
 }

@@ -15,16 +15,16 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
-
 import java.awt.Shape
 import java.awt.geom.CubicCurve2D
+import groovy.swing.j2d.GraphicsContext
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CubicCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
+public class CubicCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
+    protected static required = ['x1','x2','y1','y2','ctrlx1','ctrly1','ctrlx2','ctrly2']
+
     def x1
     def x2
     def y1
@@ -34,20 +34,18 @@ class CubicCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
     def ctrlx2
     def ctrly2
 
-    CubicCurveGraphicsOperation() {
-        super( "cubicCurve", ["x1", "x2", "y1", "y2", "ctrlx1", "ctrlx2", "ctrly1",
-                "ctrly2" ] as String[] )
+    public CubicCurveGraphicsOperation() {
+        super( "cubicCurve" )
     }
 
-    protected Shape computeShape( GraphicsContext context ) {
-        double x1 = getParameterValue( "x1" )
-        double x2 = getParameterValue( "x2" )
-        double y1 = getParameterValue( "y1" )
-        double y2 = getParameterValue( "y2" )
-        double ctrlx1 = getParameterValue( "ctrlx1" )
-        double ctrlx2 = getParameterValue( "ctrlx2" )
-        double ctrly1 = getParameterValue( "ctrly1" )
-        double ctrly2 = getParameterValue( "ctrly2" )
-        return new CubicCurve2D.Double( x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2 )
+    public Shape getOutline( GraphicsContext context ) {
+       return new CubicCurve2D.Double( x1 as double,
+                                       y1 as double,
+                                       ctrlx1 as double,
+                                       ctrly1 as double,
+                                       ctrlx2 as double,
+                                       ctrly2 as double,
+                                       x2 as double,
+                                       y2 as double )
     }
 }

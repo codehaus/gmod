@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
-import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
-
-import java.awt.geom.AffineTransform
+import java.util.EventObject
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TranslateGraphicsOperation extends AbstractGraphicsOperation implements
-   TransformSupportGraphicsOperation {
-    def x = 0
-    def y = 0
+public class GraphicsErrorEvent extends EventObject {
+    private Throwable cause
 
-    TranslateGraphicsOperation() {
-        super( "translate", ["x","y"] as String[] )
+    public GraphicsErrorEvent( Object source, Throwable cause ) {
+        super( source )
+        this.cause = cause
     }
 
-    protected void doExecute( GraphicsContext context ){
-        context.g.transform( AffineTransform.getTranslateInstance( x, y ) )
+    public Throwable getCause() {
+        return cause
     }
 }

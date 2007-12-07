@@ -13,20 +13,31 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
-
-import groovy.swing.j2d.GraphicsOperation;
-
-import java.awt.Paint;
-import java.awt.Rectangle;
+package groovy.swing.j2d
 
 /**
- * Marker interface for operations that work with Paint.
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface PaintSupportGraphicsOperation extends GraphicsOperation {
-    Paint adjustPaintToBounds( Rectangle bounds );
+public interface GraphicsInputListener {
+    void keyPressed( GraphicsInputEvent e )
 
-    Paint getPaint();
+    void keyReleased( GraphicsInputEvent e )
+
+    void keyTyped( GraphicsInputEvent e )
+
+    void mouseClicked( GraphicsInputEvent e )
+
+    void mouseDragged( GraphicsInputEvent e )
+
+    void mouseEntered( GraphicsInputEvent e )
+
+    void mouseExited( GraphicsInputEvent e )
+
+    void mouseMoved( GraphicsInputEvent e )
+
+    void mousePressed( GraphicsInputEvent e )
+
+    void mouseReleased( GraphicsInputEvent e )
+
+    void mouseWheelMoved( GraphicsInputEvent e )
 }

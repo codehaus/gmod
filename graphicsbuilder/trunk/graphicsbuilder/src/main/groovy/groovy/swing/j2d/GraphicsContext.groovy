@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
+package groovy.swing.j2d
 
-import groovy.swing.j2d.GraphicsOperation;
+import java.awt.Component
+import java.awt.Graphics2D
 
 /**
- * Marker interface for operations that perform an AffineTransform.
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface TransformSupportGraphicsOperation extends GraphicsOperation {
-
+public class GraphicsContext {
+   Graphics2D g
+   Component target
 }

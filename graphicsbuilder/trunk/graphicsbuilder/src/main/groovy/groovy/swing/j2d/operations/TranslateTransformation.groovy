@@ -15,31 +15,22 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Rectangle
-import java.awt.Shape
-
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class Rect3DGraphicsOperation extends AbstractShapeGraphicsOperation {
+public class TranslateTransformation extends AbstractTransformation {
+    protected static required = ['x','y']
+
     def x = 0
     def y = 0
-    def width = 10
-    def height = 10
-    def raised = true
 
-    Rect3DGraphicsOperation() {
-        super( "rect", ["x", "y", "width", "height", "raised"] as String[] )
+    public TranslateTransformation() {
+        super( "translate" )
     }
 
-    protected Shape computeShape( GraphicsContext context ) {
-        int x = getParameterValue( "x" )
-        int y = getParameterValue( "y" )
-        int width = getParameterValue( "width" )
-        int height = getParameterValue( "height" )
-        return new Rectangle( x, y, width, height )
+    public AffineTransform getTransform() {
+       AffineTransform.getTranslateInstance( x as double, y as double )
     }
 }

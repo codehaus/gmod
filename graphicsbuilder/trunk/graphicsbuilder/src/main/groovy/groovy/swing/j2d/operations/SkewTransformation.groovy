@@ -13,11 +13,24 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
+package groovy.swing.j2d.operations
+
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface GraphicsErrorListener {
-    void errorOccurred( GraphicsErrorEvent event );
+public class SkewTransformation extends AbstractTransformation {
+    protected static required = ['x','y']
+
+    def x = 0
+    def y = 0
+
+    public SkewTransformation() {
+        super( "skew" )
+    }
+
+    public AffineTransform getTransform() {
+       AffineTransform.getShearInstance( x as double, y as double )
+    }
 }

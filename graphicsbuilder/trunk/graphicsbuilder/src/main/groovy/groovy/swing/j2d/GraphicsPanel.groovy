@@ -16,6 +16,7 @@
 package groovy.swing.j2d
 
 import java.awt.Graphics
+import java.awt.LayoutManager
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.awt.event.MouseEvent
@@ -47,6 +48,10 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
          addMouseMotionListener( this )
          addMouseWheelListener( this )
          addKeyListener( this )
+     }
+
+     public void setLayout( LayoutManager mgr ){
+         // do not allow the layout to be changed
      }
 
      /**

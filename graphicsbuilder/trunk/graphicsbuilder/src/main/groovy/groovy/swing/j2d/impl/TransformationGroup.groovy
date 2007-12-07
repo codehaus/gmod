@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
-import groovy.swing.j2d.impl.TransformSupportGraphicsOperation
+import groovy.swing.j2d.Transformable
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ScaleGraphicsOperation extends AbstractGraphicsOperation implements
-   TransformSupportGraphicsOperation {
-    def x = 1
-    def y = 1
-
-    ScaleGraphicsOperation() {
-        super( "scale", ["x","y"] as String[] )
-    }
-
-    protected void doExecute( GraphicsContext context ){
-        context.g.scale( x, y )
-    }
+public class TransformationGroup {
+    Transformable transformable
 }

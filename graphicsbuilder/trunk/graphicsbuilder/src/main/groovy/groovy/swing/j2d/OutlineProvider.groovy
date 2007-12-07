@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import java.awt.Shape
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsContextGraphicsOperation extends AbstractGraphicsOperation {
-    def closure
-
-    GraphicsContextGraphicsOperation() {
-        super( "gc" )
-    }
-
-    protected void doExecute( GraphicsContext context ){
-        if( !closure ) return;
-        closure.delegate = context
-        closure.call()
-    }
+public interface OutlineProvider extends GraphicsOperation {
+   /**
+    * Returns the shape defined by this operation.
+    *
+    * @return a Shape instance.
+    */
+   Shape getOutline( GraphicsContext context )
 }

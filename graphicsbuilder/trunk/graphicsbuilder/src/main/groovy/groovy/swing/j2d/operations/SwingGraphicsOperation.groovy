@@ -19,7 +19,6 @@ import java.awt.Component
 import java.awt.Container
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -27,15 +26,13 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
 class SwingGraphicsOperation extends AbstractGraphicsOperation {
     private Container container
 
-    static contextual = true
-
     SwingGraphicsOperation( Container container ) {
-        super( "swing", [] as String[] )
+        super( "swingView" )
         this.container = container
     }
 
-    protected void doExecute( GraphicsContext context ){
-        if( !container ) return;
+    public void execute( GraphicsContext context ){
+        if( !container ) return
         // context.target is usally a GraphicsPanel instance
         Component[] components = container.components
         if( context.target instanceof Container ){

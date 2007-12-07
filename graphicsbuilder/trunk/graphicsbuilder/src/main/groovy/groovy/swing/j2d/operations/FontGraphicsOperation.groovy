@@ -16,22 +16,21 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class FontGraphicsOperation extends AbstractGraphicsOperation {
+    protected static required = ['font']
+
     def font
 
-    static supportsFill = true
-
     FontGraphicsOperation() {
-        super( "font", ["font"] as String[] )
+        super( "font" )
     }
 
-    protected void doExecute( GraphicsContext context ){
-        if( !font ) return;
+    public void execute( GraphicsContext context ){
+        if( !font ) return
         context.g.setFont( font )
     }
 }

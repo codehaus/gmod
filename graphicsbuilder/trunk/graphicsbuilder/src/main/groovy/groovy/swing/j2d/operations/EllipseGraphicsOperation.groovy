@@ -15,37 +15,29 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
-
 import java.awt.Shape
 import java.awt.geom.Ellipse2D
+import groovy.swing.j2d.GraphicsContext
 
 /**
- * Draws an Ellipse2D as a circle<br>
- * Parameters<ul>
- * <li>cx: (number)</li>
- * <li>cy: (number)</li>
- * <li>radiusx: (number)</li>
- * <li>radiusy: (number)</li>
- * </ul>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
+public class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
+    protected static required = ['cx','cy','radiusx','radiusy']
+
     def cx = 10
     def cy = 5
     def radiusx = 10
     def radiusy = 5
 
-    EllipseGraphicsOperation() {
-        super( "ellipse", ["cx", "cy", "radiusx","radiusy"] as String[] )
+    public EllipseGraphicsOperation() {
+        super( "ellipse" )
     }
 
-    protected Shape computeShape( GraphicsContext context ) {
-        int cx = getParameterValue( "cx" )
-        int cy = getParameterValue( "cy" )
-        int radiusx = getParameterValue( "radiusx" )
-        int radiusy = getParameterValue( "radiusy" )
-        return new Ellipse2D.Double( cx - radiusx, cy - radiusy, radiusx * 2, radiusy * 2 )
+    public Shape getShape( GraphicsContext context ) {
+       return new Ellipse2D.Double( (cx - radiusx) as double,
+                                    (cy - radiusy) as double,
+                                    (radiusx * 2) as double,
+                                    (radiusy * 2) as double )
     }
 }

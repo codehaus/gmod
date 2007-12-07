@@ -17,128 +17,54 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
-import groovy.swing.j2d.impl.ContextualGraphicsOperation
-import groovy.swing.j2d.impl.ShapeProviderGraphicsOperation
-import groovy.swing.j2d.impl.StrokingAndFillingGraphicsOperation
+import groovy.swing.j2d.ShapeProvider
 
-import java.awt.Rectangle
 import java.awt.Shape
-import java.awt.geom.*
+import java.awt.geom.Area
+import java.beans.PropertyChangeEvent
 
 /**
- * Applies an Area operation (any of [add,subtract,intersect,xor])
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
- /*
- class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
-     private def drawDelegate
-     private String areaMethod
-     static grouping = true
-
-     public AreaGraphicsOperation( String name, String areaMethod ){
-         super( name )
-         this.areaMethod = areaMethod
-         drawDelegate = new DrawGraphicsOperation()
-     }
- }
- */
-class AreaGraphicsOperation extends ContextualGraphicsOperation {
-    private def drawDelegate
+public class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
     private String areaMethod
-    private String name
-    private List shapeProviderOperations = []
-    private List operations = []
-    private Shape shape
+    private def shapeProviders
+    private Area area
 
-    static grouping = true
-
-    public AreaGraphicsOperation( String name, String areaMethod ){
-        super( new StrokingAndFillingGraphicsOperation(
-                new ShapeProviderGraphicsOperation(new DrawGraphicsOperation())) )
-        this.areaMethod = areaMethod
-        this.name = name
-        drawDelegate = this.delegate
+    public AreaGraphicsOperation( String name, String methodName ) {
+        super( "area-"+name )
+        this.areaMethod = methodName
     }
 
-    public String getName(){
-        return name
+    public Shape getShape( GraphicsContext context ) {
+        if( area == null ){
+           calculateArea( context )
+        }
+        area
     }
 
-    public boolean isDirty(){
-        // shortcut
-        if( super.isDirty() ){
-           return true
-        }
-        findShapeProviderOperations()
-        for( go in shapeProviderOperations ){
-            if( go.isDirty() ){
-                return true
-            }
-        }
-        return false
+    public void propertyChange( PropertyChangeEvent event ){
+       def gos = shapeProviders ? shapeProviders : operations.findAll { it instanceof ShapeProvider }
+       if( gos.contains(event.source) && event.source.required.contains(event.propertyName) ){
+          area == null
+       }
     }
 
-    public Shape getClip( GraphicsContext context ) {
-        if( shape == null || isDirty() ){
-            shape = computeShape( context )
-            drawDelegate.shape = shape
-            setDirty( false )
-        }
-        return shape;
+    protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
+       if( !(go instanceof ShapeProvider) ) go.execute( context )
     }
 
-    public void verify(){
-        List operations = getOperations()
-        operations.each { go ->
-            go.verify()
+    private void calculateArea( GraphicsContext context ) {
+        def gos = shapeProviders ? shapeProviders : operations.findAll { it instanceof ShapeProvider }
+        if( !gos ) {
+           // no nested shapes
+           throw new IllegalArgumentException("No nested shapes on ${this}")
         }
-    }
 
-    protected void executeDelegate( GraphicsContext context ){
-        if( !drawDelegate.shape ){
-            drawDelegate.shape = computeShape(context)
-        }
-        super.executeDelegate( context )
-    }
-
-    protected void executeChildOperation( GraphicsContext context, GraphicsOperation go ) {
-        if( !hasShape(go) ){
-           go.execute( context )
-        }
-    }
-
-    private boolean hasShape( GraphicsOperation go ){
-        try{
-            return go.hasShape
-        }catch( MissingPropertyException mpe ){
-            /// ignore
-        }
-        return false
-    }
-
-    protected Shape computeShape( GraphicsContext context ){
-        Area area = new Area()
-        findShapeProviderOperations()
-        def size = shapeProviderOperations.size()
-        if( size ){
-            area = new Area( shapeProviderOperations[0].getClip(context) )
-        }
-        shapeProviderOperations[1..<size].each { go ->
-            Shape shape = go.getClip(context)
-            if( hasShape(go) && shape ){
-                area."${areaMethod}"( new Area(shape) )
-            }
-        }
-        return area
-    }
-
-    private void findShapeProviderOperations(){
-        if( shapeProviderOperations.isEmpty() ){
-           List operations = getOperations()
-           // find all operations with hasShape
-           shapeProviderOperations = operations.grep{ go -> hasShape(go) }
+        area = new Area( gos[0].getShape(context) )
+        gos[1..-1].each {
+           it.addPropertyChangeListener( this )
+           area."$areaMethod"( new Area(it.getShape(context)) )
         }
     }
 }

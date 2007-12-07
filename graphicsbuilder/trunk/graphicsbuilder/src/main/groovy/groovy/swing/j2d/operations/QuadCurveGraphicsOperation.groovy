@@ -15,16 +15,16 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
-
 import java.awt.Shape
 import java.awt.geom.QuadCurve2D
+import groovy.swing.j2d.GraphicsContext
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class QuadCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
+public class QuadCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
+    protected static required = ['x1','x2','y1','y2','ctrlx','ctrly']
+
     def x1
     def x2
     def y1
@@ -32,17 +32,16 @@ class QuadCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
     def ctrlx
     def ctrly
 
-    QuadCurveGraphicsOperation() {
-        super( "quadCurve", ["x1", "x2", "y1", "y2", "ctrlx", "ctrly"] as String[] )
+    public QuadCurveGraphicsOperation() {
+        super( "quadCurve" )
     }
 
-    protected Shape computeShape( GraphicsContext context ) {
-        double x1 = getParameterValue( "x1" )
-        double x2 = getParameterValue( "x2" )
-        double y1 = getParameterValue( "y1" )
-        double y2 =  getParameterValue( "y2" )
-        double ctrlx = getParameterValue( "ctrlx" )
-        double ctrly = getParameterValue( "ctrly" )
-        return new QuadCurve2D.Double( x1, y1, ctrlx, ctrly, x2, y2 )
+    public Shape getOutline( GraphicsContext context ) {
+       return new QuadCurve2D.Double( x1 as double,
+                                       y1 as double,
+                                       ctrlx as double,
+                                       ctrly as double,
+                                       x2 as double,
+                                       y2 as double )
     }
 }

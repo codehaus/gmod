@@ -16,22 +16,21 @@
 package groovy.swing.j2d.factory;
 
 import groovy.swing.j2d.operations.AreaGraphicsOperation
-import groovy.util.FactoryBuilderSupport
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class AreaGraphicsOperationFactory extends AbstractGraphicsOperationFactory {
-     private String areaMethod
      private String name
+     private String methodName
 
-     AreaGraphicsOperationFactory( String name, String areaMethod ){
+     AreaGraphicsOperationFactory( String name, String methodName ){
          this.name = name
-         this.areaMethod = areaMethod
+         this.methodName = methodName
      }
 
      public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
              Map properties ) throws InstantiationException, IllegalAccessException {
-        return new AreaGraphicsOperation( name, areaMethod )
+         return new AreaGraphicsOperation( this.name, methodName )
      }
 }
