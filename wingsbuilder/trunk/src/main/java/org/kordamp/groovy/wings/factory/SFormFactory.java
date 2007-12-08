@@ -41,7 +41,6 @@ public class SFormFactory extends AbstractWingSFactory {
       }else{
          form = new SForm();
       }
-      builder.addFormToHierarchy( form );
 
       return form;
    }

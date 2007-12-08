@@ -16,11 +16,9 @@
 
 package org.kordamp.groovy.wings.factory;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.kordamp.groovy.wings.WingXBuilder;
-import org.wingx.YUIxGrid;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -29,6 +27,8 @@ public class YUIxGridFactory extends AbstractWingXFactory {
    public Object doNewInstanceX( WingXBuilder builder, Object name, Object value, Map properties )
          throws InstantiationException, IllegalAccessException {
       WingXBuilder.checkValueIsNull( value, name );
+      /*
+       removed in wingx-3.1
       YUIxGrid grid = null;
       Number rows = (Number) properties.remove( "rows" );
       Number cols = (Number) properties.remove( "cols" );
@@ -48,5 +48,7 @@ public class YUIxGridFactory extends AbstractWingXFactory {
       }
 
       return grid;
+      */
+      return null;
    }
 }

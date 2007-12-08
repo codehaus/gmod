@@ -6,7 +6,7 @@
    <groupId>org.codehaus.groovy-contrib</groupId>
    <artifactId>wingsbuilder</artifactId>
    <packaging>jar</packaging>
-   <version>1.0-SNAPSHOT</version>
+   <version>1.0</version>
    <name>WingSBuilder</name>
 
    <url>http://groovy.codehaus.org/WingSBuilder</url>
@@ -57,19 +57,26 @@
       </dependency>
       <dependency>
          <groupId>org.codehaus.groovy</groupId>
-         <artifactId>groovy-all</artifactId>
-         <version>1.1-rc-1</version>
+         <artifactId>groovy-all-minimal</artifactId>
+         <version>1.5</version>
       </dependency>
       <dependency>
          <groupId>org.wings</groupId>
          <artifactId>wings</artifactId>
-         <version>3.0</version>
+         <version>3.1</version>
       </dependency>
       <dependency>
          <groupId>org.wings</groupId>
          <artifactId>wingx</artifactId>
-         <version>3.0</version>
+         <version>3.1</version>
       </dependency>
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
+         <version>1.1</version>
+         <scope>test</scope>
+      </dependency>
+<!--
       <dependency>
          <groupId>org.wings</groupId>
          <artifactId>wings-css</artifactId>
@@ -82,6 +89,7 @@
          <version>3.0</version>
          <scope>test</scope>
       </dependency>
+-->
       <dependency>
          <groupId>javax.servlet</groupId>
          <artifactId>servlet-api</artifactId>
@@ -132,9 +140,6 @@
          <plugin>
             <groupId>org.codehaus.mojo.groovy</groupId>
             <artifactId>groovy-maven-plugin</artifactId>
-<!--
-            <version>1.0-beta-1</version>
--->
             <executions>
                <execution>
                   <goals>

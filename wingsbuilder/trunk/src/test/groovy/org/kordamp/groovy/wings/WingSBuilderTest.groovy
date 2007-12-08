@@ -19,6 +19,7 @@ package org.kordamp.groovy.wings
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.ComponentOrientation
+import java.awt.Color
 import java.awt.Dimension
 import java.awt.FlowLayout
 import java.awt.GridBagLayout
@@ -27,8 +28,8 @@ import java.awt.event.KeyEvent
 import java.awt.event.InputEvent
 
 import java.text.*
-import javax.swing.text.*
-import javax.swing.*
+import javax.wings.text.*
+import javax.wings.*
 import org.wings.*
 import org.wings.text.*
 import org.wings.plaf.*
@@ -120,7 +121,7 @@ class WingSBuilderTest extends GroovyTestCase {
             scrollBar: SScrollBar.class,
             scrollPane: SScrollPane.class,
             separator: SSeparator.class,
-            slider: SSlider.class,
+            /*slider: SSlider.class,*/
             spinner: SSpinner.class,
             tabbedPane: STabbedPane.class,
             table: STable.class,
@@ -132,7 +133,7 @@ class WingSBuilderTest extends GroovyTestCase {
             anchor: SAnchor.class,
             byteArrayIcon: SByteArrayIcon.class,
             /*downloadButton: SDownloadButton.class,*/
-            fileChooser: SFileChooser.class,
+            /*fileChooser: SFileChooser.class,*/
             /*fileIcon: SFileIcon.class,*/
             form: SForm.class,
             /*imageIcon: SImageIcon.class,*/
@@ -144,7 +145,7 @@ class WingSBuilderTest extends GroovyTestCase {
         ]
         def wings = new WingSBuilder()
         widgets.each{ name, expectedClass ->
-            def frame = wings.frame(autoForm:false){
+            def frame = wings.frame(){
                "$name"(id:"${name}Id".toString())
             }
             assert wings."${name}Id".class == expectedClass
@@ -296,7 +297,7 @@ class WingSBuilderTest extends GroovyTestCase {
 
         def wings = new WingSBuilder()
         wings.internalFrame(id:'frameId',
-                border:SBorderFactory.createSTitledBorder(SBorderFactory.createLoweredSBevelBorder())) {
+                border:SBorderFactory.createLoweredSBevelBorder()) {
             wings.frameId.contentPane.layout = new SBorderLayout()
             panel(id:'panel1', constraints:SBorderLayout.NORTH)
             panel(id:'panel2', constraints:SBorderLayout.WEST)
@@ -421,80 +422,6 @@ class WingSBuilderTest extends GroovyTestCase {
        assert wings.button.text == "label"
     }
 
-    void testAutoForm1(){
-       if (isHeadless()) return
-
-       def wings = new WingSBuilder()
-       def frame = wings.frame {
-          panel(){
-             button("A")
-             button("B")
-          }
-       }
-       def child = frame.contentPane.getComponent(0)
-       assert child.class == SForm.class
-    }
-
-    void testAutoForm2(){
-       // no form should be inserted
-       if (isHeadless()) return
-
-       def wings = new WingSBuilder()
-       def frame = wings.frame {
-          form(){
-             button("A")
-             button("B")
-          }
-       }
-       def child = frame.contentPane.getComponent(0)
-       assert child.class == SForm.class
-    }
-
-    void testAutoForm3(){
-       // no form should be inserted
-       if (isHeadless()) return
-
-       def wings = new WingSBuilder()
-       def frame = wings.frame {
-          panel(){
-             form(){
-                button("A")
-                button("B")
-             }
-          }
-       }
-       def child = frame.contentPane.getComponent(0)
-       assert child.class == SPanel.class
-    }
-
-    void testAutoForm4(){
-       // no form should be inserted
-       if (isHeadless()) return
-
-       def wings = new WingSBuilder()
-       def frame = wings.frame(autoForm:false) {
-          panel(){
-             button("A")
-             button("B")
-          }
-       }
-       def child = frame.contentPane.getComponent(0)
-       assert child.class == SPanel.class
-    }
-
-    void testAutoForm5(){
-       // no form should be inserted
-       if (isHeadless()) return
-
-       def wings = new WingSBuilder()
-       def panel = wings.panel() {
-          button("A")
-          button("B")
-       }
-       def child = panel.getComponent(0)
-       assert child.class == SButton.class
-    }
-
     void testAllowMissingProperty(){
        if (isHeadless()) return
 
@@ -509,6 +436,75 @@ class WingSBuilderTest extends GroovyTestCase {
              button("A", bogus:"I don't exist")
           }
        }
+    }
+
+    public void testBorders() {
+        if (isHeadless()) return
+        def wings = new WingSBuilder()
+
+        // classic smoke test, try every valid combination and look for smoke...
+        wings.frame {
+            lineBorder(color:Color.BLACK, parent:true)
+            lineBorder(color:Color.BLACK, thickness:4, parent:true)
+            raisedBevelBorder(parent:true)
+            //raisedBevelBorder(highlight:Color.GREEN, shadow:Color.PINK, parent:true)
+            //raisedBevelBorder(highlightOuter:Color.GREEN, highlightInner:Color.RED, shadowOuter:Color.PINK, shadowInner:Color.BLUE, parent:true)
+            loweredBevelBorder(parent:true)
+            //loweredBevelBorder(highlight:Color.GREEN, shadow:Color.PINK, parent:true)
+            //loweredBevelBorder(highlightOuter:Color.GREEN, highlightInner:Color.RED, shadowOuter:Color.PINK, shadowInner:Color.BLUE, parent:true)
+            etchedBorder(parent:true)
+            //etchedBorder(highlight:Color.GREEN, shadow:Color.PINK, parent:true)
+            loweredEtchedBorder(parent:true)
+            //loweredEtchedBorder(highlight:Color.GREEN, shadow:Color.PINK, parent:true)
+            raisedEtchedBorder(parent:true)
+            //raisedEtchedBorder(highlight:Color.GREEN, shadow:Color.PINK, parent:true)
+            emptyBorder(6, parent:true)
+            emptyBorder([3,5,6,9], parent:true)
+            emptyBorder(top:6, left:5, bottom:6, right:9, parent:true)
+
+            lineBorder(color:Color.BLACK)
+            lineBorder(color:Color.BLACK, thickness:4)
+            raisedBevelBorder()
+            //raisedBevelBorder(highlight:Color.GREEN, shadow:Color.PINK)
+            //raisedBevelBorder(highlightOuter:Color.GREEN, highlightInner:Color.RED, shadowOuter:Color.PINK, shadowInner:Color.BLUE)
+            loweredBevelBorder()
+            //loweredBevelBorder(highlight:Color.GREEN, shadow:Color.PINK)
+            //loweredBevelBorder(highlightOuter:Color.GREEN, highlightInner:Color.RED, shadowOuter:Color.PINK, shadowInner:Color.BLUE)
+            etchedBorder()
+            //etchedBorder(highlight:Color.GREEN, shadow:Color.PINK)
+            loweredEtchedBorder()
+            //loweredEtchedBorder(highlight:Color.GREEN, shadow:Color.PINK)
+            raisedEtchedBorder()
+            //raisedEtchedBorder(highlight:Color.GREEN, shadow:Color.PINK)
+            emptyBorder(6)
+            emptyBorder([3,5,6,9])
+            emptyBorder(top:6, left:5, bottom:6, right:9)
+        }
+    }
+
+    public void testBorderAttachment() {
+        if (isHeadless()) return
+        def wings = new WingSBuilder()
+
+        wings.frame(id:'frame') {
+           raisedBevelBorder()
+        }
+        assert wings.frame.contentPane.border == null
+
+        wings.frame(id:'frame') {
+           raisedBevelBorder(parent:true)
+        }
+        assert wings.frame.contentPane.border != null
+
+        wings.panel(id:'panel') {
+           raisedBevelBorder()
+        }
+        assert wings.panel.border == null
+
+        wings.panel(id:'panel') {
+           raisedBevelBorder(parent:true)
+        }
+        assert wings.panel.border != null
     }
 
    private Session session

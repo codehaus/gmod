@@ -34,16 +34,13 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 import org.kordamp.groovy.wings.WingSBuilder;
 import org.kordamp.groovy.wings.impl.STableColumnModelAdapter;
 import org.wings.SAbstractButton;
-import org.wings.SBorderLayout;
 import org.wings.SButtonGroup;
 import org.wings.SComponent;
 import org.wings.SContainer;
-import org.wings.SForm;
 import org.wings.SFrame;
 import org.wings.SLayoutManager;
 import org.wings.SMenu;
 import org.wings.SMenuBar;
-import org.wings.SPanel;
 import org.wings.SRootContainer;
 import org.wings.SScrollPane;
 import org.wings.STabbedPane;
@@ -124,19 +121,7 @@ public abstract class AbstractWingSFactory extends AbstractFactory {
       WingSBuilder wingSBuilder = (WingSBuilder) builder;
 
       if( node instanceof SFrame ){
-         Boolean autoForm = wingSBuilder.getAutoForm();
          LinkedList containingWindows = wingSBuilder.getContainingWindows();
-         if( containingWindows.size() == 1 && !wingSBuilder.hasFormInHierarchy()
-               && (autoForm == null || autoForm.booleanValue()) ){
-            SFrame frame = (SFrame) containingWindows.peek();
-            SContainer contentPane = frame.getContentPane();
-            frame.setContentPane( new SPanel( new SBorderLayout() ) );
-            SForm form = new SForm();
-            form.add( contentPane );
-            frame.getContentPane()
-                  .add( form );
-         }
-
          if( !containingWindows.isEmpty() && containingWindows.getLast() == node ){
             containingWindows.removeLast();
          }

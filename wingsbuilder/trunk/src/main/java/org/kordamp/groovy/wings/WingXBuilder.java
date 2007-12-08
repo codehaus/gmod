@@ -20,13 +20,9 @@ import java.util.Map;
 
 import org.kordamp.groovy.wings.factory.AbstractWingXFactory;
 import org.kordamp.groovy.wings.factory.STextArgWidgetFactory;
-import org.kordamp.groovy.wings.factory.XColorPickerFactory;
 import org.kordamp.groovy.wings.factory.XDivisionFactory;
-import org.kordamp.groovy.wings.factory.XPopupFrameFactory;
 import org.kordamp.groovy.wings.factory.XScrollPaneFactory;
-import org.kordamp.groovy.wings.factory.YUIxGridFactory;
 import org.wingx.XCalendar;
-import org.wingx.XInplaceEditor;
 import org.wingx.XPageScroller;
 import org.wingx.XScrollablePanel;
 import org.wingx.XSuggest;
@@ -58,16 +54,17 @@ public class WingXBuilder extends WingSBuilder {
 
    protected void registerXWidgets() {
       registerXBeanFactory( "calendar", XCalendar.class );
-      registerFactory( "colorPicker", new XColorPickerFactory() );
+      //registerFactory( "colorPicker", new XColorPickerFactory() );
       registerFactory( "division", new XDivisionFactory() );
-      registerXBeanFactory( "inplaceEditor", XInplaceEditor.class );
+      // removed in wingx-3.1
+      // registerXBeanFactory( "inplaceEditor", XInplaceEditor.class );
       registerXBeanFactory( "xpageScroller", XPageScroller.class );
-      registerFactory( "popupFrame", new XPopupFrameFactory() );
+      //registerFactory( "popupFrame", new XPopupFrameFactory() );
       registerXBeanFactory( "scrollablePanel", XScrollablePanel.class );
       registerFactory( "xscrollPane", new XScrollPaneFactory() );
       registerFactory( "suggest", new STextArgWidgetFactory( XSuggest.class ) );
       registerXBeanFactory( "xtable", XTable.class );
       registerXBeanFactory( "treeTable", XTreeTable.class );
-      registerFactory( "yuixGrid", new YUIxGridFactory() );
+      //registerFactory( "yuixGrid", new YUIxGridFactory() );
    }
 }

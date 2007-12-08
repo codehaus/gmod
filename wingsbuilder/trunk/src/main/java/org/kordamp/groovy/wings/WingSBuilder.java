@@ -25,7 +25,6 @@ import groovy.swing.factory.TableModelFactory;
 import groovy.util.FactoryBuilderSupport;
 
 import java.awt.GridBagConstraints;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -34,15 +33,19 @@ import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 
 import org.kordamp.groovy.wings.factory.AbstractWingSFactory;
+import org.kordamp.groovy.wings.factory.SBevelBorderFactory;
 import org.kordamp.groovy.wings.factory.SBoxLayoutFactory;
 import org.kordamp.groovy.wings.factory.SComboBoxFactory;
 import org.kordamp.groovy.wings.factory.SDialogFactory;
 import org.kordamp.groovy.wings.factory.SDownloadButtontFactory;
+import org.kordamp.groovy.wings.factory.SEmptyBorderFactory;
+import org.kordamp.groovy.wings.factory.SEtchedBorderFactory;
 import org.kordamp.groovy.wings.factory.SFileIconFactory;
 import org.kordamp.groovy.wings.factory.SFormFactory;
 import org.kordamp.groovy.wings.factory.SFormattedTextFactory;
 import org.kordamp.groovy.wings.factory.SFrameFactory;
 import org.kordamp.groovy.wings.factory.SImageIconFactory;
+import org.kordamp.groovy.wings.factory.SLineBorderFactory;
 import org.kordamp.groovy.wings.factory.SPageScrollerFactory;
 import org.kordamp.groovy.wings.factory.SPopupFactory;
 import org.kordamp.groovy.wings.factory.SResourceIconFactory;
@@ -65,7 +68,6 @@ import org.wings.SDesktopPane;
 import org.wings.SFileChooser;
 import org.wings.SFlowDownLayout;
 import org.wings.SFlowLayout;
-import org.wings.SForm;
 import org.wings.SGridBagLayout;
 import org.wings.SGridLayout;
 import org.wings.SInternalFrame;
@@ -87,7 +89,6 @@ import org.wings.SRootContainer;
 import org.wings.SScrollBar;
 import org.wings.SScrollPane;
 import org.wings.SSeparator;
-import org.wings.SSlider;
 import org.wings.SSpinner;
 import org.wings.STabbedPane;
 import org.wings.STable;
@@ -97,6 +98,9 @@ import org.wings.STextField;
 import org.wings.SToggleButton;
 import org.wings.SToolBar;
 import org.wings.STree;
+import org.wings.border.SBevelBorder;
+import org.wings.border.SEtchedBorder;
+import org.wings.border.SLineBorder;
 import org.wings.table.STableColumn;
 
 /**
@@ -119,10 +123,7 @@ public class WingSBuilder extends FactoryBuilderSupport {
    }
 
    private boolean allowMissingProperties = false;
-   private Boolean autoForm;
    private LinkedList containingWindows = new LinkedList();
-   private boolean formInHierarchy;
-   private Map widgets = new HashMap();
 
    public WingSBuilder() {
       this( false );
@@ -133,16 +134,6 @@ public class WingSBuilder extends FactoryBuilderSupport {
       registerWidgets();
    }
 
-   public void addFormToHierarchy( SForm form ) {
-      if( !getContainingWindows().isEmpty() ){
-         this.formInHierarchy = true;
-      }
-   }
-
-   public Boolean getAutoForm() {
-      return autoForm;
-   }
-
    public Object getConstraints() {
       return getContext().get( CONSTRAINTS );
    }
@@ -151,20 +142,8 @@ public class WingSBuilder extends FactoryBuilderSupport {
       return containingWindows;
    }
 
-   public Object getProperty( String name ) {
-      Object widget = widgets.get( name );
-      if( widget == null ){
-         return super.getProperty( name );
-      }
-      return widget;
-   }
-
    public Integer getZIndex() {
       return (Integer) getContext().get( Z_INDEX );
-   }
-
-   public boolean hasFormInHierarchy() {
-      return formInHierarchy;
    }
 
    public boolean isAllowMissingProperties() {
@@ -188,7 +167,8 @@ public class WingSBuilder extends FactoryBuilderSupport {
       Map context = getContext();
       String widgetId = (String) context.get( WIDGET_ID );
       if( widgetId != null && node != null ){
-         widgets.put( widgetId, node );
+         //widgets.put( widgetId, node );
+         setVariable( widgetId, node );
       }
    }
 
@@ -197,9 +177,6 @@ public class WingSBuilder extends FactoryBuilderSupport {
       context.put( WIDGET_ID, attributes.remove( "id" ) );
       context.put( CONSTRAINTS, attributes.remove( "constraints" ) );
       context.put( Z_INDEX, attributes.remove( "zindex" ) );
-      if( "frame".equals( name ) ){
-         autoForm = (Boolean) attributes.remove( "autoForm" );
-      }
    }
 
    protected void registerWidgets() {
@@ -250,7 +227,8 @@ public class WingSBuilder extends FactoryBuilderSupport {
       registerBeanFactory( "scrollBar", SScrollBar.class );
       registerBeanFactory( "scrollPane", SScrollPane.class );
       registerBeanFactory( "separator", SSeparator.class );
-      registerBeanFactory( "slider", SSlider.class );
+      // removed in wings 3.1
+      // registerBeanFactory( "slider", SSlider.class );
       registerBeanFactory( "spinner", SSpinner.class );
       registerBeanFactory( "tabbedPane", STabbedPane.class );
       registerBeanFactory( "table", STable.class );
@@ -305,5 +283,21 @@ public class WingSBuilder extends FactoryBuilderSupport {
       registerBeanFactory( "rawText", SRawTextComponent.class );
       registerFactory( "resourceIcon", new SResourceIconFactory() );
       registerFactory( "spacer", new SSpacerFactory() );
+
+      //
+      // borders
+      //
+      registerFactory( "lineBorder", new SLineBorderFactory( SLineBorder.SOLID ) );
+      registerFactory( "dottedLineBorder", new SLineBorderFactory( SLineBorder.DOTTED ) );
+      registerFactory( "dashedLineBorder", new SLineBorderFactory( SLineBorder.DASHED ) );
+      registerFactory( "loweredBevelBorder", new SBevelBorderFactory( SBevelBorder.LOWERED ) );
+      registerFactory( "raisedBevelBorder", new SBevelBorderFactory( SBevelBorder.RAISED ) );
+      registerFactory( "etchedBorder", new SEtchedBorderFactory( SEtchedBorder.LOWERED ) );
+      registerFactory( "loweredEtchedBorder", new SEtchedBorderFactory( SEtchedBorder.LOWERED ) );
+      registerFactory( "raisedEtchedBorder", new SEtchedBorderFactory( SEtchedBorder.RAISED ) );
+      // registerFactory("titledBorder", new TitledBorderFactory())
+      registerFactory( "emptyBorder", new SEmptyBorderFactory() );
+      // registerFactory("compoundBorder", new CompoundBorderFactory())
+      // registerFactory("matteBorder", new MatteBorderFactory())
    }
 }

@@ -58,13 +58,13 @@ class WingXBuilderTest extends GroovyTestCase {
             division: XDivision.class,
             /*inplaceEditor: XInplaceEditor.class,*/
             /*xpageSCroller: XPageScroller.class,*/
-            popupFrame: XPopupFrame.class,
+            /*popupFrame: XPopupFrame.class,*/
             scrollablePanel: XScrollablePanel.class,
             /*xscrollPane: XScrollPane.class,*/
             suggest: XSuggest.class,
             /*xtable: XTable.class,*/
             treeTable: XTreeTable.class,
-            yuixGrid: YUIxGrid.class
+            /*yuixGrid: YUIxGrid.class*/
         ]
         def wings = new WingXBuilder()
         widgets.each{ name, expectedLayoutClass ->

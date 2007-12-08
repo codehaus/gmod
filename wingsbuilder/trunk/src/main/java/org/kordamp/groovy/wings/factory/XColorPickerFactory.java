@@ -16,11 +16,9 @@
 
 package org.kordamp.groovy.wings.factory;
 
-import java.awt.Color;
 import java.util.Map;
 
 import org.kordamp.groovy.wings.WingXBuilder;
-import org.wingx.XColorPicker;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -29,6 +27,8 @@ public class XColorPickerFactory extends AbstractWingXFactory {
    public Object doNewInstanceX( WingXBuilder builder, Object name, Object value, Map properties )
          throws InstantiationException, IllegalAccessException {
       WingXBuilder.checkValueIsNull( value, name );
+      /*
+       removed in wingx-3.1
       XColorPicker colorPicker = null;
       Number red = (Number) properties.remove( "red" );
       Number green = (Number) properties.remove( "green" );
@@ -44,5 +44,7 @@ public class XColorPickerFactory extends AbstractWingXFactory {
       }
 
       return colorPicker;
+      */
+      return null;
    }
 }
