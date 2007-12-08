@@ -16,49 +16,53 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
+import groovy.swing.j2d.ShapeProvider
 
 import java.awt.Shape
-
+import java.beans.PropertyChangeEvent
 import org.jdesktop.swingx.geom.Morphing2D
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
+   protected static required = ["start", "end", "morph"]
+
+   private Morphing2D morphedShape
+
    def start
    def end
    def morph = 0
 
    MorphGraphicsOperation() {
-      super( "morph", ["start", "end", "morph"] as String[] )
+      super( "morph" )
    }
 
-   public boolean isDirty() {
-      def start = getParameterValue( "start" )
-      def end = getParameterValue( "end" )
-      boolean startIsDirty = start instanceof GraphicsOperation ? start?.isDirty() : false;
-      boolean endIsDirty = end instanceof GraphicsOperation ? end?.isDirty() : false;
-      return startIsDirty || endIsDirty || super.isDirty()
+   public Shape getShape( GraphicsContext context ) {
+      if( morphedShape == null ){
+         calculateMorphedShape( context )
+      } 
+      morphedShape
    }
 
-   protected Shape computeShape( GraphicsContext context ) {
-      def start = getParameterValue( "start" )
-      def end = getParameterValue( "end" )
-      double morphing = getParameterValue( "morph" )
-
-      if( start instanceof GraphicsOperation && start.parameterHasValue("asShape") &&
-            start.getParameterValue("asShape") ){
-         start = start.getClip(context)
+   public void propertyChange( PropertyChangeEvent event ){
+      if( start == event.source && start.required.contains(event.propertyName) ){
+         morphedShape = null
+      }else if( end == event.source && end.required.contains(event.propertyName) ){
+         morphedShape = null
       }
-      if( end instanceof GraphicsOperation && end.parameterHasValue("asShape") &&
-            end.getParameterValue("asShape") ){
-         end = end.getClip(context)
+   }
+
+   private void calculateMorphedShape( GraphicsContext context ) {
+      if( start instanceof ShapeProvider && start.asShape != null && start.asShape ){
+         start = start.getShape(context)
+      }
+      if( end instanceof ShapeProvider && end.asShape != null && end.asShape ){
+         end = end.getShape(context)
       }
 
-      Morphing2D morph = new Morphing2D( start, end )
-      morph.setMorphing( morphing )
-      return morph
+      Morphing2D morphedShape = new Morphing2D( start, end )
+      morphedShape.morphing = morph as double
+      return morphedShape
    }
 }
