@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractExtPathOperation
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class HLineExtPathOperation extends AbstractExtPathOperation {
-    float x
+class VLineExtPathOperation extends AbstractExtPathOperation {
+    float y
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.lineTo( x, path.currentPoint.y as float )
+       path.lineTo( path.currentPoint.x as float, y )
     }
 }

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.AbstractExtPathOperation
+import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.ShapeProvider
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -27,15 +29,16 @@ class ShapeExtPathOperation extends AbstractExtPathOperation {
     def shape
     boolean connect
 
-    public boolean isDirty() {
-       boolean shapetIsDirty = shape instanceof GraphicsOperation ? shape?.isDirty() : false
-       return shapeIsDirty || super.isDirty()
+    public void propertyChange( PropertyChangeEvent event ){
+       if( shape == event.source && event.source.required.contains(event.propertyName) ){
+           // TODO signal change
+       }
     }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
-             shape.getParameterValue("asShape") ){
-          shape = shape.getClip(context)
+       if( (shape instanceof ShapeProvider || shape instanceof OutlineProvider )
+           && shape.hasShape != null && shape.hasShape ){
+          shape = shape.getShape(context)
        }
        path.append( shape, connect )
     }

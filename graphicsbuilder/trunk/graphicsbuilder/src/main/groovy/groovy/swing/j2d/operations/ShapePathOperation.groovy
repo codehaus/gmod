@@ -20,6 +20,7 @@ import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.OutlineProvider
 import groovy.swing.j2d.ShapeProvider
 import java.awt.geom.GeneralPath
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -28,12 +29,11 @@ class ShapePathOperation extends AbstractPathOperation {
     def shape
     boolean connect
 
-    /*
-    public boolean isDirty() {
-       boolean shapetIsDirty = shape instanceof GraphicsOperation ? shape?.isDirty() : false
-       return shapeIsDirty || super.isDirty()
+    public void propertyChange( PropertyChangeEvent event ){
+       if( shape == event.source && event.source.required.contains(event.propertyName) ){
+           // TODO signal change
+       }
     }
-    */
 
     public void apply( GeneralPath path, GraphicsContext context ) {
        if( (shape instanceof ShapeProvider || shape instanceof OutlineProvider ) 

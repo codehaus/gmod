@@ -89,8 +89,7 @@ class GraphicsPad implements CaretListener {
 
     private void setupGraphicsBuilder(){
        graphicsBuilder = new GraphicsBuilder()
-       /*
-       def helpers = ["Jdk6GraphicsBuilderHelper",
+       def helpers = [/*"Jdk6GraphicsBuilderHelper",*/
                       "SwingXGraphicsBuilderHelper",
                       "BatikGraphicsBuilderHelper"]
        helpers.each { helper ->
@@ -101,7 +100,6 @@ class GraphicsPad implements CaretListener {
               System.err.println("Couldn't register ${helper}")
            }
        }
-       */
     }
 
     private void buildUI(){
@@ -583,8 +581,8 @@ class GraphicsPad implements CaretListener {
            swing.status.text = 'Running Script...'
            runThread = Thread.start {
               try {
-                  SwingUtilities.invokeLater { 
-                     showRunWaitDialog() 
+                  SwingUtilities.invokeLater {
+                     showRunWaitDialog()
                      swing.error.text = ""
                      swing.view.removeAll()
                   }

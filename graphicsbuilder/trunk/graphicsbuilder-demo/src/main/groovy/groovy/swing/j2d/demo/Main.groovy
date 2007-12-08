@@ -17,6 +17,7 @@ package groovy.swing.j2d.demo
 
 import java.awt.BorderLayout as BL
 import java.awt.*
+import java.awt.event.*
 import java.security.*
 import javax.swing.*
 import javax.swing.border.*
@@ -26,7 +27,11 @@ import org.jdesktop.swingx.JXTitledPanel
 import org.jdesktop.swingx.border.*
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
+import groovy.swing.j2d.event.*
+import groovy.text.SimpleTemplateEngine
+import groovy.ui.Console
 import groovy.ui.ConsoleTextEditor
+import groovy.ui.text.FindReplaceUtility
 
 import org.codehaus.groovy.control.CompilationFailedException
 
@@ -42,6 +47,8 @@ class Main {
     private def runWaitDialog
     private def frame
     private String codeBase
+
+    private static String ICON_PATH = '/groovy/ui/ConsoleIcon.png' // used by ObjectBrowser too
 
     public static void main(String[] args) {
        SwingUtilities.invokeLater {
@@ -61,14 +68,25 @@ class Main {
        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
        System.setProperty("apple.laf.useScreenMenuBar", "true")
        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsBuilderDemo")
-       frame.visible = true
+       swing.doLater {
+          frame.visible = true
+          inputEditor.textEditor.requestFocus()
+       }
     }
 
     private void setupGraphicsBuilder(){
        graphicsBuilder = new GraphicsBuilder()
-       Jdk6GraphicsBuilderHelper.registerOperations( graphicsBuilder )
-       SwingXGraphicsBuilderHelper.registerOperations( graphicsBuilder )
-       BatikGraphicsBuilderHelper.registerOperations( graphicsBuilder )
+       def helpers = [/*"Jdk6GraphicsBuilderHelper",*/
+                      "SwingXGraphicsBuilderHelper",
+                      "BatikGraphicsBuilderHelper"]
+       helpers.each { helper ->
+           try{
+              Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
+              helperClass.registerOperations( graphicsBuilder )
+           }catch( Exception e ){
+              System.err.println("Couldn't register ${helper}")
+           }
+       }
     }
 
     private void buildUI(){
@@ -77,74 +95,117 @@ class Main {
 
        swing.actions {
           action(id: 'exitAction',
-             name: 'Exit',
-             closure: this.&exit,
-             mnemonic: 'X'
+              name: 'Exit',
+              closure: this.&exit,
+              mnemonic: 'X'
           )
+          // whether or not application exit should have an
+          // accellerator is debatable in usability circles
+          // at the very least a confirm dialog should dhow up
+          //accelerator: shortcut('Q')
           action(inputEditor.undoAction,
-             id: 'undoAction',
-             name: 'Undo',
-             mnemonic: 'U',
-             accelerator: shortcut('Z')
+              id: 'undoAction',
+              name: 'Undo',
+              mnemonic: 'U',
+              accelerator: shortcut('Z'),
+              smallIcon: imageIcon(resource:"icons/arrow_undo.png", class:Console),
+              shortDescription: 'Undo'
           )
           action(inputEditor.redoAction,
-             id: 'redoAction',
-             name: 'Redo',
-             closure: this.&redo,
-             mnemonic: 'Y',
-             accelerator: shortcut('Y')
+              id: 'redoAction',
+              name: 'Redo',
+              mnemonic: 'R',
+              accelerator: shortcut('shift Z'), // is control-shift-Z or control-Y more common?
+              smallIcon: imageIcon(resource:"icons/arrow_redo.png", class:Console),
+              shortDescription: 'Redo'
+          )
+          action(id: 'findAction',
+              name: 'Find...',
+              closure: this.&find,
+              mnemonic: 'F',
+              accelerator: shortcut('F'),
+              smallIcon: imageIcon(resource:"icons/find.png", class:Console),
+              shortDescription: 'Find'
+          )
+          action(id: 'findNextAction',
+              name: 'Find Next',
+              closure: this.&findNext,
+              mnemonic: 'N',
+              accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0)
+          )
+          action(id: 'findPreviousAction',
+              name: 'Find Previous',
+              closure: this.&findPrevious,
+              mnemonic: 'V',
+              accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK)
+          )
+          action(id: 'replaceAction',
+              name: 'Replace...',
+              closure: this.&replace,
+              mnemonic: 'E',
+              accelerator: shortcut('H'),
+              smallIcon: imageIcon(resource:"icons/text_replace.png", class:Console),
+              shortDescription: 'Replace'
           )
           action(id: 'cutAction',
-             name: 'Cut',
-             closure: this.&cut,
-             mnemonic: 't',
-             accelerator: shortcut('X')
+              name: 'Cut',
+              closure: this.&cut,
+              mnemonic: 'T',
+              accelerator: shortcut('X'),
+              smallIcon: imageIcon(resource:"icons/cut.png", class:Console),
+              shortDescription: 'Cut'
           )
           action(id: 'copyAction',
-             name: 'Copy',
-             closure: this.&copy,
-             mnemonic: 'C',
-             accelerator: shortcut('C')
+              name: 'Copy',
+              closure: this.&copy,
+              mnemonic: 'C',
+              accelerator: shortcut('C'),
+              smallIcon: imageIcon(resource:"icons/page_copy.png", class:Console),
+              shortDescription: 'Copy'
           )
           action(id: 'pasteAction',
-             name: 'Paste',
-             closure: this.&paste,
-             mnemonic: 'P',
-             accelerator: shortcut('V')
+              name: 'Paste',
+              closure: this.&paste,
+              mnemonic: 'P',
+              accelerator: shortcut('V'),
+              smallIcon: imageIcon(resource:"icons/page_paste.png", class:Console),
+              shortDescription: 'Paste'
           )
           action(id: 'selectAllAction',
-             name: 'Select All',
-             closure: this.&selectAll,
-             mnemonic: 'A',
-             accelerator: shortcut('A')
+              name: 'Select All',
+              closure: this.&selectAll,
+              mnemonic: 'A',
+              accelerator: shortcut('A')
           )
           action(id: 'runAction',
-             name: 'Run',
-             closure: this.&executeCode,
-             mnemonic: 'R',
-             keyStroke: 'ctrl ENTER',
-             accelerator: shortcut('R')
+              name: 'Run',
+              closure: this.&executeCode,
+              mnemonic: 'R',
+              keyStroke: shortcut('ENTER'),
+              accelerator: shortcut('R'),
+              smallIcon: imageIcon(resource:"icons/script_go.png", class:Console),
+              shortDescription: 'Execute Groovy Script'
           )
           action(id: 'largerFontAction',
-             name: 'Larger Font',
-             closure: this.&largerFont,
-             mnemonic: 'L',
-             accelerator: shortcut('shift L')
+              name: 'Larger Font',
+              closure: this.&largerFont,
+              mnemonic: 'L',
+              accelerator: shortcut('shift L')
           )
           action(id: 'smallerFontAction',
-             name: 'Smaller Font',
-             closure: this.&smallerFont,
-             mnemonic: 'S',
-             accelerator: shortcut('shift S')
+              name: 'Smaller Font',
+              closure: this.&smallerFont,
+              mnemonic: 'S',
+              accelerator: shortcut('shift S')
           )
           action(id: 'aboutAction',
-             name: 'About',
-             closure: this.&showAbout,
-             mnemonic: 'A'
+              name: 'About',
+              closure: this.&showAbout,
+              mnemonic: 'A'
           )
           action(id: 'interruptAction',
-             name: 'Interrupt',
-             closure: this.&confirmRunInterrupt
+              name: 'Interrupt',
+              closure: this.&confirmRunInterrupt
           )
           action(id: 'clearAction',
              name: 'Clear',
@@ -152,10 +213,10 @@ class Main {
              mnemonic: 'L',
              accelerator: shortcut('L')
           )
-       }
+      }
 
        frame = swing.frame( title: "GraphicsBuilder - Demo", size: [1024,800],
-             locationRelativeTo: null ){
+             locationRelativeTo: null, iconImage: swing.imageIcon(ICON_PATH).image, ){
            menuBar {
               menu(text: 'File', mnemonic: 'F') {
                   menuItem(exitAction)
@@ -440,7 +501,7 @@ class Main {
                         go = {
                            ${inputEditor.textEditor.text}
                         }"""
-                   def go = graphicsBuilder.build( !codeBase ? gsh.evaluate(script) :
+                   def go = graphicsBuilder.group( !codeBase ? gsh.evaluate(script) :
                       gsh.evaluate(script,"RestrictedScript",codeBase) )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
@@ -486,6 +547,26 @@ class Main {
     private def displayError = { text ->
        swing.error.text = text
        swing.error.caretPosition = 0
+    }
+
+    void find(EventObject evt = null) {
+       FindReplaceUtility.showDialog()
+    }
+
+    void findNext(EventObject evt = null) {
+       FindReplaceUtility.FIND_ACTION.actionPerformed(evt)
+    }
+
+    void findPrevious(EventObject evt = null) {
+       def reverseEvt = new ActionEvent(
+           evt.getSource(), evt.getID(),
+           evt.getActionCommand(), evt.getWhen(),
+           ActionEvent.SHIFT_MASK) //reverse
+       FindReplaceUtility.FIND_ACTION.actionPerformed(reverseEvt)
+    }
+
+    void replace(EventObject evt = null) {
+       FindReplaceUtility.showDialog(true)
     }
 }
 

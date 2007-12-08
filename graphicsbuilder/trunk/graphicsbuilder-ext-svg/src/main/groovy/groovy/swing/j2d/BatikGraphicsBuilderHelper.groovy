@@ -16,15 +16,15 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.ExtPathOperationFactory
-import groovy.swing.j2d.impl.ArcToExtPathOperation
-import groovy.swing.j2d.impl.MoveToExtPathOperation
-import groovy.swing.j2d.impl.LineToExtPathOperation
-import groovy.swing.j2d.impl.QuadToExtPathOperation
-import groovy.swing.j2d.impl.CurveToExtPathOperation
-import groovy.swing.j2d.impl.HLineExtPathOperation
-import groovy.swing.j2d.impl.VLineExtPathOperation
-import groovy.swing.j2d.impl.ShapeExtPathOperation
-import groovy.swing.j2d.impl.CloseExtPathOperation
+import groovy.swing.j2d.operations.ArcToExtPathOperation
+import groovy.swing.j2d.operations.MoveToExtPathOperation
+import groovy.swing.j2d.operations.LineToExtPathOperation
+import groovy.swing.j2d.operations.QuadToExtPathOperation
+import groovy.swing.j2d.operations.CurveToExtPathOperation
+import groovy.swing.j2d.operations.HLineExtPathOperation
+import groovy.swing.j2d.operations.VLineExtPathOperation
+import groovy.swing.j2d.operations.ShapeExtPathOperation
+import groovy.swing.j2d.operations.CloseExtPathOperation
 import groovy.swing.j2d.operations.ExtPathGraphicsOperation
 
 /**
@@ -40,7 +40,7 @@ class BatikGraphicsBuilderHelper {
       builder.registerFactory( "xcurveTo", new ExtPathOperationFactory( CurveToExtPathOperation) )
       builder.registerFactory( "xhline", new ExtPathOperationFactory( HLineExtPathOperation) )
       builder.registerFactory( "xvline", new ExtPathOperationFactory( VLineExtPathOperation) )
-      builder.registerFactory( "xshape", new ExtPathOperationFactory( ShapeExtPathOperation) )
+      builder.registerFactory( "xshapeTo", new ExtPathOperationFactory( ShapeExtPathOperation) )
       builder.registerFactory( "xclose", new ExtPathOperationFactory( CloseExtPathOperation) )
    }
 }

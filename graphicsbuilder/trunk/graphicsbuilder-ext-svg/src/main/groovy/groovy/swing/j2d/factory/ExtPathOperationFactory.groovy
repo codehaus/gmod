@@ -15,43 +15,21 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.DelegatingGraphicsOperation
 import groovy.swing.j2d.operations.ExtPathGraphicsOperation
-import groovy.util.AbstractFactory
-import groovy.util.FactoryBuilderSupport
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ExtPathOperationFactory extends AbstractFactory {
-   private Class operationClass
-
-   ExtPathOperationFactory( Class operationClass ) {
-      this.operationClass = operationClass
-   }
-
-   public boolean isLeaf() {
-      return true
-   }
-
-   public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
-         Map properties ) throws InstantiationException, IllegalAccessException {
-      if( FactoryBuilderSupport.checkValueIsTypeNotString( value, name, operationClass ) ){
-         return value
-      }else{
-         return operationClass.newInstance()
-      }
+public class ExtPathOperationFactory extends GraphicsOperationBeanFactory {
+   public ExtPathOperationFactory( Class operationClass ) {
+      super( operationClass, true )
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-
-      while( parent instanceof DelegatingGraphicsOperation ){
-         parent = parent.delegate
-      }
-
       if( parent instanceof ExtPathGraphicsOperation ){
          parent.addPathOperation( child )
+      }else{
+         throw new IllegalArgumentException("parent must be a 'xpath' node.")
       }
    }
 }

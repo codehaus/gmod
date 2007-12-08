@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractExtPathOperation
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class QuadToExtPathOperation extends AbstractExtPathOperation {
+class CurveToExtPathOperation extends AbstractExtPathOperation {
     float x1
     float x2
+    float x3
     float y1
     float y2
+    float y3
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.quadTo( x1, y1, x2, y2 )
+       path.curveTo( x1, y1, x2, y2, x3, y3 )
     }
 }

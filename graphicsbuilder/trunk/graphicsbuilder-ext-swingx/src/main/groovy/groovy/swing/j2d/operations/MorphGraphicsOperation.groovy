@@ -41,7 +41,7 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
    public Shape getShape( GraphicsContext context ) {
       if( morphedShape == null ){
          calculateMorphedShape( context )
-      } 
+      }
       morphedShape
    }
 
@@ -63,6 +63,5 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
 
       Morphing2D morphedShape = new Morphing2D( start, end )
       morphedShape.morphing = morph as double
-      return morphedShape
    }
 }

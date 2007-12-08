@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
+package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext;
-
-import org.apache.batik.ext.awt.geom.ExtendedGeneralPath;
+import groovy.swing.j2d.GraphicsContext
+import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface ExtPathOperation {
-   void apply( ExtendedGeneralPath path, GraphicsContext context );
+class LineToExtPathOperation extends AbstractExtPathOperation {
+    float x
+    float y
 
-   boolean isDirty();
+    public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
+       path.moveTo( x, y )
+    }
 }
