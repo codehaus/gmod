@@ -91,11 +91,14 @@ public abstract class AbstractShapeGraphicsOperation extends GroupGraphicsOperat
               g.color = ColorCache.getInstance().getColor( fill )
               applyFill( context )
               g.color = previousValue
-          }/*else if( fill instanceof PaintSupportGraphicsOperation ){
-
-          }*/else {
-             // use current settings on context
-             applyFill( context )
+          }else if( fill instanceof PaintSupport ){
+              Paint paint = context.g.getPaint()
+              context.g.setPaint( fill.adjustPaintToBounds(getShape(context).bounds) )
+              applyFill( context )
+              context.g.setPaint( paint )
+          }else {
+              // use current settings on context
+              applyFill( context )
           }
        }
     }

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
+package groovy.swing.j2d.operations
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface GradientSupportGraphicsOperation extends PaintSupportGraphicsOperation {
-   void addStop( GradientStop stop );
+public interface GradientSupport extends PaintSupport {
+   void addStop( GradientStop stop )
 }

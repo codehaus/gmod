@@ -16,7 +16,7 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.GradientStopFactory
-import groovy.swing.j2d.operations.LinearGradientPaintGraphicsOperation
+//import groovy.swing.j2d.operations.LinearGradientPaintGraphicsOperation
 import groovy.swing.j2d.operations.RadialGradientPaintGraphicsOperation
 
 /**
@@ -28,8 +28,8 @@ class Jdk6GraphicsBuilderHelper {
       // JDK 1.6
       //
       builder.registerFactory( "gradientStop", new GradientStopFactory() )
-      builder.registerGraphicsOperationBeanFactory( "linearGradient",
-            LinearGradientPaintGraphicsOperation )
+      //builder.registerGraphicsOperationBeanFactory( "linearGradient",
+      //      LinearGradientPaintGraphicsOperation )
       builder.registerGraphicsOperationBeanFactory( "radialGradient",
             RadialGradientPaintGraphicsOperation )
    }

@@ -80,9 +80,14 @@ public class GroupGraphicsOperation extends AbstractGraphicsOperation implements
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
+       /*
        if( go.metaClass.hasProperty(go,"borderColor") && borderColor != null ) go.borderColor = borderColor
        if( go.metaClass.hasProperty(go,"borderWidth") && borderWidth ) go.borderWidth = borderWidth
        if( go.metaClass.hasProperty(go,"fill") && fill != null ) go.fill = fill
+       */
+       setPropertyOnNestedOperation( go, "borderColor" )
+       setPropertyOnNestedOperation( go, "borderWidth" )
+       setPropertyOnNestedOperation( go, "fill" )
        go.execute( context )
     }
 
@@ -92,6 +97,12 @@ public class GroupGraphicsOperation extends AbstractGraphicsOperation implements
 
     protected void executeOperation( GraphicsContext context ) {
         // empty
+    }
+
+    private void setPropertyOnNestedOperation( GraphicsOperation go, String property ) {
+       def value = this."$property"
+       if( go.metaClass.hasProperty(go,property) && value != null && go."$property" == null ) 
+          go."$property" = value
     }
 
     private void doExecute( GraphicsContext context ) {

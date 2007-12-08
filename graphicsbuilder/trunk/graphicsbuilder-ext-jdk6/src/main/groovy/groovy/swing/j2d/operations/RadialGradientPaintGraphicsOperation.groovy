@@ -16,9 +16,6 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
-import groovy.swing.j2d.impl.GradientStop
-import groovy.swing.j2d.impl.GradientSupportGraphicsOperation
 
 import java.awt.Color
 import java.awt.Paint
@@ -30,25 +27,28 @@ import java.awt.MultipleGradientPaint.*
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation implements
-     GradientSupportGraphicsOperation {
+     GradientSupport {
+   protected static required = ["cx","cy","fx","fy","radius"]
+   protected static optional = ["cycle","apply"]
+
    private Paint paint
    private def stops = []
+
+   // properties
    def cx
    def cy
    def fx
    def fy
    def radius
    def cycle
+   def apply = true
 
-   static supportsFill = true
-
-   // TODO support isDirty()
    RadialGradientPaintGraphicsOperation() {
-      super( "radialGradient", ["cx","cy","fx","fy","radius"] as String[], ["cycle"] as String[] )
+      super( "radialGradient" )
    }
 
    public void addStop( GradientStop stop ) {
-      stops.add( stop );
+      stops.add( stop )
    }
 
    public Paint adjustPaintToBounds( Rectangle bounds ) {
@@ -56,12 +56,6 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
    }
 
    public Paint getPaint() {
-      float cx = getParameterValue( "cx" )
-      float cy = getParameterValue( "cy" )
-      float fx = getParameterValue( "fx" )
-      float fy = getParameterValue( "fy" )
-      float radius = getParameterValue( "radius" )
-
       int n = stops.size()
       float[] fractions = new float[n]
       Color[] colors = new Color[n]
@@ -71,52 +65,50 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
          colors[i] = stop.color
       }
 
-      if( parameterHasValue( "cycle" ) ){
-         paint = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors, getCycleMethod() )
+      fx = fx == null ? cx: fx
+      fy = fy == null ? cy: fy
+
+      if( cycle != null ){
+         paint = new RadialGradientPaint( cx as float,
+                                          cy as float,
+                                          radius as float,
+                                          fx as float,
+                                          fy as float,
+                                          fractions,
+                                          colors,
+                                          getCycleMethod() )
       }else{
-         paint = new RadialGradientPaint( cx, cy, radius, fx, fy, fractions, colors,
-               CycleMethod.NO_CYCLE )
+         paint = new RadialGradientPaint( cx as float,
+                                          cy as float,
+                                          radius as float,
+                                          fx as float,
+                                          fy as float,
+                                          fractions,
+                                          colors,
+                                          CycleMethod.NO_CYCLE )
       }
       return paint
    }
 
-   public void verify() {
-      if( !parameterHasValue("fx") ){ fx = cx }
-      if( !parameterHasValue("fy") ){ fy = cy }
-      Map parameters = getParameterMap()
-      parameters.each { k, v ->
-         if( k.equals( "cycle" ) ){/* optional */}
-         else if( !v ){
-            throw new IllegalStateException( "Property '${k}' for 'radialGradient' has no value" );
-         }
-      }
+   public void execute( GraphicsContext context){
+      if( apply ) context.g.setPaint( getPaint() )
    }
 
-   protected void doExecute( GraphicsContext context){
-      context.g.setPaint( adjustPaintToBounds( context.g.getClipBounds() ) )
-   }
-
-   private CycleMethod getCycleMethod() {
-      Object cycleValue = getParameterValue( "cycle" )
-      CycleMethod cycle = null;
-
-      if( cycleValue instanceof CycleMethod ){
-         cycle = (CycleMethod) cycleValue
-      }else if( cycleValue instanceof String ){
-         if( "nocycle".compareToIgnoreCase( (String) cycleValue ) == 0 ){
-            cycle = CycleMethod.NO_CYCLE
-         }else if( "reflect".compareToIgnoreCase( (String) cycleValue ) == 0 ){
-            cycle = CycleMethod.REFLECT
-         }else if( "repeat".compareToIgnoreCase( (String) cycleValue ) == 0 ){
-            cycle = CycleMethod.REPEAT
+   private def getCycleMethod() {
+      if( cycle instanceof CycleMethod ){
+         return cycle
+      }else if( cycle instanceof String ){
+         if( "nocycle".compareToIgnoreCase( cycle ) == 0 ){
+            return CycleMethod.NO_CYCLE
+         }else if( "reflect".compareToIgnoreCase( cycle ) == 0 ){
+            return CycleMethod.REFLECT
+         }else if( "repeat".compareToIgnoreCase( cycle ) == 0 ){
+            return CycleMethod.REPEAT
          }else{
-            throw new IllegalStateException( "'cycle=" + cycleValue
+            throw new IllegalStateException( "'cycle=" + cycle
                   + "' is not one of [nocycle,reflect,repeat]" )
          }
-      }else{
-         throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" );
       }
-
-      return cycle
+      throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" );
    }
 }

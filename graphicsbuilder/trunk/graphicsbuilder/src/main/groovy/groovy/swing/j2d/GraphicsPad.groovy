@@ -89,7 +89,7 @@ class GraphicsPad implements CaretListener {
 
     private void setupGraphicsBuilder(){
        graphicsBuilder = new GraphicsBuilder()
-       def helpers = [/*"Jdk6GraphicsBuilderHelper",*/
+       def helpers = ["Jdk6GraphicsBuilderHelper",
                       "SwingXGraphicsBuilderHelper",
                       "BatikGraphicsBuilderHelper"]
        helpers.each { helper ->

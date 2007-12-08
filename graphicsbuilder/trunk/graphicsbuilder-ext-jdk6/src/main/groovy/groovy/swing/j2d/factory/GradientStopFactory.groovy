@@ -16,10 +16,8 @@
 package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.ColorCache
-import groovy.swing.j2d.impl.GradientStop
-import groovy.swing.j2d.impl.GradientSupportGraphicsOperation
-import groovy.util.AbstractFactory
-import groovy.util.FactoryBuilderSupport
+import groovy.swing.j2d.operations.GradientStop
+import groovy.swing.j2d.operations.GradientSupport
 
 import java.awt.Color
 
@@ -69,8 +67,8 @@ public class GradientStopFactory extends AbstractFactory {
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-      if( parent instanceof GradientSupportGraphicsOperation ){
-         ((GradientSupportGraphicsOperation) parent).addStop( (GradientStop) child )
+      if( parent instanceof GradientSupport ){
+         parent.addStop( child )
       }
    }
 }
