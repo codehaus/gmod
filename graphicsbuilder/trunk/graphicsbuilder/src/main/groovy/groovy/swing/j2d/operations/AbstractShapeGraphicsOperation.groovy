@@ -28,7 +28,7 @@ import java.awt.Shape
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class AbstractShapeGraphicsOperation extends GroupGraphicsOperation implements ShapeProvider {
+public abstract class AbstractShapeGraphicsOperation extends GroupGraphicsOperation implements ShapeProvider {
     protected static optional = super.optional + ['asShape']
 
     private Shape transformedShape
@@ -144,8 +144,8 @@ public class AbstractShapeGraphicsOperation extends GroupGraphicsOperation imple
     }
 
     private boolean withinClipBounds( GraphicsContext context ){
-       if( transform ) {
-          transformedShape = transform.createTransformedShape(getShape(context))
+       if( transformations ) {
+          transformedShape = transformations.transform.createTransformedShape(getShape(context))
           return transformedShape.intersects(context.g.clipBounds)
        }else{
           return getShape(context).intersects(context.g.clipBounds)

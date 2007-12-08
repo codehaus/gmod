@@ -23,8 +23,8 @@ import java.awt.geom.AffineTransform
 public class ScaleTransformation extends AbstractTransformation {
     protected static required = ['x','y']
 
-    def x = 0
-    def y = 0
+    def x = 1
+    def y = 1
 
     public ScaleTransformation() {
         super( "scale" )

@@ -27,7 +27,7 @@ import java.awt.Shape
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class AbstractOutlineGraphicsOperation extends GroupGraphicsOperation implements OutlineProvider {
+public abstract class AbstractOutlineGraphicsOperation extends GroupGraphicsOperation implements OutlineProvider {
     protected static optional = super.optional + ['asShape']
 
     private Shape transformedShape
@@ -39,7 +39,7 @@ public class AbstractOutlineGraphicsOperation extends GroupGraphicsOperation imp
         super( name )
     }
 
-    public Shape getOutline( GraphicsContext context ){ null }
+    public Shape getShape( GraphicsContext context ){ null }
 
     public Shape getTransformedShape() {
        transformedShape
@@ -91,7 +91,7 @@ public class AbstractOutlineGraphicsOperation extends GroupGraphicsOperation imp
        }
 
        // draw the outline
-       g.draw( getOutline(context) )
+       g.draw( getShape(context) )
 
        // restore color & stroke
        if( previousColor ) g.color = previousColor
@@ -99,11 +99,11 @@ public class AbstractOutlineGraphicsOperation extends GroupGraphicsOperation imp
     }
 
     private boolean withinClipBounds( GraphicsContext context ){
-       if( transform ) {
-          transformedShape = transform.createTransformedShape(getOutline(context))
+       if( transformations ) {
+          transformedShape = transformations.transform.createTransformedShape(getShape(context))
           return transformedShape.intersects(context.g.clipBounds)
        }else{
-          return getOutline(context).intersects(context.g.clipBounds)
+          return getShape(context).intersects(context.g.clipBounds)
        }
     }
 }

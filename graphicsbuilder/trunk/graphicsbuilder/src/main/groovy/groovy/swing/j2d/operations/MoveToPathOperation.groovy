@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
+package groovy.swing.j2d.operations
 
-import java.util.List;
+import groovy.swing.j2d.GraphicsContext
+import java.awt.geom.GeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Transformable extends GraphicsOperation {
-   void setTransformationGroup( TransformationGroup transformationGroup )
-   
-   TransformationGroup getTransformationGroup()
+class MoveToPathOperation extends AbstractPathOperation {
+    double x = 0
+    double y = 0
+
+    public void apply( GeneralPath path, GraphicsContext context ) {
+       path.moveTo( x, y )
+    }
 }

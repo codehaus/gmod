@@ -25,6 +25,7 @@ import javax.swing.event.*
 import javax.swing.text.DefaultStyledDocument
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
+import groovy.swing.j2d.event.*
 import groovy.text.SimpleTemplateEngine
 import groovy.ui.Console
 import groovy.ui.ConsoleTextEditor

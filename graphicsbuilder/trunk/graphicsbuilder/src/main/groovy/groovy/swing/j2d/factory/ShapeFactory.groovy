@@ -13,31 +13,28 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.factory
+
+import groovy.swing.j2d.operations.ShapeGraphicsOperation
 
 import java.awt.Shape
-import java.awt.geom.Line2D
-import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.ShapeProvider
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class LineGraphicsOperation extends AbstractOutlineGraphicsOperation {
-    protected static required = ['x1','y1','x2','y2']
-
-    def x1 = 0
-    def y1 = 0
-    def x2 = 0
-    def y2 = 10
-
-    public LineGraphicsOperation() {
-        super( "line" )
+public class ShapeFactory extends AbstractGraphicsOperationFactory {
+    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
+            Map properties ) throws InstantiationException, IllegalAccessException {
+        ShapeGraphicsOperation go = new ShapeGraphicsOperation()
+        if( value != null && (Shape.class.isAssignableFrom( value.class ) ||
+             value instanceof ShapeProvider ) ) {
+            go.shape = value
+        }
+        return go
     }
 
-    public Shape getShape( GraphicsContext context ) {
-        return new Line2D.Double( x1 as double,
-                                  y1 as double,
-                                  x2 as double,
-                                  y2 as double )
+    public boolean isLeaf(){
+        return true
     }
 }

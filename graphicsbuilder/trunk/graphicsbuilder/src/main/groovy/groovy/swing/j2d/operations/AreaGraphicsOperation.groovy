@@ -46,7 +46,7 @@ public class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
     public void propertyChange( PropertyChangeEvent event ){
        def gos = shapeProviders ? shapeProviders : operations.findAll { it instanceof ShapeProvider }
        if( gos.contains(event.source) && event.source.required.contains(event.propertyName) ){
-          area == null
+          area = null
        }
     }
 

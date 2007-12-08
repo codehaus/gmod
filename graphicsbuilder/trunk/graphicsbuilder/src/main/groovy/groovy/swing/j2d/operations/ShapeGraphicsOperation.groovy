@@ -15,35 +15,32 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Shape
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.OutlineProvider
+import java.awt.Shape
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
+class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeProvider {
     protected static required = ['shape']
-    protected static optional = super.optional - ['asShape']
 
     def shape
 
-    public DrawGraphicsOperation() {
-        super( "draw" )
+    ShapeGraphicsOperation() {
+        super( "shape" )
     }
 
-    public Shape getShape( GraphicsContext context) {
-        if( shape instanceof ShapeProvider || shape instanceof OutlineProvider ){
-           return shape.getShape(context)
-        }else if( shape instanceof Shape ){
-           return shape
-        }
-        throw new IllegalArgumentException("draw.shape must be one of [java.awt.Shape,OutlineProvider,ShapeProvider]")
+    public void execute( GraphicsContext context ){
+        // empty
     }
-
-    protected void fill( GraphicsContext context ) {
-        if( shape instanceof OutlineProvider ) return
-        super.fill( context )
+    
+    public Shape getShape( GraphicsContext context ){
+       if( shape instanceof ShapeProvider ){
+          return shape.getShape(context)
+       }else if( shape instanceof Shape ){
+          return shape
+       }    
+       throw new IllegalArgumentException("shape.shape must be one of [java.awt.Shape,ShapeProvider]")    
     }
 }

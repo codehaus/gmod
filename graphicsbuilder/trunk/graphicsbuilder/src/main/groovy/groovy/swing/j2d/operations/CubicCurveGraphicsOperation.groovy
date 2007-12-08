@@ -38,7 +38,7 @@ public class CubicCurveGraphicsOperation extends AbstractOutlineGraphicsOperatio
         super( "cubicCurve" )
     }
 
-    public Shape getOutline( GraphicsContext context ) {
+    public Shape getShape( GraphicsContext context ) {
        return new CubicCurve2D.Double( x1 as double,
                                        y1 as double,
                                        ctrlx1 as double,

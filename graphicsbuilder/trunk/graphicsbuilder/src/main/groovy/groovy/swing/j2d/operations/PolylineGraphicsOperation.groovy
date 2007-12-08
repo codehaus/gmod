@@ -34,7 +34,7 @@ public class PolylineGraphicsOperation extends AbstractOutlineGraphicsOperation 
         super( "polyline" )
     }
 
-    public Shape getOutline( GraphicsContext context) {
+    public Shape getShape( GraphicsContext context) {
        if( path == null ){
           calculatePath()
        }

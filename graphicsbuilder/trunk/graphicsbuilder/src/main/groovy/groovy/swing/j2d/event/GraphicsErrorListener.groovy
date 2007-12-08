@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
-
-import java.util.List;
+package groovy.swing.j2d.event
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Transformable extends GraphicsOperation {
-   void setTransformationGroup( TransformationGroup transformationGroup )
-   
-   TransformationGroup getTransformationGroup()
+public interface GraphicsErrorListener {
+    void errorOccurred( GraphicsErrorEvent event )
 }

@@ -15,11 +15,11 @@
 
 package groovy.swing.j2d.factory
 
+import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.Transformation
-import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.TransformationGroup
+import groovy.swing.j2d.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -37,7 +37,7 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
        if( child instanceof Transformation ){
           if( parent instanceof TransformationGroup ){
-             parent.transformable.addTransformation(child)
+             parent.addTransformation(child)
              return
           }else{
              throw new IllegalArgumentException("Transforms are not allowed outside a 'transformations' node")
@@ -45,7 +45,7 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
        }
        if( child instanceof TransformationGroup ){
           if( parent instanceof Transformable ){
-             child.transformable = parent
+             parent.transformationGroup = child
              return
           }else{
              throw new IllegalArgumentException("$parent does not support transformations")

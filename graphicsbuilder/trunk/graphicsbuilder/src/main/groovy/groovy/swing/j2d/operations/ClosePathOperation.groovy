@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import java.awt.geom.GeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class QuadToPathOperation extends AbstractPathOperation {
-    double x1
-    double x2
-    double y1
-    double y2
-
-    public void apply( Path2D path, GraphicsContext context ) {
-       path.quadTo( x1, y1, x2, y2 )
+class ClosePathOperation extends AbstractPathOperation {
+    public void apply( GeneralPath path, GraphicsContext context ) {
+       path.closePath()
     }
 }

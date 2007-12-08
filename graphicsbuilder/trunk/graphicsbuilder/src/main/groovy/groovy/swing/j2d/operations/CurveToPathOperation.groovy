@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import java.awt.geom.GeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -30,7 +29,7 @@ class CurveToPathOperation extends AbstractPathOperation {
     double y2
     double y3
 
-    public void apply( Path2D path, GraphicsContext context ) {
+    public void apply( GeneralPath path, GraphicsContext context ) {
        path.curveTo( x1, y1, x2, y2, x3, y3 )
     }
 }

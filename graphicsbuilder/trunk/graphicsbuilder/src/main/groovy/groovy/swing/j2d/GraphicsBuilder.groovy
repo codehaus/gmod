@@ -94,7 +94,9 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "font", new FontFactory() )
         registerGraphicsOperationBeanFactory( "group", GroupGraphicsOperation )
         registerFactory( "operation", new OperationFactory() )
+        registerFactory( "outline", new OutlineFactory() )
         registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
+        registerFactory( "shape", new ShapeFactory() )
 
         //
         // shapes
@@ -106,6 +108,19 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "rect", RectGraphicsOperation )
         registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
 
+        //
+        // paths
+        //
+        registerGraphicsOperationBeanFactory( "path", PathGraphicsOperation )
+        registerFactory( "moveTo", new PathOperationFactory( MoveToPathOperation) )
+        registerFactory( "lineTo", new PathOperationFactory( LineToPathOperation) )
+        registerFactory( "quadTo", new PathOperationFactory( QuadToPathOperation) )
+        registerFactory( "curveTo", new PathOperationFactory( CurveToPathOperation) )
+        registerFactory( "hline", new PathOperationFactory( HLinePathOperation) )
+        registerFactory( "vline", new PathOperationFactory( VLinePathOperation) )
+        registerFactory( "shapeTo", new PathOperationFactory( ShapePathOperation) )
+        registerFactory( "close", new PathOperationFactory( ClosePathOperation) )
+        
         //
         // outlines
         //

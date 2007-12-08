@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.ShapeProvider
+import java.awt.geom.GeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -27,15 +28,17 @@ class ShapePathOperation extends AbstractPathOperation {
     def shape
     boolean connect
 
+    /*
     public boolean isDirty() {
        boolean shapetIsDirty = shape instanceof GraphicsOperation ? shape?.isDirty() : false
        return shapeIsDirty || super.isDirty()
     }
+    */
 
-    public void apply( Path2D path, GraphicsContext context ) {
-       if( shape instanceof GraphicsOperation && shape.parameterHasValue("asShape") &&
-             shape.getParameterValue("asShape") ){
-          shape = shape.getClip(context)
+    public void apply( GeneralPath path, GraphicsContext context ) {
+       if( (shape instanceof ShapeProvider || shape instanceof OutlineProvider ) 
+           && shape.hasShape != null && shape.hasShape ){
+          shape = shape.getShape(context)
        }
        path.append( shape, connect )
     }

@@ -13,15 +13,31 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
-
-import java.util.List;
+package groovy.swing.j2d.event
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Transformable extends GraphicsOperation {
-   void setTransformationGroup( TransformationGroup transformationGroup )
-   
-   TransformationGroup getTransformationGroup()
+public interface GraphicsInputListener {
+    void keyPressed( GraphicsInputEvent e )
+
+    void keyReleased( GraphicsInputEvent e )
+
+    void keyTyped( GraphicsInputEvent e )
+
+    void mouseClicked( GraphicsInputEvent e )
+
+    void mouseDragged( GraphicsInputEvent e )
+
+    void mouseEntered( GraphicsInputEvent e )
+
+    void mouseExited( GraphicsInputEvent e )
+
+    void mouseMoved( GraphicsInputEvent e )
+
+    void mousePressed( GraphicsInputEvent e )
+
+    void mouseReleased( GraphicsInputEvent e )
+
+    void mouseWheelMoved( GraphicsInputEvent e )
 }

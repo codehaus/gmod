@@ -21,8 +21,7 @@ import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.Transformation
-
-import java.awt.geom.AffineTransform
+import groovy.swing.j2d.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -31,9 +30,8 @@ public class GroupGraphicsOperation extends AbstractGraphicsOperation implements
    Transformable, Grouping {
     protected static optional = ['borderColor','borderWidth','fill']
 
-    private List transformations = []
+    TransformationGroup transformations
     private List operations = []
-    protected AffineTransform transform
 
     // properties
     def borderColor
@@ -48,29 +46,24 @@ public class GroupGraphicsOperation extends AbstractGraphicsOperation implements
         def g = context.g
         if( transformations ){
            context.g = context.g.create()
-           transform = new AffineTransform()
-           transformations.each { t -> transform.concatenate(t.transform) }
-           context.g.transform( transform )
+           context.g.transform( transformations.getTransform() )
         }
         doExecute( context )
         if( transformations ){
-           transform = null
            context.g.dispose()
            context.g = g
         }
     }
 
     // Transformable
-    public void addTransformation( Transformation transformation ) {
-        transformations << transformation
+    public void setTransformationGroup( TransformationGroup transformationGroup ) {
+        transformations = transformationGroup
     }
-    public void removeTransformation( Transformation transformation ) {
-        transformations.remove( transformation )
-    }
-    public List getTransformations() {
+   
+    public TransformationGroup getTransformationGroup() {
         transformations
     }
-
+    
     // Grouping
     public void addOperation( GraphicsOperation operation ) {
         operations << operation

@@ -13,20 +13,31 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MoveToPathOperation extends AbstractPathOperation {
-    double x = 0
-    double y = 0
-
-    public void apply( Path2D path, GraphicsContext context ) {
-       path.moveTo( x, y )
+public class TransformationGroup {
+    private List transformations = []
+    
+    public void addTransformation( Transformation transformation ) {
+        transformations << transformation
+    }
+    
+    public void removeOperation( Transformation transformation ) {
+        transformations.remove( transformation )
+    }
+    
+    public List getTransformations() {
+        transformations
+    }
+    
+    public AffineTransform getTransform() {
+        AffineTransform transform = new AffineTransform()
+        transformations.each { t -> transform.concatenate(t.transform) }
+        transform
     }
 }

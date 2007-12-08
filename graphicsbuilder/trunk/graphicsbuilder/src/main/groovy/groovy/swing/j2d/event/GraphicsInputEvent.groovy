@@ -13,33 +13,29 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
+package groovy.swing.j2d.event
 
-import groovy.lang.GroovyObjectSupport;
+import java.util.EventObject
+import groovy.swing.j2d.GraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public abstract class AbstractPathOperation extends GroovyObjectSupport implements PathOperation {
-   private boolean dirty;
+public class GraphicsInputEvent extends EventObject {
+    private EventObject event
+    private GraphicsOperation sourceShape
 
-   public AbstractPathOperation() {
+    public GraphicsInputEvent( Object source, EventObject event, GraphicsOperation sourceShape ) {
+        super( source )
+        this.event = event
+        this.sourceShape = sourceShape
+    }
 
-   }
+    public EventObject getEvent() {
+        return event
+    }
 
-   public boolean isDirty() {
-      return dirty;
-   }
-
-   public void setProperty( String name, Object value ) {
-      Object oldValue = getProperty( name );
-      super.setProperty( name, value );
-      if( value != oldValue ){
-         dirty = true;
-      }
-   }
-
-   protected void setDirty( boolean dirty ) {
-      this.dirty = dirty;
-   }
+    public GraphicsOperation getSourceShape() {
+        return sourceShape
+    }
 }

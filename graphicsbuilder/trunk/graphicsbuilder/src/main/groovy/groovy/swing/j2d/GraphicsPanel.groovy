@@ -27,7 +27,7 @@ import java.awt.event.MouseWheelListener
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import javax.swing.JPanel
-import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.event.*
 
 /**
  * A Panel that can use a GraphicsOperation to draw itself.

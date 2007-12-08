@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import java.awt.geom.GeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class VLinePathOperation extends AbstractPathOperation {
+class LineToPathOperation extends AbstractPathOperation {
+    double x
     double y
 
-    public void apply( Path2D path, GraphicsContext context ) {
-       path.lineTo( path.currentPoint.x, y )
+    public void apply( GeneralPath path, GraphicsContext context ) {
+       path.lineTo( x, y )
     }
 }

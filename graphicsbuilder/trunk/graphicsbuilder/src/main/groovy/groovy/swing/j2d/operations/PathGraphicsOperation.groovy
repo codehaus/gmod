@@ -16,79 +16,71 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
-import groovy.swing.j2d.impl.PathOperation
-import groovy.swing.j2d.impl.MoveToPathOperation
 
 import java.awt.Shape
 import java.awt.geom.GeneralPath
-import java.awt.geom.Path2D
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class PathGraphicsOperation extends AbstractShapeGraphicsOperation {
+class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
+   protected static optional = super.optional + ['winding'] 
+    
+   private List pathOperations = []
+   private GeneralPath path
+    
    def winding
 
-   private List pathOperations = []
-
    PathGraphicsOperation() {
-      super( "path", [] as String[], ["winding"] as String[] )
+      super( "path" )
    }
 
    public void addPathOperation( PathOperation operation ) {
       pathOperations.add( operation )
    }
 
-   public boolean isDirty() {
-      // shortcut
-      if( super.isDirty() ){
-         return true
+   public void propertyChange( PropertyChangeEvent event ){
+      if( pathOperations.contains(event.source) ){
+         path = null
       }
-      for( po in pathOperations ){
-         if( po.isDirty() ){
-             return true
-         }
-     }
-     return false
    }
-
-   protected Shape computeShape( GraphicsContext context ) {
-      Path2D path = new GeneralPath( getWindingRule() )
+   
+   public Shape getShape( GraphicsContext context ) {
+      if( path == null ){
+         calculatePath()
+      }
+      path
+   }
+   
+   private void calculatePath( GraphicsContext context ) {
       if( pathOperations.size() > 0 && !(pathOperations[0] instanceof MoveToPathOperation) ){
          throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")
       }
+      path = new GeneralPath( getWindingRule() )
       pathOperations.each { pathOperation ->
          pathOperation.apply( path, context )
-         pathOperation.setDirty( false )
       }
       path.closePath()
-      return path
    }
 
    private int getWindingRule() {
-      if( !parameterHasValue("winding") ){
-         return Path2D.WIND_NON_ZERO
+      if( winding == null ){
+         return GeneralPath.WIND_NON_ZERO
       }
 
-      Object windingValue = getParameterValue( "winding" )
-      int winding = Path2D.WIND_NON_ZERO
-
-      if( windingValue instanceof Integer ){
-         return windingValue
-      }else if( windingValue instanceof String ){
-         if( "non_zero".compareToIgnoreCase( (String) windingValue ) == 0 ){
-            winding = Path2D.WIND_NON_ZERO
-         }else if( "even_odd".compareToIgnoreCase( (String) windingValue ) == 0 ){
-            winding = Path2D.WIND_EVEN_ODD
+      if( winding instanceof Integer ){
+         return winding
+      }else if( winding instanceof String ){
+         if( "non_zero".compareToIgnoreCase( windingValue ) == 0 ){
+            return GeneralPath.WIND_NON_ZERO
+         }else if( "even_odd".compareToIgnoreCase( windingValue ) == 0 ){
+            return GeneralPath.WIND_EVEN_ODD
          }else{
             throw new IllegalStateException( "'winding=" + windingValue
                   + "' is not one of [non_zero,even_odd]" )
          }
-      }else{
-         throw new IllegalStateException( "'winding' value is not a String nor an Integer" );
       }
-
-      return winding
+      throw new IllegalStateException( "'winding' value is not a String nor an Integer" )
    }
 }

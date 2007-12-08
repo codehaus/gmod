@@ -36,7 +36,7 @@ public class QuadCurveGraphicsOperation extends AbstractOutlineGraphicsOperation
         super( "quadCurve" )
     }
 
-    public Shape getOutline( GraphicsContext context ) {
+    public Shape getShape( GraphicsContext context ) {
        return new QuadCurve2D.Double( x1 as double,
                                        y1 as double,
                                        ctrlx as double,

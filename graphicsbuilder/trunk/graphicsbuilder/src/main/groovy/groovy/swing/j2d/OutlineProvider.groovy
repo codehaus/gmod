@@ -26,5 +26,5 @@ public interface OutlineProvider extends GraphicsOperation {
     *
     * @return a Shape instance.
     */
-   Shape getOutline( GraphicsContext context )
+   Shape getShape( GraphicsContext context )
 }

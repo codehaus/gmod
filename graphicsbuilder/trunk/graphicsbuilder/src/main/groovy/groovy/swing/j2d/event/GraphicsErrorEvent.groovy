@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl
+package groovy.swing.j2d.event
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.impl.AbstractPathOperation
-import java.awt.geom.Path2D
+import java.util.EventObject
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class HLinePathOperation extends AbstractPathOperation {
-    double x
+public class GraphicsErrorEvent extends EventObject {
+    private Throwable cause
 
-    public void apply( Path2D path, GraphicsContext context ) {
-       path.lineTo( x, path.currentPoint.y )
+    public GraphicsErrorEvent( Object source, Throwable cause ) {
+        super( source )
+        this.cause = cause
+    }
+
+    public Throwable getCause() {
+        return cause
     }
 }

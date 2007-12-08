@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.impl;
+package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext;
-
-import java.awt.geom.Path2D;
+import groovy.swing.j2d.GraphicsContext
+import java.awt.geom.GeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface PathOperation {
-   void apply( Path2D path, GraphicsContext context );
-
-   boolean isDirty();
+   void apply( GeneralPath path, GraphicsContext context )
 }
