@@ -16,6 +16,8 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.PathOperation
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Shape
 import java.awt.geom.GeneralPath
@@ -25,11 +27,11 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
-   protected static optional = super.optional + ['winding'] 
-    
+   protected static optional = super.optional + ['winding']
+
    private List pathOperations = []
    private GeneralPath path
-    
+
    def winding
 
    PathGraphicsOperation() {
@@ -43,16 +45,17 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
    public void propertyChange( PropertyChangeEvent event ){
       if( pathOperations.contains(event.source) ){
          path = null
+         firePropertyChange( event )
       }
    }
-   
+
    public Shape getShape( GraphicsContext context ) {
       if( path == null ){
          calculatePath()
       }
       path
    }
-   
+
    private void calculatePath( GraphicsContext context ) {
       if( pathOperations.size() > 0 && !(pathOperations[0] instanceof MoveToPathOperation) ){
          throw new IllegalStateException("You must call 'moveTo' as the first operation of a path")

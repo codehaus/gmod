@@ -19,6 +19,7 @@ import java.awt.Shape
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.ShapeProvider
 import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

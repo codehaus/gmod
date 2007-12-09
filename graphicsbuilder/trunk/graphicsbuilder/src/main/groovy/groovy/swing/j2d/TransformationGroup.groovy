@@ -16,28 +16,45 @@
 package groovy.swing.j2d
 
 import java.awt.geom.AffineTransform
+import java.beans.PropertyChangeEvent
+import groovy.swing.j2d.impl.ObservableSupport
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class TransformationGroup {
+public class TransformationGroup extends ObservableSupport {
     private List transformations = []
-    
+    private AffineTransform transform = new AffineTransform()
+
     public void addTransformation( Transformation transformation ) {
+        if( !transformation ) return
         transformations << transformation
+        transformation.addPropertyChangeListener( this )
     }
-    
+
     public void removeOperation( Transformation transformation ) {
+        if( !transformation ) return
+        transformation.removePropertyChangeListener( this )
         transformations.remove( transformation )
     }
-    
+
     public List getTransformations() {
         transformations
     }
-    
+
     public AffineTransform getTransform() {
-        AffineTransform transform = new AffineTransform()
-        transformations.each { t -> transform.concatenate(t.transform) }
-        transform
+        if( this.@transform.isIdentity() ){
+           calculateTransform()
+        }
+        this.@transform
+    }
+
+    public void propertyChange( PropertyChangeEvent event ) {
+       firePropertyChange( "transform", this.@transform, calculateTransform() )
+    }
+
+    private void calculateTransform(){
+        this.@transform = new AffineTransform()
+        transformations.each { t -> this.@transform.concatenate(t.transform) }
     }
 }

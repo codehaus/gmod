@@ -16,6 +16,7 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractPathOperation
 import java.awt.geom.GeneralPath
 
 /**

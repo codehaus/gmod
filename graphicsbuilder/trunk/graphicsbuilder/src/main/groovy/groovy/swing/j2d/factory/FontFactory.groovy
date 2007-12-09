@@ -15,7 +15,9 @@
 
 package groovy.swing.j2d.factory
 
+import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.operations.FontGraphicsOperation
+import groovy.swing.j2d.operations.TextGraphicsOperation
 
 import java.awt.Font
 
@@ -36,6 +38,14 @@ public class FontFactory extends AbstractGraphicsOperationFactory {
             go.font = new Font( face, style, size )
         }
         return go
+    }
+
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
+       if( parent instanceof Grouping || parent instanceof TextGraphicsOperation ) {
+          parent.addOperation( child )
+       }else{
+          throw new IllegalArgumentException("font() can only be nested in group() or text()")
+       }
     }
 
     public boolean isLeaf(){

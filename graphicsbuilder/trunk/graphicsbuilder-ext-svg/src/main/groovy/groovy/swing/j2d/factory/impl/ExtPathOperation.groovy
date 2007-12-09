@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
-import java.awt.geom.AffineTransform
-import groovy.swing.j2d.impl.AbstractTransformation
+import groovy.swing.j2d.GraphicsContext
+import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class RotateTransformation extends AbstractTransformation {
-    def angle = 0
-    def x
-    def y
-
-    public RotateTransformation() {
-        super( "rotate" )
-    }
-
-    public AffineTransform getTransform() {
-       if( angle == 0 ) {
-          return new AffineTransform()
-       }else if( x != null && y != null ){
-          return AffineTransform.getRotateInstance( angle as double, x as double, y as double )
-       }else{
-          return AffineTransform.getRotateInstance( angle as double )
-       }
-    }
+public interface ExtPathOperation {
+   void apply( ExtendedGeneralPath path, GraphicsContext context )
 }

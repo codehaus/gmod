@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.impl.AbstractGraphicsOperation
 import java.awt.Shape
 
 /**
@@ -34,14 +35,14 @@ class OulineGraphicsOperation extends AbstractGraphicsOperation implements Outli
     public void execute( GraphicsContext context ){
         // empty
     }
-    
+
     public Shape getShape( GraphicsContext context ){
        if( shape instanceof OutlineProvider ){
           return shape.getShape(context)
        }else if( shape instanceof Shape ){
           // TODO check against Line2D, CubicCurve and QuadCurve
           return shape
-       }    
-       throw new IllegalArgumentException("shape.shape must be one of [java.awt.Shape,OutlineProvider]")    
+       }
+       throw new IllegalArgumentException("shape.shape must be one of [java.awt.Shape,OutlineProvider]")
     }
 }

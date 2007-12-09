@@ -20,6 +20,8 @@ import groovy.swing.j2d.GraphicsContext
 import java.awt.Shape
 import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
+import groovy.swing.j2d.impl.ExtPathOperation
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -44,6 +46,7 @@ class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
    public void propertyChange( PropertyChangeEvent event ){
       if( pathOperations.contains(event.source) ){
          path = null
+         firePropertyChange( event )
       }
    }
 

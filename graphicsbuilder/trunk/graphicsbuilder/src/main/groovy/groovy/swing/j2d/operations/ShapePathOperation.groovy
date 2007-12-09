@@ -19,6 +19,7 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.OutlineProvider
 import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.impl.AbstractPathOperation
 import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
 
@@ -36,7 +37,7 @@ class ShapePathOperation extends AbstractPathOperation {
     }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       if( (shape instanceof ShapeProvider || shape instanceof OutlineProvider ) 
+       if( (shape instanceof ShapeProvider || shape instanceof OutlineProvider )
            && shape.hasShape != null && shape.hasShape ){
           shape = shape.getShape(context)
        }

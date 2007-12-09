@@ -19,6 +19,7 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.OutlineProvider
 import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.impl.AbstractExtPathOperation
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 import java.beans.PropertyChangeEvent
 

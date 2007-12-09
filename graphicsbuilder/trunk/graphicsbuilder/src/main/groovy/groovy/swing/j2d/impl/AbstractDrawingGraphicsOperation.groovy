@@ -13,37 +13,82 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.PaintProvider
+import groovy.swing.j2d.Transformable
+import groovy.swing.j2d.TransformationGroup
 
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Paint
 import java.awt.Shape
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public abstract class AbstractShapeGraphicsOperation extends GroupGraphicsOperation implements ShapeProvider {
-    protected static optional = super.optional + ['asShape']
+abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
+    protected static optional = ['borderColor','borderWidth','fill','asShape']
 
-    private Shape transformedShape
+    protected Shape transformedShape
+    private def g
+    TransformationGroup transformationGroup
 
     // properties
+    def borderColor
+    def borderWidth
+    def fill
     def asShape
 
-    public AbstractShapeGraphicsOperation( String name ) {
+    AbstractDrawingGraphicsOperation( String name ) {
         super( name )
     }
 
-    public Shape getShape( GraphicsContext context ){ null }
+    public abstract Shape getShape( GraphicsContext context )
+
+    public void setTransformationGroup( TransformationGroup transformationGroup ){
+       if( transformationGroup ) {
+          if( this.transformationGroup ){
+             this.transformationGroup.removePropertyChangeListener( this )
+          }
+          this.transformationGroup = transformationGroup
+          this.transformationGroup.addPropertyChangeListener( this )
+       }
+    }
+
+    public TransformationGroup getTransformationGroup() {
+       transformationGroup
+    }
 
     public Shape getTransformedShape() {
        transformedShape
+    }
+
+    public void propertyChange( PropertyChangeEvent event ) {
+       if( event.source == transformationGroup ){
+          super.firePropertyChange( event )
+       }
+    }
+
+    protected void executeBeforeAll( GraphicsContext context ) {
+       if( transformationGroup || operations ){
+          g = context.g
+          context.g = context.g.create()
+          if( transformationGroup ){
+             context.g.transform( transformationGroup.getTransform() )
+          }
+       }
+    }
+
+    protected void executeAfterAll( GraphicsContext context ) {
+       if( transformationGroup || operations ){
+          context.g.dispose()
+          context.g = g
+       }
     }
 
     protected boolean executeBeforeNestedOperations( GraphicsContext context ) {
@@ -91,7 +136,7 @@ public abstract class AbstractShapeGraphicsOperation extends GroupGraphicsOperat
               g.color = ColorCache.getInstance().getColor( fill )
               applyFill( context )
               g.color = previousValue
-          }else if( fill instanceof PaintSupport ){
+          }else if( fill instanceof PaintProvider ){
               Paint paint = context.g.getPaint()
               context.g.setPaint( fill.adjustPaintToBounds(getShape(context).bounds) )
               applyFill( context )
@@ -146,9 +191,9 @@ public abstract class AbstractShapeGraphicsOperation extends GroupGraphicsOperat
        if( previousStroke ) g.stroke = previousStroke
     }
 
-    private boolean withinClipBounds( GraphicsContext context ){
-       if( transformations ) {
-          transformedShape = transformations.transform.createTransformedShape(getShape(context))
+    protected boolean withinClipBounds( GraphicsContext context ){
+       if( transformationGroup ) {
+          transformedShape = transformationGroup.transform.createTransformedShape(getShape(context))
           return transformedShape.intersects(context.g.clipBounds)
        }else{
           return getShape(context).intersects(context.g.clipBounds)

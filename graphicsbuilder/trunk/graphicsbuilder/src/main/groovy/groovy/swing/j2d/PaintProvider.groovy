@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d
 
-import groovy.swing.j2d.GraphicsContext
-import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
+import groovy.swing.j2d.GraphicsOperation
+
+import java.awt.Paint
+import java.awt.Rectangle
 
 /**
+ * Marker interface for operations that work with Paint.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface ExtPathOperation {
-   void apply( ExtendedGeneralPath path, GraphicsContext context )
+public interface PaintProvider /*extends GraphicsOperation*/ {
+    Paint adjustPaintToBounds( Rectangle bounds )
+
+    Paint getPaint()
 }

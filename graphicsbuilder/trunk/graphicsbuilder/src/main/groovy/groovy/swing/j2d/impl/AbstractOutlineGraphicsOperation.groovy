@@ -13,35 +13,26 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.OutlineProvider
+
 import java.awt.Shape
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeProvider {
-    protected static required = ['shape']
+public abstract class AbstractOutlineGraphicsOperation extends AbstractDrawingGraphicsOperation implements OutlineProvider {
+    protected static optional = super.optional - ['fill']
 
-    def shape
-
-    ShapeGraphicsOperation() {
-        super( "shape" )
+    public AbstractOutlineGraphicsOperation( String name ) {
+        super( name )
     }
 
-    public void execute( GraphicsContext context ){
-        // empty
-    }
+    //public Shape getShape( GraphicsContext context ){ null }
 
-    public Shape getShape( GraphicsContext context ){
-       if( shape instanceof ShapeProvider ){
-          return shape.getShape(context)
-       }else if( shape instanceof Shape ){
-          return shape
-       }
-       throw new IllegalArgumentException("shape.shape must be one of [java.awt.Shape,ShapeProvider]")
+    protected void fill( GraphicsContext context ) {
+       // empty
     }
 }

@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations
 import java.awt.Shape
 import java.awt.geom.Ellipse2D
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

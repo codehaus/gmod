@@ -17,23 +17,18 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
+import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.ShapeProvider
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.Transformation
 import groovy.swing.j2d.TransformationGroup
+import groovy.swing.j2d.operations.AreaGraphicsOperation
+import groovy.swing.j2d.operations.GroupGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
-    protected boolean safePropertyGet( Object bean, String name ){
-        try{
-            return bean?."${name}"
-        }catch( MissingPropertyException mpe ){
-            // ignore
-        }
-        return null
-    }
-
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
        if( child instanceof Transformation ){
           if( parent instanceof TransformationGroup ){
@@ -51,9 +46,15 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
              throw new IllegalArgumentException("$parent does not support transformations")
           }
        }
+       if( child instanceof ShapeProvider && parent instanceof AreaGraphicsOperation ){
+          parent.addOperation( child )
+          return
+       }
        if( parent instanceof Grouping ){
           parent.addOperation( child )
           return
+       }else{
+          throw new IllegalArgumentException("$parent does not support nesting of other operations")
        }
    }
 }

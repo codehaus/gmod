@@ -15,102 +15,74 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.Transformable
-import groovy.swing.j2d.Transformation
 import groovy.swing.j2d.TransformationGroup
+import groovy.swing.j2d.impl.AbstractNestingGraphicsOperation
+
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GroupGraphicsOperation extends AbstractGraphicsOperation implements
-   Transformable, Grouping {
+class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping {
     protected static optional = ['borderColor','borderWidth','fill']
 
-    TransformationGroup transformations
-    private List operations = []
+    private def g
+    TransformationGroup transformationGroup
 
     // properties
     def borderColor
     def borderWidth
     def fill
 
-    public GroupGraphicsOperation( String name ) {
-        super( name )
+    public GroupGraphicsOperation() {
+        super( "group" )
     }
 
-    public final void execute( GraphicsContext context ) {
-        def g = context.g
-        if( transformations ){
-           context.g = context.g.create()
-           context.g.transform( transformations.getTransform() )
-        }
-        doExecute( context )
-        if( transformations ){
-           context.g.dispose()
-           context.g = g
-        }
+    public void setTransformationGroup( TransformationGroup transformationGroup ){
+       if( transformationGroup ) {
+          if( this.transformationGroup ){
+             this.transformationGroup.removePropertyChangeListener( this )
+          }
+          this.transformationGroup = transformationGroup
+          this.transformationGroup.addPropertyChangeListener( this )
+       }
     }
 
-    // Transformable
-    public void setTransformationGroup( TransformationGroup transformationGroup ) {
-        transformations = transformationGroup
-    }
-   
     public TransformationGroup getTransformationGroup() {
-        transformations
-    }
-    
-    // Grouping
-    public void addOperation( GraphicsOperation operation ) {
-        operations << operation
-    }
-    public void removeOperation( GraphicsOperation operation ) {
-       operations.remove( operation )
-    }
-    public List getOperations() {
-       operations
+       transformationGroup
     }
 
-    protected boolean executeBeforeNestedOperations( GraphicsContext context ) {
-        true
+    /*
+    public void propertyChange( PropertyChangeEvent event ) {
+       if( event.source == transformationGroup ){
+          super.firePropertyChange( event )
+       }
+    }
+    */
+
+    protected void executeBeforeAll( GraphicsContext context ) {
+       if( transformationGroup ){
+          g = context.g
+          context.g = context.g.create()
+          context.g.transform( transformationGroup.getTransform() )
+       }
+    }
+
+    protected void executeAfterAll( GraphicsContext context ) {
+       if( transformationGroup ){
+          context.g.dispose()
+          context.g = g
+       }
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-       /*
-       if( go.metaClass.hasProperty(go,"borderColor") && borderColor != null ) go.borderColor = borderColor
-       if( go.metaClass.hasProperty(go,"borderWidth") && borderWidth ) go.borderWidth = borderWidth
-       if( go.metaClass.hasProperty(go,"fill") && fill != null ) go.fill = fill
-       */
        setPropertyOnNestedOperation( go, "borderColor" )
        setPropertyOnNestedOperation( go, "borderWidth" )
        setPropertyOnNestedOperation( go, "fill" )
        go.execute( context )
-    }
-
-    protected boolean executeAfterNestedOperations( GraphicsContext context ) {
-        true
-    }
-
-    protected void executeOperation( GraphicsContext context ) {
-        // empty
-    }
-
-    private void setPropertyOnNestedOperation( GraphicsOperation go, String property ) {
-       def value = this."$property"
-       if( go.metaClass.hasProperty(go,property) && value != null && go."$property" == null ) 
-          go."$property" = value
-    }
-
-    private void doExecute( GraphicsContext context ) {
-       if( operations ){
-          if( !executeBeforeNestedOperations( context ) ) return
-          operations.each { o -> executeNestedOperation(context,o) }
-          if( !executeAfterNestedOperations( context ) ) return
-       }
-       executeOperation( context )
     }
 }

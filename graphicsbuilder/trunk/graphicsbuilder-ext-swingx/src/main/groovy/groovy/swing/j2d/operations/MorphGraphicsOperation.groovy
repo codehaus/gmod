@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Shape
 import java.beans.PropertyChangeEvent
@@ -36,6 +37,7 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
 
    MorphGraphicsOperation() {
       super( "morph" )
+      addPropertyChangeListener( this )
    }
 
    public Shape getShape( GraphicsContext context ) {
@@ -50,6 +52,8 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
          morphedShape = null
       }else if( end == event.source && end.required.contains(event.propertyName) ){
          morphedShape = null
+      }else if( event.propertyName == "morph" ){
+         morphedShape = null
       }
    }
 
@@ -61,7 +65,15 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
          end = end.getShape(context)
       }
 
-      Morphing2D morphedShape = new Morphing2D( start, end )
+      morphedShape = new Morphing2D( start, end )
       morphedShape.morphing = morph as double
+   }
+
+   protected boolean withinClipBounds( GraphicsContext context ){
+      // TODO Morph2D does not support intersect()
+      if( transformationGroup ) {
+         transformedShape = transformationGroup.transform.createTransformedShape(getShape(context))
+      }
+      true
    }
 }

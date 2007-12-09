@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Shape
 import java.awt.geom.Area

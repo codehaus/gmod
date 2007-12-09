@@ -16,13 +16,13 @@
 package groovy.swing.j2d.operations
 
 import java.awt.RenderingHints
-
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class RenderingHintGraphicsOperation extends AbstractGraphicsOperation {
+public class RenderingHintGraphicsOperation extends AbstractGraphicsOperation {
     protected static required = ['key','value']
 
     String key

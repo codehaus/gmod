@@ -24,6 +24,7 @@ import java.awt.geom.Rectangle2D
 import java.beans.PropertyChangeEvent
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

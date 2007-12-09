@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
+package groovy.swing.j2d
 
-import java.util.List;
+import java.util.List
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Transformable extends GraphicsOperation {
+public interface Transformable /*extends GraphicsOperation*/ {
    void setTransformationGroup( TransformationGroup transformationGroup )
-   
+
    TransformationGroup getTransformationGroup()
 }

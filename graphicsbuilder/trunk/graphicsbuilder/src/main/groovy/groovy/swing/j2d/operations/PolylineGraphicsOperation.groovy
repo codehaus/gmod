@@ -19,6 +19,7 @@ import java.awt.Shape
 import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

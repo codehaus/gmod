@@ -3,17 +3,6 @@ build your own version from source you'll need to have it installed. Follow the
 instructions at http://maven.apache.org.
 Make sure to use maven 2.0.7 or higher.
 
-You will also need swingx-0.9.1 to build the demo app, you can download
-it from http://swingx.dev.java.net Once you have located the jar you can install
-it on your local Maven2 repo with the following commands
-
- cd <dir that contains BUILDING.txt>
-
- mvn install:install-file -DgroupId=org.jdesktop -Dversion=0.9.1 \
-     -Dpackaging=jar -DartifactId=swingx -Dfile=<jarfile>
-
-Note that you need exactly this version - not a later one.
-
 You also need to set your JAVA_HOME environment variable to a 
 JDK 1.6 installation.
 

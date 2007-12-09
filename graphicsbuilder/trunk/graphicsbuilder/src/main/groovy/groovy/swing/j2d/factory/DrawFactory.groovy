@@ -15,26 +15,30 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.GraphicsOperation
+import java.awt.Shape
+import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.operations.DrawGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class OperationFactory extends AbstractGraphicsOperationFactory {
+public class DrawFactory extends AbstractGraphicsOperationFactory {
     public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
             Map properties ) throws InstantiationException, IllegalAccessException {
-        if( FactoryBuilderSupport.checkValueIsType( value, name, GraphicsOperation ) ){
-            return value
-        }else if( properties.get( name ) instanceof GraphicsOperation ){
-            return properties.remove( name )
-        }else{
-            throw new RuntimeException( "'${name}' must have a value argument of "
-                    + "${GraphicsOperation.class.name} or a property named '${name}'"
-                    + " of type ${GraphicsOperation.class.name}" )
+        DrawGraphicsOperation go = new DrawGraphicsOperation()
+        if( value ){
+            if( Shape.class.isAssignableFrom( value.class ) ||
+              value instanceof ShapeProvider || value instanceof OutlineProvider  ) {
+                go.shape = value
+            }else{
+                throw new IllegalArgumentException("value is not any of [java.awt.Shape,ShapeProvider,OutlineProvider]")
+            }
         }
+        return go
     }
 
-    public boolean isLeaf() {
-       true
+    public boolean isLeaf(){
+        return true
     }
 }

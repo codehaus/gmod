@@ -19,11 +19,12 @@ import java.awt.Shape
 import java.awt.geom.RoundRectangle2D
 import java.awt.geom.Rectangle2D
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
+final class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
     protected static required = ['x','y','width','height']
     protected static optional = super.optional + ['arcWidth','arcHeight']
 

@@ -13,20 +13,28 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
-import groovy.swing.j2d.GraphicsOperation
-
-import java.awt.Paint
-import java.awt.Rectangle
+import groovy.swing.j2d.Transformation
 
 /**
- * Marker interface for operations that work with Paint.
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface PaintSupport extends GraphicsOperation {
-    Paint adjustPaintToBounds( Rectangle bounds )
+public abstract class AbstractTransformation extends ObservableSupport implements Transformation {
+    private String name
 
-    Paint getPaint()
+    public AbstractTransformation( String name ) {
+        super()
+        this.name = name
+    }
+
+    public String getName() {
+        return name
+    }
+
+    void setProperty( String property, Object value ) {
+        def oldValue = getProperty( property )
+        super.setProperty( property, value )
+        firePropertyChange( property, oldValue, value )
+    }
 }

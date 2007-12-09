@@ -13,17 +13,10 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
-
-import java.util.List;
+package groovy.swing.j2d
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Grouping extends GraphicsOperation {
-   void addOperation( GraphicsOperation go );
-
-   void removeOperation( GraphicsOperation go );
-
-   List getOperations();
+public interface Grouping /*extends GraphicsOperation*/ {
 }

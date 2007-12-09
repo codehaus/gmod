@@ -90,13 +90,16 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            }
         })
 
-        registerGraphicsOperationBeanFactory( "draw", DrawGraphicsOperation )
+        registerFactory( "draw", new DrawFactory() )
         registerFactory( "font", new FontFactory() )
         registerGraphicsOperationBeanFactory( "group", GroupGraphicsOperation )
-        registerFactory( "operation", new OperationFactory() )
-        registerFactory( "outline", new OutlineFactory() )
+        //registerFactory( "operation", new OperationFactory() )
+        //registerFactory( "outline", new OutlineFactory() )
+        //registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
         registerFactory( "shape", new ShapeFactory() )
+        registerFactory( "bind", new BindFactory() )
+        addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
 
         //
         // shapes
@@ -120,7 +123,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "vline", new PathOperationFactory( VLinePathOperation) )
         registerFactory( "shapeTo", new PathOperationFactory( ShapePathOperation) )
         registerFactory( "close", new PathOperationFactory( ClosePathOperation) )
-        
+
         //
         // outlines
         //
@@ -151,16 +154,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "color", new ColorFactory() )
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerGraphicsOperationBeanFactory( "image", ImageGraphicsOperation )
-        registerFactory( "paint", new PaintFactory() )
         registerFactory( "stroke", new StrokeFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
-
-        //
-        // binding
-        //
-        registerFactory( "bind", new BindFactory() )
-        addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
-        registerFactory( "model", new ModelFactory() )
         */
     }
 }

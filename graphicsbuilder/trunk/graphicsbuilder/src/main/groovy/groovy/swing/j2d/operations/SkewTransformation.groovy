@@ -16,13 +16,12 @@
 package groovy.swing.j2d.operations
 
 import java.awt.geom.AffineTransform
+import groovy.swing.j2d.impl.AbstractTransformation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class SkewTransformation extends AbstractTransformation {
-    protected static required = ['x','y']
-
     def x = 0
     def y = 0
 

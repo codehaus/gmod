@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
-import groovy.swing.j2d.GraphicsContext
-import java.awt.geom.GeneralPath
+import groovy.swing.j2d.ShapeProvider
+
+import java.awt.Shape
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface PathOperation {
-   void apply( GeneralPath path, GraphicsContext context )
+public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGraphicsOperation implements ShapeProvider {
+    public AbstractShapeGraphicsOperation( String name ) {
+        super( name )
+    }
+
+    //public Shape getShape( GraphicsContext context ){ null }
 }

@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.factory
 
+import groovy.swing.j2d.operations.AreaGraphicsOperation
 import groovy.swing.j2d.operations.ShapeGraphicsOperation
 
 import java.awt.Shape
@@ -32,6 +33,14 @@ public class ShapeFactory extends AbstractGraphicsOperationFactory {
             go.shape = value
         }
         return go
+    }
+
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
+       if( parent instanceof AreaGraphicsOperation ) {
+          parent.addOperation( child )
+       }else{
+          throw new IllegalArgumentException("shape() can only be nested in any of [add, subtract, intersect, xor]")
+       }
     }
 
     public boolean isLeaf(){

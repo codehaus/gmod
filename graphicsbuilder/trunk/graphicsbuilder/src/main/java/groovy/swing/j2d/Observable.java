@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d
+package groovy.swing.j2d;
 
-import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeListener;
 
 /**
- * A GraphicsOperation abstracts an operation on a Graphics2D instance.
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface GraphicsOperation {
-   /**
-    * Executes the operation.
-    *
-    * @param context the contextual information neede to run the operation.
-    */
-   void execute( GraphicsContext context )
-
-   // Observable properties support
-
+public interface Observable {
    /**
     * Add a PropertyChangeListener to the listener list. The listener is
     * registered for all properties. The same listener object may be added more
@@ -41,7 +30,7 @@ public interface GraphicsOperation {
     *
     * @param listener The PropertyChangeListener to be added
     */
-   void addPropertyChangeListener( PropertyChangeListener listener )
+   void addPropertyChangeListener( PropertyChangeListener listener );
 
    /**
     * Remove a PropertyChangeListener from the listener list. This removes a
@@ -53,7 +42,7 @@ public interface GraphicsOperation {
     *
     * @param listener The PropertyChangeListener to be removed
     */
-   void removePropertyChangeListener( PropertyChangeListener listener )
+   void removePropertyChangeListener( PropertyChangeListener listener );
 
     /**
      * Returns an array of all the listeners that were added to the
@@ -62,5 +51,5 @@ public interface GraphicsOperation {
      * @return all of the <code>PropertyChangeListeners</code> added or an
      *         empty array if no listeners have been added
      */
-    PropertyChangeListener[] getPropertyChangeListeners()
+    PropertyChangeListener[] getPropertyChangeListeners();
 }

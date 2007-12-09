@@ -20,7 +20,7 @@ import java.awt.Shape
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface ShapeProvider extends GraphicsOperation {
+public interface ShapeProvider /*extends GraphicsOperation*/ {
    /**
     * Returns the shape defined by this operation.
     *
