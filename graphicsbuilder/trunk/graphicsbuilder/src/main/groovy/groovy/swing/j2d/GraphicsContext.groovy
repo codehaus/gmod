@@ -24,4 +24,5 @@ import java.awt.Graphics2D
 public class GraphicsContext {
    Graphics2D g
    Component target
+   List shapes = []
 }

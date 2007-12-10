@@ -191,12 +191,28 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        if( previousStroke ) g.stroke = previousStroke
     }
 
-    protected boolean withinClipBounds( GraphicsContext context ){
-       if( transformationGroup ) {
+    protected boolean withinClipBounds( GraphicsContext context ) {
+       def currentTransform = context.g.transform.clone()
+       /*
+       if( transformationGroup ){
+          currentTransform.concatenate( transformationGroup.transform )
+       }
+       */
+
+       if( !currentTransform.isIdentity() ){
+          transformedShape = currentTransform.createTransformedShape(getShape(context))
+          return transformedShape.intersects(context.g.clipBounds)
+       }else{
+          return getShape(context).intersects(context.g.clipBounds)
+       }
+
+       /*
+       if( transformationGroup ){
           transformedShape = transformationGroup.transform.createTransformedShape(getShape(context))
           return transformedShape.intersects(context.g.clipBounds)
        }else{
           return getShape(context).intersects(context.g.clipBounds)
        }
+       */
     }
 }

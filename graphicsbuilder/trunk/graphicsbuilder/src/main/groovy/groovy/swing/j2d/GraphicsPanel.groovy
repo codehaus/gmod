@@ -40,7 +40,6 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      private GraphicsContext context = new GraphicsContext()
      private boolean displayed
      private List errorListeners = []
-     private List graphicsInputListeners = []
 
      GraphicsPanel(){
          super( null )
@@ -63,7 +62,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      }
 
      /**
-      * Returns the GraphicsOperation of this Panel.<br>
+      * Sets the GraphicsOperation for this Panel.<br>
       * If the panel is visible, a <code>repaint()</code> will be ensued
       */
      public void setGraphicsOperation( GraphicsOperation graphicsOperation ){
@@ -79,12 +78,31 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
          }
      }
 
+     /**
+      * Returns the current GraphicsOperation of this Panel.<br>
+      * Alias for getGraphicsOperation()
+      * @return the current GraphicsOperation of this Panel
+      */
+     public GraphicsOperation getGo(){
+         return graphicsOperation
+     }
+
+     /**
+      * Sets the GraphicsOperation for this Panel.<br>
+      * Alias for setGraphicsOperation()
+      * If the panel is visible, a <code>repaint()</code> will be ensued
+      */
+     public void setGo( GraphicsOperation graphicsOperation ){
+         setGraphicsOperation( graphicsOperation )
+     }
+
      public void paintComponent( Graphics g ){
          context.g = g
          context.target = this
          if( graphicsOperation ){
              g.clearRect( 0, 0, size.width as int, size.height as int )
              try{
+                 context.shapes = []
                  graphicsOperation.execute( context )
              }catch( Exception e ){
                  fireGraphicsErrorEvent( e )
@@ -103,23 +121,8 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
          errorListeners.remove( listener )
      }
 
-     public void addGraphicsInputListener( GraphicsInputListener listener ){
-         if( !listener ) return;
-         if( graphicsInputListeners.contains(listener) ) return;
-         graphicsInputListeners.add( listener )
-     }
-
-     public void removeGraphicsInputListener( GraphicsInputListener listener ){
-         if( !listener ) return;
-         graphicsInputListeners.remove( listener )
-     }
-
      public List getGraphicsErrorListeners(){
          return Collections.unmodifiableList( errorListeners )
-     }
-
-     public List getGraphicsInputListeners(){
-         return Collections.unmodifiableList( graphicsInputListeners )
      }
 
      protected void fireGraphicsErrorEvent( Throwable t ) {
@@ -139,11 +142,13 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      /* ===== MouseListener ===== */
 
      public void mouseEntered( MouseEvent e ){
-         fireMouseEvent( e, "mouseEntered" )
+        // noop
+        //fireMouseEvent( e, "mouseEntered" )
      }
 
      public void mouseExited( MouseEvent e ){
-         fireMouseEvent( e, "mouseExited" )
+         // noop
+         //fireMouseEvent( e, "mouseExited" )
      }
 
      public void mousePressed( MouseEvent e ){
@@ -192,23 +197,28 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      /* ===== PRIVATE ===== */
 
      private void fireMouseEvent( MouseEvent e, String mouseEventMethod ){
-         /*
+         if( !context.shapes ) return
          def shape = getSourceShape(e)
-         def inputEvent = new GraphicsInputEvent( this, e, shape )
-         graphicsInputListeners.each { listener ->
-             if( listener instanceof GraphicsOperation && listener != shape ) return;
-             listener."$mouseEventMethod"( inputEvent )
+         if( shape ){
+            def inputEvent = new GraphicsInputEvent( this, e, shape )
+            shape."$mouseEventMethod"( inputEvent )
          }
-         */
      }
 
      private def getSourceShape( MouseEvent e ){
          def shapes = context.shapes
          for( shape in shapes.reverse() ){
-             def s = shape.getClip(context)
-             if( s.contains(e.point)){
-                 return shape
+             if( shape instanceof ShapeProvider ){
+                 def s = shape.getShape(context)
+                 def ts = shape.getTransformedShape()
+                 //println "${shape} ${s?.bounds} ${ts?.bounds}"
+                 if( ts ){
+                    if( ts.contains(e.point) ) return shape
+                 }else if( s.contains(e.point) ){
+                    return shape
+                 }
              }
          }
+         return null
      }
  }

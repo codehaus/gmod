@@ -72,7 +72,10 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
    protected boolean withinClipBounds( GraphicsContext context ){
       // TODO Morph2D does not support intersect()
       if( transformationGroup ) {
-         transformedShape = transformationGroup.transform.createTransformedShape(getShape(context))
+         def currentTransform = context.g.transform.clone()
+         def localTransform = transformationGroup.transform
+         currentTransform.concatenate( localTransform )
+         transformedShape = currentTransform.createTransformedShape(getShape(context))
       }
       true
    }
