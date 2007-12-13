@@ -82,6 +82,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
              context.g.transform( transformationGroup.getTransform() )
           }
        }
+       if( !context.g.getTransform().isIdentity() ){
+          transformedShape = context.g.transform.createTransformedShape(getShape(context))
+       }
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
@@ -192,15 +195,22 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected boolean withinClipBounds( GraphicsContext context ) {
-       def currentTransform = context.g.transform.clone()
+       //def currentTransform = context.g.transform.clone()
        /*
        if( transformationGroup ){
           currentTransform.concatenate( transformationGroup.transform )
        }
        */
 
+       /*
        if( !currentTransform.isIdentity() ){
           transformedShape = currentTransform.createTransformedShape(getShape(context))
+          return transformedShape.intersects(context.g.clipBounds)
+       }else{
+          return getShape(context).intersects(context.g.clipBounds)
+       }
+       */
+       if( transformedShape ){
           return transformedShape.intersects(context.g.clipBounds)
        }else{
           return getShape(context).intersects(context.g.clipBounds)
