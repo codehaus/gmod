@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d
+package groovy.swing.j2d.impl
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.GraphicsOperation
-
-import java.awt.Paint
-import java.awt.geom.Rectangle2D
+import groovy.swing.j2d.PaintProvider
+import java.beans.PropertyChangeListener
 
 /**
- * Marker interface for operations that work with Paint.
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface PaintProvider /*extends GraphicsOperation*/ {
-    Paint getPaint( GraphicsContext context, Rectangle2D bounds )
+abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperation implements PaintProvider {
+    protected static optional = ['asPaint']
+    
+    // properties
+    def asPaint
+
+    AbstractPaintingGraphicsOperation( String name ) {
+        super( name )
+    }
+
+    protected void executeOperation( GraphicsContext context ) {
+        if( !asPaint ) {
+           context.g.paint = getPaint(context, context.g.clipBounds)
+        }
+    }
 }

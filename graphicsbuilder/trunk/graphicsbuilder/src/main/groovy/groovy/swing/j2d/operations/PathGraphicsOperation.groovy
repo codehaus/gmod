@@ -39,7 +39,9 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
    }
 
    public void addPathOperation( PathOperation operation ) {
-      pathOperations.add( operation )
+      if( !operation ) return
+      pathOperations << operation
+      operation.addPropertyChangeListener( this )
    }
 
    public void propertyChange( PropertyChangeEvent event ){

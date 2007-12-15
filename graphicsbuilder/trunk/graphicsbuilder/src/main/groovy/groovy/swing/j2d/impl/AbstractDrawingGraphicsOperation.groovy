@@ -141,7 +141,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
               g.color = previousValue
           }else if( fill instanceof PaintProvider ){
               Paint paint = context.g.getPaint()
-              context.g.setPaint( fill.adjustPaintToBounds(getShape(context).bounds) )
+              context.g.setPaint( fill.getPaint(context, getActualShape(context).bounds2D) )
               applyFill( context )
               context.g.setPaint( paint )
           }else {
@@ -224,5 +224,10 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           return getShape(context).intersects(context.g.clipBounds)
        }
        */
+    }
+    
+    protected Shape getActualShape( GraphicsContext context ){
+       if( transformedShape ) return transformedShape
+       return getShape(context)
     }
 }

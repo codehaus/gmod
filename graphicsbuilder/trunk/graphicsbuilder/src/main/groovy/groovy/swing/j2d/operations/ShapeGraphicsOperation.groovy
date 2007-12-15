@@ -38,7 +38,9 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
 
     public Shape getShape( GraphicsContext context ){
        if( shape instanceof ShapeProvider ){
-          return shape.getShape(context)
+          //def ts = shape.transformedShape
+          //if( ts ) return ts
+          return shape.getActualShape(context)
        }else if( shape instanceof Shape ){
           return shape
        }

@@ -148,6 +148,11 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "scale", ScaleTransformation, false )
         registerGraphicsOperationBeanFactory( "skew", SkewTransformation, false )
         registerGraphicsOperationBeanFactory( "translate", TranslateTransformation, false )
+        
+        //
+        // paint
+        //
+        registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
 
         /*
         registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )

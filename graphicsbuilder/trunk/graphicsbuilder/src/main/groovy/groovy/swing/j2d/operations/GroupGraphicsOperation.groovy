@@ -56,13 +56,11 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        transformationGroup
     }
 
-    /*
     public void propertyChange( PropertyChangeEvent event ) {
        if( event.source == transformationGroup ){
           super.firePropertyChange( event )
        }
     }
-    */
 
     protected void executeBeforeAll( GraphicsContext context ) {
        if( transformationGroup ){

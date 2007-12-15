@@ -56,8 +56,20 @@ public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
 
     private void calculateOutline( GraphicsContext context ) {
-        FontRenderContext frc = context.g.getFontRenderContext()
-        TextLayout layout = new TextLayout( text, context.g.font, frc )
+        def g = context.g
+        if( operations ){
+           // apply last font() if any
+           def fo = operations.reverse().find { it instanceof FontGraphicsOperation }
+           if( fo ){
+              def contextCopy = context.copy()
+              contextCopy.g = g.clone()
+              fo.execute( contextCopy )
+              g = contextCopy.g
+           }
+        }
+        
+        FontRenderContext frc = g.getFontRenderContext()
+        TextLayout layout = new TextLayout( text, g.font, frc )
         Rectangle2D bounds = layout.getBounds()
         outline = layout.getOutline( AffineTransform.getTranslateInstance( x, y + bounds.height ) )
     }

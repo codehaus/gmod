@@ -30,12 +30,15 @@ public class FontFactory extends AbstractGraphicsOperationFactory {
         FontGraphicsOperation go = new FontGraphicsOperation()
         if( value != null && Font.class.isAssignableFrom( value.class ) ){
             go.font = value
-        }else if( properties.containsKey( "face" ) && properties.containsKey( "style" )
-                && properties.containsKey( "size" ) ){
+        }else if( properties.containsKey( "face" ) ){
             String face = properties.remove( "face" )
-            int style = properties.remove( "style" )
-            int size = properties.remove( "size" )
-            go.font = new Font( face, style, size )
+            def style = properties.remove( "style" ) 
+            // TODO use elvis
+            style = style != null ? style: Font.PLAIN
+            def size = properties.remove( "size" ) 
+            // TODO use elvis
+            size = size ? size : 12
+            go.font = new Font( face, style as int, size as int )
         }
         return go
     }

@@ -25,4 +25,12 @@ public class GraphicsContext {
    Graphics2D g
    Component target
    List shapes = []
+   
+   GraphicsContext copy() {
+      GraphicsContext copy = new GraphicsContext()
+      copy.g = g
+      copy.target = target
+      copy.shapes.addAll( shapes )
+      return copy
+   }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.factory;
+package groovy.swing.j2d.factory
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
