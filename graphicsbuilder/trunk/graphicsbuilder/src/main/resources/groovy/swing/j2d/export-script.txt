@@ -11,14 +11,14 @@ def helpers = ["Jdk6GraphicsBuilderHelper",
                "BatikGraphicsBuilderHelper"]
 helpers.each { helper ->
    try{
-      Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
+      Class helperClass = Class.forName("groovy.swing.j2d.\${helper}")
       helperClass.registerOperations( gb )
    }catch( Exception e ){
-      System.err.println("Couldn't register ${helper}")
+      System.err.println("Couldn't register \${helper}")
    }
 }
 
-def graphicsOperation = gb.build {
+def graphicsOperation = gb.group {
    ${source}
 }
 
