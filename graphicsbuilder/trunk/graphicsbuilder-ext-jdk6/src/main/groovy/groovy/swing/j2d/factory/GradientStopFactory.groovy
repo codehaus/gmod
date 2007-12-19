@@ -17,7 +17,7 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.operations.GradientStop
-import groovy.swing.j2d.operations.GradientSupport
+import groovy.swing.j2d.operations.MultipleGradientPaintProvider
 
 import java.awt.Color
 
@@ -67,8 +67,10 @@ public class GradientStopFactory extends AbstractFactory {
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-      if( parent instanceof GradientSupport ){
+      if( parent instanceof MultipleGradientPaintProvider ){
          parent.addStop( child )
+         return
       }
+      throw new IllegalArgumentException("stop must be nested inside a gradient operation.")
    }
 }

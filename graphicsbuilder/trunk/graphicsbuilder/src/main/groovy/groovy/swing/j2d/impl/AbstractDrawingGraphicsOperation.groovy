@@ -99,7 +99,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-        go.execute( context )
+        // go.execute( context )
     }
 
     protected void executeOperation( GraphicsContext context ) {
@@ -213,37 +213,13 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected boolean withinClipBounds( GraphicsContext context ) {
-       //def currentTransform = context.g.transform.clone()
-       /*
-       if( transformationGroup ){
-          currentTransform.concatenate( transformationGroup.transform )
-       }
-       */
-
-       /*
-       if( !currentTransform.isIdentity() ){
-          transformedShape = currentTransform.createTransformedShape(getShape(context))
-          return transformedShape.intersects(context.g.clipBounds)
-       }else{
-          return getShape(context).intersects(context.g.clipBounds)
-       }
-       */
        if( transformedShape ){
           return transformedShape.intersects(context.g.clipBounds)
        }else{
           return getShape(context).intersects(context.g.clipBounds)
        }
-
-       /*
-       if( transformationGroup ){
-          transformedShape = transformationGroup.transform.createTransformedShape(getShape(context))
-          return transformedShape.intersects(context.g.clipBounds)
-       }else{
-          return getShape(context).intersects(context.g.clipBounds)
-       }
-       */
     }
-    
+
     protected Shape getActualShape( GraphicsContext context ){
        if( transformedShape ) return transformedShape
        return getShape(context)

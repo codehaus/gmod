@@ -20,18 +20,19 @@ import groovy.swing.j2d.GraphicsContext
 import java.awt.Color
 import java.awt.Paint
 import java.awt.RadialGradientPaint
-import java.awt.Rectangle
+import java.awt.geom.Rectangle2D
 import java.awt.MultipleGradientPaint.*
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation implements
-     GradientSupport {
-   protected static required = ["cx","cy","fx","fy","radius"]
-   protected static optional = ["cycle","apply"]
+class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation implements
+     MultipleGradientPaintProvider {
+   protected static required = ['cx','cy','fx','fy','radius']
+   protected static optional = super.optional + ['cycle','absolute']
 
-   private Paint paint
    private def stops = []
 
    // properties
@@ -40,22 +41,20 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
    def fx
    def fy
    def radius
-   def cycle
-   def apply = true
+   def cycle = 'nocycle'
+   def absolute = false
 
    RadialGradientPaintGraphicsOperation() {
       super( "radialGradient" )
    }
 
    public void addStop( GradientStop stop ) {
+      if( !stop ) return
       stops.add( stop )
+      stop.addPropertyChangeListener( this )
    }
 
-   public Paint adjustPaintToBounds( Rectangle bounds ) {
-      return getPaint()
-   }
-
-   public Paint getPaint() {
+   public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
       int n = stops.size()
       float[] fractions = new float[n]
       Color[] colors = new Color[n]
@@ -68,30 +67,30 @@ class RadialGradientPaintGraphicsOperation extends AbstractGraphicsOperation imp
       fx = fx == null ? cx: fx
       fy = fy == null ? cy: fy
 
-      if( cycle != null ){
-         paint = new RadialGradientPaint( cx as float,
-                                          cy as float,
-                                          radius as float,
-                                          fx as float,
-                                          fy as float,
-                                          fractions,
-                                          colors,
-                                          getCycleMethod() )
+      if( absolute ){
+         return new RadialGradientPaint( cx as float,
+                                         cy as float,
+                                         radius as float,
+                                         fx as float,
+                                         fy as float,
+                                         fractions,
+                                         colors,
+                                         getCycleMethod() )
       }else{
-         paint = new RadialGradientPaint( cx as float,
-                                          cy as float,
-                                          radius as float,
-                                          fx as float,
-                                          fy as float,
-                                          fractions,
-                                          colors,
-                                          CycleMethod.NO_CYCLE )
-      }
-      return paint
-   }
+         def dcx = cx + bounds.x
+         def dcy = cy + bounds.y
+         def dfx = fx + bounds.x
+         def dfy = fy + bounds.y
 
-   public void execute( GraphicsContext context){
-      if( apply ) context.g.setPaint( getPaint() )
+         return new RadialGradientPaint( (cx + bounds.x) as float,
+                                         (cy + bounds.y) as float,
+                                         radius as float,
+                                         (fx + bounds.x) as float,
+                                         (fy + bounds.y) as float,
+                                         fractions,
+                                         colors,
+                                         getCycleMethod() )
+      }
    }
 
    private def getCycleMethod() {

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
-import java.awt.Color
-import groovy.swing.j2d.impl.ObservableSupport
+import groovy.swing.j2d.GraphicsContext
+import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GradientStop extends ObservableSupport {
-    Color color
-    float offset
+public interface ExtPathOperation {
+   void apply( ExtendedGeneralPath path, GraphicsContext context )
 }

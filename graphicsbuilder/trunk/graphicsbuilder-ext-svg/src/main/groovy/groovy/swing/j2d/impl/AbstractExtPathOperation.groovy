@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface GradientSupport extends PaintSupport {
-   void addStop( GradientStop stop )
+public abstract class AbstractExtPathOperation extends ObservableSupport implements ExtPathOperation {
+    void setProperty( String property, Object value ) {
+       def oldValue = getProperty( property )
+       super.setProperty( property, value )
+       if( value != oldValue ){
+          firePropertyChange( property, oldValue, value )
+       }
+    }
 }

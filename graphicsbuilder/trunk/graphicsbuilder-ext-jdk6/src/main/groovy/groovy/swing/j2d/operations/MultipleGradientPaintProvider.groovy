@@ -15,13 +15,11 @@
 
 package groovy.swing.j2d.operations
 
-import java.awt.Color
-import groovy.swing.j2d.impl.ObservableSupport
+import groovy.swing.j2d.PaintProvider
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class GradientStop extends ObservableSupport {
-    Color color
-    float offset
+public interface MultipleGradientPaintProvider extends PaintProvider {
+   void addStop( GradientStop stop )
 }
