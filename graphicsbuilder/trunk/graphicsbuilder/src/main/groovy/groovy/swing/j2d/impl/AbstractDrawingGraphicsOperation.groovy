@@ -145,8 +145,26 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
               applyFill( context )
               context.g.setPaint( paint )
           }else {
-              // use current settings on context
-              applyFill( context )
+             // look for a nested paintProvider
+             def pp = operations.reverse().find{ it instanceof PaintProvider }
+             if( pp ){
+                Paint paint = context.g.getPaint()
+                context.g.setPaint( pp.getPaint(context, getActualShape(context).bounds2D) )
+                applyFill( context )
+                context.g.setPaint( paint )
+             }else{
+                // use current settings on context
+                applyFill( context )
+             }
+          }
+       }else{
+          // look for a nested paintProvider
+          def pp = operations.reverse().find{ it instanceof PaintProvider }
+          if( pp ){
+             Paint paint = context.g.getPaint()
+             context.g.setPaint( pp.getPaint(context, getActualShape(context).bounds2D) )
+             applyFill( context )
+             context.g.setPaint( paint )
           }
        }
     }
