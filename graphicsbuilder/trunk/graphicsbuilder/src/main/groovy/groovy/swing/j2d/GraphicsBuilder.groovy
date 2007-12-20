@@ -99,6 +99,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "shape", new ShapeFactory() )
         registerFactory( "bind", new BindFactory() )
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
+        registerFactory( "image", new ImageFactory() )
 
         //
         // shapes
@@ -147,19 +148,18 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "scale", ScaleTransformation, false )
         registerGraphicsOperationBeanFactory( "skew", SkewTransformation, false )
         registerGraphicsOperationBeanFactory( "translate", TranslateTransformation, false )
-        
+
         //
         // paint
         //
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerFactory( "paint", new PaintFactory() )
+        registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
 
         /*
         registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
         registerFactory( "color", new ColorFactory() )
-        registerGraphicsOperationBeanFactory( "image", ImageGraphicsOperation )
         registerFactory( "stroke", new StrokeFactory() )
-        registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
         */
     }
 }
