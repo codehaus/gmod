@@ -15,7 +15,7 @@
  *
  */
 
-package com.lingway.groovy.text.freemarker;
+package org.codehaus.groovy.gfreemarker.freemarker;
 
 import java.util.Map;
 

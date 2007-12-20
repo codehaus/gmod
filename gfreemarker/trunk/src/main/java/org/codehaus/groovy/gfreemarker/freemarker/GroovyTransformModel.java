@@ -15,7 +15,7 @@
  *
  */
 
-package com.lingway.groovy.text.freemarker;
+package org.codehaus.groovy.gfreemarker.freemarker;
 
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Iterator;
 
 /**
  * A transform which allows calling Groovy scripts (plugins) in a FreeMarker template.
@@ -47,23 +48,26 @@ public class GroovyTransformModel implements TemplateTransformModel {
 	private class GroovyWriter extends Writer {
 
 		private Writer theWriter;
-		private Map<String,Object> theParams;
+		private Map theParams;
 		private StringBuilder theContent;
 		private static final String PLUGIN_PARAM = "plugin";
 
-		private GroovyWriter(Writer aWriter, Map<String,Object> someParams) {
+		private GroovyWriter(Writer aWriter, Map someParams) {
 			theWriter = aWriter;
 			// we must unwrap the objects FreeMarker uses, in order to be able to manipulate them with Groovy
-			theParams = new HashMap<String, Object>();
-			for (Map.Entry entry : someParams.entrySet()) {
+			theParams = new HashMap();
+			Iterator it = someParams.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry entry = (Map.Entry) it.next();
+
 				if (entry.getValue() instanceof TemplateModel) {
 					try {
-						theParams.put((String) entry.getKey(), DeepUnwrap.unwrap((TemplateModel) entry.getValue()));
+						theParams.put(entry.getKey(), DeepUnwrap.unwrap((TemplateModel) entry.getValue()));
 					} catch (TemplateModelException e) {
-						theParams.put((String) entry.getKey(), entry.getValue());
+						theParams.put(entry.getKey(), entry.getValue());
 					}
 				} else {
-					theParams.put((String) entry.getKey(), entry.getValue());
+					theParams.put(entry.getKey(), entry.getValue());
 				}
 			}
 			theContent = new StringBuilder();

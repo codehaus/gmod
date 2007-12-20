@@ -15,7 +15,7 @@
  *
  */
 
-package com.lingway.groovy.text.freemarker;
+package org.codehaus.groovy.gfreemarker.freemarker;
 
 /**
  * The interface plugin loaders should implement.
