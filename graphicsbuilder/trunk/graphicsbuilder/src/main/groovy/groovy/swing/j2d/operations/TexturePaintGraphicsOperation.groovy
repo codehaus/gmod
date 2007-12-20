@@ -101,7 +101,7 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
           URL imageUrl = Thread.currentThread().getContextClassLoader().getResource( classpath )
           this.@imageObj = ImageIO.read( imageUrl )
        }else if( url ){
-          this.@imageObj = ImageIO.read( url.toURL() )
+          this.@imageObj = ImageIO.read( url instanceof String ? url.toURL(): url )
        }else if( file ){
           this.@imageObj = ImageIO.read( new File(file) )
        }else{
