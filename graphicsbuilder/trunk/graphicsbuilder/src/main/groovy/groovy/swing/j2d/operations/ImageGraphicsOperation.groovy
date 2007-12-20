@@ -70,7 +70,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
        }else if( url ){
           this.@imageObj = ImageIO.read( url instanceof String ? url.toURL(): url )
        }else if( file ){
-          this.@imageObj = ImageIO.read( new File(file) )
+          this.@imageObj = ImageIO.read( url instanceof String ? new File(file): file  )
        }else{
           throw new IllegalArgumentException("Must define one of [image,classpath,url,file]")
        }
