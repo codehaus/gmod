@@ -22,6 +22,7 @@ import java.awt.Paint
 import java.awt.RadialGradientPaint
 import java.awt.geom.Rectangle2D
 import java.awt.MultipleGradientPaint.*
+import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
 
@@ -54,6 +55,14 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       stop.addPropertyChangeListener( this )
    }
 
+   public PaintProvider asCopy() {
+      PaintProvider copy = super.asCopy()
+      stops.each { stop ->
+         copy.addStop( stop.copy() )
+      }
+      copy
+   }
+   
    public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
       int n = stops.size()
       float[] fractions = new float[n]

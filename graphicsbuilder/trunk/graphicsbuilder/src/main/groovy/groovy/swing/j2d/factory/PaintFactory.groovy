@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d
+package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.GraphicsOperation
-
-import java.awt.Paint
-import java.awt.geom.Rectangle2D
+import groovy.swing.j2d.operations.PaintGraphicsOperation
+import groovy.swing.j2d.PaintProvider
 
 /**
- * Marker interface for operations that work with Paint.
- *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface PaintProvider /*extends GraphicsOperation*/ {
-    Paint getPaint( GraphicsContext context, Rectangle2D bounds )
+public class PaintFactory extends AbstractGraphicsOperationFactory {
+    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
+            Map properties ) throws InstantiationException, IllegalAccessException {
+        PaintGraphicsOperation go = new PaintGraphicsOperation()
+        if( value != null && value instanceof PaintProvider ) {
+            go.paint = value
+        }
+        return go
+    }
     
-    PaintProvider asCopy()
+    public boolean isLeaf(){
+        return true
+    }
 }

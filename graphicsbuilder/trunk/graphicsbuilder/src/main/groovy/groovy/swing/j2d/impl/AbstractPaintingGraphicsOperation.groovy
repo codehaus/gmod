@@ -32,7 +32,24 @@ abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperati
         super( name )
     }
 
-    protected void executeOperation( GraphicsContext context ) {
+    public PaintProvider asCopy() {
+       // assume no-args constructor
+       def copy = getClass().newInstance()
+       this.properties.each { key, value ->
+          if( isGraphicsParameter(this,key) ){
+             copy."$key" = value
+          }
+       }
+       
+       // copy propertyChangeListeners if any
+       this.propertyChangeListeners.each { listener ->
+          copy.addPropertyChangeListener( listener )
+       }
+       
+       return copy
+    }
+    
+    public void execute( GraphicsContext context ) {
         if( !asPaint ) {
            context.g.paint = getPaint(context, context.g.clipBounds)
         }

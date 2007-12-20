@@ -95,7 +95,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "group", GroupGraphicsOperation )
         //registerFactory( "operation", new OperationFactory() )
         //registerFactory( "outline", new OutlineFactory() )
-        //registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
         registerFactory( "shape", new ShapeFactory() )
         registerFactory( "bind", new BindFactory() )
@@ -153,11 +152,11 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         // paint
         //
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
+        registerFactory( "paint", new PaintFactory() )
 
         /*
         registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
         registerFactory( "color", new ColorFactory() )
-        registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerGraphicsOperationBeanFactory( "image", ImageGraphicsOperation )
         registerFactory( "stroke", new StrokeFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
