@@ -32,12 +32,13 @@ import static java.lang.Math.abs
 abstract class AbstractLinearGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     protected static required = ['x1','y1','x2','y2']
     protected static optional = super.optional + ['cycle','stretch','fit']
+    protected static DEFAULT_CYCLE_VALUE = false
 
     def x1 = 0
     def x2 = 100
     def y1 = 0
     def y2 = 0
-    def cycle = false
+    def cycle
     def stretch = false
     def fit = true
     
@@ -45,7 +46,7 @@ abstract class AbstractLinearGradientPaintGraphicsOperation extends AbstractPain
         super( name )
     }
     
-    public void setCyclic( value ) {
+    public void setCycle( value ) {
        this.@cycle = value
        if( value ) {
           this.@stretch = false
@@ -57,7 +58,7 @@ abstract class AbstractLinearGradientPaintGraphicsOperation extends AbstractPain
        this.@stretch = value
        if( value ) {
           this.@fit = false
-          this.@cycle = false
+          this.@cycle = DEFAULT_CYCLE_VALUE
        }
     }
     
@@ -65,7 +66,7 @@ abstract class AbstractLinearGradientPaintGraphicsOperation extends AbstractPain
        this.@fit = value
        if( value ) {
           this.@stretch = false
-          this.@cycle = false
+          this.@cycle = DEFAULT_CYCLE_VALUE
        }
     }
 

@@ -57,7 +57,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     void setProperty( String property, Object value ) {
         def oldValue = getProperty( property )
         super.setProperty( property, value )
-        if( isParameter(property) && value != oldValue ){
+        if( isParameter(property) && compare(oldValue,value) ){
            firePropertyChange( property, oldValue, value )
         }
     }
@@ -72,5 +72,18 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
        if( target.getMetaClass().hasProperty(target,'required') && target.required.contains(property) ) return true
        if( target.getMetaClass().hasProperty(target,'optional') && target.optional.contains(property) ) return true
        false
+    }
+    
+    private boolean compare( oldvalue, newvalue ){
+       if( oldvalue instanceof Boolean ){
+          if( newvalue instanceof String ){
+             return (oldvalue as String) != newvalue
+          }
+       }else if( newvalue instanceof Boolean ){
+          if( oldvalue instanceof String ){
+             return (newvalue as String) != oldvalue
+          }
+       }
+       return oldvalue != newvalue
     }
 }

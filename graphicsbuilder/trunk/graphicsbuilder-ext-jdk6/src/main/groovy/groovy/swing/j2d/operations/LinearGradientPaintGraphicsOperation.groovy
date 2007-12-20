@@ -30,6 +30,8 @@ import groovy.swing.j2d.impl.AbstractLinearGradientPaintGraphicsOperation
  */
 class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGraphicsOperation implements
      MultipleGradientPaintProvider {
+   protected static DEFAULT_CYCLE_VALUE = 'nocycle' 
+    
    private def stops = []
 
    LinearGradientPaintGraphicsOperation() {

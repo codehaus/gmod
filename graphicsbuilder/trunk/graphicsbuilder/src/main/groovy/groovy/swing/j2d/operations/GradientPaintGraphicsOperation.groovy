@@ -32,7 +32,8 @@ final class GradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
     def color2 = 'white'
     
     GradientPaintGraphicsOperation(){
-       super( "gradientPaint" )   
+       super( "gradientPaint" ) 
+       cycle = DEFAULT_CYCLE_VALUE
     }
     
     protected Paint makePaint( x1, y1, x2, y2 ){
