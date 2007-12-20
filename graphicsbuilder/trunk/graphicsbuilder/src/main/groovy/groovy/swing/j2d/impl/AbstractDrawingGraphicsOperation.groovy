@@ -195,7 +195,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            previousColor = g.color
            if( borderColor instanceof String ){
                g.color = ColorCache.getInstance().getColor( borderColor )
-           }else if( value instanceof Color ){
+           }else if( borderColor instanceof Color ){
                g.color = borderColor
            }
        }
