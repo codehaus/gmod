@@ -1,7 +1,7 @@
 WingSBuilder uses Maven2 as its build tool, which means that if you want to 
 build your own version of WingSBuilder from source you'll need to have it 
 installed.  Follow the instructions at http://maven.apache.org 
-Once Maven2 is installed you will also need to install 4 files from the wingS
+Once Maven2 is installed you will also need to install 2 files from the wingS
 distribution (but it wouldn't hurt to check at http://mvnrepository.org 
 if they are already there). The files are:
 
