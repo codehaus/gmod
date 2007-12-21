@@ -391,7 +391,16 @@ class GraphicsPad implements CaretListener {
            displayError( evt.cause.localizedMessage )
        } as GraphicsErrorListener )
 
-       swing.scrollPane( border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "View") ){
+       Toolkit toolkit = Toolkit.getDefaultToolkit()
+       Dimension screen = toolkit.getScreenSize()
+
+       def rowHeader = swing.widget( new Rulers(Rulers.VERTICAL), opaque: true,
+             preferredSize: [20,screen.width as int] )
+       def columnHeader = swing.widget( new Rulers(Rulers.HORIZONTAL), opaque: true,
+             preferredSize: [screen.height as int,20] )
+       swing.scrollPane( border: /*BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "View"),*/
+             BF.createLineBorder(Color.BLACK),
+             rowHeaderView: rowHeader, columnHeaderView: columnHeader ){
           panel( graphicsPanel, id: 'view' )
        }
     }
@@ -406,7 +415,7 @@ class GraphicsPad implements CaretListener {
               }
            }
            scrollPane( constraints: BL.SOUTH, border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "Errors") ) {
-              textArea( id: 'error',  rows: 4 )
+              textArea( id: 'error',  rows: 2 )
            }
         }
 
@@ -675,5 +684,72 @@ class GraphicsPad implements CaretListener {
         colNum = cursorPos - rowElement.getStartOffset() + 1
 
         swing.rowNumAndColNum.setText("$rowNum:$colNum")
+    }
+}
+
+/*
+ * Rulers code found at
+ * http://forum.java.sun.com/thread.jspa?threadID=5205520&messageID=9821974
+ */
+class Rulers extends JComponent {
+    private static final int SIZE = 20
+    public static final int HORIZONTAL = 0
+    public static final int VERTICAL = 1
+
+    private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 9)
+
+    private int tickHeight
+    private int orientation
+
+    public Rulers(int o) {
+       orientation = o
+       setBorder(BF.createLineBorder(Color.BLACK))
+    }
+
+    protected void paintComponent(Graphics g) {
+       Toolkit toolkit = Toolkit.getDefaultToolkit()
+       Dimension screen = toolkit.getScreenSize()
+       int width = screen.width as int
+       int height = screen.height as int
+
+       super.paintComponent(g)
+       if( isOpaque() ) {
+          g.setColor(Color.WHITE)
+          if( orientation == HORIZONTAL ){
+             g.fillRect(0, 0, getWidth(), getHeight())
+          }else{
+             g.fillRect(0, 0, getWidth(), getHeight())
+          }
+       }
+       g.setFont(DEFAULT_FONT)
+       g.setColor(Color.BLACK)
+
+       if( orientation == HORIZONTAL ) {
+          for(int i = 0; i <= width; i += 10) {
+             if(i % 100 == 0){
+                tickHeight = 10
+                g.drawString("$i", i - 4, 10)
+             }else if(i % 50 == 0){
+                tickHeight = 7
+                g.drawString("$i", i - 4, 10)
+             }else{
+                tickHeight = 5
+             }
+             g.drawLine(i, SIZE, i, SIZE - tickHeight)
+          }
+       }else{
+          for( int i = 0; i <= height; i += 10 ) {
+             if( i % 100 == 0 ){
+                tickHeight = 10
+                g.drawString("$i", 2, i - 1)
+             }else if( i % 50 == 0 ){
+                tickHeight = 7
+                g.drawString("$i", 2, i - 1)
+             }else{
+                tickHeight = 5
+             }
+             g.drawLine(SIZE, i, SIZE - tickHeight, i)
+          }
+       }
     }
 }
