@@ -15,7 +15,7 @@
  *
  */
 
-package org.codehaus.groovy.gfreemarker.freemarker;
+package org.codehaus.groovy.gfreemarker;
 
 import groovy.lang.GroovyClassLoader;
 
@@ -25,22 +25,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A plugin loader which loads plugins from a directory
+ * A plugin loader which loads plugins from a directory.
  * User: cedric
  * Date: 2 août 2007
  * Time: 19:46:46
  */
 public class SimpleGroovyFreeMarkerPluginLoader implements IGroovyFreeMarkerPluginLoader {
 	private String theGroovyScriptPath;
-	private Map<String, IGroovyFreeMarkerPlugin> thePlugins;
+	private Map thePlugins;
 
 	public SimpleGroovyFreeMarkerPluginLoader(String aGroovyScriptsPath) {
 		theGroovyScriptPath = aGroovyScriptsPath;
-		thePlugins = new HashMap<String, IGroovyFreeMarkerPlugin>();
+		thePlugins = new HashMap();
 	}
 
 	public IGroovyFreeMarkerPlugin loadPlugin(String aPluginName) {
-		IGroovyFreeMarkerPlugin toReturn = thePlugins.get(aPluginName);
+		IGroovyFreeMarkerPlugin toReturn = (IGroovyFreeMarkerPlugin) thePlugins.get(aPluginName);
 		if (toReturn!=null) return toReturn;
 		// try to load the script
 		File pnFile = new File(theGroovyScriptPath, aPluginName+".groovy");

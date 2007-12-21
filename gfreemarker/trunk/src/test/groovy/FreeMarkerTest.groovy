@@ -1,6 +1,6 @@
-import org.codehaus.groovy.gfreemarker.freemarker.FreeMarkerTemplateEngine
+import org.codehaus.groovy.gfreemarker.FreeMarkerTemplateEngine
 import org.junit.Test
-import static org.junit.Assert.*;
+import static org.junit.Assert.*
 
 /**
  * A very basic test for Groovy Freemarker

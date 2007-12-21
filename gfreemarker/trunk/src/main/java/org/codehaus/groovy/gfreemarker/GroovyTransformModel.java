@@ -15,7 +15,7 @@
  *
  */
 
-package org.codehaus.groovy.gfreemarker.freemarker;
+package org.codehaus.groovy.gfreemarker;
 
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;

@@ -15,7 +15,7 @@
  *
  */
 
-package org.codehaus.groovy.gfreemarker.freemarker;
+package org.codehaus.groovy.gfreemarker;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A template engine that leverages on the FreeMarker template engine
+ * A template engine that leverages on the FreeMarker template engine.
  * http://www.freemarker.org
  * User: cedric
  * Date: 2 août 2007
@@ -45,7 +45,7 @@ public class FreeMarkerTemplateEngine extends TemplateEngine {
 
 	private IGroovyFreeMarkerPluginLoader theLoader;
 	private Configuration theConfiguration;
-	private Map<String,GroovyFreeMarkerTemplate> theCache;
+	private Map theCache;
 	// todo : we use our own cache, as templates to be cached are groovy templates, not directly FreeMarker ones.
 	// however, the FreeMarker caching system is more elaborate than this one, so anyone wishing to inspire
 	// from it could do so ;)
@@ -54,7 +54,7 @@ public class FreeMarkerTemplateEngine extends TemplateEngine {
 	private FreeMarkerTemplateEngine() {
 		theConfiguration = new Configuration();
 		theConfiguration.setObjectWrapper(new BeansWrapper());
-		theCache = new HashMap<String, GroovyFreeMarkerTemplate>();
+		theCache = new HashMap();
 	}
 
 	public FreeMarkerTemplateEngine(IGroovyFreeMarkerPluginLoader aPluginLoader) {
@@ -114,7 +114,7 @@ public class FreeMarkerTemplateEngine extends TemplateEngine {
 	 * @return
 	 */
 	public Template getNamedTemplate(String aTemplateName) {
-		return theCache.get(aTemplateName);
+		return (Template) theCache.get(aTemplateName);
 	}
 
 	/**

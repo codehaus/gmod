@@ -30,6 +30,11 @@
 		<url>http://www.lingway.com</url>
 	</organization>
 
+	<scm>
+		<connection>scm:svn:http://svn.codehaus.org/groovy-contrib/gfreemarker/trunk/</connection>
+		<url>http://svn.codehaus.org/groovy-contrib/gfreemarker/trunk/</url>
+	</scm>
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -41,14 +46,14 @@
 	<build>
 		<plugins>
 			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.4</source>
-                    <target>1.4</target>
-                    <debug>true</debug>
-                </configuration>
-            </plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.4</source>
+					<target>1.4</target>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo.groovy</groupId>
 				<artifactId>groovy-maven-plugin</artifactId>
@@ -60,7 +65,40 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- for sources and javadoc -->
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav</artifactId>
+				<version>1.0-beta-2</version>
+			</extension>
+		</extensions>
 	</build>
 
 	<dependencies>
@@ -81,6 +119,27 @@
 			<version>2.3.11</version>
 		</dependency>
 	</dependencies>
+
+	<!-- Distribution seems to refuse contributors access -->
+
+	<!--<distributionManagement>-->
+		<!--<repository>-->
+			<!--<id>codehaus.org</id>-->
+			<!--<name>Groovy Central Repository</name>-->
+			<!--<url>dav:https://dav.codehaus.org/repository/groovy/</url>-->
+		<!--</repository>-->
+		<!--<snapshotRepository>-->
+			<!--<id>codehaus.org</id>-->
+			<!--<name>Groovy Central Development Repository</name>-->
+			<!--<url>dav:https://dav.codehaus.org/snapshots.repository/groovy/</url>-->
+		<!--</snapshotRepository>-->
+		<!-- not currently used -->
+		<!--<site>-->
+			<!--<id>codehaus.org</id>-->
+			<!--<name>Groovy Web Site</name>-->
+			<!--<url>dav:https://dav.codehaus.org/groovy</url>-->
+		<!--</site>-->
+	<!--</distributionManagement>-->
 
 </project>
 
