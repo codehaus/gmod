@@ -36,9 +36,7 @@ public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public Shape getShape( GraphicsContext context) {
         if( shape instanceof ShapeProvider || shape instanceof OutlineProvider ){
-           //def ts = shape.transformedShape
-           //if( ts ) return ts
-           return shape.getActualShape(context)
+           return shape.getLocallyTransformedShape(context)
         }else if( shape instanceof Shape ){
            return shape
         }

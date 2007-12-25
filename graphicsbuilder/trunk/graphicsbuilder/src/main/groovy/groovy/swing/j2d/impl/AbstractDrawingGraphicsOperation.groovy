@@ -196,7 +196,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
                 g.setPaint( paint )
              }else{
                 // use current settings on context
-                applyFill( context )
+                applyFill( context, shape )
              }
           }
        }else{
@@ -301,7 +301,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        contextCopy.g = graphics
        graphics.setClip( shape.bounds )
        graphics.color = context.g.color
-       if( borderColor != null ) graphics.color = ColorCache.getInstance().getColor(borderColor)
+       if( borderColor != null && !(borderColor instanceof Boolean) ){
+          graphics.color = ColorCache.getInstance().getColor(borderColor)
+       }
        fill( contextCopy, shape )
        draw( contextCopy, shape )
        graphics.dispose()

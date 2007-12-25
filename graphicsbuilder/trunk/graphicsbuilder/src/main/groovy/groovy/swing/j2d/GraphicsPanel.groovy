@@ -194,6 +194,23 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
 
      }
 
+     /* ===== ===== */
+
+     /*
+     public void sendToFront( ShapeProvider sp ){
+        sendTo( sp, 'front' )
+     }
+     public void sendToBack( ShapeProvider sp ){
+        sendTo( sp, 'back' )
+     }
+     public void pushUp( ShapeProvider sp ){
+        sendTo( sp, 'up' )
+     }
+     public void pushDown( ShapeProvider sp ){
+        sendTo( sp, 'down' )
+     }
+     */
+
      /* ===== PRIVATE ===== */
 
      private void fireMouseEvent( MouseEvent e, String mouseEventMethod ){
@@ -216,5 +233,37 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
              }
          }
          return null
+     }
+
+     private void sendTo( ShapeProvider sp, String where ){
+        if( sp.asShape ) return
+        def shapes = context.shapes
+        int from = shapes.indexOf(sp)
+        if( from == -1 ) return
+        if( "front".equalsIgnoreCase(where) ){
+           if( shapes.size() - 1 != from ){
+              shapes.remove(sp)
+              shapes << sp
+           }
+        }else if( "back".equalsIgnoreCase(where) ){
+           if( from != 0 ){
+              shapes.remove(sp)
+              context.shapes = [sp] + shapes
+           }
+        }else if( "up".equalsIgnoreCase(where) ){
+           def to = from + 1
+           if( to < shapes.size() ){
+              def tmp = shapes[to]
+              shapes[to] = sp
+              shapes[from] = tmp
+           }
+        }else if( "down".equalsIgnoreCase(where) ){
+           def to = from - 1
+           if( to > -1 ){
+              def tmp = shapes[to]
+              shapes[to] = sp
+              shapes[from] = tmp
+           }
+        }
      }
  }
