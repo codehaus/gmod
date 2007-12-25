@@ -32,7 +32,7 @@ public abstract class AbstractOutlineGraphicsOperation extends AbstractDrawingGr
 
     //public Shape getShape( GraphicsContext context ){ null }
 
-    protected void fill( GraphicsContext context ) {
+    protected void fill( GraphicsContext context, Shape shape ) {
        // empty
     }
 }

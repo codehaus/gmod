@@ -23,13 +23,15 @@ import java.awt.geom.Rectangle2D
 import javax.imageio.ImageIO
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.ShapeProvider
 import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
-    protected static optional = super.optional + ['x','y','width','height','image','classpath','url','file']
+    protected static optional = super.optional + ['x','y','width','height','image','classpath','url','file','absolute']
 
     private Paint paint
     protected Image imageObj
@@ -42,6 +44,7 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     def y = 0
     def width
     def height
+    def absolute = false
 
     TexturePaintGraphicsOperation() {
         super( "texturePaint" )
@@ -55,6 +58,10 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
        if( !paint ){
           def newBounds = [x as double, y as double, 0d, 0d] as Rectangle2D.Double
+          if( !absolute && bounds ){
+             newBounds.x += bounds.x
+             newBounds.y += bounds.y
+          }
           def iobj = null
           if( image ){
              if( image instanceof Image ){
@@ -66,6 +73,8 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
                 }else{
                    iobj = image.imageObj
                 }
+             }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
+                iobj = image.asImage(context)
              }
           }else{
              iobj = getImageObj()

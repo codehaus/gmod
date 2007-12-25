@@ -26,6 +26,9 @@ import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Paint
 import java.awt.Shape
+import java.awt.Transparency
+import java.awt.geom.AffineTransform
+import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 
 /**
@@ -34,9 +37,10 @@ import java.beans.PropertyChangeEvent
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
     protected static optional = ['borderColor','borderWidth','fill','asShape']
 
+    private BufferedImage image
     protected Shape locallyTransformedShape
     protected Shape globallyTransformedShape
-    private def g
+    private def gcopy
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
 
@@ -97,11 +101,19 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     public void propertyChange( PropertyChangeEvent event ) {
        locallyTransformedShape = null
        globallyTransformedShape = null
+       image = null
+    }
+
+    public BufferedImage asImage( GraphicsContext context ) {
+       if( !image ){
+          calculateImage(context)
+       }
+       image
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
        if( operations ){
-          g = context.g
+          gcopy = context.g
           context.g = context.g.create()
        }
     }
@@ -109,13 +121,15 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     protected void executeAfterAll( GraphicsContext context ) {
        if( operations ){
           context.g.dispose()
-          context.g = g
+          context.g = gcopy
        }
     }
 
+    /*
     protected boolean executeAfterNestedOperations( GraphicsContext context ) {
        return withinClipBounds( context )
     }
+    */
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
         go.execute( context )
@@ -123,12 +137,13 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
 
     protected void executeOperation( GraphicsContext context ) {
         if( !asShape ){
-            fill( context )
-            draw( context )
+            def shape = getGloballyTransformedShape(context)
+            fill( context, shape )
+            draw( context, shape )
         }
     }
 
-    protected void fill( GraphicsContext context ) {
+    protected void fill( GraphicsContext context, Shape shape ) {
        def g = context.g
 
        def f = fill
@@ -146,7 +161,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
 
        // honor the clip
-       if( !withinClipBounds( context ) ) {
+       if( !withinClipBounds( context, shape ) ) {
            return
        }
 
@@ -154,31 +169,31 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           if( f instanceof Color ){
               def previousValue = g.color
               g.color = f
-              applyFill( context )
+              applyFill( context, shape )
               g.color = previousValue
           }else if( f instanceof Paint ){
               def previousValue = g.paint
               g.paint = f
-              applyFill( context )
+              applyFill( context, shape )
               g.paint = previousValue
           }else if( f instanceof String ){
               def previousValue = g.color
               g.color = ColorCache.getInstance().getColor( f )
-              applyFill( context )
+              applyFill( context, shape )
               g.color = previousValue
           }else if( f instanceof PaintProvider ){
-              Paint paint = context.g.getPaint()
-              context.g.setPaint( f.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
-              applyFill( context )
-              context.g.setPaint( paint )
+              Paint paint = g.getPaint()
+              g.setPaint( f.getPaint(context, shape.bounds2D) )
+              applyFill( context, shape )
+              g.setPaint( paint )
           }else {
              // look for a nested paintProvider
              def pp = operations.reverse().find{ it instanceof PaintProvider }
              if( pp ){
-                Paint paint = context.g.getPaint()
-                context.g.setPaint( pp.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
-                applyFill( context )
-                context.g.setPaint( paint )
+                Paint paint = g.getPaint()
+                g.setPaint( pp.getPaint(context, shape.bounds2D) )
+                applyFill( context, shape )
+                g.setPaint( paint )
              }else{
                 // use current settings on context
                 applyFill( context )
@@ -188,19 +203,19 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           // look for a nested paintProvider
           def pp = operations.reverse().find{ it instanceof PaintProvider }
           if( pp ){
-             Paint paint = context.g.getPaint()
-             context.g.setPaint( pp.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
-             applyFill( context )
-             context.g.setPaint( paint )
+             Paint paint = g.getPaint()
+             g.setPaint( pp.getPaint(context, shape.bounds2D) )
+             applyFill( context, shape )
+             g.setPaint( paint )
           }
        }
     }
 
-    protected void applyFill( GraphicsContext context ) {
-        context.g.fill( getGloballyTransformedShape(context) )
+    protected void applyFill( GraphicsContext context, Shape shape ) {
+        context.g.fill( shape )
     }
 
-    protected void draw( GraphicsContext context ) {
+    protected void draw( GraphicsContext context, Shape shape ) {
        def previousColor = null
        def previousStroke = null
 
@@ -210,14 +225,14 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        if( context.groupContext.borderColor ){
           bc = context.groupContext.borderColor
        }
-       if( fill != null ){
+       if( borderColor != null ){
           bc = borderColor
        }
        def bw = borderWidth
        if( context.groupContext.borderWidth ){
           bw = context.groupContext.borderWidth
        }
-       if( fill != null ){
+       if( borderWidth != null ){
           bw = borderWidth
        }
 
@@ -228,7 +243,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
 
        // honor the clip
-       if( !withinClipBounds( context ) ) {
+       if( !withinClipBounds( context, shape ) ) {
            return
        }
 
@@ -247,15 +262,15 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
 
        // draw the shape
-       g.draw( getGloballyTransformedShape(context) )
+       g.draw( shape )
 
        // restore color & stroke
        if( previousColor ) g.color = previousColor
        if( previousStroke ) g.stroke = previousStroke
     }
 
-    protected boolean withinClipBounds( GraphicsContext context ) {
-       return getGloballyTransformedShape( context ).intersects( context.g.clipBounds )
+    protected boolean withinClipBounds( GraphicsContext context, Shape shape ) {
+       return shape.intersects( context.g.clipBounds )
     }
 
     protected void calculateLocallyTransformedShape( GraphicsContext context ) {
@@ -272,5 +287,23 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }else{
           this.@globallyTransformedShape = getLocallyTransformedShape(context)
        }
+    }
+
+    private void calculateImage( GraphicsContext context ) {
+       Shape shape = getLocallyTransformedShape(context)
+       def bounds = shape.bounds
+       image = context.g.deviceConfiguration.createCompatibleImage(
+             bounds.width as int, bounds.height as int, Transparency.BITMASK )
+       shape = AffineTransform.getTranslateInstance( (bounds.x as double)*(-1), (bounds.y as double)*(-1) )
+                              .createTransformedShape(shape)
+       def graphics = image.createGraphics()
+       def contextCopy = context.copy()
+       contextCopy.g = graphics
+       graphics.setClip( shape.bounds )
+       graphics.color = context.g.color
+       if( borderColor != null ) graphics.color = ColorCache.getInstance().getColor(borderColor)
+       fill( contextCopy, shape )
+       draw( contextCopy, shape )
+       graphics.dispose()
     }
 }
