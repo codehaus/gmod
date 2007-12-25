@@ -83,9 +83,11 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
         // empty
     }
 
+    /*
     protected void setPropertyOnNestedOperation( GraphicsOperation go, String property ) {
        def value = this."$property"
        if( go.metaClass.hasProperty(go,property) && value != null && go."$property" == null )
           go."$property" = value
     }
+    */
 }

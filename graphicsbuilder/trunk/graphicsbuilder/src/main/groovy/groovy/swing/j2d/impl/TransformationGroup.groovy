@@ -30,6 +30,10 @@ public class TransformationGroup extends ObservableSupport implements Transforma
 
     public void addTransformation( Transformation transformation ) {
         if( !transformation ) return
+        // make sure transformationGroups are added only once
+        if( transformation instanceof TransformationGroup ){
+           if( transformations.find{ it == transformation} ) return
+        }
         transformations << transformation
         transformation.addPropertyChangeListener( this )
     }
@@ -62,7 +66,6 @@ public class TransformationGroup extends ObservableSupport implements Transforma
           }else if( t.isIdentity() ){
              // assume that it is a freeze transform
              if( !transform.isIdentity() ){
-                // is there
                 shape = transform.createTransformedShape( shape )
                 transform = t.clone()
              }

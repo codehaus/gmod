@@ -42,8 +42,7 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
        if( parent instanceof Grouping ){
           parent.addOperation( child )
           return
-       }else{
-          throw new IllegalArgumentException("$parent does not support nesting of other operations")
        }
+       throw new IllegalArgumentException("$parent does not support nesting of other operations")
    }
 }

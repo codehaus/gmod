@@ -30,6 +30,7 @@ import java.beans.PropertyChangeEvent
 class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping {
     protected static optional = ['borderColor','borderWidth','fill']
 
+    private def previousGroupContext
     private def g
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
@@ -85,6 +86,10 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
           g = context.g
           context.g = context.g.create()
        }
+       previousGroupContext = context.groupContext
+       if( borderColor != null ) context.groupContext.borderColor = borderColor
+       if( borderWidth != null ) context.groupContext.borderWidth = borderWidth
+       if( fill != null ) context.groupContext.fill = fill
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
@@ -92,12 +97,13 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
           context.g.dispose()
           context.g = g
        }
+       context.groupContext = previousGroupContext
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-       setPropertyOnNestedOperation( go, "borderColor" )
-       setPropertyOnNestedOperation( go, "borderWidth" )
-       setPropertyOnNestedOperation( go, "fill" )
+       //setPropertyOnNestedOperation( go, "borderColor" )
+       //setPropertyOnNestedOperation( go, "borderWidth" )
+       //setPropertyOnNestedOperation( go, "fill" )
        if( go instanceof Transformable ){
           if( transformationGroup ){
              def gtg = go.globalTransformationGroup

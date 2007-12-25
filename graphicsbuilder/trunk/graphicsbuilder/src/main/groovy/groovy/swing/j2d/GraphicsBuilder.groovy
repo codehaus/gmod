@@ -101,6 +101,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
         registerFactory( "image", new ImageFactory() )
         registerFactory( "stroke", new StrokeFactory() )
+        //registerFactory( "color", new ColorFactory() )
+        registerFactory( "clip", new ClipFactory() )
 
         //
         // shapes
@@ -157,10 +159,5 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
-
-        /*
-        registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
-        registerFactory( "color", new ColorFactory() )
-        */
     }
 }

@@ -32,10 +32,10 @@ public class FontFactory extends AbstractGraphicsOperationFactory {
             go.font = value
         }else if( properties.containsKey( "face" ) ){
             String face = properties.remove( "face" )
-            def style = properties.remove( "style" ) 
+            def style = properties.remove( "style" )
             // TODO use elvis
-            style = style != null ? style: Font.PLAIN
-            def size = properties.remove( "size" ) 
+            style = style != null ? getStyle(style): Font.PLAIN
+            def size = properties.remove( "size" )
             // TODO use elvis
             size = size ? size : 12
             go.font = new Font( face, style as int, size as int )
@@ -53,5 +53,18 @@ public class FontFactory extends AbstractGraphicsOperationFactory {
 
     public boolean isLeaf(){
         return true
+    }
+
+    private def getStyle( style ){
+       if( style instanceof String ){
+          def s = Font.PLAIN
+          style.split(/\|/).each { w ->
+             if( w.equalsIgnoreCase("plain") ){ s |= Font.PLAIN }
+             else if( w.equalsIgnoreCase("bold") ){ s |= Font.BOLD }
+             else if( w.equalsIgnoreCase("italic") ) s |= Font.ITALIC
+          }
+          return s
+       }
+       return style
     }
 }

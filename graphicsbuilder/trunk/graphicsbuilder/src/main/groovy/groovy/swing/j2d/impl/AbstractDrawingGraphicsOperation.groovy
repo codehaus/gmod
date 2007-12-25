@@ -131,9 +131,17 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     protected void fill( GraphicsContext context ) {
        def g = context.g
 
+       def f = fill
+       if( context.groupContext.fill ){
+          f = context.groupContext.fill
+       }
+       if( fill != null ){
+          f = fill
+       }
+
        // short-circuit
        // don't fill the shape if fill == false
-       if( fill instanceof Boolean && !fill ){
+       if( f instanceof Boolean && !f ){
            return
        }
 
@@ -142,25 +150,25 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            return
        }
 
-       if( fill ){
-          if( fill instanceof Color ){
+       if( f ){
+          if( f instanceof Color ){
               def previousValue = g.color
-              g.color = fill
+              g.color = f
               applyFill( context )
               g.color = previousValue
-          }else if( fill instanceof Paint ){
+          }else if( f instanceof Paint ){
               def previousValue = g.paint
-              g.paint = fill
+              g.paint = f
               applyFill( context )
               g.paint = previousValue
-          }else if( fill instanceof String ){
+          }else if( f instanceof String ){
               def previousValue = g.color
-              g.color = ColorCache.getInstance().getColor( fill )
+              g.color = ColorCache.getInstance().getColor( f )
               applyFill( context )
               g.color = previousValue
-          }else if( fill instanceof PaintProvider ){
+          }else if( f instanceof PaintProvider ){
               Paint paint = context.g.getPaint()
-              context.g.setPaint( fill.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
+              context.g.setPaint( f.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
               applyFill( context )
               context.g.setPaint( paint )
           }else {
@@ -198,9 +206,24 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
 
        def g = context.g
 
+       def bc = borderColor
+       if( context.groupContext.borderColor ){
+          bc = context.groupContext.borderColor
+       }
+       if( fill != null ){
+          bc = borderColor
+       }
+       def bw = borderWidth
+       if( context.groupContext.borderWidth ){
+          bw = context.groupContext.borderWidth
+       }
+       if( fill != null ){
+          bw = borderWidth
+       }
+
        // short-circuit
        // don't draw the shape if borderColor == false
-       if( borderColor instanceof Boolean && !borderColor ){
+       if( bc instanceof Boolean && !bc ){
            return
        }
 
@@ -210,17 +233,17 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
 
        // apply color & stroke
-       if( borderColor ){
+       if( bc ){
            previousColor = g.color
-           if( borderColor instanceof String ){
-               g.color = ColorCache.getInstance().getColor( borderColor )
-           }else if( borderColor instanceof Color ){
-               g.color = borderColor
+           if( bc instanceof String ){
+               g.color = ColorCache.getInstance().getColor( bc )
+           }else if( bc instanceof Color ){
+               g.color = bc
            }
        }
-       if( borderWidth ){
+       if( bw ){
            previousStroke = g.stroke
-           g.stroke = new BasicStroke( borderWidth )
+           g.stroke = new BasicStroke( bw )
        }
 
        // draw the shape

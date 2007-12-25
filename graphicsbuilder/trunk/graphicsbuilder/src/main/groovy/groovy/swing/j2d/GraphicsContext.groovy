@@ -25,7 +25,8 @@ public class GraphicsContext {
    Graphics2D g
    Component target
    List shapes = []
-   
+   Map groupContext = [:]
+
    GraphicsContext copy() {
       GraphicsContext copy = new GraphicsContext()
       copy.g = g
