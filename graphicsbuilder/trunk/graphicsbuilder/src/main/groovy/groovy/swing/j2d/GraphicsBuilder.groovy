@@ -100,6 +100,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "bind", new BindFactory() )
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
         registerFactory( "image", new ImageFactory() )
+        registerFactory( "stroke", new StrokeFactory() )
 
         //
         // shapes
@@ -127,10 +128,10 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         //
         // outlines
         //
-        registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "polyline", PolylineGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "quadCurve", QuadCurveGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation, false )
+        registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation, false )
+        registerGraphicsOperationBeanFactory( "polyline", PolylineGraphicsOperation, false )
+        registerGraphicsOperationBeanFactory( "quadCurve", QuadCurveGraphicsOperation, false )
 
         //
         // area operations
@@ -160,7 +161,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         /*
         registerGraphicsOperationBeanFactory( "clip", ClipGraphicsOperation, true )
         registerFactory( "color", new ColorFactory() )
-        registerFactory( "stroke", new StrokeFactory() )
         */
     }
 }

@@ -15,35 +15,30 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.OutlineProvider
-import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.operations.AreaGraphicsOperation
-import groovy.swing.j2d.operations.GroupGraphicsOperation
+import groovy.swing.j2d.operations.StrokeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
-    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
-       if( child instanceof ShapeProvider && parent instanceof AreaGraphicsOperation ){
-          parent.addOperation( child )
-          return
-       }
+public class StrokeFactory extends AbstractGraphicsOperationFactory {
+    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
+            Map properties ) throws InstantiationException, IllegalAccessException {
+        return new StrokeGraphicsOperation()
+    }
 
-       if( child instanceof PaintProvider &&
-             (parent instanceof ShapeProvider || parent instanceof Grouping) ){
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
+       if( parent instanceof Grouping || parent instanceof OutlineProvider ||
+             parent instanceof ShapeProvider ) {
           parent.addOperation( child )
-          return
-       }
-
-       if( parent instanceof Grouping ){
-          parent.addOperation( child )
-          return
        }else{
-          throw new IllegalArgumentException("$parent does not support nesting of other operations")
+          throw new IllegalArgumentException("stroke() can not be nested inside $parent")
        }
-   }
+    }
+
+    public boolean isLeaf(){
+        return true
+    }
 }
