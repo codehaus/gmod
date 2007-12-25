@@ -398,11 +398,23 @@ class GraphicsPad implements CaretListener {
              preferredSize: [20,screen.width as int] )
        def columnHeader = swing.widget( new Rulers(Rulers.HORIZONTAL), opaque: true,
              preferredSize: [screen.height as int,20] )
-       swing.scrollPane( border: /*BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "View"),*/
+       def scrollPane = swing.scrollPane( border: /*BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "View"),*/
              BF.createLineBorder(Color.BLACK),
              rowHeaderView: rowHeader, columnHeaderView: columnHeader ){
           panel( graphicsPanel, id: 'view' )
        }
+
+       //scrollPane.addMouseListener( rowHeader )
+       //scrollPane.addMouseMotionListener( rowHeader )
+       //scrollPane.addMouseListener( columnHeader )
+       //scrollPane.addMouseMotionListener( columnHeader )
+
+       graphicsPanel.addMouseListener( rowHeader )
+       graphicsPanel.addMouseMotionListener( rowHeader )
+       graphicsPanel.addMouseListener( columnHeader )
+       graphicsPanel.addMouseMotionListener( columnHeader )
+
+       return scrollPane
     }
 
     private def buildCodePanel( swing ){
@@ -618,7 +630,7 @@ class GraphicsPad implements CaretListener {
     def finishException(Throwable t) {
        swing.status.text = 'Execution terminated with exception.'
        t.printStackTrace()
-       displayError( t.localizedMessage )
+       displayError( t.message )
     }
 
     def finishNormal(Object go) {
@@ -691,7 +703,7 @@ class GraphicsPad implements CaretListener {
  * Rulers code found at
  * http://forum.java.sun.com/thread.jspa?threadID=5205520&messageID=9821974
  */
-class Rulers extends JComponent {
+class Rulers extends JComponent implements MouseListener, MouseMotionListener {
     private static final int SIZE = 20
     public static final int HORIZONTAL = 0
     public static final int VERTICAL = 1
@@ -700,6 +712,7 @@ class Rulers extends JComponent {
 
     private int tickHeight
     private int orientation
+    private Point crossHair
 
     public Rulers(int o) {
        orientation = o
@@ -737,6 +750,10 @@ class Rulers extends JComponent {
              }
              g.drawLine(i, SIZE, i, SIZE - tickHeight)
           }
+          if( crossHair ){
+             g.setColor( Color.RED )
+             g.drawLine(crossHair.x as int, SIZE, crossHair.x as int, 0)
+          }
        }else{
           for( int i = 0; i <= height; i += 10 ) {
              if( i % 100 == 0 ){
@@ -750,6 +767,39 @@ class Rulers extends JComponent {
              }
              g.drawLine(SIZE, i, SIZE - tickHeight, i)
           }
+          if( crossHair ){
+             g.setColor( Color.RED )
+             g.drawLine(SIZE, crossHair.y as int, 0, crossHair.y as int)
+          }
        }
+    }
+
+    public void mouseMoved( MouseEvent event ) {
+       crossHair = event.point
+       repaint()
+    }
+    public void mouseDragged( MouseEvent event ) {
+       crossHair = event.point
+       repaint()
+    }
+    public void mouseEntered( MouseEvent event ) {
+       crossHair = event.point
+       repaint()
+    }
+    public void mouseExited( MouseEvent event ) {
+       crossHair = null
+       repaint()
+    }
+
+    // ----
+
+    public void mouseClicked( MouseEvent event ) {
+       // empty
+    }
+    public void mousePressed( MouseEvent event ) {
+       // empty
+    }
+    public void mouseReleased( MouseEvent event ) {
+       // empty
     }
 }

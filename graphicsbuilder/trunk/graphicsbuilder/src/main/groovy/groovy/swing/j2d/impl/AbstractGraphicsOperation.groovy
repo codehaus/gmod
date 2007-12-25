@@ -40,6 +40,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     AbstractGraphicsOperation( String name ) {
         super()
         this.name = name
+        addPropertyChangeListener( this )
     }
 
     public String getName() {
@@ -67,13 +68,13 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
         if( getMetaClass().hasProperty(this,'optional') && optional.contains(property) ) return true
         false
     }
-    
+
     public static boolean isGraphicsParameter( GraphicsOperation target, String property ) {
        if( target.getMetaClass().hasProperty(target,'required') && target.required.contains(property) ) return true
        if( target.getMetaClass().hasProperty(target,'optional') && target.optional.contains(property) ) return true
        false
     }
-    
+
     private boolean compare( oldvalue, newvalue ){
        if( oldvalue instanceof Boolean ){
           if( newvalue instanceof String ){

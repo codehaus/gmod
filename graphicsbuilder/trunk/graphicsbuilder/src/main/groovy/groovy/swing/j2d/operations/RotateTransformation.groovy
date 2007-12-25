@@ -34,9 +34,9 @@ public class RotateTransformation extends AbstractTransformation {
        if( angle == 0 ) {
           return new AffineTransform()
        }else if( x != null && y != null ){
-          return AffineTransform.getRotateInstance( angle as double, x as double, y as double )
+          return AffineTransform.getRotateInstance( ((Math.PI*angle)/180) as double, x as double, y as double )
        }else{
-          return AffineTransform.getRotateInstance( angle as double )
+          return AffineTransform.getRotateInstance( ((Math.PI*angle)/180) as double )
        }
     }
 }

@@ -21,10 +21,9 @@ import java.awt.Shape
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface OutlineProvider /*extends GraphicsOperation*/ {
-   /**
-    * Returns the shape defined by this operation.
-    *
-    * @return a Shape instance.
-    */
    Shape getShape( GraphicsContext context )
+
+   Shape getLocallyTransformedShape( GraphicsContext context )
+
+   Shape getGloballyTransformedShape( GraphicsContext context )
 }

@@ -15,14 +15,15 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.operations.PathGraphicsOperation
+import groovy.swing.j2d.impl.Transformation
+import groovy.swing.j2d.impl.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class PathOperationFactory extends GraphicsOperationBeanFactory {
-   public PathOperationFactory( Class operationClass ) {
-      super( operationClass, true )
+public class TransformationFactory extends GraphicsOperationBeanFactory {
+   public TransformationFactory( Class transformationClass ) {
+      super( transformationClass, true )
    }
 
    public boolean isLeaf(){
@@ -30,10 +31,9 @@ public class PathOperationFactory extends GraphicsOperationBeanFactory {
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-      if( parent instanceof PathGraphicsOperation ){
-         parent.addPathOperation( child )
-      }else{
-         throw new IllegalArgumentException("parent must be a 'path' node.")
+      if( !(parent instanceof TransformationGroup) ){
+         throw new IllegalArgumentException("Transforms are not allowed outside a 'transformations' node")
       }
+      parent.addTransformation(child)
    }
 }

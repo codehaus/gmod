@@ -46,10 +46,9 @@ class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
    }
 
    public void propertyChange( PropertyChangeEvent event ){
-      if( pathOperations.contains(event.source) ){
+      //if( pathOperations.contains(event.source) ){
          path = null
-         firePropertyChange( event )
-      }
+      //}
    }
 
    public Shape getShape( GraphicsContext context ) {

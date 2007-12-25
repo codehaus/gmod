@@ -52,11 +52,15 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     }
 
     public void addOperation( GraphicsOperation operation ) {
+        if( !operation ) return
         operations << operation
+        operation.addPropertyChangeListener( this )
     }
 
     public void removeOperation( GraphicsOperation operation ) {
-       operations.remove( operation )
+        if( !operation ) return
+        operations.remove( operation )
+        operation.removePropertyChangeListener( this )
     }
 
     public List getOperations() {

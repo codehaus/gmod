@@ -20,6 +20,7 @@ import groovy.swing.j2d.ShapeProvider
 import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
 
 import java.awt.Shape
+import java.awt.geom.AffineTransform
 import java.beans.PropertyChangeEvent
 import org.jdesktop.swingx.geom.Morphing2D
 
@@ -29,7 +30,7 @@ import org.jdesktop.swingx.geom.Morphing2D
 class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
    protected static required = ["start", "end", "morph"]
 
-   private Morphing2D morphedShape
+   private Shape morphedShape
 
    def start
    def end
@@ -67,16 +68,6 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
 
       morphedShape = new Morphing2D( start, end )
       morphedShape.morphing = morph as double
-   }
-
-   protected boolean withinClipBounds( GraphicsContext context ){
-      // TODO Morph2D does not support intersect()
-      if( transformationGroup ) {
-         def currentTransform = context.g.transform.clone()
-         def localTransform = transformationGroup.transform
-         currentTransform.concatenate( localTransform )
-         transformedShape = currentTransform.createTransformedShape(getShape(context))
-      }
-      true
+      morphedShape = new AffineTransform().createTransformedShape(morphedShape)
    }
 }

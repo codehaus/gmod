@@ -103,7 +103,7 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
        }else if( url ){
           this.@imageObj = ImageIO.read( url instanceof String ? url.toURL(): url )
        }else if( file ){
-          this.@imageObj = ImageIO.read( url instanceof String ? new File(file): file )
+          this.@imageObj = ImageIO.read( file instanceof String ? new File(file): file )
        }else{
           throw new IllegalArgumentException("Must define one of [image,classpath,url,file]")
        }

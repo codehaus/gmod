@@ -28,14 +28,14 @@ import groovy.swing.j2d.impl.AbstractLinearGradientPaintGraphicsOperation
 final class GradientPaintGraphicsOperation extends AbstractLinearGradientPaintGraphicsOperation {
     protected static required = super.required + ['color1','color2']
 
-    def color1 = 'black'
-    def color2 = 'white'
-    
+    def color1 = Color.BLACK
+    def color2 = Color.WHITE
+
     GradientPaintGraphicsOperation(){
-       super( "gradientPaint" ) 
+       super( "gradientPaint" )
        cycle = DEFAULT_CYCLE_VALUE
     }
-    
+
     protected Paint makePaint( x1, y1, x2, y2 ){
        return new GradientPaint( new Point2D.Double(x1,y1),
                                  getColor(color1),
@@ -43,7 +43,7 @@ final class GradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
                                  getColor(color2),
                                  cycle as boolean )
     }
-    
+
     private Color getColor( value ) {
        if( value instanceof String ){
           return ColorCache.getInstance().getColor( value )

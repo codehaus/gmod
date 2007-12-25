@@ -21,7 +21,7 @@ import java.util.List
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface Transformable /*extends GraphicsOperation*/ {
-   void setTransformationGroup( TransformationGroup transformationGroup )
+   //void setTransformationGroup( TransformationGroup transformationGroup )
 
-   TransformationGroup getTransformationGroup()
+   //TransformationGroup getTransformationGroup()
 }

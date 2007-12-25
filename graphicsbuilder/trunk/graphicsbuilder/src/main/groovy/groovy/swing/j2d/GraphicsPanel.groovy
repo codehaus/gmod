@@ -209,12 +209,8 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
          def shapes = context.shapes
          for( shape in shapes.reverse() ){
              if( shape instanceof ShapeProvider ){
-                 def s = shape.getShape(context)
-                 def ts = shape.getTransformedShape()
-                 //println "${shape} ${s?.bounds} ${ts?.bounds}"
-                 if( ts ){
-                    if( ts.contains(e.point) ) return shape
-                 }else if( s.contains(e.point) ){
+                 def s = shape.getGloballyTransformedShape(context)
+                 if( s.contains(e.point) ){
                     return shape
                  }
              }

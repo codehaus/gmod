@@ -19,7 +19,7 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.Transformable
-import groovy.swing.j2d.TransformationGroup
+import groovy.swing.j2d.impl.TransformationGroup
 import groovy.swing.j2d.impl.AbstractNestingGraphicsOperation
 
 import java.beans.PropertyChangeEvent
@@ -32,6 +32,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     private def g
     TransformationGroup transformationGroup
+    TransformationGroup globalTransformationGroup
 
     // properties
     def borderColor
@@ -56,22 +57,38 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        transformationGroup
     }
 
+    public void setGlobalTransformationGroup( TransformationGroup globalTransformationGroup ){
+       if( globalTransformationGroup ) {
+          if( this.globalTransformationGroup ){
+             this.globalTransformationGroup.removePropertyChangeListener( this )
+          }
+          this.globalTransformationGroup = globalTransformationGroup
+          this.globalTransformationGroup.addPropertyChangeListener( this )
+       }
+    }
+
+    public TransformationGroup getGlobalTransformationGroup() {
+       globalTransformationGroup
+    }
+
     public void propertyChange( PropertyChangeEvent event ) {
        if( event.source == transformationGroup ){
+          super.firePropertyChange( event )
+       }
+       if( event.source == globalTransformationGroup ){
           super.firePropertyChange( event )
        }
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       if( transformationGroup ){
+       if( operations ){
           g = context.g
           context.g = context.g.create()
-          context.g.transform( transformationGroup.getTransform() )
        }
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       if( transformationGroup ){
+       if( operations ){
           context.g.dispose()
           context.g = g
        }
@@ -81,6 +98,24 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        setPropertyOnNestedOperation( go, "borderColor" )
        setPropertyOnNestedOperation( go, "borderWidth" )
        setPropertyOnNestedOperation( go, "fill" )
+       if( go instanceof Transformable ){
+          if( transformationGroup ){
+             def gtg = go.globalTransformationGroup
+             if( !gtg ){
+                gtg = new TransformationGroup()
+                go.globalTransformationGroup = gtg
+             }
+             gtg.addTransformation( transformationGroup )
+          }
+          if( globalTransformationGroup ){
+             def gtg = go.globalTransformationGroup
+             if( !gtg ){
+                gtg = new TransformationGroup()
+                go.globalTransformationGroup = gtg
+             }
+             gtg.addTransformation( globalTransformationGroup )
+          }
+       }
        go.execute( context )
     }
 }

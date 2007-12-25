@@ -35,12 +35,6 @@ public class PolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "polygon" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ) {
-       if( required.contains(event.propertyName) ){
-          path = null
-       }
-    }
-
     public Shape getShape( GraphicsContext context ) {
        if( polygon == null ){
           calculatePolygon()

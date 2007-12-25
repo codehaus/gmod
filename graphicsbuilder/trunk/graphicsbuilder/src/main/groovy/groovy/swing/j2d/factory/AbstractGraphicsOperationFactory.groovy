@@ -20,9 +20,9 @@ import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.OutlineProvider
 import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.Transformable
-import groovy.swing.j2d.Transformation
-import groovy.swing.j2d.TransformationGroup
+//import groovy.swing.j2d.Transformable
+//import groovy.swing.j2d.Transformation
+//import groovy.swing.j2d.TransformationGroup
 import groovy.swing.j2d.operations.AreaGraphicsOperation
 import groovy.swing.j2d.operations.GroupGraphicsOperation
 
@@ -31,6 +31,7 @@ import groovy.swing.j2d.operations.GroupGraphicsOperation
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       /*
        if( child instanceof Transformation ){
           if( parent instanceof TransformationGroup ){
              parent.addTransformation(child)
@@ -39,7 +40,7 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
              throw new IllegalArgumentException("Transforms are not allowed outside a 'transformations' node")
           }
        }
-       
+
        if( child instanceof TransformationGroup ){
           if( parent instanceof Transformable ){
              parent.transformationGroup = child
@@ -48,18 +49,19 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
              throw new IllegalArgumentException("$parent does not support transformations")
           }
        }
-       
+       */
+
        if( child instanceof ShapeProvider && parent instanceof AreaGraphicsOperation ){
           parent.addOperation( child )
           return
        }
-       
-       if( child instanceof PaintProvider && 
+
+       if( child instanceof PaintProvider &&
              (parent instanceof ShapeProvider || parent instanceof Grouping) ){
           parent.addOperation( child )
           return
        }
-       
+
        if( parent instanceof Grouping ){
           parent.addOperation( child )
           return

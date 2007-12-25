@@ -143,11 +143,12 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         //
         // transformations
         //
-        registerGraphicsOperationBeanFactory( "transformations", TransformationGroup )
-        registerGraphicsOperationBeanFactory( "rotate", RotateTransformation, false )
-        registerGraphicsOperationBeanFactory( "scale", ScaleTransformation, false )
-        registerGraphicsOperationBeanFactory( "skew", SkewTransformation, false )
-        registerGraphicsOperationBeanFactory( "translate", TranslateTransformation, false )
+        registerFactory( "transformations", new TransformationGroupFactory() )
+        registerFactory( "rotate", new TransformationFactory(RotateTransformation) )
+        registerFactory( "scale", new TransformationFactory(ScaleTransformation) )
+        registerFactory( "skew", new TransformationFactory(SkewTransformation) )
+        registerFactory( "translate", new TransformationFactory(TranslateTransformation) )
+        registerFactory( "freeze", new TransformationFactory(FreezeTransformation) )
 
         //
         // paint

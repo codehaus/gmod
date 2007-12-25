@@ -15,8 +15,6 @@
 
 package groovy.swing.j2d.impl
 
-import groovy.swing.j2d.Transformation
-
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */

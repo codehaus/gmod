@@ -20,7 +20,7 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.Transformable
-import groovy.swing.j2d.TransformationGroup
+import groovy.swing.j2d.impl.TransformationGroup
 
 import java.awt.BasicStroke
 import java.awt.Color
@@ -34,9 +34,11 @@ import java.beans.PropertyChangeEvent
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
     protected static optional = ['borderColor','borderWidth','fill','asShape']
 
-    protected Shape transformedShape
+    protected Shape locallyTransformedShape
+    protected Shape globallyTransformedShape
     private def g
     TransformationGroup transformationGroup
+    TransformationGroup globalTransformationGroup
 
     // properties
     def borderColor
@@ -49,6 +51,20 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     public abstract Shape getShape( GraphicsContext context )
+
+    public Shape getLocallyTransformedShape( GraphicsContext context ){
+       if( !locallyTransformedShape ){
+          calculateLocallyTransformedShape( context )
+       }
+       return locallyTransformedShape
+    }
+
+    public Shape getGloballyTransformedShape( GraphicsContext context ){
+       if( !globallyTransformedShape ){
+          calculateGloballyTransformedShape( context )
+       }
+       return globallyTransformedShape
+    }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
        if( transformationGroup ) {
@@ -64,42 +80,45 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        transformationGroup
     }
 
-    public Shape getTransformedShape() {
-       transformedShape
+    public void setGlobalTransformationGroup( TransformationGroup globalTransformationGroup ){
+       if( globalTransformationGroup ) {
+          if( this.globalTransformationGroup ){
+             this.globalTransformationGroup.removePropertyChangeListener( this )
+          }
+          this.globalTransformationGroup = globalTransformationGroup
+          this.globalTransformationGroup.addPropertyChangeListener( this )
+       }
+    }
+
+    public TransformationGroup getGlobalTransformationGroup() {
+       globalTransformationGroup
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
-       if( event.source == transformationGroup ){
-          super.firePropertyChange( event )
-       }
+       locallyTransformedShape = null
+       globallyTransformedShape = null
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       if( transformationGroup || operations ){
+       if( operations ){
           g = context.g
           context.g = context.g.create()
-          if( transformationGroup ){
-             context.g.transform( transformationGroup.getTransform() )
-          }
-       }
-       if( !context.g.getTransform().isIdentity() ){
-          transformedShape = context.g.transform.createTransformedShape(getShape(context))
        }
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       if( transformationGroup || operations ){
+       if( operations ){
           context.g.dispose()
           context.g = g
        }
     }
 
-    protected boolean executeBeforeNestedOperations( GraphicsContext context ) {
-        return withinClipBounds( context )
+    protected boolean executeAfterNestedOperations( GraphicsContext context ) {
+       return withinClipBounds( context )
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-        // go.execute( context )
+        go.execute( context )
     }
 
     protected void executeOperation( GraphicsContext context ) {
@@ -141,7 +160,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
               g.color = previousValue
           }else if( fill instanceof PaintProvider ){
               Paint paint = context.g.getPaint()
-              context.g.setPaint( fill.getPaint(context, getActualShape(context).bounds2D) )
+              context.g.setPaint( fill.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
               applyFill( context )
               context.g.setPaint( paint )
           }else {
@@ -149,7 +168,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
              def pp = operations.reverse().find{ it instanceof PaintProvider }
              if( pp ){
                 Paint paint = context.g.getPaint()
-                context.g.setPaint( pp.getPaint(context, getActualShape(context).bounds2D) )
+                context.g.setPaint( pp.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
                 applyFill( context )
                 context.g.setPaint( paint )
              }else{
@@ -162,7 +181,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           def pp = operations.reverse().find{ it instanceof PaintProvider }
           if( pp ){
              Paint paint = context.g.getPaint()
-             context.g.setPaint( pp.getPaint(context, getActualShape(context).bounds2D) )
+             context.g.setPaint( pp.getPaint(context, getGloballyTransformedShape(context).bounds2D) )
              applyFill( context )
              context.g.setPaint( paint )
           }
@@ -170,7 +189,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void applyFill( GraphicsContext context ) {
-        context.g.fill( getShape(context) )
+        context.g.fill( getGloballyTransformedShape(context) )
     }
 
     protected void draw( GraphicsContext context ) {
@@ -205,7 +224,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
 
        // draw the shape
-       g.draw( getShape(context) )
+       g.draw( getGloballyTransformedShape(context) )
 
        // restore color & stroke
        if( previousColor ) g.color = previousColor
@@ -213,15 +232,22 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected boolean withinClipBounds( GraphicsContext context ) {
-       if( transformedShape ){
-          return transformedShape.intersects(context.g.clipBounds)
+       return getGloballyTransformedShape( context ).intersects( context.g.clipBounds )
+    }
+
+    protected void calculateLocallyTransformedShape( GraphicsContext context ) {
+       if( transformationGroup && !transformationGroup.isEmpty() ){
+          this.@locallyTransformedShape = transformationGroup.apply( getShape(context) )
        }else{
-          return getShape(context).intersects(context.g.clipBounds)
+          this.@locallyTransformedShape = getShape(context)
        }
     }
 
-    protected Shape getActualShape( GraphicsContext context ){
-       if( transformedShape ) return transformedShape
-       return getShape(context)
+    protected void calculateGloballyTransformedShape( GraphicsContext context ) {
+       if( globalTransformationGroup && !globalTransformationGroup.isEmpty() ){
+          this.@globallyTransformedShape = globalTransformationGroup.apply( getLocallyTransformedShape(context) )
+       }else{
+          this.@globallyTransformedShape = getLocallyTransformedShape(context)
+       }
     }
 }

@@ -15,30 +15,23 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.operations.AreaGraphicsOperation
-import groovy.swing.j2d.operations.ShapeGraphicsOperation
-
 import java.awt.Shape
-import groovy.swing.j2d.ShapeProvider
+import groovy.swing.j2d.Transformable
+import groovy.swing.j2d.impl.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class ShapeFactory extends AbstractGraphicsOperationFactory {
+public class TransformationGroupFactory extends AbstractGraphicsOperationFactory {
     public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
             Map properties ) throws InstantiationException, IllegalAccessException {
-        ShapeGraphicsOperation go = new ShapeGraphicsOperation()
-        if( value != null && (Shape.class.isAssignableFrom( value.class ) ||
-             value instanceof ShapeProvider ) ) {
-            go.shape = value
-        }
-        return go
+        return new TransformationGroup()
     }
 
-    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-       if( !(parent instanceof AreaGraphicsOperation) ) {
-          throw new IllegalArgumentException("shape() can only be nested in any of [add, subtract, intersect, xor]")
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       if( !(parent instanceof Transformable) ){
+          throw new IllegalArgumentException("$parent does not support transformations")
        }
-       parent.addOperation( child )
+       parent.transformationGroup = child
     }
 }

@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d
+package groovy.swing.j2d.impl
 
-import java.awt.Shape
+import java.awt.geom.AffineTransform
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface ShapeProvider /*extends GraphicsOperation*/ {
-   Shape getShape( GraphicsContext context )
-
-   Shape getLocallyTransformedShape( GraphicsContext context )
-
-   Shape getGloballyTransformedShape( GraphicsContext context )
+public interface Transformation {
+    AffineTransform getTransform()
 }

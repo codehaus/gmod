@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d;
+package groovy.swing.j2d.operations
 
 import java.awt.geom.AffineTransform
+import groovy.swing.j2d.impl.AbstractTransformation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Transformation {
-   AffineTransform getTransform();
+public class FreezeTransformation extends AbstractTransformation {
+    public FreezeTransformation() {
+        super( "freeze" )
+    }
+
+    public AffineTransform getTransform() {
+       return new AffineTransform()
+    }
 }
