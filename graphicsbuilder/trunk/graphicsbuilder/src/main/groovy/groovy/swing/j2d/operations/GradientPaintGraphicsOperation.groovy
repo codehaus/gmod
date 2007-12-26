@@ -38,10 +38,18 @@ final class GradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
 
     protected Paint makePaint( x1, y1, x2, y2 ){
        return new GradientPaint( new Point2D.Double(x1,y1),
-                                 getColor(color1),
+                                 color1,
                                  new Point2D.Double(x2,y2),
-                                 getColor(color2),
+                                 color2,
                                  cycle as boolean )
+    }
+
+    void setProperty( String property, Object value ) {
+       if( property == "color1" || property == "color2" && value instanceof String ){
+          super.setProperty( property, ColorCache.getInstance().getColor( value ) )
+       }else{
+          super.setProperty( property, value )
+       }
     }
 
     private Color getColor( value ) {

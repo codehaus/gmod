@@ -40,6 +40,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      private GraphicsContext context = new GraphicsContext()
      private boolean displayed
      private List errorListeners = []
+     private ShapeProvider lastShape
 
      GraphicsPanel(){
          super( null )
@@ -142,13 +143,11 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      /* ===== MouseListener ===== */
 
      public void mouseEntered( MouseEvent e ){
-        // noop
-        //fireMouseEvent( e, "mouseEntered" )
+        lastShape = null
      }
 
      public void mouseExited( MouseEvent e ){
-         // noop
-         //fireMouseEvent( e, "mouseExited" )
+         lastShape = null
      }
 
      public void mousePressed( MouseEvent e ){
@@ -163,11 +162,23 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
          fireMouseEvent( e, "mouseClicked" )
      }
 
-
      /* ===== MouseMotionListener ===== */
 
      public void mouseMoved( MouseEvent e ){
-         fireMouseEvent( e, "mouseMoved" )
+         if( !context.shapes ) return
+         def shape = getSourceShape(e)
+         if( shape ){
+             def inputEvent = new GraphicsInputEvent( this, e, shape )
+             if( shape != lastShape ){
+                if( lastShape ) lastShape.mouseExited( new GraphicsInputEvent( this, e, lastShape ) )
+                lastShape = shape
+                shape.mouseEntered( inputEvent )
+             }
+             shape.mouseMoved( inputEvent )
+         }else if( lastShape ){
+            lastShape.mouseExited( new GraphicsInputEvent( this, e, lastShape ) )
+            lastShape = null
+         }
      }
 
      public void mouseDragged( MouseEvent e ){

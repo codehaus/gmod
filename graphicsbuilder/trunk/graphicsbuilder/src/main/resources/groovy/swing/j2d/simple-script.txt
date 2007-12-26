@@ -3,6 +3,7 @@ import java.awt.geom.*
 import javax.swing.*
 import org.jdesktop.swingx.geom.*
 import groovy.swing.SwingBuilder
+import groovy.swing.j2d.*
 
 go = {
    ${source}
