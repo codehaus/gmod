@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
+    protected static required = []
     protected static optional = ['borderColor','borderWidth','fill','asShape']
 
     private BufferedImage image
