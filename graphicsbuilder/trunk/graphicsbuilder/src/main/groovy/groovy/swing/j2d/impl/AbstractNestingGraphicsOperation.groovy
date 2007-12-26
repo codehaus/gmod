@@ -67,6 +67,16 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
        operations
     }
 
+
+    /* ===== OPERATOR OVERLOADING ===== */
+    
+    public AbstractNestingGraphicsOperation leftShift( GraphicsOperation operation ) {
+       addOperation( operation )
+       this
+    }
+    
+    /* ===== PROTECTED ===== */
+    
     protected boolean executeBeforeNestedOperations( GraphicsContext context ) {
         true
     }
@@ -82,12 +92,4 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     protected void executeOperation( GraphicsContext context ) {
         // empty
     }
-
-    /*
-    protected void setPropertyOnNestedOperation( GraphicsOperation go, String property ) {
-       def value = this."$property"
-       if( go.metaClass.hasProperty(go,property) && value != null && go."$property" == null )
-          go."$property" = value
-    }
-    */
 }

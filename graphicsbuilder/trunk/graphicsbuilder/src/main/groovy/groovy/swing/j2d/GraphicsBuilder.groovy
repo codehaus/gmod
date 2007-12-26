@@ -20,6 +20,7 @@ import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.Shape
 import java.awt.Component
+import java.awt.geom.Area
 
 import groovy.swing.factory.BindFactory
 import groovy.swing.factory.ModelFactory
@@ -37,9 +38,34 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private GroovyShell shell
 
     public GraphicsBuilder() {
+        GraphicsBuilder.extendShapes()
         registerOperations()
     }
 
+    public static void extendShapes() {
+       def shapeMethods = Shape.metaClass.methods
+       def methodMap = [
+          'plus':'add',
+          'minus':'subtract',
+          'and':'intersect',
+          'xor':'exclusiveOr'
+       ]
+       boolean updated = false
+       methodMap.each { op, method ->
+          if( !shapeMethods.name.find{ it == op } ){
+             Shape.metaClass."$op" << { Shape other ->
+                def area = new Area(delegate)
+                area."$method"( new Area(other) )
+                return area
+             }
+             updated = true
+          }
+          if( updated ){
+             ExpandoMetaClass.enableGlobally() 
+          }
+       }
+    }
+    
     /*
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
         builder.addAttributeDelegate({ fbs, node, attrs ->

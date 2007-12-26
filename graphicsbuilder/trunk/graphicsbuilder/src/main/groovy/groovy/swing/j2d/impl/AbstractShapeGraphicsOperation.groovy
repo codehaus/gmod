@@ -21,6 +21,7 @@ import groovy.swing.j2d.event.GraphicsInputEvent
 import groovy.swing.j2d.event.GraphicsInputListener
 
 import java.awt.Shape
+import java.awt.geom.Area
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -87,6 +88,46 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        if( mouseWheelMoved ) this.@mouseWheelMoved(e)
     }
 
+    /* ===== OPERATOR OVERLOADING ===== */
+    
+    public Shape plus( ShapeProvider shape ){
+       return plus( shape.getLocallyTransformedShape(null) )
+    }
+    public Shape plus( Shape shape ){
+       def area = new Area(getLocallyTransformedShape(null))
+       area.add( new Area(shape) )
+       return area
+    }
+    
+    public Shape minus( ShapeProvider shape ){
+       return minus( shape.getLocallyTransformedShape(null) )
+    }
+    public Shape minus( Shape shape ){
+       def area = new Area(getLocallyTransformedShape(null))
+       area.subtract( new Area(shape) )
+       return area
+    }
+    
+    public Shape and( ShapeProvider shape ){
+       return and( shape.getLocallyTransformedShape(null) )
+    }
+    public Shape and( Shape shape ){
+       def area = new Area(getLocallyTransformedShape(null))
+       area.intersect( new Area(shape) )
+       return area
+    }
+    
+    public Shape xor( ShapeProvider shape ){
+       return xor( shape.getLocallyTransformedShape(null) )
+    }
+    public Shape xor( Shape shape ){
+       def area = new Area(getLocallyTransformedShape(null))
+       area.exclusiveOr( new Area(shape) )
+       return area
+    }
+    
+    /* ===== PROTECTED ===== */
+    
     protected void executeAfterAll( GraphicsContext context ) {
        if( !asShape ){
            context.shapes << this

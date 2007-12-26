@@ -101,9 +101,6 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-       //setPropertyOnNestedOperation( go, "borderColor" )
-       //setPropertyOnNestedOperation( go, "borderWidth" )
-       //setPropertyOnNestedOperation( go, "fill" )
        if( go instanceof Transformable ){
           if( transformationGroup ){
              def gtg = go.globalTransformationGroup
