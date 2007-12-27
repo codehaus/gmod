@@ -19,6 +19,7 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Paint
 import java.awt.Shape
+import java.awt.Rectangle
 import java.awt.Component
 import java.awt.geom.Area
 
@@ -67,32 +68,12 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     }
 
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
-        builder.addAttributeDelegate({ fbs, node, attrs ->
-            fbs.context.x = attrs.remove("x")
-            fbs.context.y = attrs.remove("y")
-            //if( attrs.enabled == null ) node.enabled = true
-            ['foreground','background'].each { prop ->
-               def value = attrs.remove(prop)
-               if( value ){
-                  if( node.metaClass.hasProperty(node,prop) && value instanceof String ){
-                     node."$prop" = ColorCache.getInstance().getColor(value)
-                  }
-               }
-            }
-            if( attrs.id ) setVariable( attrs.id, node )
-        })
-        builder.addPostNodeCompletionDelegate({ fbs, parent, node ->
-            def x = fbs.context.x
-            def y = fbs.context.y
-            if( x && y ){
-                def size = node.preferredSize
-                node.bounds = [x,y,size.width as int,size.height as int] as java.awt.Rectangle
-            }
-        })
+        builder.addAttributeDelegate(this.&swingAttributeDelegate)
+        builder.addPostNodeCompletionDelegate(this.&swingPostNodeCompletionDelegate)
 
+        def go = null
         def proxyBuilderRef = getProxyBuilder()
         setProxyBuilder( builder )
-        def go = null
         try {
             def container = builder.panel( closure )
             setProxyBuilder( proxyBuilderRef )
@@ -190,5 +171,28 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
+    }
+
+    private void swingAttributeDelegate( FactoryBuilderSupport fbs, Object node, Map attrs ) {
+       fbs.context.x = attrs.remove("x")
+       fbs.context.y = attrs.remove("y")
+       ['foreground','background'].each { prop ->
+          def value = attrs.remove(prop)
+          if( value ){
+             if( node.metaClass.hasProperty(node,prop) ){
+                node."$prop" = ColorCache.getInstance().getColor(value)
+             }
+          }
+       }
+       if( attrs.id ) setVariable( attrs.id, node )
+    }
+
+    private void swingPostNodeCompletionDelegate( FactoryBuilderSupport fbs, Object parent, Object node ) {
+       def x = fbs.context.x
+       def y = fbs.context.y
+       if( x && y ){
+           def size = node.preferredSize
+           node.bounds = [x,y,size.width as int,size.height as int] as Rectangle
+       }
     }
 }
