@@ -61,16 +61,25 @@ class GraphicsBuilder extends FactoryBuilderSupport {
              updated = true
           }
           if( updated ){
-             ExpandoMetaClass.enableGlobally() 
+             ExpandoMetaClass.enableGlobally()
           }
        }
     }
-    
-    /*
+
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
         builder.addAttributeDelegate({ fbs, node, attrs ->
             fbs.context.x = attrs.remove("x")
             fbs.context.y = attrs.remove("y")
+            //if( attrs.enabled == null ) node.enabled = true
+            ['foreground','background'].each { prop ->
+               def value = attrs.remove(prop)
+               if( value ){
+                  if( node.metaClass.hasProperty(node,prop) && value instanceof String ){
+                     node."$prop" = ColorCache.getInstance().getColor(value)
+                  }
+               }
+            }
+            if( attrs.id ) setVariable( attrs.id, node )
         })
         builder.addPostNodeCompletionDelegate({ fbs, parent, node ->
             def x = fbs.context.x
@@ -86,19 +95,14 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         def go = null
         try {
             def container = builder.panel( closure )
-            go = new SwingGraphicsOperation( container )
+            setProxyBuilder( proxyBuilderRef )
+            go = invokeMethod( "\$swing", new SwingGraphicsOperation( container ) )
         } finally {
             setProxyBuilder( proxyBuilderRef )
         }
 
-        def parent = getCurrent()
-        if( parent != null ){
-           setParent( parent, go )
-        }
-        nodeCompleted( parent, go )
-        return postNodeCompletion( parent, go )
+        return go
     }
-    */
 
     private registerGraphicsOperationBeanFactory( String name, Class beanClass ){
         registerFactory( name, new GraphicsOperationBeanFactory(beanClass,false) )
@@ -129,6 +133,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "stroke", new StrokeFactory() )
         //registerFactory( "color", new ColorFactory() )
         registerFactory( "clip", new ClipFactory() )
+        registerFactory( "\$swing", new SwingFactory() )
 
         //
         // shapes
