@@ -22,6 +22,7 @@ import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.impl.TransformationGroup
 
+import java.awt.AlphaComposite
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Paint
@@ -36,7 +37,7 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
     protected static required = []
-    protected static optional = ['borderColor','borderWidth','fill','asShape']
+    protected static optional = ['borderColor','borderWidth','fill','asShape','opacity']
 
     private BufferedImage image
     protected Shape locallyTransformedShape
@@ -50,6 +51,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     def borderWidth
     def fill
     def asShape
+    def opacity
 
     AbstractDrawingGraphicsOperation( String name ) {
         super( name )
@@ -113,17 +115,30 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       if( operations ){
+       def o = opacity
+       if( context.groupContext?.opacity ){
+          o = context.groupContext?.opacity
+       }
+       if( opacity != null ){
+          o = opacity
+       }
+
+       //if( operations || o != null ){
           gcopy = context.g
           context.g = context.g.create()
-       }
+          if( o != null ){
+             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+          }else{
+             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+          }
+       //}
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       if( operations ){
+       //if( operations ){
           context.g.dispose()
           context.g = gcopy
-       }
+       //}
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {

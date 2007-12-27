@@ -22,16 +22,17 @@ import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.impl.TransformationGroup
 import groovy.swing.j2d.impl.AbstractNestingGraphicsOperation
 
+import java.awt.AlphaComposite
 import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping {
-    protected static optional = ['borderColor','borderWidth','fill']
+    protected static optional = ['borderColor','borderWidth','fill','opacity']
 
     private def previousGroupContext
-    private def g
+    private def gcopy
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
 
@@ -39,6 +40,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     def borderColor
     def borderWidth
     def fill
+    def opacity
 
     public GroupGraphicsOperation() {
         super( "group" )
@@ -82,21 +84,38 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       if( operations ){
-          g = context.g
-          context.g = context.g.create()
+       previousGroupContext = [:]
+       previousGroupContext.putAll(context.groupContext)
+
+       def o = opacity
+       if( context.groupContext.opacity ){
+          o = context.groupContext.opacity
        }
-       previousGroupContext = context.groupContext
+       if( opacity != null ){
+          o = opacity
+       }
+
+       //if( operations || o != null ){
+          gcopy = context.g
+          context.g = context.g.create()
+          if( o != null ){
+             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+          }else{
+             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+          }
+       //}
+
        if( borderColor != null ) context.groupContext.borderColor = borderColor
        if( borderWidth != null ) context.groupContext.borderWidth = borderWidth
+       if( opacity != null ) context.groupContext.opacity = opacity
        if( fill != null ) context.groupContext.fill = fill
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       if( operations ){
+       //if( operations ){
           context.g.dispose()
-          context.g = g
-       }
+          context.g = gcopy
+       //}
        context.groupContext = previousGroupContext
     }
 

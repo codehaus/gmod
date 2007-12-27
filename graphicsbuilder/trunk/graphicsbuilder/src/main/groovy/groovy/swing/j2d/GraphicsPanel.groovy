@@ -104,6 +104,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
              g.clearRect( 0, 0, size.width as int, size.height as int )
              try{
                  context.shapes = []
+                 context.groupContext = [:]
                  graphicsOperation.execute( context )
              }catch( Exception e ){
                  fireGraphicsErrorEvent( e )

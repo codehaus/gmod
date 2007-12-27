@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.operations
 
+import java.awt.AlphaComposite
 import java.awt.Image
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
@@ -26,7 +27,7 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
  */
 class ImageGraphicsOperation extends AbstractGraphicsOperation {
     protected static required = ['x','y']
-    protected static optional = ['image','classpath','url','file','asImage']
+    protected static optional = ['image','classpath','url','file','asImage','opacity']
 
     private Image imageObj
 
@@ -37,6 +38,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
     def x = 0
     def y = 0
     def asImage = false
+    def opacity
 
     ImageGraphicsOperation() {
         super( "image" )
@@ -44,11 +46,29 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation {
 
     public void execute( GraphicsContext context ){
         if( asImage ) return
+        def o = opacity
+        if( context.groupContext?.opacity ){
+           o = context.groupContext?.opacity
+        }
+        if( opacity != null ){
+           o = opacity
+        }
+
+        def g = context.g
+        context.g = context.g.create()
+        if( o != null ){
+           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+        }else{
+           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+        }
+
         if( image instanceof ImageGraphicsOperation ){
            context.g.drawImage( image.imageObj, x, y, null )
         }else{
            context.g.drawImage( getImageObj(), x, y, null )
         }
+
+        context.g = g
     }
 
     public Image getImageObj() {

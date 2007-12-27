@@ -32,6 +32,7 @@ public class GraphicsContext {
       copy.g = g
       copy.target = target
       copy.shapes.addAll( shapes )
+      copy.groupContext.putAll( groupContext )
       return copy
    }
 }
