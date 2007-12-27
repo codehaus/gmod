@@ -114,7 +114,7 @@ public abstract class GrooshProcess {
 		return this;
 	}
 
-	public void waitForStreamsHandled() throws InterruptedException,
+	public void waitFor() throws InterruptedException,
 			ExecutionException {
 		getSource().waitForStreamsHandled();
 	}
