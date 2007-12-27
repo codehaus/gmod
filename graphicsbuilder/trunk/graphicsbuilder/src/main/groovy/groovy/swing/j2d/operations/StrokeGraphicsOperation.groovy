@@ -36,7 +36,7 @@ public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
 	def join
 	def mitterlimit
 	def dash
-	def dashphase
+	def dashphase = 0
 
     public StrokeGraphicsOperation() {
         super( "stroke" )

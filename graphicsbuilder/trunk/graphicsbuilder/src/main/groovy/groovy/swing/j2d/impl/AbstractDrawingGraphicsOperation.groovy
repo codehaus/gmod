@@ -126,12 +126,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
     }
 
-    /*
-    protected boolean executeAfterNestedOperations( GraphicsContext context ) {
-       return withinClipBounds( context )
-    }
-    */
-
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
         go.execute( context )
     }

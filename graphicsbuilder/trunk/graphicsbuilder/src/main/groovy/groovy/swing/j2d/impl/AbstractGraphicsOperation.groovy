@@ -15,10 +15,12 @@
 
 package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 
 import java.awt.Shape
+import java.awt.Color
 
 /**
  * Base implementation of GraphicsOperation.<br>
@@ -76,15 +78,44 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     }
 
     private boolean compare( oldvalue, newvalue ){
-       if( oldvalue instanceof Boolean ){
-          if( newvalue instanceof String ){
-             return (oldvalue as String) != newvalue
-          }
-       }else if( newvalue instanceof Boolean ){
-          if( oldvalue instanceof String ){
-             return (newvalue as String) != oldvalue
-          }
+       if( oldvalue == null && newvalue != null ) return true
+       if( oldvalue != null && newvalue == null ) return true
+
+       switch( oldvalue.class ){
+          case Boolean:
+             if( newvalue instanceof String ) return (oldvalue as String) != newvalue
+             if( newvalue instanceof Boolean ) return oldvalue != newvalue
+             return true
+             break;
+          case String:
+             if( newvalue instanceof Boolean ) return oldvalue != (newvalue as String)
+             if( newvalue instanceof Color ) return ColorCache.getInstance().getColor(oldvalue) != newvalue
+             return oldvalue != newvalue
+             break;
+          case Color:
+             if( newvalue instanceof Boolean ) return true
+             if( newvalue instanceof String ) return oldvalue != ColorCache.getInstance().getColor(newvalue)
+             return oldvalue != newvalue
+             break;
        }
+       switch( newvalue.class ){
+          case Boolean:
+             if( oldvalue instanceof String ) return (newvalue as String) != oldvalue
+             if( oldvalue instanceof Boolean ) return newvalue != oldvalue
+             return true
+             break;
+          case String:
+             if( oldvalue instanceof Boolean ) return newvalue != (oldvalue as String)
+             if( oldvalue instanceof Color ) return ColorCache.getInstance().getColor(newvalue) != oldvalue
+             return oldvalue != newvalue
+             break;
+          case Color:
+             if( oldvalue instanceof Boolean ) return true
+             if( oldvalue instanceof String ) return newvalue != ColorCache.getInstance().getColor(oldvalue)
+             return oldvalue != newvalue
+             break;
+       }
+
        return oldvalue != newvalue
     }
 }
