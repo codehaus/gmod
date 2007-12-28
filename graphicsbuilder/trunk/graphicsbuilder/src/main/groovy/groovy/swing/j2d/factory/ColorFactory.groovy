@@ -31,28 +31,28 @@ public class ColorFactory extends AbstractGraphicsOperationFactory {
             }else{
                 return ColorCache.getInstance().getColor( value )
             }
-        }else if( properties.containsKey( "red" ) && properties.containsKey( "green" )
-                && properties.containsKey( "blue" ) ){
-            Number red = properties.remove( "red" )
-            Number green = properties.remove( "green" )
-            Number blue = properties.remove( "blue" )
-            Number alpha = properties.remove( "alpha" )
-
-            if( red > 1 || green > 1 || blue > 1 ){
-                if( alpha != null ){
-                    return new Color( red as int, green as int, blue as int, alpha as int )
-                }else{
-                   return new Color( red as int, green as int, blue as int )
-                }
-            }else{
-                if( alpha != null ){
-                   return new Color( red as float, green as float, blue as float, alpha as float )
-                }else{
-                   return new Color( red as float, green as float, blue as float )
-                }
-            }
         }
-        return new Color(0,0,0,0)
+
+        def red = properties.remove( "red" )
+        def green = properties.remove( "green" )
+        def blue = properties.remove( "blue" )
+        def alpha = properties.remove( "alpha" )
+
+        red = red != null ? red : 0
+        green = green != null ? green : 0
+        blue = blue != null ? blue : 0
+        alpha = alpha != null ? alpha : 255
+
+        if( red > 1 || green > 1 || blue > 1 ){
+           return new Color( red as int, green as int, blue as int, alpha as int )
+        }else{
+           if( alpha > 1 ) alpha = 1
+           return new Color( red as float, green as float, blue as float, alpha as float )
+        }
+    }
+
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       // empty
     }
 
     public boolean isLeaf(){

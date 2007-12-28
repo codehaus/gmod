@@ -112,7 +112,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
         registerFactory( "image", new ImageFactory() )
         registerFactory( "stroke", new StrokeFactory() )
-        //registerFactory( "color", new ColorFactory() )
+        registerFactory( "color", new ColorFactory() )
         registerFactory( "clip", new ClipFactory() )
         registerFactory( "\$swing", new SwingFactory() )
 
