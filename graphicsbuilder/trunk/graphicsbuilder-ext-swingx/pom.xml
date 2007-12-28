@@ -54,13 +54,11 @@
          <artifactId>swingx</artifactId>
          <version>0.9.1</version>
       </dependency>
-      <!--
       <dependency>
-         <groupId>org.jdesktop.animation</groupId>
+         <groupId>net.java.dev.timingframework</groupId>
          <artifactId>timingframework</artifactId>
          <version>1.0</version>
       </dependency>
-      -->
    </dependencies>
 
    <build>

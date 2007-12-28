@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d
 
+import groovy.swing.j2d.factory.TimingFrameworkFactory
 import groovy.swing.j2d.operations.MorphGraphicsOperation
 import groovy.swing.j2d.operations.StarGraphicsOperation
 
@@ -25,5 +26,6 @@ class SwingXGraphicsBuilderHelper {
    public static void registerOperations( GraphicsBuilder builder ) {
       builder.registerGraphicsOperationBeanFactory( "morph", MorphGraphicsOperation )
       builder.registerGraphicsOperationBeanFactory( "star", StarGraphicsOperation )
+      builder.registerFactory( "animate", new TimingFrameworkFactory() )
    }
 }
