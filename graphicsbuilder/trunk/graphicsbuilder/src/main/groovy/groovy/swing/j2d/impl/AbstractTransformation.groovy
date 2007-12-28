@@ -21,6 +21,8 @@ package groovy.swing.j2d.impl
 public abstract class AbstractTransformation extends ObservableSupport implements Transformation {
     private String name
 
+    def interpolation
+
     public AbstractTransformation( String name ) {
         super()
         this.name = name

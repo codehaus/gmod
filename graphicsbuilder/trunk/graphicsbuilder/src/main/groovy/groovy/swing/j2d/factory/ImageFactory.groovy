@@ -42,7 +42,9 @@ public class ImageFactory extends AbstractGraphicsOperationFactory {
        }
     }
 
+    /*
     public boolean isLeaf(){
-        return true
+        return false
     }
+    */
 }

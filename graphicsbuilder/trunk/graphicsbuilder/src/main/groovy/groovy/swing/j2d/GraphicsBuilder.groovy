@@ -22,6 +22,7 @@ import java.awt.Shape
 import java.awt.Rectangle
 import java.awt.Component
 import java.awt.geom.Area
+import java.awt.image.AffineTransformOp
 
 import groovy.swing.factory.BindFactory
 import groovy.swing.factory.ModelFactory
@@ -99,6 +100,15 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            if( id && node ){
                builder.setVariable( id, node )
            }
+        })
+        addAttributeDelegate({ builder, node, attributes ->
+           def interpolation = attributes.remove("interpolation")
+           switch( interpolation ){
+              case "bicubic": interpolation = AffineTransformOP.TYPE_BICUBIC; break;
+              case "bilinear": interpolation = AffineTransformOP.TYPE_BILINEAR; break;
+              case "nearest": interpolation = AffineTransformOP.TYPE_NEAREST_NEIGHBOR; break;
+           }
+           if( interpolation != null ) node.interpolation = interpolation
         })
 
         registerFactory( "draw", new DrawFactory() )

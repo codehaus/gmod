@@ -15,9 +15,13 @@
 
 package groovy.swing.j2d.impl
 
+import java.awt.Image
 import java.awt.Shape
+import java.awt.image.AffineTransformOp
+import java.awt.image.BufferedImage
 import java.awt.geom.AffineTransform
 import java.beans.PropertyChangeEvent
+import groovy.swing.j2d.GraphicsContext
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -79,5 +83,38 @@ public class TransformationGroup extends ObservableSupport implements Transforma
        }else{
           return shape
        }
+    }
+
+    public Image apply( Image image, GraphicsContext context ) {
+       if( isEmpty() ) return image
+       def transform = new AffineTransform()
+       def interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR
+       transformations.each { transformation ->
+          interpolation = transformation.interpolation != null ? transformation.interpolation : interpolation
+          def t = transformation.transform
+          if( transformation instanceof TransformationGroup ){
+             image = transformation.apply( image )
+          }else if( t.isIdentity() ){
+             // assume that it is a freeze transform
+             if( !transform.isIdentity() ){
+                image = createTransformedImage( transform, image, interpolation, context )
+                transform = t.clone()
+             }
+          }else{
+             transform.concatenate( t )
+          }
+       }
+
+       if( !transform.isIdentity() ){
+          return createTransformedImage( transform, image, interpolation, context )
+       }else{
+          return image
+       }
+    }
+
+    private BufferedImage createTransformedImage( transform, src, interpolation, context ) {
+       AffineTransformOp at = new AffineTransformOp( transform, interpolation )
+       BufferedImage dst = at.createCompatibleDestImage(src, src.colorModel)
+       return at.filter( src, dst )
     }
 }
