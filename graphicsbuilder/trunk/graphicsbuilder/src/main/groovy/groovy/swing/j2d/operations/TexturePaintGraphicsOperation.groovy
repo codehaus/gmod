@@ -69,15 +69,15 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
              }else if( image instanceof ImageGraphicsOperation ){
                 // TODO refactor this mess
                 if( image.image && image.image instanceof ImageGraphicsOperation ){
-                   iobj = image.image.imageObj
+                   iobj = image.image.getLocallyTransformedImage(context)
                 }else{
-                   iobj = image.imageObj
+                   iobj = image.getImageObj(context)
                 }
              }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
                 iobj = image.asImage(context)
              }
           }else{
-             iobj = getImageObj()
+             iobj = getImageObj(context)
           }
           newBounds.width = iobj.getWidth(null)
           newBounds.height = iobj.getHeight(null)
@@ -93,14 +93,14 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
        paint = null
     }
 
-    public Image getImageObj() {
+    public Image getImageObj( GraphicsContext context ) {
        if( !this.@imageObj ){
-          loadImage()
+          loadImage(context)
        }
        return this.@imageObj
     }
 
-    private void loadImage() {
+    private void loadImage( GraphicsContext context ) {
        if( image ){
           if( image instanceof Image || image instanceof BufferedImage ){
              this.@imageObj = image
