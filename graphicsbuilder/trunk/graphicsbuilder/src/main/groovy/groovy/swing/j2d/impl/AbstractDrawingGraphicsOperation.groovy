@@ -37,7 +37,7 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
     protected static required = []
-    protected static optional = ['borderColor','borderWidth','fill','asShape','opacity']
+    protected static optional = ['borderColor','borderWidth','fill','asShape','opacity','alphaComposite']
 
     private BufferedImage image
     protected Shape locallyTransformedShape
@@ -51,7 +51,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     def borderWidth
     def fill
     def asShape
+    def asImage
     def opacity
+    def alphaComposite
 
     AbstractDrawingGraphicsOperation( String name ) {
         super( name )
@@ -146,8 +148,13 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void executeOperation( GraphicsContext context ) {
-        if( !asShape ){
+        if( !asShape && !asImage ){
             def shape = getGloballyTransformedShape(context)
+            /*
+            if( alphaComposite ){
+               context.g.composite = alphaComposite
+            }
+            */
             fill( context, shape )
             draw( context, shape )
         }
@@ -308,12 +315,29 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
                               .createTransformedShape(shape)
        def graphics = image.createGraphics()
        def contextCopy = context.copy()
-       contextCopy.g = graphics
        graphics.setClip( shape.bounds )
        graphics.color = context.g.color
        if( borderColor != null && !(borderColor instanceof Boolean) ){
           graphics.color = ColorCache.getInstance().getColor(borderColor)
        }
+
+       /*
+       def o = opacity
+       if( contextCopy.groupContext?.opacity ){
+          o = contextCopy.groupContext?.opacity
+       }
+       if( opacity != null ){
+          o = opacity
+       }
+
+       if( o != null ){
+          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+       }else{
+          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+       }
+       */
+
+       contextCopy.g = graphics
        fill( contextCopy, shape )
        draw( contextCopy, shape )
        graphics.dispose()

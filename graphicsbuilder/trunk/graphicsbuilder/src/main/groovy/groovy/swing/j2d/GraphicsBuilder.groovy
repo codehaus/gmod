@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d
 
+import java.awt.AlphaComposite
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Paint
@@ -95,21 +96,9 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     }
 
     private void registerOperations() {
-        addAttributeDelegate({ builder, node, attributes ->
-           def id = attributes.remove("id")
-           if( id && node ){
-               builder.setVariable( id, node )
-           }
-        })
-        addAttributeDelegate({ builder, node, attributes ->
-           def interpolation = attributes.remove("interpolation")
-           switch( interpolation ){
-              case "bicubic": interpolation = AffineTransformOP.TYPE_BICUBIC; break;
-              case "bilinear": interpolation = AffineTransformOP.TYPE_BILINEAR; break;
-              case "nearest": interpolation = AffineTransformOP.TYPE_NEAREST_NEIGHBOR; break;
-           }
-           if( interpolation != null ) node.interpolation = interpolation
-        })
+        addAttributeDelegate(this.&idAttributeDelegate)
+        addAttributeDelegate(this.&interpolationAttributeDelegate)
+        addAttributeDelegate(this.&alphaCompositeAttributeDelegate)
 
         registerFactory( "draw", new DrawFactory() )
         registerFactory( "font", new FontFactory() )
@@ -183,6 +172,40 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
     }
 
+    private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
+       def id = attributes.remove("id")
+       if( id && node ){
+           builder.setVariable( id, node )
+       }
+    }
+
+    private void interpolationAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
+       def interpolation = attributes.remove("interpolation")
+       switch( interpolation ){
+          case "bicubic": interpolation = AffineTransformOP.TYPE_BICUBIC; break;
+          case "bilinear": interpolation = AffineTransformOP.TYPE_BILINEAR; break;
+          case "nearest": interpolation = AffineTransformOP.TYPE_NEAREST_NEIGHBOR; break;
+       }
+       if( interpolation != null ) node.interpolation = interpolation
+    }
+
+    private void alphaCompositeAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
+       def alphaComposite = attributes.remove("alphaComposite")
+       if( alphaComposite ){
+          if( alphaComposite instanceof AlphaComposite ){
+             node.alphaComposite = alphaComposite
+          }else if( alphaComposite instanceof Map ){
+             def rule = getAlphaCompositeRule(alphaComposite.op)
+             def alpha = alphaComposite.alpha
+             if( alpha != null ){
+                node.alphaComposite = AlphaComposite.getInstance(rule,alpha as float)
+             }else{
+                node.alphaComposite = AlphaComposite.getInstance(rule)
+             }
+          }
+       }
+    }
+
     private void swingAttributeDelegate( FactoryBuilderSupport fbs, Object node, Map attrs ) {
        fbs.context.x = attrs.remove("x")
        fbs.context.y = attrs.remove("y")
@@ -204,5 +227,16 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            def size = node.preferredSize
            node.bounds = [x,y,size.width as int,size.height as int] as Rectangle
        }
+    }
+
+    private def getAlphaCompositeRule( value ){
+       if( value == null ) {
+          return AlphaComposite.SRC_OVER
+       }else if( value instanceof Number ){
+          return rule as int
+       }else if( value instanceof String ){
+          return AlphaComposite.@"${value.toUpperCase()}"
+       }
+       return AlphaComposite.SRC_OVER
     }
 }

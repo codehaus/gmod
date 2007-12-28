@@ -104,8 +104,9 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
        if( image ){
           if( image instanceof Image || image instanceof BufferedImage ){
              this.@imageObj = image
+          }else{
+             throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")
           }
-          throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")
        }else if( classpath ){
           URL imageUrl = Thread.currentThread().getContextClassLoader().getResource( classpath )
           this.@imageObj = ImageIO.read( imageUrl )

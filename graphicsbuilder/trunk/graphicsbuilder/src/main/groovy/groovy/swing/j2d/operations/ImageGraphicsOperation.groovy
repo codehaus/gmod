@@ -157,8 +157,9 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
              this.@imageObj = image
           }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
              this.@imageObj = image.asImage(context)
+          }else {
+             throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")
           }
-          throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")
        }else if( classpath ){
           URL imageUrl = Thread.currentThread().getContextClassLoader().getResource( classpath )
           this.@imageObj = ImageIO.read( imageUrl )
