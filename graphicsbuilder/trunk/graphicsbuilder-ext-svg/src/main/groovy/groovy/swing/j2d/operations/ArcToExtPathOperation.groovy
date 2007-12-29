@@ -23,15 +23,27 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ArcToExtPathOperation extends AbstractExtPathOperation {
-    float x
-    float y
-    float rx
-    float ry
-    float angle
-    boolean largeArc
-    boolean sweep
+    public static required = ['x','y','rx','ry','angle','largeArc','sweep']
+
+    def x
+    def y
+    def rx
+    def ry
+    def angle
+    def largeArc
+    def sweep
+
+    ArcToExtPathOperation(){
+       super( "xarcTo" )
+    }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.arcTo( rx, ry, angle, largeArc, sweep, x, y )
+       path.arcTo( rx as float,
+                   ry as float,
+                   angle as float,
+                   largeArc as boolean,
+                   sweep as boolean,
+                   x as float,
+                   y as float )
     }
 }

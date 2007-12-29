@@ -22,6 +22,9 @@ import groovy.swing.j2d.impl.AbstractTransformation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RotateTransformation extends AbstractTransformation {
+    public static required = ['angle']
+    public static optional = ['x','y']
+
     def angle = 0
     def x
     def y

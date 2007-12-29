@@ -24,7 +24,7 @@ import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class QuadCurveGraphicsOperation extends AbstractOutlineGraphicsOperation {
-    protected static required = ['x1','x2','y1','y2','ctrlx','ctrly']
+    public static required = ['x1','x2','y1','y2','ctrlx','ctrly']
 
     def x1
     def x2

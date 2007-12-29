@@ -28,7 +28,7 @@ import org.jdesktop.swingx.geom.Morphing2D
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
-   protected static required = ["start", "end", "morph"]
+   public static required = ["start", "end", "morph"]
 
    private Shape morphedShape
 

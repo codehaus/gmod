@@ -26,7 +26,7 @@ import java.beans.PropertyChangeListener
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class PaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
-    protected static required = ['paint']
+    public static required = ['paint']
 
     def paint
     

@@ -23,6 +23,10 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ClosePathOperation extends AbstractPathOperation {
+    ClosePathOperation(){
+       super("close")
+    }
+
     public void apply( GeneralPath path, GraphicsContext context ) {
        path.closePath()
     }

@@ -23,9 +23,15 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class HLinePathOperation extends AbstractPathOperation {
-    double x
+    public static required = ['x']
+
+    def x
+
+    HLinePathOperation(){
+       super("hline")
+    }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       path.lineTo( x, path.currentPoint.y )
+       path.lineTo( x as double, path.currentPoint.y )
     }
 }

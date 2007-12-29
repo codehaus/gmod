@@ -20,10 +20,13 @@ import groovy.swing.j2d.GraphicsContext
 import java.awt.Color
 import java.awt.Paint
 import java.awt.RadialGradientPaint
+import java.awt.geom.AffineTransform
 import java.awt.geom.Rectangle2D
 import java.awt.MultipleGradientPaint.*
 import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.Transformable
+import groovy.swing.j2d.impl.TransformationGroup
 import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
 
 /**
@@ -31,10 +34,11 @@ import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
  */
 class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation implements
      MultipleGradientPaintProvider {
-   protected static required = ['cx','cy','fx','fy','radius']
-   protected static optional = super.optional + ['cycle','absolute']
+   public static required = ['cx','cy','fx','fy','radius']
+   public static optional = super.optional + ['cycle','absolute']
 
    private def stops = []
+   TransformationGroup transformationGroup
 
    // properties
    def cx
@@ -62,8 +66,25 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       }
       copy
    }
-   
+
    public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
+      fx = fx == null ? cx: fx
+      fy = fy == null ? cy: fy
+
+      if( absolute ){
+         return makePaint( cx as float,
+                           cy as float,
+                           fx as float,
+                           fy as float )
+      }else{
+         return makePaint( (cx + bounds.x) as float,
+                           (cy + bounds.y) as float,
+                           (fx + bounds.x) as float,
+                           (fy + bounds.y) as float )
+      }
+   }
+
+   private RadialGradientPaint makePaint( cx, cy, fx, fy ){
       int n = stops.size()
       float[] fractions = new float[n]
       Color[] colors = new Color[n]
@@ -73,10 +94,18 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
          colors[i] = stop.color
       }
 
-      fx = fx == null ? cx: fx
-      fy = fy == null ? cy: fy
-
-      if( absolute ){
+      if( transformationGroup && !transformationGroup.isEmpty() ){
+         return new RadialGradientPaint( cx as float,
+                                         cy as float,
+                                         radius as float,
+                                         fx as float,
+                                         fy as float,
+                                         fractions,
+                                         colors,
+                                         getCycleMethod(),
+                                         ColorSpaceType.SRGB,
+                                         transformationGroup.getContcatenatedTransform() )
+      }else{
          return new RadialGradientPaint( cx as float,
                                          cy as float,
                                          radius as float,
@@ -85,21 +114,21 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
                                          fractions,
                                          colors,
                                          getCycleMethod() )
-      }else{
-         def dcx = cx + bounds.x
-         def dcy = cy + bounds.y
-         def dfx = fx + bounds.x
-         def dfy = fy + bounds.y
-
-         return new RadialGradientPaint( (cx + bounds.x) as float,
-                                         (cy + bounds.y) as float,
-                                         radius as float,
-                                         (fx + bounds.x) as float,
-                                         (fy + bounds.y) as float,
-                                         fractions,
-                                         colors,
-                                         getCycleMethod() )
       }
+   }
+
+   public void setTransformationGroup( TransformationGroup transformationGroup ){
+      if( transformationGroup ) {
+         if( this.transformationGroup ){
+            this.transformationGroup.removePropertyChangeListener( this )
+         }
+         this.transformationGroup = transformationGroup
+         this.transformationGroup.addPropertyChangeListener( this )
+      }
+   }
+
+   public TransformationGroup getTransformationGroup() {
+      transformationGroup
    }
 
    private def getCycleMethod() {

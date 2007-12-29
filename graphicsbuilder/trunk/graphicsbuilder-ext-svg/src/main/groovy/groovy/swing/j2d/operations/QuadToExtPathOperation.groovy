@@ -23,12 +23,21 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class QuadToExtPathOperation extends AbstractExtPathOperation {
-    float x1
-    float x2
-    float y1
-    float y2
+    public static required = ['x1','x2','y1','y2']
+
+    def x1
+    def x2
+    def y1
+    def y2
+
+    QuadToExtPathOperation(){
+       super( "xquadTo" )
+    }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.quadTo( x1, y1, x2, y2 )
+       path.quadTo( x1 as float,
+                    y1 as float,
+                    x2 as float,
+                    y2 as float )
     }
 }

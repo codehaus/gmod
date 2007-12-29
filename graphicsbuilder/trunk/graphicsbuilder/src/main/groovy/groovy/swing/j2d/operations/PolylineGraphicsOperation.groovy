@@ -25,7 +25,7 @@ import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class PolylineGraphicsOperation extends AbstractOutlineGraphicsOperation {
-    protected static required = ['points']
+    public static required = ['points']
 
     private GeneralPath path
 

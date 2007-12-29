@@ -25,7 +25,7 @@ import org.jdesktop.swingx.geom.Star2D
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
-   protected static required = ["x", "y", "ir", "or", "count"]
+   public static required = ["x", "y", "ir", "or", "count"]
 
    def x = 0
    def y = 0

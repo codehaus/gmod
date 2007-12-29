@@ -31,8 +31,8 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transformable {
-    protected static required = ['x','y']
-    protected static optional = ['image','classpath','url','file','asImage','opacity']
+    public static required = ['x','y']
+    public static optional = ['image','classpath','url','file','asImage','opacity']
 
     private Image imageObj
     protected Image locallyTransformedImage

@@ -45,10 +45,7 @@ public class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       //def gos = shapeProviders ? shapeProviders : operations.findAll { it instanceof ShapeProvider }
-       //if( gos.contains(event.source) && event.source.required.contains(event.propertyName) ){
-          area = null
-       //}
+       area = null
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
@@ -62,10 +59,10 @@ public class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
            throw new IllegalArgumentException("No nested shapes on ${this}")
         }
 
-        area = new Area( gos[0].getShape(context) )
+        area = new Area( gos[0].getLocallyTransformedShape(context) )
         gos[1..-1].each {
            it.addPropertyChangeListener( this )
-           area."$areaMethod"( new Area(it.getShape(context)) )
+           area."$areaMethod"( new Area(it.getLocallyTransformedShape(context)) )
         }
     }
 }

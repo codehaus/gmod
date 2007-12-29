@@ -24,7 +24,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class CircleGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static required = ['x','y','radius']
+    public static required = ['x','y','radius']
 
     def cx = 5
     def cy = 5

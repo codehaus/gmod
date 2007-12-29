@@ -25,7 +25,7 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class SwingGraphicsOperation extends AbstractGraphicsOperation {
-    //protected static required = []
+    //public static required = []
 
     private Container container
 

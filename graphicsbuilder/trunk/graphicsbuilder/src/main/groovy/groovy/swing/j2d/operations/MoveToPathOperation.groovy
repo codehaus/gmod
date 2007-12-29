@@ -23,10 +23,16 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MoveToPathOperation extends AbstractPathOperation {
-    double x = 0
-    double y = 0
+    public static required = ['x','y']
+
+    def x = 0
+    def y = 0
+
+    MoveToPathOperation(){
+       super("moveTo")
+    }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       path.moveTo( x, y )
+       path.moveTo( x as double, y as double )
     }
 }

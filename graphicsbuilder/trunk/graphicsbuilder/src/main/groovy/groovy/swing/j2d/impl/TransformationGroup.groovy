@@ -60,6 +60,17 @@ public class TransformationGroup extends ObservableSupport implements Transforma
        return null
     }
 
+    public AffineTransform getConcatenatedTransform() {
+       def transform = new AffineTransform()
+       transformations.each { transformation ->
+          def t = transformation.transform
+          if( t && !t.isIdentity() ){
+             transform.concatenate( t )
+          }
+       }
+       return transform
+    }
+
     public Shape apply( Shape shape ) {
        if( isEmpty() ) return shape
        def transform = new AffineTransform()

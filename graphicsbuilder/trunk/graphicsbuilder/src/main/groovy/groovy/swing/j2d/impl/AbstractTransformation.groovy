@@ -19,6 +19,9 @@ package groovy.swing.j2d.impl
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class AbstractTransformation extends ObservableSupport implements Transformation {
+    public static required = []
+    public static optional = []
+
     private String name
 
     def interpolation

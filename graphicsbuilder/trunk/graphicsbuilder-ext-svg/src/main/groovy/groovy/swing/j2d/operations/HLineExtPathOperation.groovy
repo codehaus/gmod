@@ -23,9 +23,15 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class HLineExtPathOperation extends AbstractExtPathOperation {
-    float x
+    public static required = ['x']
+
+    def x
+
+    HLineExtPathOperation(){
+       super( "xhline" )
+    }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.lineTo( x, path.currentPoint.y as float )
+       path.lineTo( x as float, path.currentPoint.y as float )
     }
 }

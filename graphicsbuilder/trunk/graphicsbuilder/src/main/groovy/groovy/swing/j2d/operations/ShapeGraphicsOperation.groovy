@@ -27,7 +27,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeProvider, Transformable {
-    protected static required = ['shape']
+    public static required = ['shape']
 
     def shape
     TransformationGroup transformationGroup

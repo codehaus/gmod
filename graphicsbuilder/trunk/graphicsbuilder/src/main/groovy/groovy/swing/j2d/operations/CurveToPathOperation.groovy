@@ -23,14 +23,25 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class CurveToPathOperation extends AbstractPathOperation {
-    double x1
-    double x2
-    double x3
-    double y1
-    double y2
-    double y3
+    public static required = ['x1','x2','x3','y1','y2','y3']
+
+    def x1
+    def x2
+    def x3
+    def y1
+    def y2
+    def y3
+
+    CurveToPathOperation(){
+       super("curveTo")
+    }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       path.curveTo( x1, y1, x2, y2, x3, y3 )
+       path.curveTo( x1 as double,
+                     y1 as double,
+                     x2 as double,
+                     y2 as double,
+                     x3 as double,
+                     y3 as double )
     }
 }

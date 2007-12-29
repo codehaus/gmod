@@ -29,7 +29,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping {
-    protected static optional = ['borderColor','borderWidth','fill','opacity']
+    public static optional = ['borderColor','borderWidth','fill','opacity']
 
     private def previousGroupContext
     private def gcopy

@@ -25,8 +25,8 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static required = ['shape']
-    protected static optional = super.optional - ['asShape']
+    public static required = ['shape']
+    public static optional = super.optional - ['asShape']
 
     def shape
 

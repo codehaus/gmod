@@ -24,7 +24,7 @@ import groovy.swing.j2d.impl.AbstractOutlineGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class LineGraphicsOperation extends AbstractOutlineGraphicsOperation {
-    protected static required = ['x1','y1','x2','y2']
+    public static required = ['x1','y1','x2','y2']
 
     def x1 = 0
     def y1 = 0

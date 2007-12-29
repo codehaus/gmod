@@ -30,7 +30,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static required = ['text','x','y']
+    public static required = ['text','x','y']
 
     private Shape outline
 

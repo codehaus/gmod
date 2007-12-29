@@ -31,8 +31,8 @@ import java.awt.Color
  */
 abstract class AbstractGraphicsOperation extends ObservableSupport implements GraphicsOperation {
     private String name
-    //protected static required = []
-    //protected static optional = []
+    //public static required = []
+    //public static optional = []
 
     /**
      * Creates a new GraphicsOperation with a name.
@@ -66,14 +66,14 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     }
 
     protected boolean isParameter( String property ) {
-        if( getMetaClass().hasProperty(this,'required') && required.contains(property) ) return true
-        if( getMetaClass().hasProperty(this,'optional') && optional.contains(property) ) return true
+        if( AbstractGraphicsOperation.hasProperty(this,'required') && required.contains(property) ) return true
+        if( AbstractGraphicsOperation.hasProperty(this,'optional') && optional.contains(property) ) return true
         false
     }
 
     public static boolean isGraphicsParameter( GraphicsOperation target, String property ) {
-       if( target.getMetaClass().hasProperty(target,'required') && target.required.contains(property) ) return true
-       if( target.getMetaClass().hasProperty(target,'optional') && target.optional.contains(property) ) return true
+       if( hasProperty(target,'required') && target.required.contains(property) ) return true
+       if( hasProperty(target,'optional') && target.optional.contains(property) ) return true
        false
     }
 
@@ -117,5 +117,14 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
        }
 
        return oldvalue != newvalue
+    }
+
+    private static boolean hasProperty( Object target, String property ){
+       try{
+          def v = target."$property"
+       }catch( MissingPropertyException e ){
+          return false
+       }
+       return true
     }
 }

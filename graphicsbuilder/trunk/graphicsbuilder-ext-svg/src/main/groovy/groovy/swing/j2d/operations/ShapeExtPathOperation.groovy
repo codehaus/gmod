@@ -27,8 +27,15 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ShapeExtPathOperation extends AbstractExtPathOperation {
+    public static required = ['shape']
+    public static optional = ['connect']
+
     def shape
-    boolean connect
+    def connect = false
+
+    ShapeExtPathOperation(){
+       super( "xshapeTo" )
+    }
 
     public void propertyChange( PropertyChangeEvent event ){
        if( shape == event.source && event.source.required.contains(event.propertyName) ){
@@ -37,10 +44,9 @@ class ShapeExtPathOperation extends AbstractExtPathOperation {
     }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       if( (shape instanceof ShapeProvider || shape instanceof OutlineProvider )
-           && shape.hasShape != null && shape.hasShape ){
-          shape = shape.getShape(context)
+       if( shape instanceof ShapeProvider || shape instanceof OutlineProvider  ){
+          shape = shape.getLocallyTransformedShape(context)
        }
-       path.append( shape, connect )
+       path.append( shape, connect as boolean )
     }
 }

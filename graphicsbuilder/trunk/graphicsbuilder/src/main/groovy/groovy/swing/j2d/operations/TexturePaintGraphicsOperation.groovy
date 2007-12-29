@@ -31,7 +31,7 @@ import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
-    protected static optional = super.optional + ['x','y','width','height','image','classpath','url','file','absolute']
+    public static optional = super.optional + ['x','y','width','height','image','classpath','url','file','absolute']
 
     private Paint paint
     protected Image imageObj

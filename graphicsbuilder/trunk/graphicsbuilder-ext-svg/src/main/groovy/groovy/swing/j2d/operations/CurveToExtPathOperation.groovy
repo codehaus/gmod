@@ -23,14 +23,25 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class CurveToExtPathOperation extends AbstractExtPathOperation {
-    float x1
-    float x2
-    float x3
-    float y1
-    float y2
-    float y3
+    public static required = ['x1','x2','x3','y1','y2','y3']
+
+    def x1
+    def x2
+    def x3
+    def y1
+    def y2
+    def y3
+
+    CurveToExtPathOperation(){
+       super( "xcurveTo" )
+    }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.curveTo( x1, y1, x2, y2, x3, y3 )
+       path.curveTo( x1 as float,
+                     y1 as float,
+                     x2 as float,
+                     y2 as float,
+                     x3 as float,
+                     y3 as float )
     }
 }

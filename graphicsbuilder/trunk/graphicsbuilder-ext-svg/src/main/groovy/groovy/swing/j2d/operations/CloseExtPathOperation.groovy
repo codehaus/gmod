@@ -23,6 +23,10 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class CloseExtPathOperation extends AbstractExtPathOperation {
+    CloseExtPathOperation(){
+       super( "xclose" )
+    }
+
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
        path.closePath()
     }

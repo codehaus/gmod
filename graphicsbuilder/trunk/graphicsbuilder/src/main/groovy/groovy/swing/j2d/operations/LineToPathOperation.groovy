@@ -23,10 +23,16 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class LineToPathOperation extends AbstractPathOperation {
-    double x
-    double y
+    public static required = ['x','y']
+
+    def x
+    def y
+
+    LineToPathOperation(){
+       super("lineTo")
+    }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       path.lineTo( x, y )
+       path.lineTo( x as double, y as double )
     }
 }

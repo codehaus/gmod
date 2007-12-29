@@ -26,7 +26,7 @@ import groovy.swing.j2d.impl.AbstractLinearGradientPaintGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class GradientPaintGraphicsOperation extends AbstractLinearGradientPaintGraphicsOperation {
-    protected static required = super.required + ['color1','color2']
+    public static required = super.required + ['color1','color2']
 
     def color1 = Color.BLACK
     def color2 = Color.WHITE

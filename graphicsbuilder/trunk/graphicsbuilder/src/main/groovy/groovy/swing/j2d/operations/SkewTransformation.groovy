@@ -22,6 +22,8 @@ import groovy.swing.j2d.impl.AbstractTransformation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class SkewTransformation extends AbstractTransformation {
+    public static required = ['x','y']
+
     def x = 0
     def y = 0
 

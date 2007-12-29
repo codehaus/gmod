@@ -27,7 +27,7 @@ import groovy.swing.j2d.impl.TransformationGroup
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transformable {
-    protected static required = ['shape']
+    public static required = ['shape']
 
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup

@@ -19,6 +19,20 @@ package groovy.swing.j2d.impl
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class AbstractExtPathOperation extends ObservableSupport implements ExtPathOperation {
+    public static required = []
+    public static optional = []
+
+    private String name
+
+    public AbstractExtPathOperation( String name ) {
+        super()
+        this.name = name
+    }
+
+    public String getName() {
+        return name
+    }
+
     void setProperty( String property, Object value ) {
        def oldValue = getProperty( property )
        super.setProperty( property, value )

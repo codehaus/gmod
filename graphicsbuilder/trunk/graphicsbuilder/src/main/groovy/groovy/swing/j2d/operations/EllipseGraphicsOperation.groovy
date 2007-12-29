@@ -24,7 +24,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static required = ['cx','cy','radiusx','radiusy']
+    public static required = ['cx','cy','radiusx','radiusy']
 
     def cx = 10
     def cy = 5

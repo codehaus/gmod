@@ -23,9 +23,15 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class VLinePathOperation extends AbstractPathOperation {
-    double y
+    public static required = ['y']
+
+    def y
+
+    VLinePathOperation(){
+       super("vline")
+    }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       path.lineTo( path.currentPoint.x, y )
+       path.lineTo( path.currentPoint.x, y as double )
     }
 }

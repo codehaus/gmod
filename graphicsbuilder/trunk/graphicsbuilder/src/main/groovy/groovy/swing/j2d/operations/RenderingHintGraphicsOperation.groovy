@@ -23,7 +23,7 @@ import groovy.swing.j2d.impl.AbstractGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RenderingHintGraphicsOperation extends AbstractGraphicsOperation {
-    protected static required = ['key','value']
+    public static required = ['key','value']
 
     String key
     String value

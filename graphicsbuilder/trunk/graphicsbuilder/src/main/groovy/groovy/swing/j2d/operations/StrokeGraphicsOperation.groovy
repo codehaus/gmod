@@ -26,8 +26,8 @@ import java.awt.Stroke
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
-	protected static required = ['width']
-	protected static optional = ['cap','join','mitterlimit','dash','dashphase']
+	public static required = ['width']
+	public static optional = ['cap','join','mitterlimit','dash','dashphase']
 
 	private Stroke stroke
 

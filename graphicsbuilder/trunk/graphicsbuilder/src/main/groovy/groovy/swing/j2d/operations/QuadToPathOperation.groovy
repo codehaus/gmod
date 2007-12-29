@@ -23,12 +23,21 @@ import java.awt.geom.GeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class QuadToPathOperation extends AbstractPathOperation {
-    double x1
-    double x2
-    double y1
-    double y2
+    public static required = ['x1','x2','y1','y2']
+
+    def x1
+    def x2
+    def y1
+    def y2
+
+    QuadToPathOperation(){
+       super("quadTo")
+    }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
-       path.quadTo( x1, y1, x2, y2 )
+       path.quadTo( x1 as double,
+                    y1 as double,
+                    x2 as double,
+                    y2 as double )
     }
 }

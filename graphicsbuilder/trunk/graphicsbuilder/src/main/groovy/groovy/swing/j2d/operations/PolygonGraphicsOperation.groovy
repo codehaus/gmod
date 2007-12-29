@@ -25,7 +25,7 @@ import groovy.swing.j2d.impl.AbstractShapeGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class PolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static required = ['points']
+    public static required = ['points']
 
     private Polygon polygon
 

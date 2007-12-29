@@ -23,7 +23,7 @@ import java.beans.PropertyChangeListener
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperation implements PaintProvider {
-    protected static optional = ['asPaint']
+    public static optional = ['asPaint']
     
     // properties
     def asPaint

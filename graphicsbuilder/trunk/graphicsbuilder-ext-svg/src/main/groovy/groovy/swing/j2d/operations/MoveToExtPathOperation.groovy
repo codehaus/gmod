@@ -23,10 +23,16 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class MoveToExtPathOperation extends AbstractExtPathOperation {
-    float x = 0
-    float y = 0
+    public static required = ['x','y']
+
+    def x = 0
+    def y = 0
+
+    MoveToExtPathOperation(){
+       super( "xmoveTo" )
+    }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.moveTo( x, y )
+       path.moveTo( x as float, y as float )
     }
 }
