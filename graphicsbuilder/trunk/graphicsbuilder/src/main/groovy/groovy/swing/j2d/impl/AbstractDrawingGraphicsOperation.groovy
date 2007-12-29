@@ -18,6 +18,7 @@ package groovy.swing.j2d.impl
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.MultiPaintProvider
 import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.impl.TransformationGroup
@@ -205,12 +206,16 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
               g.setPaint( paint )
           }else {
              // look for a nested paintProvider
-             def pp = operations.reverse().find{ it instanceof PaintProvider }
+             //def pp = operations.reverse().find{ it instanceof PaintProvider }
+             def pp = getPaint()
              if( pp ){
+                applyPaint( context, shape, pp )
+                /*
                 Paint paint = g.getPaint()
                 g.setPaint( pp.getPaint(context, shape.bounds2D) )
                 applyFill( context, shape )
                 g.setPaint( paint )
+                */
              }else{
                 // use current settings on context
                 applyFill( context, shape )
@@ -218,13 +223,36 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           }
        }else{
           // look for a nested paintProvider
-          def pp = operations.reverse().find{ it instanceof PaintProvider }
+          //def pp = operations.reverse().find{ it instanceof PaintProvider }
+          def pp = getPaint()
           if( pp ){
+             applyPaint( context, shape, pp )
+             /*
              Paint paint = g.getPaint()
              g.setPaint( pp.getPaint(context, shape.bounds2D) )
              applyFill( context, shape )
              g.setPaint( paint )
+             */
           }
+       }
+    }
+
+    public def getPaint(){
+       def paint = null
+       operations.each { o ->
+          if( o instanceof PaintProvider || o instanceof MultiPaintProvider ) paint = o
+       }
+       return paint
+    }
+
+    private void applyPaint( GraphicsContext context, Shape shape, paint ){
+       if( paint instanceof PaintProvider ){
+          Paint oldpaint = context.g.getPaint()
+          context.g.paint = paint.getPaint(context, shape.bounds2D)
+          applyFill( context, shape )
+          context.g.paint = oldpaint
+       }else if( paint instanceof MultiPaintProvider ){
+          paint.apply( context, shape )
        }
     }
 

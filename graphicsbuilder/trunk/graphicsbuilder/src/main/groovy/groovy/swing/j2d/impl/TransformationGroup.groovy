@@ -32,6 +32,10 @@ public class TransformationGroup extends ObservableSupport implements Transforma
 
     private List transformations = []
 
+    public List getTransformations(){
+       return Collections.unmodifiableList(transformations)
+    }
+
     public void addTransformation( Transformation transformation ) {
         if( !transformation ) return
         // make sure transformationGroups are added only once

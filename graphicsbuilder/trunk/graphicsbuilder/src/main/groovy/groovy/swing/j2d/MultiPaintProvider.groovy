@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.factory
+package groovy.swing.j2d
 
-import groovy.swing.j2d.operations.PaintGraphicsOperation
-import groovy.swing.j2d.PaintProvider
+import java.awt.Shape
 
 /**
+ * Marker interface for operations that work with Paint.
+ *
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class PaintFactory extends AbstractGraphicsOperationFactory {
-    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
-            Map properties ) throws InstantiationException, IllegalAccessException {
-        PaintGraphicsOperation go = new PaintGraphicsOperation()
-        if( value != null && value instanceof PaintProvider ) {
-            go.paint = value
-        }
-        return go
-    }
-
-    public boolean isLeaf(){
-        return true
-    }
+public interface MultiPaintProvider /*extends GraphicsOperation*/ {
+    void apply( GraphicsContext context, Shape shape )
 }

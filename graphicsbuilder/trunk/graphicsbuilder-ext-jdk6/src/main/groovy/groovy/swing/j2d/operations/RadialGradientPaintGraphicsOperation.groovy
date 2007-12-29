@@ -21,6 +21,7 @@ import java.awt.Color
 import java.awt.Paint
 import java.awt.RadialGradientPaint
 import java.awt.geom.AffineTransform
+import java.awt.geom.Point2D
 import java.awt.geom.Rectangle2D
 import java.awt.MultipleGradientPaint.*
 import groovy.swing.j2d.PaintProvider
@@ -33,7 +34,7 @@ import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation implements
-     MultipleGradientPaintProvider {
+     MultipleGradientPaintProvider, Transformable {
    public static required = ['cx','cy','fx','fy','radius']
    public static optional = super.optional + ['cycle','absolute']
 
@@ -64,24 +65,32 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       stops.each { stop ->
          copy.addStop( stop.copy() )
       }
-      copy
+      if( transformationGroup ){
+         transformationGroup.transformations.each { t ->
+            copy.transformationGroup = new TransformationGroup()
+            def transformation = t.copy()
+            transformation.removePropertyChangeListener(this)
+            copy.transformationGroup.addTransformation( transformation )
+         }
+      }
+      return copy
    }
 
    public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
       fx = fx == null ? cx: fx
       fy = fy == null ? cy: fy
 
-      if( absolute ){
+      //if( absolute ){
          return makePaint( cx as float,
                            cy as float,
                            fx as float,
                            fy as float )
-      }else{
+      /*}else{
          return makePaint( (cx + bounds.x) as float,
                            (cy + bounds.y) as float,
                            (fx + bounds.x) as float,
                            (fy + bounds.y) as float )
-      }
+      }*/
    }
 
    private RadialGradientPaint makePaint( cx, cy, fx, fy ){
@@ -95,16 +104,14 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       }
 
       if( transformationGroup && !transformationGroup.isEmpty() ){
-         return new RadialGradientPaint( cx as float,
-                                         cy as float,
+         return new RadialGradientPaint( new Point2D.Float(cx as float,cy as float),
                                          radius as float,
-                                         fx as float,
-                                         fy as float,
+                                         new Point2D.Float(fx as float,fy as float),
                                          fractions,
                                          colors,
                                          getCycleMethod(),
                                          ColorSpaceType.SRGB,
-                                         transformationGroup.getContcatenatedTransform() )
+                                         transformationGroup.getConcatenatedTransform() )
       }else{
          return new RadialGradientPaint( cx as float,
                                          cy as float,

@@ -15,9 +15,6 @@
 
 package groovy.swing.j2d
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.GraphicsOperation
-
 import java.awt.Paint
 import java.awt.geom.Rectangle2D
 
@@ -28,6 +25,6 @@ import java.awt.geom.Rectangle2D
  */
 public interface PaintProvider /*extends GraphicsOperation*/ {
     Paint getPaint( GraphicsContext context, Rectangle2D bounds )
-    
+
     PaintProvider asCopy()
 }

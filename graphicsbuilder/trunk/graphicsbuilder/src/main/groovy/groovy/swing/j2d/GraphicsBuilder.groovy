@@ -42,6 +42,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
 
     public GraphicsBuilder() {
         GraphicsBuilder.extendShapes()
+        GraphicsBuilder.extendColor()
         registerOperations()
     }
 
@@ -65,6 +66,22 @@ class GraphicsBuilder extends FactoryBuilderSupport {
           }
           if( updated ){
              ExpandoMetaClass.enableGlobally()
+          }
+       }
+    }
+
+    public static void extendColor() {
+       def colorMethods = Color.metaClass.methods
+       if( !colorMethods.name.find{ it == "derive" } ){
+          Color.metaClass.derive << { Map props ->
+             def red = props.red != null ? props.red: delegate.red
+             def green = props.green != null ? props.green: delegate.green
+             def blue = props.blue != null ? props.blue: delegate.blue
+             def alpha = props.alpha != null ? props.alpha: delegate.alpha
+             return new Color( (red > 1 ? red/255: red) as float,
+                               (green > 1 ? green/255: green) as float,
+                               (blue > 1 ? blue/255: blue) as float,
+                               (alpha > 1 ? alpha/255: alpha) as float )
           }
        }
     }
@@ -141,10 +158,10 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         //
         // outlines
         //
-        registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation, false )
-        registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation, false )
-        registerGraphicsOperationBeanFactory( "polyline", PolylineGraphicsOperation, false )
-        registerGraphicsOperationBeanFactory( "quadCurve", QuadCurveGraphicsOperation, false )
+        registerGraphicsOperationBeanFactory( "line", LineGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "cubicCurve", CubicCurveGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "polyline", PolylineGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "quadCurve", QuadCurveGraphicsOperation )
 
         //
         // area operations
@@ -168,6 +185,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         // paint
         //
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
+        registerGraphicsOperationBeanFactory( "multiPaint", MultiPaintGraphicsOperation )
         registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
     }

@@ -20,7 +20,7 @@ package groovy.swing.j2d.impl
  */
 public abstract class AbstractTransformation extends ObservableSupport implements Transformation {
     public static required = []
-    public static optional = []
+    public static optional = ['interpolation']
 
     private String name
 
@@ -33,6 +33,23 @@ public abstract class AbstractTransformation extends ObservableSupport implement
 
     public String getName() {
         return name
+    }
+
+    public Transformation copy() {
+       // assume no-args constructor
+       def copy = getClass().newInstance()
+       this.properties.each { key, value ->
+          if( AbstractGraphicsOperation.isGraphicsParameter(this,key) ){
+             copy."$key" = value
+          }
+       }
+
+       // copy propertyChangeListeners if any
+       this.propertyChangeListeners.each { listener ->
+          copy.addPropertyChangeListener( listener )
+       }
+
+       return copy
     }
 
     void setProperty( String property, Object value ) {

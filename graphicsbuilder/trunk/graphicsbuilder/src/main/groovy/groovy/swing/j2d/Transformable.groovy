@@ -15,8 +15,6 @@
 
 package groovy.swing.j2d
 
-import java.util.List
-
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */

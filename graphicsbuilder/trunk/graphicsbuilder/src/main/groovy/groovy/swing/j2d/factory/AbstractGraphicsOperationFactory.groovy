@@ -18,6 +18,7 @@ package groovy.swing.j2d.factory
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.OutlineProvider
+import groovy.swing.j2d.MultiPaintProvider
 import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.ShapeProvider
 import groovy.swing.j2d.operations.AreaGraphicsOperation
@@ -33,9 +34,14 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
           return
        }
 
-       if( child instanceof PaintProvider &&
-             (parent instanceof ShapeProvider || parent instanceof Grouping) ){
+       if( (child instanceof PaintProvider || child instanceof MultiPaintProvider )&&
+           (parent instanceof ShapeProvider || parent instanceof Grouping) ){
           parent.addOperation( child )
+          return
+       }
+
+       if( child instanceof PaintProvider && parent instanceof MultiPaintProvider ){
+          parent.addPaint( child )
           return
        }
 
