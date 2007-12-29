@@ -61,6 +61,10 @@ public class ColorCache {
         return color;
     }
 
+    public Color getColor( Color color ){
+       return color;
+    }
+
     /**
      * Stores a color on the cache.<br>
      * It will override any existing custom color with the same name.
