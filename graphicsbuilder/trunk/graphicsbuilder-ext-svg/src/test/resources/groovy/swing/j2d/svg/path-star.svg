@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="4cm" height="4cm" viewBox="0 0 400 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <title>Example triangle01- simple example of a 'path'</title>
+  <desc>A path that draws a star</desc>
+  <rect x="1" y="1" width="398" height="398"
+        fill="none" stroke="blue" />
+  <path d="M100,10 L100,10 40,180 190,60 10,60 160,180 z"
+        stroke="blue" fill="darkblue" stroke-width="4" />
+</svg>

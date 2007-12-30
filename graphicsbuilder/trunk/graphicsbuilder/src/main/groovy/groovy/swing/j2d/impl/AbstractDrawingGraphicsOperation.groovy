@@ -165,7 +165,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def g = context.g
 
        def f = fill
-       if( context.groupContext.fill ){
+       if( context.groupContext.fill != null ){
           f = context.groupContext.fill
        }
        if( fill != null ){
@@ -267,7 +267,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def g = context.g
 
        def bc = borderColor
-       if( context.groupContext.borderColor ){
+       if( context.groupContext.borderColor != null ){
           bc = context.groupContext.borderColor
        }
        if( borderColor != null ){

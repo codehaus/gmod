@@ -28,12 +28,13 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static optional = super.optional + ['winding']
+    protected static optional = super.optional + ['winding','close']
 
     private List pathOperations = []
     private ExtendedGeneralPath path
 
     def winding
+    def close
 
     ExtPathGraphicsOperation() {
       super( "path" )
@@ -66,7 +67,9 @@ class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
       pathOperations.each { pathOperation ->
          pathOperation.apply( path, context )
       }
-      path.closePath()
+      if( close ){
+         path.closePath()
+      }
    }
 
    private int getWindingRule() {

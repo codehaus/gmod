@@ -27,12 +27,13 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
-   public static optional = super.optional + ['winding']
+   public static optional = super.optional + ['winding','close']
 
    private List pathOperations = []
    private GeneralPath path
 
    def winding
+   def close
 
    PathGraphicsOperation() {
       super( "path" )
@@ -65,7 +66,9 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
       pathOperations.each { pathOperation ->
          pathOperation.apply( path, context )
       }
-      path.closePath()
+      if( close ){
+         path.closePath()
+      }
    }
 
    private int getWindingRule() {

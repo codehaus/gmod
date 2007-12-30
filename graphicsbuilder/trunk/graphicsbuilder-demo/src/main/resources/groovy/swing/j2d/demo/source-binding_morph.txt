@@ -4,13 +4,13 @@ def star = star( x: 20, y: 20, ir: 50, or: 80, count: 5, asShape: true )
 def circle = circle( cx: 150, cy: 80, radius: 50, asShape: true )
 def bean = [x: 0] as ObservableMap
 def morph = morph( start: rect, end: star, morph: bind(source:bean, sourceProperty:'x'), 
-       strokeWidth: 3, color: 'orange', fill: 'yellow' )
+       borderWidth: 3, borderColor: 'orange', fill: 'yellow' )
 Thread.start {
    sleep( 1000 )
    (1..10).each { sleep( 50 ); bean.x = 0.1*it }
-   morph.color = 'blue'; morph.fill = 'cyan'
+   morph.borderColor = 'blue'; morph.fill = 'cyan'
    morph.start = star; morph.morph = 0; morph.end = circle
    sleep( 1000 )
    (1..10).each { sleep( 50 ); bean.x = 0.1*it }
-   morph.color = 'darkRed'; morph.fill = 'red'
+   morph.borderColor = 'darkRed'; morph.fill = 'red'
 }

@@ -33,6 +33,6 @@ class LineToExtPathOperation extends AbstractExtPathOperation {
     }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {
-       path.moveTo( x as float, y as float )
+       path.lineTo( x as float, y as float )
     }
 }
