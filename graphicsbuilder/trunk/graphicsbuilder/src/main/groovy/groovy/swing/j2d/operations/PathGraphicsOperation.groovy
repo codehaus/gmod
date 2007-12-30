@@ -79,12 +79,14 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
       if( winding instanceof Integer ){
          return winding
       }else if( winding instanceof String ){
-         if( "non_zero".compareToIgnoreCase( windingValue ) == 0 ){
+         if( "non_zero".compareToIgnoreCase( winding ) == 0 ||
+             "nonzero".compareToIgnoreCase( winding ) == 0 ){
             return GeneralPath.WIND_NON_ZERO
-         }else if( "even_odd".compareToIgnoreCase( windingValue ) == 0 ){
+         }else if( "even_odd".compareToIgnoreCase( winding ) == 0 ||
+                   "evenodd".compareToIgnoreCase( winding ) == 0){
             return GeneralPath.WIND_EVEN_ODD
          }else{
-            throw new IllegalStateException( "'winding=" + windingValue
+            throw new IllegalStateException( "'winding=" + winding
                   + "' is not one of [non_zero,even_odd]" )
          }
       }
