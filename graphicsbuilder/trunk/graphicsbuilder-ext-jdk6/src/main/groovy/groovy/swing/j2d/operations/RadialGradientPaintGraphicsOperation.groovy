@@ -93,6 +93,20 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       }*/
    }
 
+   public void setTransformationGroup( TransformationGroup transformationGroup ){
+      if( transformationGroup ) {
+         if( this.transformationGroup ){
+            this.transformationGroup.removePropertyChangeListener( this )
+         }
+         this.transformationGroup = transformationGroup
+         this.transformationGroup.addPropertyChangeListener( this )
+      }
+   }
+
+   public TransformationGroup getTransformationGroup() {
+      transformationGroup
+   }
+
    private RadialGradientPaint makePaint( cx, cy, fx, fy ){
       int n = stops.size()
       float[] fractions = new float[n]
@@ -124,25 +138,11 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       }
    }
 
-   public void setTransformationGroup( TransformationGroup transformationGroup ){
-      if( transformationGroup ) {
-         if( this.transformationGroup ){
-            this.transformationGroup.removePropertyChangeListener( this )
-         }
-         this.transformationGroup = transformationGroup
-         this.transformationGroup.addPropertyChangeListener( this )
-      }
-   }
-
-   public TransformationGroup getTransformationGroup() {
-      transformationGroup
-   }
-
    private def getCycleMethod() {
       if( cycle instanceof CycleMethod ){
          return cycle
       }else if( cycle instanceof String ){
-         if( "nocycle".compareToIgnoreCase( cycle ) == 0 ){
+         if( "nocycle".compareToIgnoreCase( cycle ) == 0 || "pad".compareToIgnoreCase( cycle ) == 0 ){
             return CycleMethod.NO_CYCLE
          }else if( "reflect".compareToIgnoreCase( cycle ) == 0 ){
             return CycleMethod.REFLECT
@@ -150,7 +150,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
             return CycleMethod.REPEAT
          }else{
             throw new IllegalStateException( "'cycle=" + cycle
-                  + "' is not one of [nocycle,reflect,repeat]" )
+                  + "' is not one of [nocycle,pad,reflect,repeat]" )
          }
       }
       throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" );

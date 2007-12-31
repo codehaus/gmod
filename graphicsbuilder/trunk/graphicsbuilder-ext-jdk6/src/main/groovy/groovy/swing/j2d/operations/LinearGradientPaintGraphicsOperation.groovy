@@ -23,16 +23,19 @@ import java.awt.LinearGradientPaint
 import java.awt.geom.Point2D
 import java.awt.MultipleGradientPaint.*
 import groovy.swing.j2d.PaintProvider
+import groovy.swing.j2d.Transformable
+import groovy.swing.j2d.impl.TransformationGroup
 import groovy.swing.j2d.impl.AbstractLinearGradientPaintGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGraphicsOperation implements
-     MultipleGradientPaintProvider {
-   protected static DEFAULT_CYCLE_VALUE = 'nocycle' 
-    
+     MultipleGradientPaintProvider, Transformable {
+   protected static DEFAULT_CYCLE_VALUE = 'nocycle'
+
    private def stops = []
+   TransformationGroup transformationGroup
 
    LinearGradientPaintGraphicsOperation() {
       super( "linearGradient" )
@@ -49,7 +52,29 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
       stops.each { stop ->
          copy.addStop( stop.copy() )
       }
-      copy
+      if( transformationGroup ){
+         transformationGroup.transformations.each { t ->
+            copy.transformationGroup = new TransformationGroup()
+            def transformation = t.copy()
+            transformation.removePropertyChangeListener(this)
+            copy.transformationGroup.addTransformation( transformation )
+         }
+      }
+      return copy
+   }
+
+   public void setTransformationGroup( TransformationGroup transformationGroup ){
+      if( transformationGroup ) {
+         if( this.transformationGroup ){
+            this.transformationGroup.removePropertyChangeListener( this )
+         }
+         this.transformationGroup = transformationGroup
+         this.transformationGroup.addPropertyChangeListener( this )
+      }
+   }
+
+   public TransformationGroup getTransformationGroup() {
+      transformationGroup
    }
 
    protected Paint makePaint( x1, y1, x2, y2 ){
@@ -62,20 +87,30 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
          colors[i] = stop.color
       }
 
-      return new LinearGradientPaint( new Point2D.Double(x1,y1),
-                                      new Point2D.Double(x2,y2),
-                                      fractions,
-                                      colors,
-                                      getCycleMethod() )
+      if( transformationGroup && !transformationGroup.isEmpty() ){
+         return new LinearGradientPaint( new Point2D.Double(x1,y1),
+                                         new Point2D.Double(x2,y2),
+                                         fractions,
+                                         colors,
+                                         getCycleMethod(),
+                                         ColorSpaceType.SRGB,
+                                         transformationGroup.getConcatenatedTransform() )
+      }else{
+         return new LinearGradientPaint( new Point2D.Double(x1,y1),
+                                         new Point2D.Double(x2,y2),
+                                         fractions,
+                                         colors,
+                                         getCycleMethod() )
+      }
    }
 
    private def getCycleMethod() {
-      if( !cycle ){ 
+      if( !cycle ){
          return CycleMethod.NO_CYCLE
       }else if( cycle instanceof CycleMethod ){
          return cycle
       }else if( cycle instanceof String ){
-         if( "nocycle".compareToIgnoreCase( cycle ) == 0 ){
+         if( "nocycle".compareToIgnoreCase( cycle ) == 0 || "pad".compareToIgnoreCase( cycle ) == 0 ){
             return CycleMethod.NO_CYCLE
          }else if( "reflect".compareToIgnoreCase( cycle ) == 0 ){
             return CycleMethod.REFLECT
@@ -83,7 +118,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
             return CycleMethod.REPEAT
          }else{
             throw new IllegalStateException( "'cycle=" + cycle
-                  + "' is not one of [nocycle,reflect,repeat]" )
+                  + "' is not one of [nocycle,pad,reflect,repeat]" )
          }
       }
       throw new IllegalStateException( "'cycle' value is not a String nor a CycleMethod" );
