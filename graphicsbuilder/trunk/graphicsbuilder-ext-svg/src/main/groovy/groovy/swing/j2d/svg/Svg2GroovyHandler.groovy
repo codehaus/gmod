@@ -224,6 +224,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             out.incrementIndent()
             handleAttributes( attrs, [
                "fill": this.&colorAttributeHandler,
+               "fill-rule": { p, v -> " winding: '$v',"},
                "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
                "stroke-width": { p, v -> " borderWidth: $v,"},
             ], ["opacity"])
@@ -244,6 +245,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
    }
 
    private String colorAttributeHandler( String property, value ){
+      if( value =~ /url/ ) return ""
       return " $property: ${getColorValue(value)},"
    }
 
@@ -390,7 +392,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
 
    def readNumber = { ->
       while( offset < max && !(data[offset] =~ /[0-9\.\-\+]/) ){ offset +=1 }
-      //while( offset < max && data[offset] =~ /[0-9\.\-\+]/){ str += data[offset]; offset += 1 }
       if( offset >= max ) return ""
       def match = data[offset..-1] =~ /([+|-]?[0-9]+[\.[0-9]+]*)/
       def str = match[0][0]
@@ -401,7 +402,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
 
    def readOp = { ->
       def str = ""
-      while( offset < max && !(data[offset] =~ /[a-zA-Z]/) ){ offset +=1 }
+      while( offset < max && !(data[offset] =~ /[achlmqstvzACHLMQSTVZ]/) ){ offset +=1 }
       return offset < max ? data[offset] : ""
    }
 
