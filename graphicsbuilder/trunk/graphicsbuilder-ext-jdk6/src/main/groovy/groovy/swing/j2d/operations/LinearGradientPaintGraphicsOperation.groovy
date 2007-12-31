@@ -111,6 +111,9 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
          GradientStop stop = stops[i]
          fractions[i] = stop.offset
          colors[i] = stop.color
+         if( stop.opacity != null ){
+            colors[i] = colors[i].derive(alpha:stop.opacity)
+         }
       }
 
       if( transformationGroup && !transformationGroup.isEmpty() ){
