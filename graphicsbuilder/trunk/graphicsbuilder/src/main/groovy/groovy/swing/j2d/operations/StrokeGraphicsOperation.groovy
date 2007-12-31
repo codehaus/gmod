@@ -27,14 +27,14 @@ import java.awt.Stroke
  */
 public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
 	public static required = ['width']
-	public static optional = ['cap','join','mitterlimit','dash','dashphase']
+	public static optional = ['cap','join','miterlimit','dash','dashphase']
 
 	private Stroke stroke
 
 	def width = 1
 	def cap
 	def join
-	def mitterlimit
+	def miterlimit
 	def dash
 	def dashphase = 0
 
@@ -54,7 +54,7 @@ public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
         def w = width
         def c = cap
         def j = join
-        def m = mitterlimit
+        def m = miterlimit
         def d = dash
 
         if( c == null ){

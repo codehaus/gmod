@@ -179,6 +179,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "scale", new TransformationFactory(ScaleTransformation) )
         registerFactory( "skew", new TransformationFactory(SkewTransformation) )
         registerFactory( "translate", new TransformationFactory(TranslateTransformation) )
+        registerFactory( "matrix", new TransformationFactory(MatrixTransformation) )
         registerFactory( "freeze", new TransformationFactory(FreezeTransformation) )
 
         //
