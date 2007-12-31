@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.Grouping
+import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.impl.TransformationGroup
 import groovy.swing.j2d.impl.AbstractNestingGraphicsOperation
@@ -120,7 +121,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-       if( go instanceof Transformable ){
+       if( go instanceof Transformable && !(go instanceof PaintProvider) ){
           if( transformationGroup ){
              def gtg = go.globalTransformationGroup
              if( !gtg ){

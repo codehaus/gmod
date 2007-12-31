@@ -61,6 +61,18 @@ class TestSvg2GroovyHandler extends GroovyTestCase {
 	   def writer = readSvgFile( "/groovy/swing/j2d/svg/java_logo.svg" )
 	   new File("java_logo.groovy").text = writer.toString()
 	}
+
+	void testReadLinearGradient(){
+	   def writer = readSvgFile( "/groovy/swing/j2d/svg/linearGradient.svg" )
+	}
+
+	void testReadRadialGradient(){
+	   def writer = readSvgFile( "/groovy/swing/j2d/svg/radialGradient.svg" )
+	}
+
+	void testReadOpacity(){
+	   def writer = readSvgFile( "/groovy/swing/j2d/svg/opacity.svg" )
+	}
 	*/
 
 	void testEmpty(){

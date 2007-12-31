@@ -24,8 +24,12 @@ import groovy.swing.j2d.impl.ObservableSupport
 public class GradientStop extends ObservableSupport {
     Color color
     float offset
-    
+
     public GradientStop copy() {
        new GradientStop( offset: offset, color: color )
+    }
+
+    public String toString(){
+       return "stop[offset: $offset, color: $color]"
     }
 }

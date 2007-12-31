@@ -32,18 +32,34 @@ import groovy.swing.j2d.impl.AbstractLinearGradientPaintGraphicsOperation
  */
 class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGraphicsOperation implements
      MultipleGradientPaintProvider, Transformable {
+   public static optional = super.optional + ['linkTo']
    protected static DEFAULT_CYCLE_VALUE = 'nocycle'
 
    private def stops = []
    TransformationGroup transformationGroup
 
+   def linkTo
+
    LinearGradientPaintGraphicsOperation() {
       super( "linearGradient" )
    }
 
+   public List getStops(){
+      return Collections.unmodifiableList(stops)
+   }
+
    public void addStop( GradientStop stop ) {
       if( !stop ) return
-      stops.add( stop )
+      boolean replaced = false
+      int size = stops.size()
+      for( index in (0..<size) ){
+         if( stops[index].offset == stop.offset ){
+            stops[index] = stop
+            replaced = true
+            break
+         }
+      }
+      if( !replaced ) stops.add( stop )
       stop.addPropertyChangeListener( this )
    }
 
@@ -63,6 +79,15 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
       return copy
    }
 
+   void setProperty( String property, Object value ) {
+      if( property == "linkTo" && value instanceof MultipleGradientPaintProvider ){
+         value.stops.each { stop ->
+            addStop( stop )
+         }
+      }
+      super.setProperty( property, value )
+   }
+
    public void setTransformationGroup( TransformationGroup transformationGroup ){
       if( transformationGroup ) {
          if( this.transformationGroup ){
@@ -78,6 +103,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
    }
 
    protected Paint makePaint( x1, y1, x2, y2 ){
+      stops = stops.sort { a, b -> a.offset <=> b.offset }
       int n = stops.size()
       float[] fractions = new float[n]
       Color[] colors = new Color[n]

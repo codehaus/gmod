@@ -6,6 +6,7 @@ import org.xml.sax.helpers.DefaultHandler
 public class Svg2GroovyHandler extends GfxSAXHandler {
    private IndentPrinter out
    private Map textNode = null
+   private boolean insideShape = false
    private Map factories = [:]
 
    public Svg2GroovyHandler() {
@@ -65,9 +66,10 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
          start: { attrs ->
             out.print("group(")
             handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
             ],["opacity"])
             out.println(") {")
             handleTransformations( attrs )
@@ -82,6 +84,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
       ]
       factories.rect = [
          start: { attrs ->
+            insideShape = true
             out.print("rect(")
             def rx = attrs.getValue("rx")
             def ry = attrs.getValue("ry")
@@ -93,9 +96,10 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                out.print(" arcWidth: $ry, arcHeight: $ry,")
             }
             handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
             ], ["x","y","width","height","opacity"] )
             if( attrs.getValue("transform") ){
                out.println(") {")
@@ -105,16 +109,21 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             }else{
                out.println(")")
             }
+         },
+         end: { ->
+            insideShape = false
          }
       ]
       factories.circle = [
          start: { attrs ->
+            insideShape = true
             out.print("circle(")
             handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
-               "r": { p, v -> " radius: $v,"},
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
+               "r": { p, v -> " radius: ${normalize(v)},"},
             ], ["cx","cy","opacity"] )
             if( attrs.getValue("transform") ){
                out.println(") {")
@@ -124,17 +133,22 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             }else{
                out.println(")")
             }
+         },
+         end: { ->
+            insideShape = false
          }
       ]
       factories.ellipse = [
          start: { attrs ->
+            insideShape = true
             out.print("ellipse(")
             handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
-               "rx": { p, v -> " radiusx: $v,"},
-               "ry": { p, v -> " radiusy: $v,"},
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
+               "rx": { p, v -> " radiusx: ${normalize(v)},"},
+               "ry": { p, v -> " radiusy: ${normalize(v)},"},
             ], ["cx","cy","opacity"] )
             if( attrs.getValue("transform") ){
                out.println(") {")
@@ -144,14 +158,18 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             }else{
                out.println(")")
             }
+         },
+         end: { ->
+            insideShape = false
          }
       ]
       factories.line = [
          start: { attrs ->
             out.print("line(")
             handleAttributes( attrs, [
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "id": this.&idAttributeHandler,
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
             ], ["x1","x2","y1","y2","opacity"] )
             if( attrs.getValue("transform") ){
                out.println(") {")
@@ -167,8 +185,9 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
          start: { attrs ->
             out.print("polyline(")
             handleAttributes( attrs, [
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "id": this.&idAttributeHandler,
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
                "points": { p, v -> " points: [${v.replaceAll('\\s+',',')}],"},
             ],["opacity"])
             if( attrs.getValue("transform") ){
@@ -183,11 +202,13 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
       ]
       factories.polygon = [
          start: { attrs ->
+            insideShape = true
             out.print("polygon(")
             handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
                "points": { p, v -> " points: [${v.replaceAll('\\s+',',')}],"},
             ],["opacity"])
             if( attrs.getValue("transform") ){
@@ -198,6 +219,9 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             }else{
                out.println(")")
             }
+         },
+         end: { ->
+            insideShape = false
          }
       ]
       factories.text = [
@@ -210,9 +234,10 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                out.print(" text: '${textNode.text}',")
             }
             handleAttributes( textNode.attrs, [
+               "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
             ],["x","y","opacity"])
             if( textNode.attrs.getValue("transform") ){
                out.println(") {")
@@ -227,16 +252,39 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
       ]
       factories.path = [
          start: { attrs ->
+            insideShape = true
             out.print("xpath(")
             out.incrementIndent()
             handleAttributes( attrs, [
-               "fill": this.&colorAttributeHandler,
+               "id": this.&idAttributeHandler,
                "fill-rule": { p, v -> " winding: '$v',"},
-               "stroke": { p, v -> " borderColor: ${getColorValue(v)},"},
-               "stroke-width": { p, v -> " borderWidth: $v,"},
+               "fill": this.&colorAttributeHandler,
+               "stroke": this.&borderColorAttributeHandler,
+               "stroke-width": this.&borderWidthAttributeHandler,
             ], ["opacity"])
             out.println("){")
             handlePathInfo( attrs.getValue("d") )
+            handleTransformations( attrs )
+         },
+         end: { ->
+            insideShape = false
+            out.decrementIndent()
+            out.printIndent()
+            out.println("}")
+         }
+      ]
+      factories.linearGradient = [
+         start: { attrs ->
+            out.print("linearGradient(")
+            out.incrementIndent()
+            if( !insideShape ){
+               out.print(" asPaint: true,")
+            }
+            handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
+               "spreadMethod": { p, v -> " cycle: '$v',"},
+            ], ["x1","y1","x2","y2"])
+            out.println("){")
             handleTransformations( attrs )
          },
          end: { ->
@@ -245,27 +293,94 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             out.println("}")
          }
       ]
+      factories.radialGradient = [
+         start: { attrs ->
+            out.print("radialGradient(")
+            out.incrementIndent()
+            if( !insideShape ){
+               out.print(" asPaint: true,")
+            }
+            handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
+               "spreadMethod": { p, v -> " cycle: '$v',"},
+               "r": { p, v -> " radius: ${normalize(v)},"},
+            ], ["cx","cy","fx","fy"])
+            out.println("){")
+            handleTransformations( attrs )
+         },
+         end: { ->
+            out.decrementIndent()
+            out.printIndent()
+            out.println("}")
+         }
+      ]
+      factories.stop = [
+         start: { attrs ->
+            out.print("stop(")
+            handleAttributes( attrs, [
+               "id": this.&idAttributeHandler,
+               "stop-color": { p, v -> " color: ${getColorValue(v)},"},
+               "offset": { p, v ->
+                  v = v.endsWith("%") ? (v[0..-2].toInteger())/100 : v
+                  " offset: $v,"
+               }
+            ] )
+            out.println(")")
+         }
+      ]
    }
 
    private String defaultAttributeHandler( String property, value ){
-      return " $property: $value,"
+      return " $property: ${normalize(value)},"
+   }
+
+   private String idAttributeHandler( String property, value ){
+      return " $property: '$value',"
    }
 
    private String colorAttributeHandler( String property, value ){
-      if( value =~ /url/ ) return ""
       return " $property: ${getColorValue(value)},"
    }
 
+   private String borderColorAttributeHandler( String property, value ){
+      return " borderColor: ${getColorValue(value)},"
+   }
+
+   private String borderWidthAttributeHandler( String property, value ){
+      return " borderWidth: ${normalize(value)},"
+   }
+
+   private String normalize( number ){
+      if( number =~ /[0-9]/ ){
+         number = number.startsWith(".")? "0$number": number
+         number = number.endsWith("px") || number.endsWith("cm") ? number[0..-3] : number
+      }
+      return number
+   }
+
    private String getColorValue( String value ){
-      if( value == "none" ) return "false"
+      //if( value == "none" ) return "false"
+      if( value.startsWith("url(#") ){
+         return value[5..-2]
+      }
+      return "color('$value')"
+      /*
       if( !value.startsWith("#") && !(value =~ /[0-9a-fA-F]{6}/) ){
          return "color('$value')"
       }
-      def offset = value.startsWith("#") ? 1 : 0
-      return "color(red: "+
-             Integer.parseInt(value[(0+offset)..(1+offset)],16) +", green: "+
-             Integer.parseInt(value[(2+offset)..(3+offset)],16) +", blue: "+
-             Integer.parseInt(value[(4+offset)..(5+offset)],16) +")"
+      value = value.startsWith("#") ? value[1..-1] : value
+      if( value.length() == 3 ){
+         return "color(red: "+
+                Integer.parseInt("${value[0]}${value[0]}",16) +", green: "+
+                Integer.parseInt("${value[1]}${value[1]}",16) +", blue: "+
+                Integer.parseInt("${value[2]}${value[2]}",16) +")"
+      }else{
+         return "color(red: "+
+                Integer.parseInt(value[0..1],16) +", green: "+
+                Integer.parseInt(value[2..3],16) +", blue: "+
+                Integer.parseInt(value[4..5],16) +")"
+      }
+      */
    }
 
    private void handleAttributes( Attributes attrs, Map mappings ){
@@ -280,6 +395,15 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             str += defaultAttributeHandler(attrname,attrs.getValue(index))
          }else if( mappings[attrname] ){
             str += mappings[attrname](attrname,attrs.getValue(index))
+         }else if( attrname == "style" ){
+            attrs.getValue(index).split(";").each { pair ->
+               def values = pair.split(":")
+               if( defaultMappings.contains(values[0]) ){
+                  str += defaultAttributeHandler(values[0],values[1])
+               }else if( mappings[values[0]] ){
+                  str += mappings[values[0]](values[0],values[1])
+               }
+            }
          }
       }
       if( str ){
@@ -289,6 +413,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
 
    private void handleTransformations( Attributes attrs ){
       def transform = attrs.getValue("transform")
+      if( !transform ) transform = attrs.getValue("gradientTransform")
       if( !transform ) return
       out.incrementIndent()
       out.printIndent()
@@ -352,6 +477,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
    private def cy
 
    private void handlePathInfo( String data ){
+      if( !data ) return
       if( data[0] != "M" && data[0] != "m" ){
          throw new IllegalArgumentException("path.d does not start with M or m")
       }

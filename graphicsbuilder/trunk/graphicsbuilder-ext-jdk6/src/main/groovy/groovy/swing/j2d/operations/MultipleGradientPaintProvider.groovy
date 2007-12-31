@@ -22,4 +22,6 @@ import groovy.swing.j2d.PaintProvider
  */
 public interface MultipleGradientPaintProvider extends PaintProvider {
    void addStop( GradientStop stop )
+
+   List getStops()
 }

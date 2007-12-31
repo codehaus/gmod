@@ -36,7 +36,7 @@ import groovy.swing.j2d.impl.AbstractPaintingGraphicsOperation
 class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation implements
      MultipleGradientPaintProvider, Transformable {
    public static required = ['cx','cy','fx','fy','radius']
-   public static optional = super.optional + ['cycle','absolute']
+   public static optional = super.optional + ['cycle','absolute','linkTo']
 
    private def stops = []
    TransformationGroup transformationGroup
@@ -49,14 +49,28 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
    def radius
    def cycle = 'nocycle'
    def absolute = false
+   def linkTo
 
    RadialGradientPaintGraphicsOperation() {
       super( "radialGradient" )
    }
 
+   public List getStops(){
+      return Collections.unmodifiableList(stops)
+   }
+
    public void addStop( GradientStop stop ) {
       if( !stop ) return
-      stops.add( stop )
+      boolean replaced = false
+      int size = stops.size()
+      for( index in (0..<size) ){
+         if( stops[index].offset == stop.offset ){
+            stops[index] = stop
+            replaced = true
+            break
+         }
+      }
+      if( !replaced ) stops.add( stop )
       stop.addPropertyChangeListener( this )
    }
 
@@ -74,6 +88,15 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
          }
       }
       return copy
+   }
+
+   void setProperty( String property, Object value ) {
+      if( property == "linkTo" && value instanceof MultipleGradientPaintProvider ){
+         value.stops.each { stop ->
+            addStop( stop )
+         }
+      }
+      super.setProperty( property, value )
    }
 
    public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
@@ -108,6 +131,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
    }
 
    private RadialGradientPaint makePaint( cx, cy, fx, fy ){
+      stops = stops.sort { a, b -> a.offset <=> b.offset }
       int n = stops.size()
       float[] fractions = new float[n]
       Color[] colors = new Color[n]
