@@ -45,8 +45,15 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
    private void registerFactories(){
       factories.svg = [
          start: { attrs ->
-            out.println("group {")
+            out.println("group( borderColor: false ) {")
             out.incrementIndent()
+            def viewBox = attrs.getValue("viewBox")
+            if( viewBox ){
+               out.printIndent()
+               out.println("// viewBox = [$viewBox]")
+            }
+            out.printIndent()
+            out.println("renderingHint( key: 'antialiasing', value: 'antialias on' )")
          },
          end: { ->
             out.decrementIndent()
@@ -396,7 +403,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
       def match = data[offset..-1] =~ /([+|-]?[0-9]+[\.[0-9]+]*)/
       def str = match[0][0]
       offset += str.length()
-      println "'$str'"
       return str as BigDecimal
    }
 
