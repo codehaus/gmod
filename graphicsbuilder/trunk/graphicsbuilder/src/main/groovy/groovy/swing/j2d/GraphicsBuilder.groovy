@@ -201,9 +201,9 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private void interpolationAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
        def interpolation = attributes.remove("interpolation")
        switch( interpolation ){
-          case "bicubic": interpolation = AffineTransformOP.TYPE_BICUBIC; break;
-          case "bilinear": interpolation = AffineTransformOP.TYPE_BILINEAR; break;
-          case "nearest": interpolation = AffineTransformOP.TYPE_NEAREST_NEIGHBOR; break;
+          case "bicubic": interpolation = AffineTransformOp.TYPE_BICUBIC; break;
+          case "bilinear": interpolation = AffineTransformOp.TYPE_BILINEAR; break;
+          case "nearest": interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR; break;
        }
        if( interpolation != null ) node.interpolation = interpolation
     }
@@ -242,7 +242,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private void swingPostNodeCompletionDelegate( FactoryBuilderSupport fbs, Object parent, Object node ) {
        def x = fbs.context.x
        def y = fbs.context.y
-       if( x && y ){
+       if( x != null && y != null ){
            def size = node.preferredSize
            node.bounds = [x,y,size.width as int,size.height as int] as Rectangle
        }
