@@ -13,29 +13,46 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.impl
 
+import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.StrokeProvider
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.GraphicsBuilderHelper
 
+import java.awt.BasicStroke
+import java.awt.Paint
 import java.awt.Stroke
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
-	public static required = ['stroke']
+abstract class AbstractStrokeGraphicsOperation extends AbstractGraphicsOperation implements StrokeProvider {
+    public static optional = ['asStroke']
 
-	def stroke
+	private Stroke stroke
+	def asStroke
 
-    public StrokeGraphicsOperation() {
-        super( "stroke" )
+    public AbstractStrokeGraphicsOperation( String name ) {
+        super( name )
     }
 
     public void execute( GraphicsContext context ) {
-        if( !stroke ) return null
-        def s = stroke instanceof StrokeProvider ? stroke.stroke : stroke
-        context.g.stroke = s
+       if( asStroke ) return
+       context.g.stroke = getStroke()
     }
+
+    public Stroke getStroke(){
+       if( stroke == null ){
+          stroke = createStroke()
+       }
+       return stroke
+    }
+
+    public void propertyChange( PropertyChangeEvent event ){
+       stroke = null
+    }
+
+    protected abstract Stroke createStroke()
 }

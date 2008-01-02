@@ -13,29 +13,16 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
-
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.StrokeProvider
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+package groovy.swing.j2d.impl
 
 import java.awt.Stroke
+import groovy.swing.j2d.StrokeProvider
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
-	public static required = ['stroke']
+public interface ComposableStroke /* extends StrokeProvider */ {
+    void addStroke( Stroke stroke )
 
-	def stroke
-
-    public StrokeGraphicsOperation() {
-        super( "stroke" )
-    }
-
-    public void execute( GraphicsContext context ) {
-        if( !stroke ) return null
-        def s = stroke instanceof StrokeProvider ? stroke.stroke : stroke
-        context.g.stroke = s
-    }
+    void addStroke( StrokeProvider stroke )
 }

@@ -15,27 +15,29 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.StrokeProvider
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractStrokeGraphicsOperation
 
+import java.awt.Font
 import java.awt.Stroke
+import com.jhlabs.awt.TextStroke
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
-	public static required = ['stroke']
+public class TextStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation {
+    public static required = ['text','font']
+	public static optional = ['stretch','repeat']
 
-	def stroke
+	def text = "Groovy"
+	def font = new Font( "Default", Font.PLAIN, 12 )
+	def stretch = false
+	def repeat = false
 
-    public StrokeGraphicsOperation() {
-        super( "stroke" )
+	TextStrokeGraphicsOperation() {
+       super( "textStroke" )
     }
 
-    public void execute( GraphicsContext context ) {
-        if( !stroke ) return null
-        def s = stroke instanceof StrokeProvider ? stroke.stroke : stroke
-        context.g.stroke = s
+    protected Stroke createStroke() {
+        return new TextStroke( text, font, stretch, repeat )
     }
 }

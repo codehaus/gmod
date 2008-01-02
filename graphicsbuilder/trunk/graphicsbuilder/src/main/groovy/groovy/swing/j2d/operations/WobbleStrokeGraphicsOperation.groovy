@@ -15,27 +15,25 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.StrokeProvider
-import groovy.swing.j2d.impl.AbstractGraphicsOperation
+import groovy.swing.j2d.impl.AbstractStrokeGraphicsOperation
 
 import java.awt.Stroke
+import com.jhlabs.awt.WobbleStroke
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
-	public static required = ['stroke']
+public class WobbleStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation {
+    public static required = super.optional + ['detail','aplitude']
 
-	def stroke
+	def detail = 2
+	def amplitude = 2
 
-    public StrokeGraphicsOperation() {
-        super( "stroke" )
+	WobbleStrokeGraphicsOperation() {
+       super( "wobbleStroke" )
     }
 
-    public void execute( GraphicsContext context ) {
-        if( !stroke ) return null
-        def s = stroke instanceof StrokeProvider ? stroke.stroke : stroke
-        context.g.stroke = s
+    protected Stroke createStroke() {
+        return new WobbleStroke( detail as float, amplitude as float )
     }
 }

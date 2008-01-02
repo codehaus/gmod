@@ -17,6 +17,7 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.operations.AreaGraphicsOperation
 import groovy.swing.j2d.operations.ShapeGraphicsOperation
+import groovy.swing.j2d.operations.ShapeStrokeGraphicsOperation
 
 import java.awt.Shape
 import groovy.swing.j2d.ShapeProvider
@@ -36,9 +37,12 @@ public class ShapeFactory extends AbstractGraphicsOperationFactory {
     }
 
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-       if( !(parent instanceof AreaGraphicsOperation) ) {
-          throw new IllegalArgumentException("shape() can only be nested in any of [add, subtract, intersect, xor]")
+       if( parent instanceof AreaGraphicsOperation ) {
+          parent.addOperation( child )
+       }else if( parent instanceof ShapeStrokeGraphicsOperation ) {
+          parent.addShape( child )
+       }else{
+          throw new IllegalArgumentException("shape() can only be nested in any of [add, subtract, intersect, xor, shapeStroke]")
        }
-       parent.addOperation( child )
     }
 }

@@ -23,12 +23,18 @@ import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.ShapeProvider
 import groovy.swing.j2d.operations.AreaGraphicsOperation
 import groovy.swing.j2d.operations.GroupGraphicsOperation
+import groovy.swing.j2d.operations.ShapeStrokeGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       if( child instanceof ShapeProvider && parent instanceof ShapeStrokeGraphicsOperation ){
+          parent.addShape( child )
+          return
+       }
+
        if( child instanceof ShapeProvider && parent instanceof AreaGraphicsOperation ){
           parent.addOperation( child )
           return

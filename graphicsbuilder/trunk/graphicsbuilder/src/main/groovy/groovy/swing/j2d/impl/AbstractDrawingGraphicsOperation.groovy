@@ -22,6 +22,7 @@ import groovy.swing.j2d.MultiPaintProvider
 import groovy.swing.j2d.PaintProvider
 import groovy.swing.j2d.Transformable
 import groovy.swing.j2d.impl.TransformationGroup
+import groovy.swing.j2d.operations.StrokeGraphicsOperation
 
 import java.awt.AlphaComposite
 import java.awt.BasicStroke
@@ -205,17 +206,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
               applyFill( context, shape )
               g.setPaint( paint )
           }else {
-             // look for a nested paintProvider
-             //def pp = operations.reverse().find{ it instanceof PaintProvider }
              def pp = getPaint()
              if( pp ){
                 applyPaint( context, shape, pp )
-                /*
-                Paint paint = g.getPaint()
-                g.setPaint( pp.getPaint(context, shape.bounds2D) )
-                applyFill( context, shape )
-                g.setPaint( paint )
-                */
              }else{
                 // use current settings on context
                 applyFill( context, shape )
@@ -227,12 +220,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           def pp = getPaint()
           if( pp ){
              applyPaint( context, shape, pp )
-             /*
-             Paint paint = g.getPaint()
-             g.setPaint( pp.getPaint(context, shape.bounds2D) )
-             applyFill( context, shape )
-             g.setPaint( paint )
-             */
           }
        }
     }
@@ -265,6 +252,13 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def previousStroke = null
 
        def g = context.g
+
+       /*
+       def stroke = operations.reverse().find{ it instanceof StrokeGraphicsOperation }
+       def scolor = stroke ? stroke.color : null
+       def swidth = stroke ? stroke.width : null
+       stroke = stroke ? stroke.stroke : null
+       */
 
        def bc = borderColor
        if( context.groupContext.borderColor != null ){
@@ -301,9 +295,14 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
                g.color = bc
            }
        }
-       if( bw ){
+       if( bw != null ){
            previousStroke = g.stroke
-           g.stroke = new BasicStroke( bw )
+           if( previousStroke instanceof BasicStroke ){
+              g.stroke = previousStroke.derive(width:bw)
+           }
+           //}else{
+           //   g.stroke = new BasicStroke( bw )
+           //}
        }
 
        // draw the shape
@@ -344,12 +343,15 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def graphics = image.createGraphics()
        def contextCopy = context.copy()
        graphics.setClip( shape.bounds )
+       /*
        graphics.color = context.g.color
        if( borderColor != null && !(borderColor instanceof Boolean) ){
           graphics.color = ColorCache.getInstance().getColor(borderColor)
        }
+       */
 
-       /*
+       contextCopy.g = graphics
+
        def o = opacity
        if( contextCopy.groupContext?.opacity ){
           o = contextCopy.groupContext?.opacity
@@ -363,9 +365,11 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }else{
           graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
        }
-       */
 
-       contextCopy.g = graphics
+       if( operations ){
+          operations.each { op -> executeNestedOperation(contextCopy,op) }
+       }
+
        fill( contextCopy, shape )
        draw( contextCopy, shape )
        graphics.dispose()

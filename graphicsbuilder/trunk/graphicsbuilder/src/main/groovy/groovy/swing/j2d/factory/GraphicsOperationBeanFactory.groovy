@@ -27,6 +27,11 @@ class GraphicsOperationBeanFactory extends AbstractGraphicsOperationFactory {
          this.leaf = leaf
      }
 
+     GraphicsOperationBeanFactory( beanClass ){
+        this.beanClass = beanClass
+        this.leaf = false
+     }
+
      public boolean isLeaf(){
          return leaf
      }

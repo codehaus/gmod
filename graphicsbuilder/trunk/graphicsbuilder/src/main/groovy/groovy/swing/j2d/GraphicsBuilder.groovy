@@ -16,13 +16,8 @@
 package groovy.swing.j2d
 
 import java.awt.AlphaComposite
-import java.awt.Color
-import java.awt.Graphics2D
-import java.awt.Paint
-import java.awt.Shape
 import java.awt.Rectangle
 import java.awt.Component
-import java.awt.geom.Area
 import java.awt.image.AffineTransformOp
 
 import groovy.swing.factory.BindFactory
@@ -41,49 +36,10 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private GroovyShell shell
 
     public GraphicsBuilder() {
-        GraphicsBuilder.extendShapes()
-        GraphicsBuilder.extendColor()
+        GraphicsBuilderHelper.extendShapes()
+        GraphicsBuilderHelper.extendColor()
+        GraphicsBuilderHelper.extendBasicStroke()
         registerOperations()
-    }
-
-    public static void extendShapes() {
-       def shapeMethods = Shape.metaClass.methods
-       def methodMap = [
-          'plus':'add',
-          'minus':'subtract',
-          'and':'intersect',
-          'xor':'exclusiveOr'
-       ]
-       boolean updated = false
-       methodMap.each { op, method ->
-          if( !shapeMethods.name.find{ it == op } ){
-             Shape.metaClass."$op" << { Shape other ->
-                def area = new Area(delegate)
-                area."$method"( new Area(other) )
-                return area
-             }
-             updated = true
-          }
-          if( updated ){
-             ExpandoMetaClass.enableGlobally()
-          }
-       }
-    }
-
-    public static void extendColor() {
-       def colorMethods = Color.metaClass.methods
-       if( !colorMethods.name.find{ it == "derive" } ){
-          Color.metaClass.derive << { Map props ->
-             def red = props.red != null ? props.red: delegate.red
-             def green = props.green != null ? props.green: delegate.green
-             def blue = props.blue != null ? props.blue: delegate.blue
-             def alpha = props.alpha != null ? props.alpha: delegate.alpha
-             return new Color( (red > 1 ? red/255: red) as float,
-                               (green > 1 ? green/255: green) as float,
-                               (blue > 1 ? blue/255: blue) as float,
-                               (alpha > 1 ? alpha/255: alpha) as float )
-          }
-       }
     }
 
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
@@ -127,7 +83,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "bind", new BindFactory() )
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
         registerFactory( "image", new ImageFactory() )
-        registerFactory( "stroke", new StrokeFactory() )
         registerFactory( "color", new ColorFactory() )
         registerFactory( "clip", new ClipFactory() )
         registerFactory( "\$swing", new SwingFactory() )
@@ -183,12 +138,24 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "freeze", new TransformationFactory(FreezeTransformation) )
 
         //
-        // paint
+        // paints
         //
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerGraphicsOperationBeanFactory( "multiPaint", MultiPaintGraphicsOperation )
         registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
+
+        //
+        // strokes
+        //
+        registerFactory( "stroke", new StrokeFactory() )
+        registerFactory( "basicStroke", new StrokesFactory(BasicStrokeGraphicsOperation, true) )
+        registerFactory( "compositeStroke", new StrokesFactory(CompositeStrokeGraphicsOperation) )
+        registerFactory( "compoundStroke", new StrokesFactory(CompoundStrokeGraphicsOperation) )
+        registerFactory( "textStroke", new StrokesFactory(TextStrokeGraphicsOperation, true) )
+        registerFactory( "shapeStroke", new StrokesFactory(ShapeStrokeGraphicsOperation) )
+        registerFactory( "wobbleStroke", new StrokesFactory(WobbleStrokeGraphicsOperation, true) )
+        registerFactory( "zigzagStroke", new StrokesFactory(ZigzagStrokeGraphicsOperation) )
     }
 
     private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){

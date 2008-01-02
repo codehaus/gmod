@@ -18,23 +18,19 @@ package groovy.swing.j2d.factory
 import groovy.swing.j2d.Grouping
 import groovy.swing.j2d.OutlineProvider
 import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.StrokeProvider
-import groovy.swing.j2d.impl.ComposableStroke
-import groovy.swing.j2d.operations.StrokeGraphicsOperation
 
-import java.awt.Stroke
+import groovy.swing.j2d.impl.ComposableStroke
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class StrokeFactory extends AbstractGraphicsOperationFactory {
-    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
-          Map properties ) throws InstantiationException, IllegalAccessException {
-       StrokeGraphicsOperation go = new StrokeGraphicsOperation()
-       if( value != null && value instanceof StrokeProvider || value instanceof Stroke ) {
-           go.stroke = value
-       }
-       return go
+public class StrokesFactory extends GraphicsOperationBeanFactory {
+    StrokesFactory( beanClass, leaf ){
+       super( beanClass, leaf )
+    }
+
+    StrokesFactory( beanClass ){
+       super( beanClass )
     }
 
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
