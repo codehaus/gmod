@@ -17,6 +17,7 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.OutlineProvider
+import groovy.swing.j2d.operations.BorderPaintProvider
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.MultiPaintProvider
 import groovy.swing.j2d.operations.paints.BorderPaintGraphicsOperation
@@ -28,7 +29,7 @@ public class BorderPaintFactory extends AbstractGraphicsOperationFactory {
     public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
             Map properties ) throws InstantiationException, IllegalAccessException {
         BorderPaintGraphicsOperation go = new BorderPaintGraphicsOperation()
-        if( value != null && 
+        if( value != null &&
               (value instanceof PaintProvider || value instanceof MultiPaintProvider) ) {
             go.paint = value
         }
@@ -36,14 +37,15 @@ public class BorderPaintFactory extends AbstractGraphicsOperationFactory {
     }
 
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
-       if( parent instanceof ShapeProvider || parent instanceof OutlineProvider ){
+       if( parent instanceof ShapeProvider || parent instanceof OutlineProvider ||
+           parent instanceof BorderPaintProvider ){
           parent.addOperation( child )
           return
        }
        throw new IllegalArgumentException("$child can not be nested inside $parent")
     }
-    
+
     public boolean isLeaf(){
-        return true
+        return false
     }
 }

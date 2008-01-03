@@ -79,6 +79,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     }
 
     private boolean compare( oldvalue, newvalue ){
+       if( oldvalue == null && newvalue == null ) return false
        if( oldvalue == null && newvalue != null ) return true
        if( oldvalue != null && newvalue == null ) return true
 
