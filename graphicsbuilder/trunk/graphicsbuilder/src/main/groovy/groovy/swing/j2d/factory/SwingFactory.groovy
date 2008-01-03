@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.Grouping
-import groovy.swing.j2d.operations.SwingGraphicsOperation
+import groovy.swing.j2d.operations.Grouping
+import groovy.swing.j2d.operations.misc.SwingGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

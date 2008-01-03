@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.impl.Transformation
-import groovy.swing.j2d.impl.TransformationGroup
+import groovy.swing.j2d.operations.Transformation
+import groovy.swing.j2d.operations.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

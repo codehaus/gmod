@@ -22,9 +22,14 @@ import java.awt.image.AffineTransformOp
 
 import groovy.swing.factory.BindFactory
 import groovy.swing.factory.ModelFactory
-import groovy.swing.j2d.impl.*
 import groovy.swing.j2d.factory.*
-import groovy.swing.j2d.operations.*
+import groovy.swing.j2d.operations.misc.*
+import groovy.swing.j2d.operations.outlines.*
+import groovy.swing.j2d.operations.paints.*
+import groovy.swing.j2d.operations.shapes.*
+import groovy.swing.j2d.operations.shapes.path.*
+import groovy.swing.j2d.operations.strokes.*
+import groovy.swing.j2d.operations.transformations.*
 
 import groovy.swing.SwingBuilder
 
@@ -96,6 +101,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "polygon", PolygonGraphicsOperation )
         registerGraphicsOperationBeanFactory( "rect", RectGraphicsOperation )
         registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "donut", DonutGraphicsOperation )
 
         //
         // paths
@@ -140,6 +146,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         //
         // paints
         //
+        registerFactory( "borderPaint", new BorderPaintFactory() )
         registerGraphicsOperationBeanFactory( "gradientPaint", GradientPaintGraphicsOperation, true )
         registerGraphicsOperationBeanFactory( "multiPaint", MultiPaintGraphicsOperation )
         registerFactory( "paint", new PaintFactory() )

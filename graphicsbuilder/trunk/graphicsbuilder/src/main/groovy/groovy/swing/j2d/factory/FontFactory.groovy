@@ -15,9 +15,9 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.Grouping
-import groovy.swing.j2d.operations.FontGraphicsOperation
-import groovy.swing.j2d.operations.TextGraphicsOperation
+import groovy.swing.j2d.operations.Grouping
+import groovy.swing.j2d.operations.misc.FontGraphicsOperation
+import groovy.swing.j2d.operations.shapes.TextGraphicsOperation
 
 import java.awt.Font
 

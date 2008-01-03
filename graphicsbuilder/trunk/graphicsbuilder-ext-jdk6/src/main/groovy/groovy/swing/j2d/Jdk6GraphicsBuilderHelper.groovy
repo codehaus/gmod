@@ -16,8 +16,8 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.GradientStopFactory
-import groovy.swing.j2d.operations.LinearGradientPaintGraphicsOperation
-import groovy.swing.j2d.operations.RadialGradientPaintGraphicsOperation
+import groovy.swing.j2d.operations.paints.LinearGradientPaintGraphicsOperation
+import groovy.swing.j2d.operations.paints.RadialGradientPaintGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

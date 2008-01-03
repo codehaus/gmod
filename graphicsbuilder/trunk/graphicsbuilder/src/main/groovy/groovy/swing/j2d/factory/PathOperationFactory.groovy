@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.operations.PathGraphicsOperation
+import groovy.swing.j2d.operations.shapes.PathGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

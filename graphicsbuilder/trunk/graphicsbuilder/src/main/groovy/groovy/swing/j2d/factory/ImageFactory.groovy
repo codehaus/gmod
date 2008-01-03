@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.Grouping
-import groovy.swing.j2d.operations.ImageGraphicsOperation
+import groovy.swing.j2d.operations.Grouping
+import groovy.swing.j2d.operations.misc.ImageGraphicsOperation
 
 import java.awt.Image
 
@@ -41,10 +41,4 @@ public class ImageFactory extends AbstractGraphicsOperationFactory {
           throw new IllegalArgumentException("image() can only be nested in group()")
        }
     }
-
-    /*
-    public boolean isLeaf(){
-        return false
-    }
-    */
 }

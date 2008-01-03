@@ -28,6 +28,7 @@ import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import javax.swing.JPanel
 import groovy.swing.j2d.event.*
+import groovy.swing.j2d.operations.ShapeProvider
 
 /**
  * A Panel that can use a GraphicsOperation to draw itself.

@@ -16,16 +16,16 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.ExtPathOperationFactory
-import groovy.swing.j2d.operations.ArcToExtPathOperation
-import groovy.swing.j2d.operations.MoveToExtPathOperation
-import groovy.swing.j2d.operations.LineToExtPathOperation
-import groovy.swing.j2d.operations.QuadToExtPathOperation
-import groovy.swing.j2d.operations.CurveToExtPathOperation
-import groovy.swing.j2d.operations.HLineExtPathOperation
-import groovy.swing.j2d.operations.VLineExtPathOperation
-import groovy.swing.j2d.operations.ShapeExtPathOperation
-import groovy.swing.j2d.operations.CloseExtPathOperation
-import groovy.swing.j2d.operations.ExtPathGraphicsOperation
+import groovy.swing.j2d.operations.shapes.ExtPathGraphicsOperation
+import groovy.swing.j2d.operations.shapes.path.ArcToExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.MoveToExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.LineToExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.QuadToExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.CurveToExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.HLineExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.VLineExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.ShapeExtPathOperation
+import groovy.swing.j2d.operations.shapes.path.CloseExtPathOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

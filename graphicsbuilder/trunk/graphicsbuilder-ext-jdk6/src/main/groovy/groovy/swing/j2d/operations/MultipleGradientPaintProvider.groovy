@@ -15,8 +15,6 @@
 
 package groovy.swing.j2d.operations
 
-import groovy.swing.j2d.PaintProvider
-
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */

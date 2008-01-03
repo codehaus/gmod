@@ -16,9 +16,9 @@
 package groovy.swing.j2d.factory
 
 import java.awt.Shape
-import groovy.swing.j2d.OutlineProvider
-import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.operations.DrawGraphicsOperation
+import groovy.swing.j2d.operations.OutlineProvider
+import groovy.swing.j2d.operations.ShapeProvider
+import groovy.swing.j2d.operations.misc.DrawGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

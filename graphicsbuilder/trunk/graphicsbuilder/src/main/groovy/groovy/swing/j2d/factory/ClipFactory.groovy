@@ -16,9 +16,9 @@
 package groovy.swing.j2d.factory
 
 import java.awt.Shape
-import groovy.swing.j2d.Grouping
-import groovy.swing.j2d.ShapeProvider
-import groovy.swing.j2d.operations.ClipGraphicsOperation
+import groovy.swing.j2d.operations.Grouping
+import groovy.swing.j2d.operations.ShapeProvider
+import groovy.swing.j2d.operations.misc.ClipGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

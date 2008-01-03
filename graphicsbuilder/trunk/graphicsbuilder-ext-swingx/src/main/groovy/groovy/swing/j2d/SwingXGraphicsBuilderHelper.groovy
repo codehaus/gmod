@@ -16,8 +16,8 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.TimingFrameworkFactory
-import groovy.swing.j2d.operations.MorphGraphicsOperation
-import groovy.swing.j2d.operations.StarGraphicsOperation
+import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
+import groovy.swing.j2d.operations.shapes.StarGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

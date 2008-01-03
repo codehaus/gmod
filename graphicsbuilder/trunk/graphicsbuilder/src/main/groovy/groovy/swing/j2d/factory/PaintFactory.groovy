@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.operations.PaintGraphicsOperation
-import groovy.swing.j2d.PaintProvider
+import groovy.swing.j2d.operations.PaintProvider
+import groovy.swing.j2d.operations.paints.PaintGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

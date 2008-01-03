@@ -16,8 +16,8 @@
 package groovy.swing.j2d.factory
 
 import java.awt.Shape
-import groovy.swing.j2d.Transformable
-import groovy.swing.j2d.impl.TransformationGroup
+import groovy.swing.j2d.operations.Transformable
+import groovy.swing.j2d.operations.TransformationGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

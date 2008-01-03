@@ -15,11 +15,10 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.Grouping
-import groovy.swing.j2d.OutlineProvider
-import groovy.swing.j2d.ShapeProvider
-
-import groovy.swing.j2d.impl.ComposableStroke
+import groovy.swing.j2d.operations.Grouping
+import groovy.swing.j2d.operations.OutlineProvider
+import groovy.swing.j2d.operations.ShapeProvider
+import groovy.swing.j2d.operations.strokes.ComposableStroke
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

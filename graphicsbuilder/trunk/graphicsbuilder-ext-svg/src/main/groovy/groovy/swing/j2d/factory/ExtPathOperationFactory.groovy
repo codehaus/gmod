@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.operations.ExtPathGraphicsOperation
+import groovy.swing.j2d.operations.shapes.ExtPathGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
