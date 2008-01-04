@@ -16,6 +16,7 @@
 package groovy.swing.j2d.operations.misc
 
 import java.awt.Shape
+import java.awt.geom.AffineTransform
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.OutlineProvider
@@ -35,16 +36,25 @@ public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
 
     public Shape getShape( GraphicsContext context) {
+        def s = null
         if( shape instanceof ShapeProvider || shape instanceof OutlineProvider ){
-           return shape.getLocallyTransformedShape(context)
+           s = shape.getLocallyTransformedShape(context)
         }else if( shape instanceof Shape ){
-           return shape
+           s = shape
+        }else{
+           throw new IllegalArgumentException("draw.shape must be one of [java.awt.Shape,OutlineProvider,ShapeProvider]")
         }
-        throw new IllegalArgumentException("draw.shape must be one of [java.awt.Shape,OutlineProvider,ShapeProvider]")
+
+        // translate to world origin
+        def bounds = s.bounds
+        if( bounds.x != 0 || bounds.y != 0 ){
+           s = AffineTransform.getTranslateInstance( bounds.x*(-1), bounds.y*(-1)).createTransformedShape(s)
+        }
+        return s
     }
 
-    protected void fill( GraphicsContext context ) {
-        if( shape instanceof OutlineProvider ) return
-        super.fill( context )
+    protected void fill( GraphicsContext context, Shape shape ) {
+        if( this.shape instanceof OutlineProvider ) return
+        super.fill( context, shape )
     }
 }
