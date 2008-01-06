@@ -48,13 +48,8 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
    }
 
    public void propertyChange( PropertyChangeEvent event ){
-      if( start == event.source && start.required.contains(event.propertyName) ){
-         morphedShape = null
-      }else if( end == event.source && end.required.contains(event.propertyName) ){
-         morphedShape = null
-      }else if( event.propertyName == "morph" ){
-         morphedShape = null
-      }
+      morphedShape = null
+      super.propertyChange( event )
    }
 
    private void calculateMorphedShape( GraphicsContext context ) {

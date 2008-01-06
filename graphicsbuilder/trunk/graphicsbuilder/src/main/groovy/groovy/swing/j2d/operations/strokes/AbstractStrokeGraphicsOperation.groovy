@@ -53,6 +53,7 @@ abstract class AbstractStrokeGraphicsOperation extends AbstractGraphicsOperation
 
     public void propertyChange( PropertyChangeEvent event ){
        stroke = null
+       super.propertyChange( event )
     }
 
     protected abstract Stroke createStroke()

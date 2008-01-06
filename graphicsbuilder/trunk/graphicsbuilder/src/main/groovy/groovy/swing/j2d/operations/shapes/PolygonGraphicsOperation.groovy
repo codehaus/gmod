@@ -36,6 +36,7 @@ public class PolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public void propertyChange( PropertyChangeEvent event ){
        polygon = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

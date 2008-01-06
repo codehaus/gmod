@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.Cross
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = ['cx','cy','radius']
-    public static optional = ['width','angle']
+    public static required = super.required + ['cx','cy','radius']
+    public static optional = super.optional + ['width','angle']
 
     private Cross cross
 
@@ -41,6 +41,7 @@ public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public void propertyChange( PropertyChangeEvent event ){
        cross = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

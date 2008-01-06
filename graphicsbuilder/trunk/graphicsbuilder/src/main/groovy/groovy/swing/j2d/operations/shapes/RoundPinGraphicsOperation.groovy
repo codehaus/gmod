@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.RoundPin
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RoundPinGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = ['cx','cy','radius']
-    public static optional = ['height','angle']
+    public static required = super.required + ['cx','cy','radius']
+    public static optional = super.optional + ['height','angle']
 
     private RoundPin pin
 
@@ -41,6 +41,7 @@ public class RoundPinGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public void propertyChange( PropertyChangeEvent event ){
        pin = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

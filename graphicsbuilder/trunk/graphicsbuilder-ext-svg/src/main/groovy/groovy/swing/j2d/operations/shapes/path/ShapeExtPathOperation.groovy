@@ -40,6 +40,7 @@ class ShapeExtPathOperation extends AbstractExtPathOperation {
        if( shape == event.source && event.source.required.contains(event.propertyName) ){
            // TODO signal change
        }
+       super.propertyChange( event )
     }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {

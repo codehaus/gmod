@@ -43,6 +43,7 @@ public class PolylineGraphicsOperation extends AbstractOutlineGraphicsOperation 
 
     public void propertyChange( PropertyChangeEvent event ) {
        path = null
+       super.propertyChange( event )
     }
 
     private void calculatePath() {

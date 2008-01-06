@@ -26,8 +26,8 @@ import groovy.swing.j2d.geom.RegularPolygon
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
-   protected static required = ['cx','cy','or','ir']
-   protected static optional = ['sides','angle']
+   protected static required = super.required + ['cx','cy','or','ir']
+   protected static optional = super.optional + ['sides','angle']
 
    // properties
    def cx = 20
@@ -48,8 +48,9 @@ final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
       shape
    }
 
-   public void propertyChanged( PropertyChangeEvent event ){
+   public void propertyChange( PropertyChangeEvent event ){
       shape = null
+      super.propertyChange( event )
    }
 
    private void calculateShape( GraphicsContext context ){

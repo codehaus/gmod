@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.Rays
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = ['cx','cy','radius','arms']
-    public static optional = ['angle']
+    public static required = super.required + ['cx','cy','radius','arms']
+    public static optional = super.optional + ['angle']
 
     private Rays rays
 
@@ -41,6 +41,7 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public void propertyChange( PropertyChangeEvent event ){
        rays = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

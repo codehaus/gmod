@@ -91,6 +91,7 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     public void propertyChange( PropertyChangeEvent event ){
        // TODO review for fine-grain detail
        paint = null
+       super.propertyChange( event )
     }
 
     public Image getImageObj( GraphicsContext context ) {

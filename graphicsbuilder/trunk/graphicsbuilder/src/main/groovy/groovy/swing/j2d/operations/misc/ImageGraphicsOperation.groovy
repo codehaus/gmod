@@ -58,6 +58,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        imageObj = null
        locallyTransformedImage = null
        globallyTransformedImage = null
+       super.propertyChange( event )
     }
 
     public Image getImageObj( GraphicsContext context ) {

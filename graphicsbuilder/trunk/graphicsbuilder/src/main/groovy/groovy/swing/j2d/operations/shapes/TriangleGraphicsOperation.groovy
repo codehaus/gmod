@@ -26,7 +26,7 @@ import static java.lang.Math.*
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = ['x1','y1','x2','y2']
+    public static required = super.required + ['x1','y1','x2','y2']
     public static optional = super.optional + ['height','rightAngleOn']
 
     private GeneralPath triangle
@@ -46,6 +46,7 @@ final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public void propertyChange( PropertyChangeEvent event ){
        triangle = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

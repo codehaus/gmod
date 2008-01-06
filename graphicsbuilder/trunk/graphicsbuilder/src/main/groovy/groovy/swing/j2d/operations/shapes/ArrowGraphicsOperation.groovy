@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.Arrow
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = ['x','y','width','height']
-    public static optional = ['depth','rise']
+    public static required = super.required + ['x','y','width','height']
+    public static optional = super.optional + ['depth','rise']
 
     private Arrow arrow
 
@@ -42,6 +42,7 @@ public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     public void propertyChange( PropertyChangeEvent event ){
        arrow = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

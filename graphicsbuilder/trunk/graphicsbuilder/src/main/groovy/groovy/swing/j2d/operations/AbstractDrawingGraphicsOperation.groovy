@@ -60,17 +60,17 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     public abstract Shape getShape( GraphicsContext context )
 
     public Shape getLocallyTransformedShape( GraphicsContext context ){
-       if( !locallyTransformedShape ){
+       if( !this.@locallyTransformedShape ){
           calculateLocallyTransformedShape( context )
        }
-       return locallyTransformedShape
+       return this.@locallyTransformedShape
     }
 
     public Shape getGloballyTransformedShape( GraphicsContext context ){
-       if( !globallyTransformedShape ){
+       if( !this.@globallyTransformedShape ){
           calculateGloballyTransformedShape( context )
        }
-       return globallyTransformedShape
+       return this.@globallyTransformedShape
     }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
@@ -102,8 +102,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
-       locallyTransformedShape = null
-       globallyTransformedShape = null
+       this.@locallyTransformedShape = null
+       this.@globallyTransformedShape = null
        image = null
     }
 
@@ -227,7 +227,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
        return paint
     }
-    
+
     public def getBorderPaint(){
        def paint = null
        operations.each { o ->
@@ -273,7 +273,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
 
        def bp = getBorderPaint()
-       
+
        // short-circuit
        // don't draw the shape if borderColor == false
        if( bc instanceof Boolean && !bc && !bp ){

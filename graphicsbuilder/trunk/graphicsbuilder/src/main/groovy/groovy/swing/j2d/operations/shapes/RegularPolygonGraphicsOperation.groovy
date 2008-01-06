@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.RegularPolygon
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RegularPolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = ['cx','cy','radius','sides']
-    public static optional = ['angle']
+    public static required = super.required + ['cx','cy','radius','sides']
+    public static optional = super.optional + ['angle']
 
     private RegularPolygon polygon
 
@@ -41,13 +41,14 @@ public class RegularPolygonGraphicsOperation extends AbstractShapeGraphicsOperat
 
     public void propertyChange( PropertyChangeEvent event ){
        polygon = null
+       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {
        if( polygon == null ){
           calculatePolygon()
        }
-       polygon
+       return polygon
     }
 
     private void calculatePolygon() {
