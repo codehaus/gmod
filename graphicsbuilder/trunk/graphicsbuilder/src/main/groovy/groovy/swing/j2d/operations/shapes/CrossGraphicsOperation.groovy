@@ -25,7 +25,7 @@ import groovy.swing.j2d.geom.Cross
  */
 public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = super.required + ['cx','cy','radius']
-    public static optional = super.optional + ['width','angle']
+    public static optional = super.optional + ['width','angle','roundness']
 
     private Cross cross
 
@@ -34,6 +34,7 @@ public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
     def radius = 5
     def width
     def angle
+    def roundness
 
     public CrossGraphicsOperation() {
         super( "cross" )
@@ -54,10 +55,12 @@ public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
     private void calculateCross() {
        def w = width != null ? width : radius * 3 / 5
        def a = angle != null ? angle : 0
+       def n = roundness != null ? roundness : 0
        cross = new Cross( cx as double,
                            cy as double,
                            radius as double,
                            w as double,
-                           a as double )
+                           a as double,
+                           n as double )
     }
 }

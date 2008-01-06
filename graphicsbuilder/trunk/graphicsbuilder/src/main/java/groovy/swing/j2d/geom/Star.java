@@ -26,36 +26,48 @@ import java.awt.geom.Rectangle2D;
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class RegularPolygon implements Shape, Cloneable {
+public class Star implements Shape, Cloneable {
    private double angle;
+   private int count;
    private double cx;
    private double cy;
+   private double ir;
+   private double or;
    private GeneralPath path;
    private Point2D[] points;
-   private double radius;
-   private int sides;
 
-   public RegularPolygon( double cx, double cy, double radius, int sides ) {
-      this( cx, cy, radius, sides, 0 );
+   public Star( double cx, double cy, double or, double ir, int count ) {
+      this( cx, cy, or, ir, count, 0 );
    }
 
-   public RegularPolygon( double cx, double cy, double radius, int sides, double angle ) {
-      if( sides < 3 ){
-         throw new IllegalArgumentException( "sides can not be less than 3" );
-      }
+   public Star( double cx, double cy, double or, double ir, int count, double angle ) {
       if( angle < 0 || angle > 360 ){
-         throw new IllegalArgumentException( "angle can not be less than 0 or greater than 360" );
+         throw new IllegalArgumentException(
+               "'angle' can not be less than 0 or greater than 360 [angle=" + angle + "]" );
       }
+      if( ir >= or ){
+         throw new IllegalArgumentException( "'ir' can not be equal greater than 'or' [ir=" + ir
+               + ", or=" + or + "]" );
+      }
+      if( ir < 0 || or < 0 ){
+         throw new IllegalArgumentException( "radiuses can not be less than zero [ir=" + ir
+               + ", or=" + or + "]" );
+      }
+      if( count < 2 ){
+         throw new IllegalArgumentException( "'count' can not be less than 2 [count=" + count + "]" );
+      }
+
       this.cx = cx;
       this.cy = cy;
-      this.radius = radius;
-      this.sides = sides;
+      this.or = or;
+      this.ir = ir;
+      this.count = count;
       this.angle = angle;
       calculatePath();
    }
 
    public Object clone() {
-      return new RegularPolygon( cx, cy, radius, sides, angle );
+      return new Star( cx, cy, or, ir, count, angle );
    }
 
    public boolean contains( double x, double y ) {
@@ -82,6 +94,10 @@ public class RegularPolygon implements Shape, Cloneable {
       return path.getBounds2D();
    }
 
+   public int getCount() {
+      return count;
+   }
+
    public double getCx() {
       return cx;
    }
@@ -103,11 +119,7 @@ public class RegularPolygon implements Shape, Cloneable {
    }
 
    public double getRadius() {
-      return radius;
-   }
-
-   public int getSides() {
-      return sides;
+      return or;
    }
 
    public boolean intersects( double x, double y, double w, double h ) {
@@ -119,35 +131,59 @@ public class RegularPolygon implements Shape, Cloneable {
    }
 
    private void calculatePath() {
-      double t = 360 / sides;
-      double a = angle;
-      points = new Point2D[sides];
+      double t = 360 / count;
+      double a = angle + 90;
+      double b = angle + 90 + (t / 2);
+      points = new Point2D[count * 2];
       path = new GeneralPath();
-      for( int i = 0; i < sides; i++ ){
+      for( int i = 0; i < count; i++ ){
          double ra = Math.toRadians( a );
-         double x = Math.abs( radius * Math.cos( ra ) );
-         double y = Math.abs( radius * Math.sin( ra ) );
+         double ox = Math.abs( or * Math.cos( ra ) );
+         double oy = Math.abs( or * Math.sin( ra ) );
          if( a <= 90 ){
-            x = cx + x;
-            y = cy - y;
+            ox = cx + ox;
+            oy = cy - oy;
          }else if( a <= 180 ){
-            x = cx - x;
-            y = cy - y;
+            ox = cx - ox;
+            oy = cy - oy;
          }else if( a <= 270 ){
-            x = cx - x;
-            y = cy + y;
+            ox = cx - ox;
+            oy = cy + oy;
          }else if( a <= 360 ){
-            x = cx + x;
-            y = cy + y;
+            ox = cx + ox;
+            oy = cy + oy;
          }
+
+         double rb = Math.toRadians( b );
+         double ix = Math.abs( ir * Math.cos( rb ) );
+         double iy = Math.abs( ir * Math.sin( rb ) );
+         if( b <= 90 ){
+            ix = cx + ix;
+            iy = cy - iy;
+         }else if( b <= 180 ){
+            ix = cx - ix;
+            iy = cy - iy;
+         }else if( b <= 270 ){
+            ix = cx - ix;
+            iy = cy + iy;
+         }else if( b <= 360 ){
+            ix = cx + ix;
+            iy = cy + iy;
+         }
+
          if( i == 0 ){
-            path.moveTo( x, y );
+            path.moveTo( ox, oy );
+            path.lineTo( ix, iy );
          }else{
-            path.lineTo( x, y );
+            path.lineTo( ox, oy );
+            path.lineTo( ix, iy );
          }
-         points[i] = new Point2D.Double( x, y );
+         points[2 * i] = new Point2D.Double( ox, oy );
+         points[(2 * i) + 1] = new Point2D.Double( ix, iy );
          a += t;
          a = a > 360 ? a - 360 : a;
+         b += t;
+         b = b > 360 ? b - 360 : b;
       }
       path.closePath();
    }

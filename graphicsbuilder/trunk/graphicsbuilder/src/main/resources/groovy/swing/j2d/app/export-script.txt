@@ -1,9 +1,10 @@
 import java.awt.*
 import java.awt.geom.*
 import javax.swing.*
-//import org.jdesktop.swingx.geom.*
+import org.jdesktop.swingx.geom.*
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
+import groovy.swing.j2d.geom.*
 
 def gb = new GraphicsBuilder()
 def helpers = ["Jdk6GraphicsBuilderHelper",

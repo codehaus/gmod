@@ -19,6 +19,7 @@ import java.awt.Shape
 import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.geom.Triangle
 
 import static java.lang.Math.*
 
@@ -26,19 +27,18 @@ import static java.lang.Math.*
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['x1','y1','x2','y2']
-    public static optional = super.optional + ['height','rightAngleOn']
+    public static required = super.required + ['x','y','width']
+    public static optional = super.optional + ['height','rightAngleAt','angle','rotateAtCenter']
 
-    private GeneralPath triangle
-    private def x3
-    private def y3
+    private Triangle triangle
 
-    def x1 = 10
-    def y1 = 10
-    def x2 = 0
-    def y2 = 10
+    def x = 0
+    def y = 0
+    def width = 10
     def height
-    def rightAngleOn
+    def rightAngleAt
+    def angle
+    def rotateAtCenter
 
     public TriangleGraphicsOperation() {
         super( "triangle" )
@@ -57,199 +57,61 @@ final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
 
     private void calculateTriangle() {
-       if( rightAngleOn && (!'right'.equals(rightAngleOn) && !'left'.equals(rightAngleOn))){
-          throw new IllegalArgumentException("triangle.rightAngleOn must be either 'right' or 'left'.")
-       }
-
-       if( rightAngleOn ){
+       if( rightAngleAt ){
           calculateRightTriangle()
        }else if( height ){
-          calculateIsocelesTriangle()
+          calculateIsoscelesTriangle()
        }else{
           calculateEquilateralTriangle()
        }
-       triangle = new GeneralPath()
-       triangle.moveTo(x1 as double, y1 as double)
-       triangle.lineTo(x2 as double, y2 as double)
-       triangle.lineTo(x3 as double, y3 as double)
-       triangle.closePath()
     }
 
     private void calculateEquilateralTriangle(){
-       def dx = x2 - x1
-       def dy = y2 - y1
-
-       if( dy == 0 ){
-          def h = abs(sqrt(3)/2*dx)
-          if( dx > 0 ){
-             x3 = x1 + (dx/2)
-             y3 = y1 - h
-          }else{
-             x3 = x1 + (dx/2)
-             y3 = y1 + h
-          }
-          return
-       }
-
-       if( dx == 0 ){
-          def h = abs(sqrt(3)/2*dy)
-          if( dy > 0 ){
-             x3 = x1 + h
-             y3 = y1 + (dy/2)
-          }else{
-             x3 = x1 - h
-             y3 = y1 + (dy/2)
-          }
-          return
-       }
-
-       def base = sqrt(pow(dx,2)+pow(dy,2))
-       def h = sqrt(3)/2*base
-       def m = dy/dx
-       def t = toRadians(90 - toDegrees(atan(m)))
-       if( dx > 0 && dy > 0 ){
-          x3 = x1 + (dx/2) + abs(h*cos(t))
-          y3 = y1 + (dy/2) - abs(h*sin(t))
-       }else if( dx > 0 && dy < 0 ){
-          x3 = x1 + (dx/2) - abs(h*cos(t))
-          y3 = y1 + (dy/2) - abs(h*sin(t))
-       }else if( dx < 0 && dy > 0 ){
-          x3 = x1 + (dx/2) + abs(h*cos(t))
-          y3 = y1 + (dy/2) + abs(h*sin(t))
-       }else{
-          x3 = x1 + (dx/2) - abs(h*cos(t))
-          y3 = y1 + (dy/2) + abs(h*sin(t))
-       }
+       def a = angle != null ? angle : 0
+       triangle = new Triangle( x as double,
+                                y as double,
+                                width as double,
+                                a as double,
+                                rotateAtCenter ? true : false )
     }
 
-    private void calculateIsocelesTriangle(){
-       def dx = x2 - x1
-       def dy = y2 - y1
-
-       if( dy == 0 ){
-          if( dx > 0 ){
-             x3 = x1 + (dx/2)
-             y3 = y1 - abs(height)
-          }else{
-             x3 = x1 + (dx/2)
-             y3 = y1 + abs(height)
-          }
-          return
-       }
-
-       if( dx == 0 ){
-          if( dy > 0 ){
-             x3 = x1 + abs(height)
-             y3 = y1 + (dy/2)
-          }else{
-             x3 = x1 - abs(height)
-             y3 = y1 + (dy/2)
-          }
-          return
-       }
-
-       def base = sqrt(pow(dx,2)+pow(dy,2))
-       def m = dy/dx
-       def t = toRadians(90 - toDegrees(atan(m)))
-       if( dx >= 0 && dy >= 0 ){
-          x3 = x1 + (dx/2) + abs(height*cos(t))
-          y3 = y1 + (dy/2) - abs(height*sin(t))
-       }else if( dx >= 0 && dy < 0 ){
-          x3 = x1 + (dx/2) - abs(height*cos(t))
-          y3 = y1 + (dy/2) - abs(height*sin(t))
-       }else if( dx < 0 && dy >= 0 ){
-          x3 = x1 + (dx/2) + abs(height*cos(t))
-          y3 = y1 + (dy/2) + abs(height*sin(t))
-       }else{
-          x3 = x1 + (dx/2) - abs(height*cos(t))
-          y3 = y1 + (dy/2) + abs(height*sin(t))
-       }
+    private void calculateIsoscelesTriangle(){
+       def h = height != null ? height : Double.NaN
+       def a = angle != null ? angle : 0
+       triangle = new Triangle( x as double,
+                                y as double,
+                                width as double,
+                                a as double,
+                                h as double,
+                                rotateAtCenter ? true : false )
     }
 
     private void calculateRightTriangle(){
-       def dx = x2 - x1
-       def dy = y2 - y1
-
-       if( dy == 0 ){
-          def h = height ? abs(height) : abs(sqrt(3)/2*dx)
-          if( dx > 0 ){
-             if( 'left'.equals(rightAngleOn) ){
-                x3 = x1
-                y3 = y1 - h
-             }else{
-                x3 = x2
-                y3 = y1 - h
-             }
-          }else{
-             if( 'left'.equals(rightAngleOn) ){
-                x3 = x2
-                y3 = y1 + h
-             }else{
-                x3 = x1
-                y3 = y1 + h
-             }
-          }
-          return
+       def ap = null
+       switch( rightAngleAt ){
+          case Triangle.ANGLE_AT_START:
+          case Triangle.ANGLE_AT_END:
+             ap = rightAngleAt
+             break
+          case 'start':
+             ap = Triangle.ANGLE_AT_START
+             break
+          case 'end':
+             ap = Triangle.ANGLE_AT_END
+             break
+          default:
+             throw new IllegalArgumentException("rightAngleAt must be one of ['start','end',"+
+                          "Triangle.ANGLE_AT_START,Triangle.ANGLE_AT_END]")
        }
 
-       if( dx == 0 ){
-          def h = height ? abs(height) : abs(sqrt(3)/2*dy)
-          if( dy > 0 ){
-             if( 'left'.equals(rightAngleOn) ){
-                x3 = x1 + h
-                y3 = y1
-             }else{
-                x3 = x1 + h
-                y3 = y2
-             }
-          }else{
-             if( 'left'.equals(rightAngleOn) ){
-                x3 = x1 - h
-                y3 = y1
-             }else{
-                x3 = x1 - h
-                y3 = y2
-             }
-          }
-          return
-       }
-
-       def base = sqrt(pow(dx,2)+pow(dy,2))
-       def h = height ? height : sqrt(3)/2*base
-       def m = dy/dx
-       def t = toRadians(90 - toDegrees(atan(m)))
-       if( dx >= 0 && dy >= 0 ){
-          if( 'left'.equals(rightAngleOn) ){
-             x3 = x1 + abs(h*cos(t))
-             y3 = y1 - abs(h*sin(t))
-          }else{
-             x3 = x2 + abs(h*cos(t))
-             y3 = y2 - abs(h*sin(t))
-          }
-       }else if( dx >= 0 && dy < 0 ){
-          if( 'left'.equals(rightAngleOn) ){
-             x3 = x1 - abs(h*cos(t))
-             y3 = y1 - abs(h*sin(t))
-          }else{
-             x3 = x2 - abs(h*cos(t))
-             y3 = y2 - abs(h*sin(t))
-          }
-       }else if( dx < 0 && dy >= 0 ){
-          if( 'left'.equals(rightAngleOn) ){
-             x3 = x1 + abs(h*cos(t))
-             y3 = y1 + abs(h*sin(t))
-          }else{
-             x3 = x2 + abs(h*cos(t))
-             y3 = y2 + abs(h*sin(t))
-          }
-       }else{
-          if( 'left'.equals(rightAngleOn) ){
-             x3 = x1 - abs(h*cos(t))
-             y3 = y1 + abs(h*sin(t))
-          }else{
-             x3 = x2 - abs(h*cos(t))
-             y3 = y2 + abs(h*sin(t))
-          }
-       }
+       def h = height != null ? height : Double.NaN
+       def a = angle != null ? angle : 0
+       triangle = new Triangle( x as double,
+                                y as double,
+                                width as double,
+                                a as double,
+                                ap,
+                                h as double,
+                                rotateAtCenter ? true : false )
     }
 }

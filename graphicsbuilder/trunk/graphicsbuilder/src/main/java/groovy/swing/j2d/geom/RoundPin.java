@@ -69,6 +69,10 @@ public class RoundPin implements Shape, Cloneable {
       return pin.contains( r );
    }
 
+   public double getAngle() {
+      return angle;
+   }
+
    public Rectangle getBounds() {
       return pin.getBounds();
    }
@@ -77,12 +81,28 @@ public class RoundPin implements Shape, Cloneable {
       return pin.getBounds2D();
    }
 
+   public double getCx() {
+      return cx;
+   }
+
+   public double getCy() {
+      return cy;
+   }
+
+   public double getHeight() {
+      return height;
+   }
+
    public PathIterator getPathIterator( AffineTransform at ) {
       return pin.getPathIterator( at );
    }
 
    public PathIterator getPathIterator( AffineTransform at, double flatness ) {
       return pin.getPathIterator( at, flatness );
+   }
+
+   public double getRadius() {
+      return radius;
    }
 
    public boolean intersects( double x, double y, double w, double h ) {

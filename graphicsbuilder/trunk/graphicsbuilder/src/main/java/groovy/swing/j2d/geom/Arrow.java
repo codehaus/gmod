@@ -28,7 +28,8 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Arrow implements Shape, Cloneable {
-   private Area area;
+   private double angle;
+   private Shape arrow;
    private double depth;
    private double height;
    private double rise;
@@ -37,16 +38,24 @@ public class Arrow implements Shape, Cloneable {
    private double y;
 
    public Arrow( double x, double y, double width, double height ) {
-      this( x, y, width, height, height / 4, width / 2 );
+      this( x, y, width, height, height / 4, width / 2, 0 );
+   }
+
+   public Arrow( double x, double y, double width, double height, double angle ) {
+      this( x, y, width, height, height / 4, width / 2, angle );
    }
 
    public Arrow( double x, double y, double width, double height, double rise, double depth ) {
-      if( depth >= width ){
-         throw new IllegalArgumentException( "depth can not be equal or greater than width" );
+      this( x, y, width, height, rise, depth, 0 );
+   }
+
+   public Arrow( double x, double y, double width, double height, double rise, double depth,
+         double angle ) {
+      if( depth < 0 || depth > 1 ){
+         throw new IllegalArgumentException( "depth must be inside the range [0..1]" );
       }
-      if( rise > height / 2 ){
-         throw new IllegalArgumentException( "rise can not be greater than height/2 ("
-               + (height / 2) + ")" );
+      if( rise < 0 || rise > 1 ){
+         throw new IllegalArgumentException( "rise must be inside the range [0..1]" );
       }
       this.x = x;
       this.y = y;
@@ -54,60 +63,97 @@ public class Arrow implements Shape, Cloneable {
       this.height = height;
       this.rise = rise;
       this.depth = depth;
+      this.angle = angle;
       calculateArrow();
    }
 
    public Object clone() {
-      return new Arrow( x, y, width, height, rise, depth );
+      return new Arrow( x, y, width, height, rise, depth, angle );
    }
 
    public boolean contains( double x, double y ) {
-      return area.contains( x, y );
+      return arrow.contains( x, y );
    }
 
    public boolean contains( double x, double y, double w, double h ) {
-      return area.contains( x, y, w, h );
+      return arrow.contains( x, y, w, h );
    }
 
    public boolean contains( Point2D p ) {
-      return area.contains( p );
+      return arrow.contains( p );
    }
 
    public boolean contains( Rectangle2D r ) {
-      return area.contains( r );
+      return arrow.contains( r );
+   }
+
+   public double getAngle() {
+      return angle;
    }
 
    public Rectangle getBounds() {
-      return area.getBounds();
+      return arrow.getBounds();
    }
 
    public Rectangle2D getBounds2D() {
-      return area.getBounds2D();
+      return arrow.getBounds2D();
+   }
+
+   public double getDepth() {
+      return depth;
+   }
+
+   public double getHeight() {
+      return height;
    }
 
    public PathIterator getPathIterator( AffineTransform at ) {
-      return area.getPathIterator( at );
+      return arrow.getPathIterator( at );
    }
 
    public PathIterator getPathIterator( AffineTransform at, double flatness ) {
-      return area.getPathIterator( at, flatness );
+      return arrow.getPathIterator( at, flatness );
+   }
+
+   public double getRise() {
+      return rise;
+   }
+
+   public double getWidth() {
+      return width;
+   }
+
+   public double getX() {
+      return x;
+   }
+
+   public double getY() {
+      return y;
    }
 
    public boolean intersects( double x, double y, double w, double h ) {
-      return area.intersects( x, y, w, h );
+      return arrow.intersects( x, y, w, h );
    }
 
    public boolean intersects( Rectangle2D r ) {
-      return area.intersects( r );
+      return arrow.intersects( r );
    }
 
    private void calculateArrow() {
+      double d = width * depth;
+      double r = height * rise / 2;
       GeneralPath head = new GeneralPath();
-      head.moveTo( x + depth, y );
-      head.lineTo( x + depth, y + height );
+      head.moveTo( x + d, y );
+      head.lineTo( x + d, y + height );
       head.lineTo( x + width, y + (height / 2) );
       head.closePath();
-      area = new Area( new Rectangle2D.Double( x, y + (height / 2) - rise, depth, rise * 2 ) );
-      area.add( new Area( head ) );
+      arrow = new Area( new Rectangle2D.Double( x, y + (height / 2) - r, d, r * 2 ) );
+      ((Area) arrow).add( new Area( head ) );
+
+      if( angle > 0 ){
+         arrow = AffineTransform.getRotateInstance( Math.toRadians( 360 - angle ), x + (width / 2),
+               y + (height / 2) )
+               .createTransformedShape( arrow );
+      }
    }
 }

@@ -18,44 +18,46 @@ package groovy.swing.j2d.operations.shapes
 import java.awt.Shape
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.geom.Rays
+import groovy.swing.j2d.geom.Star
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['cx','cy','radius','rays']
-    public static optional = super.optional + ['angle']
+public class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
+    public static required = super.required + ['cx','cy','or','ir']
+    public static optional = super.optional + ['angle','count']
 
-    private Rays shape
+    private Star star
 
     def cx = 5
     def cy = 5
-    def radius = 5
-    def rays = 2
+    def or = 8
+    def ir = 3
+    def count = 5
     def angle = 0
 
-    public RaysGraphicsOperation() {
-        super( "rays" )
+    public StarGraphicsOperation() {
+        super( "star" )
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       shape = null
+       star = null
        super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {
-       if( shape == null ){
-          calculateRays()
+       if( star == null ){
+          calculateStar()
        }
-       shape
+       return star
     }
 
-    private void calculateRays() {
-       shape = new Rays( cx as double,
-                          cy as double,
-                          radius as double,
-                          rays as int,
-                          angle as double )
+    private void calculateStar() {
+       star = new Star( cx as double,
+                        cy as double,
+                        or as double,
+                        ir as double,
+                        count as int,
+                        angle as double )
     }
 }

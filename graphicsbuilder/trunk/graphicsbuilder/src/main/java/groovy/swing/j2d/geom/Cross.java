@@ -22,37 +22,47 @@ import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Cross implements Shape, Cloneable {
    private double angle;
+   private Shape cross;
    private double cx;
    private double cy;
-   private Shape cross;
    private double radius;
+   private double roundness;
    private double width;
 
    public Cross( double cx, double cy, double radius, double width ) {
-      this( cx, cy, radius, width, 0 );
+      this( cx, cy, radius, width, 0, 0 );
    }
 
    public Cross( double cx, double cy, double radius, double width, double angle ) {
+      this( cx, cy, radius, width, angle, 0 );
+   }
+
+   public Cross( double cx, double cy, double radius, double width, double angle, double roundness ) {
       if( width > radius * 2 ){
          throw new IllegalArgumentException( "width can not be greater than radius*2 ("
                + (radius * 2) + ")" );
+      }
+      if( roundness < 0 || roundness > 1 ){
+         throw new IllegalArgumentException( "roundness must be inside the range [0..1]" );
       }
       this.cx = cx;
       this.cy = cy;
       this.radius = radius;
       this.width = width;
       this.angle = angle;
+      this.roundness = roundness;
       calculatePath();
    }
 
    public Object clone() {
-      return new Cross( cx, cy, radius, width, angle );
+      return new Cross( cx, cy, radius, width, angle, roundness );
    }
 
    public boolean contains( double x, double y ) {
@@ -71,6 +81,10 @@ public class Cross implements Shape, Cloneable {
       return cross.contains( r );
    }
 
+   public double getAngle() {
+      return angle;
+   }
+
    public Rectangle getBounds() {
       return cross.getBounds();
    }
@@ -79,12 +93,32 @@ public class Cross implements Shape, Cloneable {
       return cross.getBounds2D();
    }
 
+   public double getCx() {
+      return cx;
+   }
+
+   public double getCy() {
+      return cy;
+   }
+
    public PathIterator getPathIterator( AffineTransform at ) {
       return cross.getPathIterator( at );
    }
 
    public PathIterator getPathIterator( AffineTransform at, double flatness ) {
       return cross.getPathIterator( at, flatness );
+   }
+
+   public double getRadius() {
+      return radius;
+   }
+
+   public double getRoundness() {
+      return roundness;
+   }
+
+   public double getWidth() {
+      return width;
    }
 
    public boolean intersects( double x, double y, double w, double h ) {
@@ -96,10 +130,11 @@ public class Cross implements Shape, Cloneable {
    }
 
    private void calculatePath() {
-      Rectangle2D.Double beam1 = new Rectangle2D.Double( cx - radius, cy - (width / 2),
-            radius * 2, width );
-      Rectangle2D.Double beam2 = new Rectangle2D.Double( cx - (width / 2), cy - radius,
-            width, radius * 2 );
+      double arcwh = width * roundness;
+      Shape beam1 = new RoundRectangle2D.Double( cx - radius, cy - (width / 2), radius * 2, width,
+            arcwh, arcwh );
+      Shape beam2 = new RoundRectangle2D.Double( cx - (width / 2), cy - radius, width, radius * 2,
+            arcwh, arcwh );
       cross = new Area( beam1 );
       ((Area) cross).add( new Area( beam2 ) );
       if( angle > 0 ){

@@ -25,7 +25,7 @@ import groovy.swing.j2d.geom.Arrow
  */
 public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = super.required + ['x','y','width','height']
-    public static optional = super.optional + ['depth','rise']
+    public static optional = super.optional + ['depth','rise','angle']
 
     private Arrow arrow
 
@@ -35,6 +35,7 @@ public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
     def height = 6
     def depth
     def rise
+    def angle
 
     public ArrowGraphicsOperation() {
         super( "arrow" )
@@ -53,13 +54,15 @@ public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
 
     private void calculateArrow() {
-       def r = rise != null ? rise : height / 4
-       def d = depth != null ? depth : width / 2
+       def r = rise != null ? rise : 0.5
+       def d = depth != null ? depth : 0.5
+       def a = angle != null ? angle : 0
        arrow = new Arrow( x as double,
                           y as double,
                           width as double,
                           height as double,
                           r as double,
-                          d as double )
+                          d as double,
+                          a as double )
     }
 }

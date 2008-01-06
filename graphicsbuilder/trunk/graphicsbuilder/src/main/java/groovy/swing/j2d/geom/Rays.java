@@ -27,20 +27,20 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Rays implements Shape, Cloneable {
+   private double angle;
    private double cx;
    private double cy;
    private GeneralPath path;
    private double radius;
-   private int arms;
-   private double angle;
+   private int rays;
 
-   public Rays( double cx, double cy, double radius, int arms ) {
-      this( cx, cy, radius, arms, 0 );
+   public Rays( double cx, double cy, double radius, int rays ) {
+      this( cx, cy, radius, rays, 0 );
    }
 
-   public Rays( double cx, double cy, double radius, int arms, double angle ) {
-      if( arms < 2 ){
-         throw new IllegalArgumentException( "arms can not be less than 2" );
+   public Rays( double cx, double cy, double radius, int rays, double angle ) {
+      if( rays < 2 ){
+         throw new IllegalArgumentException( "rays can not be less than 2" );
       }
       if( angle < 0 || angle > 360 ){
          throw new IllegalArgumentException( "angle can not be less than 0 or greater than 360" );
@@ -48,13 +48,13 @@ public class Rays implements Shape, Cloneable {
       this.cx = cx;
       this.cy = cy;
       this.radius = radius;
-      this.arms = arms;
+      this.rays = rays;
       this.angle = angle;
       calculatePath();
    }
 
    public Object clone() {
-      return new Rays( cx, cy, radius, arms, angle );
+      return new Rays( cx, cy, radius, rays, angle );
    }
 
    public boolean contains( double x, double y ) {
@@ -73,6 +73,10 @@ public class Rays implements Shape, Cloneable {
       return path.contains( r );
    }
 
+   public double getAngle() {
+      return angle;
+   }
+
    public Rectangle getBounds() {
       return path.getBounds();
    }
@@ -81,12 +85,28 @@ public class Rays implements Shape, Cloneable {
       return path.getBounds2D();
    }
 
+   public double getCx() {
+      return cx;
+   }
+
+   public double getCy() {
+      return cy;
+   }
+
    public PathIterator getPathIterator( AffineTransform at ) {
       return path.getPathIterator( at );
    }
 
    public PathIterator getPathIterator( AffineTransform at, double flatness ) {
       return path.getPathIterator( at, flatness );
+   }
+
+   public double getRadius() {
+      return radius;
+   }
+
+   public int getRays() {
+      return rays;
    }
 
    public boolean intersects( double x, double y, double w, double h ) {
@@ -98,10 +118,10 @@ public class Rays implements Shape, Cloneable {
    }
 
    private void calculatePath() {
-      double sides = arms * 2;
+      double sides = rays * 2;
       double t = 360 / sides;
       double a = angle;
-      double[][] points = new double[arms * 2][];
+      double[][] points = new double[rays * 2][];
       for( int i = 0; i < sides; i++ ){
          double ra = Math.toRadians( a );
          double x = Math.abs( radius * Math.cos( ra ) );
@@ -124,7 +144,7 @@ public class Rays implements Shape, Cloneable {
          a = a > 360 ? a - 360 : a;
       }
       path = new GeneralPath();
-      for( int i = 0; i < arms; i++ ){
+      for( int i = 0; i < rays; i++ ){
          path.moveTo( cx, cy );
          path.lineTo( points[(2 * i)][0], points[(2 * i)][1] );
          path.lineTo( points[(2 * i) + 1][0], points[(2 * i) + 1][1] );
