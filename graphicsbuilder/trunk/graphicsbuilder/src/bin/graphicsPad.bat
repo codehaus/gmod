@@ -8,7 +8,7 @@ if "%OS%"=="Windows_NT" setlocal
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.\
 
-"%DIRNAME%\startGroovy.bat" "%DIRNAME%" groovy.swing.j2d.GraphicsPad %*
+"%DIRNAME%\startGroovy.bat" "%DIRNAME%" groovy.swing.j2d.app.GraphicsPad %*
 
 @rem End local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" endlocal

@@ -44,18 +44,10 @@ final class GradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
     }
 
     void setProperty( String property, Object value ) {
-       if( property == "color1" || property == "color2" && value instanceof String ){
+       if( property == "color1" || property == "color2" ){
           super.setProperty( property, ColorCache.getInstance().getColor( value ) )
        }else{
           super.setProperty( property, value )
-       }
-    }
-
-    private Color getColor( value ) {
-       if( value instanceof String ){
-          return ColorCache.getInstance().getColor( value )
-       }else if( value instanceof Color ){
-          return value
        }
     }
 }

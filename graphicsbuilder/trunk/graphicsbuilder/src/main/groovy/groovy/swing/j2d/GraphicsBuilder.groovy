@@ -102,6 +102,12 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "rect", RectGraphicsOperation )
         registerGraphicsOperationBeanFactory( "text", TextGraphicsOperation )
         registerGraphicsOperationBeanFactory( "donut", DonutGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "triangle", TriangleGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "regularPolygon", RegularPolygonGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "rays", RaysGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "arrow", ArrowGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "pin", RoundPinGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "cross", CrossGraphicsOperation )
 
         //
         // paths
@@ -151,6 +157,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "multiPaint", MultiPaintGraphicsOperation )
         registerFactory( "paint", new PaintFactory() )
         registerGraphicsOperationBeanFactory( "texturePaint", TexturePaintGraphicsOperation, true )
+        registerFactory( "colorPaint", new ColorPaintFactory() )
 
         //
         // strokes

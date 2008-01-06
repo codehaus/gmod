@@ -34,6 +34,10 @@ public class PolygonGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "polygon" )
     }
 
+    public void propertyChange( PropertyChangeEvent event ){
+       polygon = null
+    }
+
     public Shape getShape( GraphicsContext context ) {
        if( polygon == null ){
           calculatePolygon()

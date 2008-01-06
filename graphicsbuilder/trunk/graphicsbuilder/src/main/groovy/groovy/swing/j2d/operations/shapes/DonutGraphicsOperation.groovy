@@ -20,23 +20,27 @@ import java.awt.geom.Area
 import java.awt.geom.Ellipse2D
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.geom.RegularPolygon
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
    protected static required = ['cx','cy','or','ir']
-   
+   protected static optional = ['sides','angle']
+
    // properties
    def cx = 20
    def cy = 20
    def or = 20
    def ir = 10
+   def sides
+   def angle
 
    private Shape shape
 
-   DonutGraphicsOperation(){ 
-      super("donut") 
+   DonutGraphicsOperation(){
+      super("donut")
    }
 
    public Shape getShape( GraphicsContext context ){
@@ -55,16 +59,44 @@ final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
       if( ir <= 0 || or <= 0 ){
          throw new IllegalArgumentException("donut.[ir|or] can not be equal or less than zero")
       }
-      
-      def outerCircle = new Ellipse2D.Double( (cx - or) as double,
-                                    (cy - or) as double,
-                                    (or * 2) as double,
-                                    (or * 2) as double )
-      def innerCircle = new Ellipse2D.Double( (cx - ir) as double,
-                                    (cy - ir) as double,
-                                    (ir * 2) as double,
-                                    (ir * 2) as double )
-      shape = new Area(outerCircle)
-      shape.subtract(new Area(innerCircle))
+
+      def outerShape
+      def innerShape
+
+      if( sides ){
+         if( angle != null ){
+            outerShape = new RegularPolygon( cx as double,
+                                             cy as double,
+                                             or as double,
+                                             sides as int,
+                                             angle as double )
+            innerShape = new RegularPolygon( cx as double,
+                                             cy as double,
+                                             ir as double,
+                                             sides as int,
+                                             angle as double )
+         }else{
+            outerShape = new RegularPolygon( cx as double,
+                                             cy as double,
+                                             or as double,
+                                             sides as int )
+            innerShape = new RegularPolygon( cx as double,
+                                             cy as double,
+                                             ir as double,
+                                             sides as int )
+         }
+      }else{
+         outerShape = new Ellipse2D.Double( (cx - or) as double,
+                                            (cy - or) as double,
+                                            (or * 2) as double,
+                                            (or * 2) as double )
+         innerShape = new Ellipse2D.Double( (cx - ir) as double,
+                                            (cy - ir) as double,
+                                            (ir * 2) as double,
+                                            (ir * 2) as double )
+      }
+
+      shape = new Area(outerShape)
+      shape.subtract(new Area(innerShape))
    }
 }

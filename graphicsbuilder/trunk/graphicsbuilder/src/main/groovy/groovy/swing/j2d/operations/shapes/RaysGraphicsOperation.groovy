@@ -1,0 +1,60 @@
+/*
+ * Copyright 2007 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ */
+
+package groovy.swing.j2d.operations.shapes
+
+import java.awt.Shape
+import java.beans.PropertyChangeEvent
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.geom.Rays
+
+/**
+ * @author Andres Almiray <aalmiray@users.sourceforge.net>
+ */
+public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
+    public static required = ['cx','cy','radius','arms']
+    public static optional = ['angle']
+
+    private Rays rays
+
+    def cx = 5
+    def cy = 5
+    def radius = 5
+    def arms = 2
+    def angle = 0
+
+    public RaysGraphicsOperation() {
+        super( "rays" )
+    }
+
+    public void propertyChange( PropertyChangeEvent event ){
+       rays = null
+    }
+
+    public Shape getShape( GraphicsContext context ) {
+       if( rays == null ){
+          calculateRays()
+       }
+       rays
+    }
+
+    private void calculateRays() {
+       rays = new Rays( cx as double,
+                          cy as double,
+                          radius as double,
+                          arms as int,
+                          angle as double )
+    }
+}
