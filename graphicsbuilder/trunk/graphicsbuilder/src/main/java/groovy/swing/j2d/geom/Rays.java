@@ -26,7 +26,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class Rays implements Shape, Cloneable {
+public class Rays implements Shape, Cloneable, Centered {
    private double angle;
    private double cx;
    private double cy;

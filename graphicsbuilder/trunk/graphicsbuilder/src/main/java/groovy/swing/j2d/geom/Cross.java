@@ -27,7 +27,7 @@ import java.awt.geom.RoundRectangle2D;
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class Cross implements Shape, Cloneable {
+public class Cross implements Shape, Cloneable, Centered {
    private double angle;
    private Shape cross;
    private double cx;

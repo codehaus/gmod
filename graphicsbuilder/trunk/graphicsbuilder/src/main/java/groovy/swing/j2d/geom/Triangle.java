@@ -26,7 +26,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class Triangle implements Shape, Cloneable {
+public class Triangle implements Shape, Cloneable, Centered {
    public static final int ANGLE_AT_END = 1;
    public static final int ANGLE_AT_START = 0;
 

@@ -37,7 +37,6 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
 
    MorphGraphicsOperation() {
       super( "morph" )
-      addPropertyChangeListener( this )
    }
 
    public Shape getShape( GraphicsContext context ) {

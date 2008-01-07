@@ -26,7 +26,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class Star implements Shape, Cloneable {
+public class Star implements Shape, Cloneable, Centered {
    private double angle;
    private int count;
    private double cx;

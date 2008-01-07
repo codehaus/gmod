@@ -81,8 +81,6 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "draw", new DrawFactory() )
         registerFactory( "font", new FontFactory() )
         registerGraphicsOperationBeanFactory( "group", GroupGraphicsOperation )
-        //registerFactory( "operation", new OperationFactory() )
-        //registerFactory( "outline", new OutlineFactory() )
         registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
         registerFactory( "shape", new ShapeFactory() )
         registerFactory( "bind", new BindFactory() )
@@ -90,6 +88,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "image", new ImageFactory() )
         registerFactory( "color", new ColorFactory() )
         registerFactory( "clip", new ClipFactory() )
+        registerFactory( "antialias", new AntialiasFactory() )
         registerFactory( "\$swing", new SwingFactory() )
 
         //

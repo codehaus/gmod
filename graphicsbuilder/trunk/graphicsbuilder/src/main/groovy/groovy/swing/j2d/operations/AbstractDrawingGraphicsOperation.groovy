@@ -105,6 +105,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        this.@locallyTransformedShape = null
        this.@globallyTransformedShape = null
        image = null
+       super.propertyChange( event )
     }
 
     public BufferedImage asImage( GraphicsContext context ) {
@@ -351,6 +352,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def graphics = image.createGraphics()
        def contextCopy = context.copy()
        graphics.setClip( shape.bounds )
+       graphics.renderingHints = context.g.renderingHints
        /*
        graphics.color = context.g.color
        if( borderColor != null && !(borderColor instanceof Boolean) ){

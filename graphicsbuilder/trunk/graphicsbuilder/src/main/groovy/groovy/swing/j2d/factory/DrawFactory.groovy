@@ -37,10 +37,4 @@ public class DrawFactory extends AbstractGraphicsOperationFactory {
         }
         return go
     }
-
-    /*
-    public boolean isLeaf(){
-        return true
-    }
-    */
 }

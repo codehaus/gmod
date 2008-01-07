@@ -19,16 +19,23 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.event.GraphicsInputEvent
 import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.ShapeProvider
+import groovy.swing.j2d.operations.FilterProvider
+import groovy.swing.j2d.operations.Filterable
 import groovy.swing.j2d.operations.AbstractDrawingGraphicsOperation
 
+import java.awt.AlphaComposite
 import java.awt.Shape
+import java.awt.Transparency
 import java.awt.geom.Area
+import java.awt.geom.AffineTransform
+import java.awt.image.BufferedImage
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGraphicsOperation implements
-   ShapeProvider, GraphicsInputListener {
+   ShapeProvider, GraphicsInputListener, Filterable {
     Closure keyPressed
     Closure keyReleased
     Closure keyTyped
@@ -40,6 +47,9 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
     Closure mousePressed
     Closure mouseReleased
     Closure mouseWheelMoved
+
+    private BufferedImage filteredImage
+    private List filters = []
 
     public AbstractShapeGraphicsOperation( String name ) {
         super( name )
@@ -89,8 +99,31 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        if( mouseWheelMoved ) this.@mouseWheelMoved(e)
     }
 
+    public void propertyChange( PropertyChangeEvent event ) {
+       filteredImage = null
+       super.propertyChange( event )
+    }
+
+    /* ===== FILTERS ===== */
+
+    public void addFilter( FilterProvider filter ){
+       if( !filter ) return
+       filter.addPropertyChangeListener( this )
+       filters << filter
+    }
+
+    public void removeFilter( FilterProvider filter ){
+       if( !filter ) return
+       filter.removePropertyChangeListener( this )
+       filters.remove( filter )
+    }
+
+    public List getFilters(){
+       return Collections.unmodifiableList(filters)
+    }
+
     /* ===== OPERATOR OVERLOADING ===== */
-    
+
     public Shape plus( ShapeProvider shape ){
        return plus( shape.getLocallyTransformedShape(null) )
     }
@@ -99,7 +132,7 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        area.add( new Area(shape) )
        return area
     }
-    
+
     public Shape minus( ShapeProvider shape ){
        return minus( shape.getLocallyTransformedShape(null) )
     }
@@ -108,7 +141,7 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        area.subtract( new Area(shape) )
        return area
     }
-    
+
     public Shape and( ShapeProvider shape ){
        return and( shape.getLocallyTransformedShape(null) )
     }
@@ -117,7 +150,7 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        area.intersect( new Area(shape) )
        return area
     }
-    
+
     public Shape xor( ShapeProvider shape ){
        return xor( shape.getLocallyTransformedShape(null) )
     }
@@ -126,13 +159,86 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        area.exclusiveOr( new Area(shape) )
        return area
     }
-    
+
     /* ===== PROTECTED ===== */
-    
+
+    protected void executeOperation( GraphicsContext context ) {
+       def hasPaint = getPaint()
+       def hasFill = fill
+       if( context.groupContext.fill != null ){
+          hasFill = context.groupContext.fill
+       }
+       if( fill != null ){
+          hasFill = fill
+       }
+
+       // normal execution if
+       // - no filters
+       // - filters but no fill nor paint
+       // - marked asShape = true
+       // TODO review asImage !!!
+       if( filters.isEmpty() || asShape || asImage ||
+           (!filters.isEmpty() && !hasPaint && !hasFill) ){
+          super.executeOperation( context )
+          return
+       }
+       if( filteredImage == null ){
+          calculateFilteredImage( context )
+       }
+       Shape shape = getGloballyTransformedShape(context)
+       def bounds = shape.bounds
+       context.g.drawImage( filteredImage, bounds.x as int, bounds.y as int, null )
+    }
+
     protected void executeAfterAll( GraphicsContext context ) {
        if( !asShape ){
            context.shapes << this
        }
        super.executeAfterAll(context)
+    }
+
+    /* ===== PRIVATE ===== */
+
+    private void calculateFilteredImage( GraphicsContext context ){
+       Shape shape = getGloballyTransformedShape(context)
+       def bounds = shape.bounds
+       BufferedImage src = context.g.deviceConfiguration.createCompatibleImage(
+             bounds.width as int, bounds.height as int, Transparency.BITMASK )
+       shape = AffineTransform.getTranslateInstance( (bounds.x as double)*(-1), (bounds.y as double)*(-1) )
+                              .createTransformedShape(shape)
+       def graphics = src.createGraphics()
+       def contextCopy = context.copy()
+       graphics.setClip( shape.bounds )
+       graphics.renderingHints.putAll( context.g.renderingHints )
+       contextCopy.g = graphics
+
+       def o = opacity
+       if( contextCopy.groupContext?.opacity ){
+          o = contextCopy.groupContext?.opacity
+       }
+       if( opacity != null ){
+          o = opacity
+       }
+
+       if( o != null ){
+          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+       }else{
+          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+       }
+
+       if( operations ){
+          operations.each { op -> executeNestedOperation(contextCopy,op) }
+       }
+
+       fill( contextCopy, shape )
+       draw( contextCopy, shape )
+       graphics.dispose()
+
+       // apply filters
+       BufferedImage dst = src
+       filters.each { filter ->
+          dst = filter.filter( dst, dst )
+       }
+       filteredImage = dst
     }
 }

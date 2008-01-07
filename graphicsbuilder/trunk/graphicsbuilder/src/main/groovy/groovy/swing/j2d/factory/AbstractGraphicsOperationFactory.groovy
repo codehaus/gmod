@@ -22,6 +22,8 @@ import groovy.swing.j2d.operations.MultiPaintProvider
 import groovy.swing.j2d.operations.BorderPaintProvider
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.ShapeProvider
+import groovy.swing.j2d.operations.Filterable
+import groovy.swing.j2d.operations.FilterProvider
 import groovy.swing.j2d.operations.misc.GroupGraphicsOperation
 import groovy.swing.j2d.operations.shapes.AreaGraphicsOperation
 import groovy.swing.j2d.operations.strokes.ShapeStrokeGraphicsOperation
@@ -31,6 +33,11 @@ import groovy.swing.j2d.operations.strokes.ShapeStrokeGraphicsOperation
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       if( child instanceof FilterProvider && parent instanceof Filterable ){
+          parent.addFilter( child )
+          return
+       }
+
        if( child instanceof ShapeProvider && parent instanceof ShapeStrokeGraphicsOperation ){
           parent.addShape( child )
           return
@@ -43,9 +50,9 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
 
        if( (child instanceof PaintProvider || child instanceof MultiPaintProvider) &&
              parent instanceof BorderPaintProvider ){
-            parent.setPaint( child )
-            return
-         }
+          parent.setPaint( child )
+          return
+       }
 
        if( (child instanceof PaintProvider || child instanceof MultiPaintProvider) &&
            (parent instanceof ShapeProvider || parent instanceof Grouping ) ){
@@ -62,6 +69,8 @@ abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
              parent.addOperation( child )
           return
        }
+
+       if( !(child instanceof GraphicsOperation) ) return
        throw new IllegalArgumentException("$parent does not support nesting of other operations")
    }
 }
