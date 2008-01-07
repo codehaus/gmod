@@ -100,7 +100,7 @@ abstract class AbstractFilterProvider extends ObservableSupport implements Filte
        return oldvalue != newvalue
     }
 
-    private boolean hasProperty( Object target, String property ){
+    protected boolean hasProperty( Object target, String property ){
        try{
           def v = target."$property"
        }catch( MissingPropertyException e ){

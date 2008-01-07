@@ -13,27 +13,33 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.colors
+package groovy.swing.j2d.operations.filters
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
+import groovy.swing.j2d.operations.filters.AbstractFilterProvider
 
 import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
-import com.jhlabs.image.InvertFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class InvertFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = []
+abstract class PropertiesBasedFilterProvider extends AbstractFilterProvider {
+   protected def filter
 
-   InvertFilterProvider() {
-      super( "invert" )
-      filter = new InvertFilter()
+   PropertiesBasedFilterProvider( String name ) {
+      super( name )
    }
 
-   public BufferedImage filter( BufferedImage src, BufferedImage dst ){
-      return filter.filter( src, dst )
+   public void propertyChange( PropertyChangeEvent event ) {
+      def propertyName = event.propertyName
+      if( isParameter(propertyName) && hasProperty(filter,propertyName) ){
+         filter."$propertyName" = convertValue(propertyName,event.newValue)
+      }
+      super.propertyChange( event )
+   }
+
+   protected def convertValue( property, value ){
+      return value
    }
 }
