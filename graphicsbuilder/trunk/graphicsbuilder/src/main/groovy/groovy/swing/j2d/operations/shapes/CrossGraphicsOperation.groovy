@@ -57,10 +57,10 @@ public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
        def a = angle != null ? angle : 0
        def n = roundness != null ? roundness : 0
        cross = new Cross( cx as double,
-                           cy as double,
-                           radius as double,
-                           w as double,
-                           a as double,
-                           n as double )
+                          cy as double,
+                          radius as double,
+                          w as double,
+                          a as double,
+                          n as double )
     }
 }

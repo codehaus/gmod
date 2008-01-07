@@ -106,17 +106,18 @@ public class TransformationGroup extends ObservableSupport implements Transforma
        def transform = new AffineTransform()
        def interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR
        transformations.each { transformation ->
-          interpolation = transformation.interpolation != null ? transformation.interpolation : interpolation
           def t = transformation.transform
           if( transformation instanceof TransformationGroup ){
-             image = transformation.apply( image )
+             image = transformation.apply( image, context )
           }else if( t.isIdentity() ){
              // assume that it is a freeze transform
              if( !transform.isIdentity() ){
+                interpolation = transformation.interpolation != null ? transformation.interpolation : interpolation
                 image = createTransformedImage( transform, image, interpolation, context )
                 transform = t.clone()
              }
           }else{
+             interpolation = transformation.interpolation != null ? transformation.interpolation : interpolation
              transform.concatenate( t )
           }
        }
