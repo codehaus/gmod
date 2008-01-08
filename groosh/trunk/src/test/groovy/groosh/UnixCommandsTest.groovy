@@ -51,7 +51,9 @@ class UnixCommandsTest extends GroovyTestCase {
 
 	void testCatToFile() {
 	    def tmpFile = File.createTempFile("groovyTest",".txt")
-		gsh.cat('src/test/resources/blah.txt').toFile(tmpFile)
+		def p = gsh.cat('src/test/resources/blah.txt')
+		p.toFile(tmpFile)
+		p.waitFor()
 		assert blaResult == tmpFile.getText()
 	}
 	
