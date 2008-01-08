@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/groovy"/>
+	<classpathentry kind="src" path="examples"/>
+	<classpathentry exported="true" kind="lib" path="bin-groovy"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/antlr-2.7.6.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/asm-2.2.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/asm-tree-2.2.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/commons-cli-1.0.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-1.5.0.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
