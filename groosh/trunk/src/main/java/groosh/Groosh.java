@@ -71,6 +71,10 @@ public class Groosh extends GroovyObjectSupport {
 		registerInternalProcess("cd", CdProcess.class);
 	}
 
+	public static Groosh groosh() {
+		return new Groosh();
+	}
+
 	public Groosh() {
 		execDir.setDir(new File(System.getProperty("user.dir")));
 		env.put("PWD", System.getProperty("user.dir"));
@@ -95,9 +99,9 @@ public class Groosh extends GroovyObjectSupport {
 		if (name.startsWith("_")) {
 			name = name.substring(1);
 		}
-		
+
 		name = name.replaceAll("___", "-");
-		
+
 		try {
 			if (registeredStreamClosureProcesses.containsKey(name)) {
 				process = createStreamClosureProcess(
@@ -131,15 +135,6 @@ public class Groosh extends GroovyObjectSupport {
 
 		return process;
 	}
-
-	// private String listAsString(List<String> args) {
-	// StringBuilder str = new StringBuilder();
-	// for (String string : args) {
-	// str.append(string);
-	// str.append(" ");
-	// }
-	// return str.toString();
-	// }
 
 	private GrooshProcess createInternalProcess(
 			Class<? extends GrooshProcess> class1, List<String> args) {
