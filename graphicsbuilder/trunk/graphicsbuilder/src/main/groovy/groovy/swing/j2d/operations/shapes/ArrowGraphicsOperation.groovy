@@ -41,9 +41,9 @@ public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "arrow" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        arrow = null
-       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

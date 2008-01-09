@@ -43,9 +43,9 @@ public class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
         area
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        area = null
-       super.propertyChange( event )
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {

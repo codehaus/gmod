@@ -48,9 +48,9 @@ public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
         outline
     }
 
-    public void propertyChange( PropertyChangeEvent event ) {
+    protected void localPropertyChange( PropertyChangeEvent event ) {
+       super.localPropertyChange( event )
        outline = null
-       super.propertyChange( event )
     }
 
     private void calculateOutline( GraphicsContext context ) {

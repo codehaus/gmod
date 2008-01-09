@@ -54,6 +54,9 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
        if( property == "shape" ){
           super.setProperty( property, value )
           if( value instanceof ShapeProvider ){
+             if( value != shape && shape instanceof ShapeProvider ){
+                shape.removePropertyChangeListener( this )
+             }
              value.addPropertyChangeListener( this )
           }
        }else if( this.@shape != null ){

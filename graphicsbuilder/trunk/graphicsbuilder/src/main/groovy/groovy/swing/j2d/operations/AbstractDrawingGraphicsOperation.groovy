@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
 import java.awt.BasicStroke
@@ -101,11 +102,20 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        globalTransformationGroup
     }
 
-    public void propertyChange( PropertyChangeEvent event ) {
+    public void propertyChange( PropertyChangeEvent event ){
+       if( event.source == transformationGroup ||
+           event.source == globalTransformationGroup  ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
+    public void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        this.@locallyTransformedShape = null
        this.@globallyTransformedShape = null
        image = null
-       super.propertyChange( event )
     }
 
     public BufferedImage asImage( GraphicsContext context ) {

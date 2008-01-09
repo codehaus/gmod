@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations.shapes
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.shapes.path.PathOperation
 import groovy.swing.j2d.operations.shapes.path.MoveToPathOperation
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.Shape
 import java.awt.geom.GeneralPath
@@ -46,8 +47,16 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
    }
 
    public void propertyChange( PropertyChangeEvent event ){
+      if( event.source instanceof PathOperation ){
+         firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+      }else{
+         super.propertyChange( event )
+      }
+   }
+
+   protected void localPropertyChange( PropertyChangeEvent event ){
+      super.localPropertyChange( event )
       path = null
-      super.propertyChange( event )
    }
 
    public Shape getShape( GraphicsContext context ) {

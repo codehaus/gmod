@@ -48,9 +48,9 @@ final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
       shape
    }
 
-   public void propertyChange( PropertyChangeEvent event ){
+   protected void localPropertyChange( PropertyChangeEvent event ){
+      super.localPropertyChange( event )
       shape = null
-      super.propertyChange( event )
    }
 
    private void calculateShape( GraphicsContext context ){

@@ -19,7 +19,9 @@ import java.awt.Paint
 import java.awt.geom.Rectangle2D
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.PaintProvider
-import java.beans.PropertyChangeListener
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
+
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -28,19 +30,21 @@ final class PaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     public static required = ['paint']
 
     def paint
-    
+
     public PaintGraphicsOperation() {
         super( "paint" )
     }
-    
+
     void setProperty( String property, Object value ) {
        if( property == "paint" ){
-          super.setProperty( property, value.asCopy() )
+          def paintCopy = value.asCopy()
+          paintCopy.addPropertyChangeListener( this )
+          super.setProperty( property, paintCopy )
        }else if( this.@paint != null ){
           this.@paint.setProperty( property, value )
        }
     }
-    
+
     Object getProperty( String property ) {
        if( property == "paint" ){
           return this.@paint
@@ -49,7 +53,8 @@ final class PaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
        }
        throw new MissingPropertyException( property, PaintGraphicsOperation )
     }
-    
+
+    /*
     public void addPropertyChangeListener( PropertyChangeListener listener ) {
        super.addPropertyChangeListener( listener )
        if( this.@paint ) this.@paint.addPropertyChangeListener( listener )
@@ -59,10 +64,19 @@ final class PaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
        super.removePropertyChangeListener( listener )
        if( this.@paint ) this.@paint.removePropertyChangeListener( listener )
     }
-    
+    */
+
+    public void propertyChange( PropertyChangeEvent event ){
+       if( event.source == paint ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
     public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
        if( !paint ) throw new IllegalStateException("paint.paint is null!")
-       if( !(paint instanceof PaintProvider) ){ 
+       if( !(paint instanceof PaintProvider) ){
           throw new IllegalStateException("paint.paint is not a PaintProvider!")
        }
        return paint.getPaint( context, bounds )

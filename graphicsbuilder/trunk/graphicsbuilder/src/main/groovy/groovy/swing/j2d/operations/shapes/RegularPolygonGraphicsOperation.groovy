@@ -39,9 +39,9 @@ public class RegularPolygonGraphicsOperation extends AbstractShapeGraphicsOperat
         super( "regularPolygon" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        polygon = null
-       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

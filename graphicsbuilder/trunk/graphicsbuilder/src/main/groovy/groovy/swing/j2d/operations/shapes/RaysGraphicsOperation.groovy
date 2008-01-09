@@ -25,7 +25,7 @@ import groovy.swing.j2d.geom.Rays
  */
 public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = super.required + ['cx','cy','radius','rays']
-    public static optional = super.optional + ['angle']
+    public static optional = super.optional + ['angle','extent']
 
     private Rays shape
 
@@ -34,14 +34,15 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
     def radius = 5
     def rays = 2
     def angle = 0
+    def extent = 0.5
 
     public RaysGraphicsOperation() {
         super( "rays" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        shape = null
-       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {
@@ -56,6 +57,7 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
                           cy as double,
                           radius as double,
                           rays as int,
-                          angle as double )
+                          angle as double,
+                          extent as double )
     }
 }

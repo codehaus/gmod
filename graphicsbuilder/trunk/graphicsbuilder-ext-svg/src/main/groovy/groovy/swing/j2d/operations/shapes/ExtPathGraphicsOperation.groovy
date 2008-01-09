@@ -22,6 +22,7 @@ import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.operations.shapes.path.ExtPathOperation
 import groovy.swing.j2d.operations.shapes.path.MoveToExtPathOperation
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
 
 /**
@@ -47,8 +48,16 @@ class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
    }
 
    public void propertyChange( PropertyChangeEvent event ){
+      if( event.source instanceof ExtPathOperation ){
+         firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+      }else{
+         super.propertyChange( event )
+      }
+   }
+
+   protected void localPropertyChange( PropertyChangeEvent event ){
+      super.localPropertyChange( event )
       path = null
-      super.propertyChange( event )
    }
 
    public Shape getShape( GraphicsContext context ) {

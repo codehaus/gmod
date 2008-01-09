@@ -19,7 +19,6 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
 import java.awt.image.BufferedImage
-import java.beans.PropertyChangeEvent
 import com.jhlabs.image.ShapeFilter
 
 /**

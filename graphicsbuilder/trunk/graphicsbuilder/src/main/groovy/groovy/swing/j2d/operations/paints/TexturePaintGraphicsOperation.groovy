@@ -22,10 +22,12 @@ import java.awt.image.BufferedImage
 import java.awt.geom.Rectangle2D
 import javax.imageio.ImageIO
 import java.beans.PropertyChangeEvent
+
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.OutlineProvider
 import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.misc.ImageGraphicsOperation
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -56,7 +58,7 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     }
 
     public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
-       if( !paint ){
+       //if( !paint ){
           def newBounds = [x as double, y as double, 0d, 0d] as Rectangle2D.Double
           if( !absolute && bounds ){
              newBounds.x += bounds.x
@@ -69,11 +71,13 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
              }else if( image instanceof ImageGraphicsOperation ){
                 // TODO refactor this mess
                 if( image.image && image.image instanceof ImageGraphicsOperation ){
+                   image.image.addPropertyChangeListener( this )
                    iobj = image.image.getLocallyTransformedImage(context)
                 }else{
                    iobj = image.getImageObj(context)
                 }
              }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
+                image.addPropertyChangeListener( this )
                 iobj = image.asImage(context)
              }
           }else{
@@ -84,14 +88,22 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
           if( width ) newBounds.width = width
           if( height ) newBounds.height = height
           paint = new TexturePaint( iobj, newBounds )
-       }
+       //}
        return paint
     }
 
     public void propertyChange( PropertyChangeEvent event ){
+       if( event.source == image ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
+    protected void localPropertyChange( PropertyChangeEvent event ){
        // TODO review for fine-grain detail
-       paint = null
-       super.propertyChange( event )
+       super.localPropertyChange( event )
+       this.@imageObj = null
     }
 
     public Image getImageObj( GraphicsContext context ) {

@@ -22,7 +22,9 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.MultiPaintProvider
 import groovy.swing.j2d.operations.AbstractGraphicsOperation
-import java.beans.PropertyChangeListener
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
+
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -46,6 +48,7 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
        paint.removePropertyChangeListener( this )
    }
 
+   /*
    public void addPropertyChangeListener( PropertyChangeListener listener ) {
       super.addPropertyChangeListener( listener )
       paints.each { p -> p.addPropertyChangeListener( listener ) }
@@ -54,6 +57,15 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
    public void removePropertyChangeListener( PropertyChangeListener listener ) {
       super.removePropertyChangeListener( listener )
       paints.each { p -> p.removePropertyChangeListener( listener ) }
+   }
+   */
+
+   public void propertyChange( PropertyChangeEvent event ){
+      if( paints.contains(event.source) ){
+         firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+      }else{
+         super.propertyChange( event )
+      }
    }
 
    public void execute( GraphicsContext context ) {

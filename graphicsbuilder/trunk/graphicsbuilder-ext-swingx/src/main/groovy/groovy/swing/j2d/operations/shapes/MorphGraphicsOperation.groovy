@@ -46,9 +46,9 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
       morphedShape
    }
 
-   public void propertyChange( PropertyChangeEvent event ){
+   protected void localPropertyChange( PropertyChangeEvent event ){
+      super.localPropertyChange( event )
       morphedShape = null
-      super.propertyChange( event )
    }
 
    private void calculateMorphedShape( GraphicsContext context ) {

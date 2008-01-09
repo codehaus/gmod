@@ -21,7 +21,6 @@ import groovy.swing.j2d.GraphicsBuilderHelper
 
 import java.awt.BasicStroke
 import java.awt.Stroke
-import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

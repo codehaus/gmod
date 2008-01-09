@@ -22,6 +22,7 @@ import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.TransformationGroup
 import groovy.swing.j2d.operations.AbstractNestingGraphicsOperation
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
 import java.beans.PropertyChangeEvent
@@ -75,12 +76,12 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        globalTransformationGroup
     }
 
-    public void propertyChange( PropertyChangeEvent event ) {
-       if( event.source == transformationGroup ){
-          super.firePropertyChange( event )
-       }
-       if( event.source == globalTransformationGroup ){
-          super.firePropertyChange( event )
+    public void propertyChange( PropertyChangeEvent event ){
+       if( event.source == transformationGroup ||
+           event.source == globalTransformationGroup ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
        }
     }
 

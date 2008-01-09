@@ -22,6 +22,7 @@ import groovy.swing.j2d.impl.ObservableSupport
 
 import java.awt.Shape
 import java.awt.Color
+import java.beans.PropertyChangeEvent
 
 /**
  * Base implementation of GraphicsOperation.<br>
@@ -58,12 +59,22 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
         // empty
     }
 
+    public void propertyChange( PropertyChangeEvent event ) {
+       if( event.source == this ){
+          localPropertyChange( event )
+       }
+    }
+
     void setProperty( String property, Object value ) {
         def oldValue = getProperty( property )
         super.setProperty( property, value )
         if( isParameter(property) && compare(oldValue,value) ){
            firePropertyChange( property, oldValue, value )
         }
+    }
+
+    protected void localPropertyChange( PropertyChangeEvent event ) {
+
     }
 
     protected boolean isParameter( String property ) {
@@ -86,39 +97,39 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
        switch( oldvalue.class ){
           case Boolean:
              if( newvalue instanceof String ) return (oldvalue as String) != newvalue
-             if( newvalue instanceof Boolean ) return oldvalue != newvalue
+             if( newvalue instanceof Boolean ) return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              return true
              break;
           case String:
              if( newvalue instanceof Boolean ) return oldvalue != (newvalue as String)
              if( newvalue instanceof Color ) return ColorCache.getInstance().getColor(oldvalue) != newvalue
-             return oldvalue != newvalue
+             return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
           case Color:
              if( newvalue instanceof Boolean ) return true
              if( newvalue instanceof String ) return oldvalue != ColorCache.getInstance().getColor(newvalue)
-             return oldvalue != newvalue
+             return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
        }
        switch( newvalue.class ){
           case Boolean:
              if( oldvalue instanceof String ) return (newvalue as String) != oldvalue
-             if( oldvalue instanceof Boolean ) return newvalue != oldvalue
+             if( oldvalue instanceof Boolean ) return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              return true
              break;
           case String:
              if( oldvalue instanceof Boolean ) return newvalue != (oldvalue as String)
              if( oldvalue instanceof Color ) return ColorCache.getInstance().getColor(newvalue) != oldvalue
-             return oldvalue != newvalue
+             return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
           case Color:
              if( oldvalue instanceof Boolean ) return true
              if( oldvalue instanceof String ) return newvalue != ColorCache.getInstance().getColor(oldvalue)
-             return oldvalue != newvalue
+             return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
        }
 
-       return oldvalue != newvalue
+       return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
     }
 
     private static boolean hasProperty( Object target, String property ){

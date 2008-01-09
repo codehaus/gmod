@@ -22,6 +22,7 @@ import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.FilterProvider
 import groovy.swing.j2d.operations.Filterable
 import groovy.swing.j2d.operations.AbstractDrawingGraphicsOperation
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
 import java.awt.Shape
@@ -99,9 +100,17 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        if( mouseWheelMoved ) this.@mouseWheelMoved(e)
     }
 
-    public void propertyChange( PropertyChangeEvent event ) {
+    public void propertyChange( PropertyChangeEvent event ){
+       if( filters.contains(event.source) ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
+    protected void localPropertyChange( PropertyChangeEvent event ) {
+       super.localPropertyChange( event )
        filteredImage = null
-       super.propertyChange( event )
     }
 
     /* ===== FILTERS ===== */

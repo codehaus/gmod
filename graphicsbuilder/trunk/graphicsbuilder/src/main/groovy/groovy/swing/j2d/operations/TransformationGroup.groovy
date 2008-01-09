@@ -21,8 +21,10 @@ import java.awt.image.AffineTransformOp
 import java.awt.image.BufferedImage
 import java.awt.geom.AffineTransform
 import java.beans.PropertyChangeEvent
+
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.impl.ObservableSupport
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -58,7 +60,8 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
-       firePropertyChange( "transform", OLDVALUE, NEWVALUE )
+       firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       //firePropertyChange( "transform", OLDVALUE, NEWVALUE )
     }
 
     public AffineTransform getTransform() {

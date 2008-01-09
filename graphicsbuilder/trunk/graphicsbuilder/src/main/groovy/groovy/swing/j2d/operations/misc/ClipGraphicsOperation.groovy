@@ -22,6 +22,9 @@ import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.AbstractGraphicsOperation
 import groovy.swing.j2d.operations.TransformationGroup
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
+
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -64,6 +67,27 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transfo
 
     public TransformationGroup getGlobalTransformationGroup() {
        globalTransformationGroup
+    }
+
+    public void propertyChange( PropertyChangeEvent event ){
+       if( event.source == transformationGroup ||
+           event.source == globalTransformationGroup ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
+    void setProperty( String property, Object value ) {
+       if( property == "shape" ){
+          if( value instanceof ShapeProvider ){
+             if( value != shape && shape instanceof ShapeProvider ){
+                shape.removePropertyChangeListener( this )
+             }
+             value.addPropertyChangeListener( this )
+          }
+       }
+       super.setProperty( property, value )
     }
 
     public void execute( GraphicsContext context ){

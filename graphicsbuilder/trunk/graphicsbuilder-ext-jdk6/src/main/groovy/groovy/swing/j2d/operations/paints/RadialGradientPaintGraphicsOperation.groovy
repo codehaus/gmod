@@ -29,6 +29,9 @@ import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.MultipleGradientPaintProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.TransformationGroup
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
+
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -72,6 +75,14 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       }
       if( !replaced ) stops.add( stop )
       stop.addPropertyChangeListener( this )
+   }
+
+   public void propertyChange( PropertyChangeEvent event ){
+      if( stops.contains(event.source) ){
+         firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+      }else{
+         super.propertyChange( event )
+      }
    }
 
    public PaintProvider asCopy() {

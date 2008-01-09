@@ -18,14 +18,13 @@ package groovy.swing.j2d.operations.paints
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.AbstractGraphicsOperation
-import java.beans.PropertyChangeListener
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperation implements PaintProvider {
     public static optional = ['asPaint']
-    
+
     // properties
     def asPaint
 
@@ -41,15 +40,15 @@ abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperati
              copy."$key" = value
           }
        }
-       
+
        // copy propertyChangeListeners if any
        this.propertyChangeListeners.each { listener ->
           copy.addPropertyChangeListener( listener )
        }
-       
+
        return copy
     }
-    
+
     public void execute( GraphicsContext context ) {
         if( !asPaint ) {
            context.g.paint = getPaint(context, context.g.clipBounds)

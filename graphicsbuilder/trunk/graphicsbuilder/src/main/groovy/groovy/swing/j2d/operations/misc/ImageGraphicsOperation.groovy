@@ -54,11 +54,21 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       // TODO review for fine-grain detail
+       if( event.source == transformationGroup ||
+           event.source == globalTransformationGroup ||
+           event.source == image ){
+          localPropertyChange( event )
+          firePropertyChange( event )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        imageObj = null
        locallyTransformedImage = null
        globallyTransformedImage = null
-       super.propertyChange( event )
     }
 
     public Image getImageObj( GraphicsContext context ) {
@@ -153,10 +163,12 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     private void loadImage( GraphicsContext context ) {
        if( image ){
           if( image instanceof ImageGraphicsOperation ){
+             image.addPropertyChangeListener( this )
              this.@imageObj= image.getLocallyTransformedImage(context)
           }else if( image instanceof Image || image instanceof BufferedImage ){
              this.@imageObj = image
           }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
+             image.addPropertyChangeListener( this )
              this.@imageObj = image.asImage(context)
           }else {
              throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")

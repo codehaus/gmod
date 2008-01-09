@@ -36,16 +36,24 @@ class ShapePathOperation extends AbstractPathOperation {
        super("shapeTo")
     }
 
+    void setProperty( String property, Object value ) {
+       if( property == "shape" && value instanceof ShapeProvider || value instanceof OutlineProvider ){
+          value.addPropertyChangeListener( this )
+       }
+       super.setProperty( property, value )
+    }
+
     public void propertyChange( PropertyChangeEvent event ){
-       if( shape == event.source && event.source.required.contains(event.propertyName) ){
-           // TODO signal change
+       if( shape == event.source ){
+          firePropertyChange( event )
        }
     }
 
     public void apply( GeneralPath path, GraphicsContext context ) {
+       def s = shape
        if( shape instanceof ShapeProvider || shape instanceof OutlineProvider ){
-          shape = shape.getLocallyTransformedShape(context)
+          s = shape.getLocallyTransformedShape(context)
        }
-       path.append( shape, connect as boolean )
+       path.append( s, connect as boolean )
     }
 }

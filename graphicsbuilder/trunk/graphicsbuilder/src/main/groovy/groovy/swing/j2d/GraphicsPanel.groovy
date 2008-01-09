@@ -137,7 +137,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      }
 
      public void propertyChange( PropertyChangeEvent event ){
-         if( visible ){
+         if( visible /*&& event.source instanceof GraphicsOperation*/ ){
              repaint()
          }
      }

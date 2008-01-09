@@ -44,9 +44,9 @@ final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "triangle" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        triangle = null
-       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {

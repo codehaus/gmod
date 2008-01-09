@@ -17,7 +17,8 @@ package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import java.beans.PropertyChangeListener
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -41,6 +42,7 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
        executeAfterAll( context )
     }
 
+    /*
     public void addPropertyChangeListener( PropertyChangeListener listener ) {
        super.addPropertyChangeListener( listener )
        operations.each { o -> o.addPropertyChangeListener( listener ) }
@@ -50,6 +52,7 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
        super.removePropertyChangeListener( listener )
        operations.each { o -> o.removePropertyChangeListener( listener ) }
     }
+    */
 
     public void addOperation( GraphicsOperation operation ) {
         if( !operation ) return
@@ -67,16 +70,23 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
        operations
     }
 
+    public void propertyChange( PropertyChangeEvent event ){
+       if( operations.contains(event.source) ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
 
     /* ===== OPERATOR OVERLOADING ===== */
-    
+
     public AbstractNestingGraphicsOperation leftShift( GraphicsOperation operation ) {
        addOperation( operation )
        this
     }
-    
+
     /* ===== PROTECTED ===== */
-    
+
     protected boolean executeBeforeNestedOperations( GraphicsContext context ) {
         true
     }

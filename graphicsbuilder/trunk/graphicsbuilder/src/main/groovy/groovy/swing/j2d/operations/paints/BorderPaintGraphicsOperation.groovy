@@ -22,8 +22,9 @@ import groovy.swing.j2d.operations.AbstractGraphicsOperation
 import groovy.swing.j2d.operations.BorderPaintProvider
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.MultiPaintProvider
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
-import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -32,15 +33,20 @@ final class BorderPaintGraphicsOperation extends AbstractGraphicsOperation imple
     public static required = ['paint']
 
     def paint
-    
+
     public BorderPaintGraphicsOperation() {
         super( "borderPaint" )
     }
-    
+
     void setProperty( String property, Object value ) {
        if( property == "paint" ){
           if( value instanceof PaintProvider ){
-             super.setProperty( property, value.asCopy() )
+             def paintCopy = value.asCopy()
+             paintCopy.addPropertyChangeListener( this )
+             super.setProperty( property, paintCopy )
+          }else if( value instanceof MultiPaintProvider ){
+             value.addPropertyChangeListener( this )
+             super.setProperty( property, value )
           }else{
              super.setProperty( property, value )
           }
@@ -48,7 +54,15 @@ final class BorderPaintGraphicsOperation extends AbstractGraphicsOperation imple
           this.@paint.setProperty( property, value )
        }
     }
-    
+
+    public void propertyChange( PropertyChangeEvent event ){
+       if( operations.contains(event.source) ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
+
     Object getProperty( String property ) {
        if( property == "paint" ){
           return this.@paint
@@ -57,7 +71,8 @@ final class BorderPaintGraphicsOperation extends AbstractGraphicsOperation imple
        }
        throw new MissingPropertyException( property, BorderPaintGraphicsOperation )
     }
-    
+
+    /*
     public void addPropertyChangeListener( PropertyChangeListener listener ) {
        super.addPropertyChangeListener( listener )
        if( this.@paint ) this.@paint.addPropertyChangeListener( listener )
@@ -67,16 +82,17 @@ final class BorderPaintGraphicsOperation extends AbstractGraphicsOperation imple
        super.removePropertyChangeListener( listener )
        if( this.@paint ) this.@paint.removePropertyChangeListener( listener )
     }
-    
+    */
+
     public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
        if( !paint ) throw new IllegalStateException("borderPaint.paint is null!")
        if( paint instanceof MultiPaintProvider ) return null
-       if( !(paint instanceof PaintProvider) ){ 
+       if( !(paint instanceof PaintProvider) ){
           throw new IllegalStateException("borderPaint.paint is not a PaintProvider!")
        }
        return paint.getPaint( context, bounds )
     }
-    
+
     public void execute( GraphicsContext context ) {
         // empty
     }

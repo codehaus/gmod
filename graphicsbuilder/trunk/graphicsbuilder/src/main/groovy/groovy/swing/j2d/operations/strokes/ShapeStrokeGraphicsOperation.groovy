@@ -17,9 +17,11 @@ package groovy.swing.j2d.operations.strokes
 
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.operations.ShapeProvider
+import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.Shape
 import java.awt.Stroke
+import java.beans.PropertyChangeEvent
 import com.jhlabs.awt.ShapeStroke
 
 /**
@@ -40,8 +42,17 @@ public class ShapeStrokeGraphicsOperation extends AbstractStrokeGraphicsOperatio
 	}
 
 	public void addShape( ShapeProvider shape ){
+	   shape.addPropertyChangeListener( this )
 	   shapes << shape
 	}
+
+    public void propertyChange( PropertyChangeEvent event ){
+       if( event.source instanceof ShapeProvider ){
+          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
+       }else{
+          super.propertyChange( event )
+       }
+    }
 
     protected Stroke createStroke() {
         if( !shapes ) throw new IllegalArgumentException("shapeStroke() requires at least 1 shape.")

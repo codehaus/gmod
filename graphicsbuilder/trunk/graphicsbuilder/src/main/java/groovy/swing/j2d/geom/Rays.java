@@ -33,28 +33,37 @@ public class Rays implements Shape, Cloneable, Centered {
    private GeneralPath path;
    private double radius;
    private int rays;
+   private double extent;
 
    public Rays( double cx, double cy, double radius, int rays ) {
-      this( cx, cy, radius, rays, 0 );
+      this( cx, cy, radius, rays, 0, 0.5 );
    }
 
-   public Rays( double cx, double cy, double radius, int rays, double angle ) {
+   public Rays( double cx, double cy, double radius, int rays, double extent ) {
+      this( cx, cy, radius, rays, 0, extent );
+   }
+
+   public Rays( double cx, double cy, double radius, int rays, double angle, double extent ) {
       if( rays < 2 ){
          throw new IllegalArgumentException( "rays can not be less than 2" );
       }
       if( angle < 0 || angle > 360 ){
          throw new IllegalArgumentException( "angle can not be less than 0 or greater than 360" );
       }
+      if( extent < 0 || extent > 1 ){
+         throw new IllegalArgumentException( "extent must be inside the range [0..1]" );
+      }
       this.cx = cx;
       this.cy = cy;
       this.radius = radius;
       this.rays = rays;
       this.angle = angle;
+      this.extent = extent;
       calculatePath();
    }
 
    public Object clone() {
-      return new Rays( cx, cy, radius, rays, angle );
+      return new Rays( cx, cy, radius, rays, angle, extent );
    }
 
    public boolean contains( double x, double y ) {
@@ -121,21 +130,25 @@ public class Rays implements Shape, Cloneable, Centered {
       double sides = rays * 2;
       double t = 360 / sides;
       double a = angle;
+      double e = (extent * t * 2) - t;
       double[][] points = new double[rays * 2][];
       for( int i = 0; i < sides; i++ ){
-         double ra = Math.toRadians( a );
+         double r = i % 2 == 0 ? a : a + e;
+         r = r < 0 ? 360 + r : r;
+         // r = r > 360 ? r - 360 : r;
+         double ra = Math.toRadians( r );
          double x = Math.abs( radius * Math.cos( ra ) );
          double y = Math.abs( radius * Math.sin( ra ) );
-         if( a <= 90 ){
+         if( r <= 90 || r > 360 ){
             x = cx + x;
             y = cy - y;
-         }else if( a <= 180 ){
+         }else if( r <= 180 ){
             x = cx - x;
             y = cy - y;
-         }else if( a <= 270 ){
+         }else if( r <= 270 ){
             x = cx - x;
             y = cy + y;
-         }else if( a <= 360 ){
+         }else if( r <= 360 ){
             x = cx + x;
             y = cy + y;
          }

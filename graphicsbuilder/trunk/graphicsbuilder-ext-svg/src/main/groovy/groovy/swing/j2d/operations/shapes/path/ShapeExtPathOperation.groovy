@@ -36,11 +36,17 @@ class ShapeExtPathOperation extends AbstractExtPathOperation {
        super( "xshapeTo" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
-       if( shape == event.source && event.source.required.contains(event.propertyName) ){
-           // TODO signal change
+    void setProperty( String property, Object value ) {
+       if( property == "shape" && value instanceof ShapeProvider || value instanceof OutlineProvider ){
+          value.addPropertyChangeListener( this )
        }
-       super.propertyChange( event )
+       super.setProperty( property, value )
+    }
+
+    public void propertyChange( PropertyChangeEvent event ){
+       if( shape == event.source ){
+          firePropertyChange( event )
+       }
     }
 
     public void apply( ExtendedGeneralPath path, GraphicsContext context ) {

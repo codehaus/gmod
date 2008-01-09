@@ -39,9 +39,9 @@ public class RoundPinGraphicsOperation extends AbstractShapeGraphicsOperation {
         super( "roundPin" )
     }
 
-    public void propertyChange( PropertyChangeEvent event ){
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
        pin = null
-       super.propertyChange( event )
     }
 
     public Shape getShape( GraphicsContext context ) {
