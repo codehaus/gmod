@@ -195,7 +195,12 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
           calculateFilteredImage( context )
        }
        Shape shape = getGloballyTransformedShape(context)
-       def bounds = shape.bounds
+       def sp = getStroke()
+       Shape strokedShape = sp != null ?
+             sp.stroke.createStrokedShape(shape) :
+             context.g.stroke.createStrokedShape(shape)
+
+       def bounds = strokedShape.bounds
        context.g.drawImage( filteredImage, bounds.x as int, bounds.y as int, null )
     }
 
@@ -210,14 +215,29 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
 
     private void calculateFilteredImage( GraphicsContext context ){
        Shape shape = getGloballyTransformedShape(context)
-       def bounds = shape.bounds
+       def sp = getStroke()
+       Shape strokedShape = sp != null ?
+             sp.stroke.createStrokedShape(shape) :
+             context.g.stroke.createStrokedShape(shape)
+
+       def strokeBounds = strokedShape.bounds
+       def shapeBounds = shape.bounds
        BufferedImage src = context.g.deviceConfiguration.createCompatibleImage(
-             bounds.width as int, bounds.height as int, Transparency.BITMASK )
-       shape = AffineTransform.getTranslateInstance( (bounds.x as double)*(-1), (bounds.y as double)*(-1) )
-                              .createTransformedShape(shape)
+             strokeBounds.width as int, strokeBounds.height as int, Transparency.BITMASK )
+       /*shape = AffineTransform.getTranslateInstance(
+          shapeBounds.x * -1,
+          shapeBounds.y * -1
+       ).createTransformedShape(shape)*/
+       shape = AffineTransform.getTranslateInstance(
+          strokeBounds.x * -1,
+          strokeBounds.y * -1
+          //strokeBounds.x - (shapeBounds.x*2),
+          //strokeBounds.y - (shapeBounds.y*2)
+       ).createTransformedShape(shape)
        def graphics = src.createGraphics()
        def contextCopy = context.copy()
-       graphics.setClip( shape.bounds )
+       graphics.setClip( 0, 0, strokeBounds.width as int, strokeBounds.height as int )
+       //graphics.setClip( shape.bounds )
        graphics.renderingHints.putAll( context.g.renderingHints )
        contextCopy.g = graphics
 

@@ -247,6 +247,14 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        return paint
     }
 
+    public def getStroke(){
+       def stroke = null
+       operations.each { o ->
+          if( o instanceof StrokeProvider ) stroke = o
+       }
+       return stroke
+    }
+
     private void applyPaint( GraphicsContext context, Shape shape, paint ){
        if( paint instanceof PaintProvider ){
           Paint oldpaint = context.g.getPaint()

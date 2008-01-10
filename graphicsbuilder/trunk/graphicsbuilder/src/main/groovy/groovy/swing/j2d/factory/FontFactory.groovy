@@ -17,6 +17,7 @@ package groovy.swing.j2d.factory
 
 import groovy.swing.j2d.operations.Grouping
 import groovy.swing.j2d.operations.misc.FontGraphicsOperation
+import groovy.swing.j2d.operations.shapes.GlyphGraphicsOperation
 import groovy.swing.j2d.operations.shapes.TextGraphicsOperation
 
 import java.awt.Font
@@ -30,24 +31,26 @@ public class FontFactory extends AbstractGraphicsOperationFactory {
         FontGraphicsOperation go = new FontGraphicsOperation()
         if( value != null && Font.class.isAssignableFrom( value.class ) ){
             go.font = value
-        }else if( properties.containsKey( "face" ) ){
-            String face = properties.remove( "face" )
-            def style = properties.remove( "style" )
-            // TODO use elvis
-            style = style != null ? getStyle(style): Font.PLAIN
-            def size = properties.remove( "size" )
-            // TODO use elvis
-            size = size ? size : 12
-            go.font = new Font( face, style as int, size as int )
+            return go
         }
+
+        def face = properties.remove( "face" )
+        face = face != null ? face : "Default"
+        def style = properties.remove( "style" )
+        style = style != null ? getStyle(style): Font.PLAIN
+        def size = properties.remove( "size" )
+        size = size ? size : 12
+        go.font = new Font( face, style as int, size as int )
+
         return go
     }
 
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-       if( parent instanceof Grouping || parent instanceof TextGraphicsOperation ) {
+       if( parent instanceof Grouping || parent instanceof TextGraphicsOperation ||
+           parent instanceof GlyphGraphicsOperation ) {
           parent.addOperation( child )
        }else{
-          throw new IllegalArgumentException("font() can only be nested in group() or text()")
+          throw new IllegalArgumentException("font() can only be nested in [group,text,glyph]")
        }
     }
 

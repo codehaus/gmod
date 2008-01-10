@@ -18,6 +18,8 @@ package groovy.swing.j2d
 import java.awt.GraphicsConfiguration
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
+import java.awt.Rectangle
+import java.awt.RenderingHints
 import java.awt.Transparency
 import java.awt.image.BufferedImage
 
@@ -26,6 +28,7 @@ import java.awt.image.BufferedImage
  */
 final class GraphicsRenderer {
     private GraphicsBuilder gb = new GraphicsBuilder()
+    RenderingHints renderingHints = new RenderingHints()
 
     public GraphicsRenderer(){
        def helpers = ["Jdk6GraphicsBuilderHelper",
@@ -36,7 +39,7 @@ final class GraphicsRenderer {
              Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
              helperClass.registerOperations( gb )
           }catch( Exception e ){
-             System.err.println("Couldn't register ${helper}")
+             System.err.println("GraphicsRenderer: couldn't register ${helper}")
           }
        }
     }
@@ -53,19 +56,36 @@ final class GraphicsRenderer {
        return render( createImage( width, height ), go )
     }
 
+    public BufferedImage render( Rectangle clip, Closure closure ){
+       return render( clip, gb.group(closure) )
+    }
+
+    public BufferedImage render( Rectangle clip, GraphicsOperation go ){
+       return render( createImage( clip.width as int, clip.height as int ), clip, go )
+    }
+
     public BufferedImage render( BufferedImage dst, Closure closure ){
        return render( dst, gb.group(closure) )
     }
 
     public BufferedImage render( BufferedImage dst, GraphicsOperation go ){
+       return render( dst, [0,0,dst.width,dst.height] as Rectangle, go )
+    }
+
+    public BufferedImage render( BufferedImage dst, Rectangle clip, Closure closure ){
+       return render( dst, clip, gb.group(closure) )
+    }
+
+    public BufferedImage render( BufferedImage dst, Rectangle clip, GraphicsOperation go ){
        def context = new GraphicsContext()
        def g = dst.createGraphics()
-       if( !g.clipBounds ){
-          g.setClip( 0 as int, 0 as int, dst.width as int, dst.height as int )
-       }
+       g.renderingHints = renderingHints
+       def cb = g.clipBounds
+       g.setClip( clip )
        context.g = g
        go.execute( context )
        g.dispose()
+       if( !cb ) g.setClip( cb )
        return dst
     }
 

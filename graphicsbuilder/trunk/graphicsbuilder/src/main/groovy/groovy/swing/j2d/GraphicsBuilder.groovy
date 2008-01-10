@@ -108,6 +108,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "pin", RoundPinGraphicsOperation )
         registerGraphicsOperationBeanFactory( "cross", CrossGraphicsOperation )
         registerGraphicsOperationBeanFactory( "star", StarGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "roundRect", MultiRoundRectangleGraphicsOperation )
+        registerGraphicsOperationBeanFactory( "glyph", GlyphGraphicsOperation )
 
         //
         // paths
