@@ -25,7 +25,7 @@ import groovy.swing.j2d.geom.Rays
  */
 public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = super.required + ['cx','cy','radius','rays']
-    public static optional = super.optional + ['angle','extent']
+    public static optional = super.optional + ['angle','extent','rounded']
 
     private Rays shape
 
@@ -35,6 +35,7 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
     def rays = 2
     def angle = 0
     def extent = 0.5
+    def rounded = false
 
     public RaysGraphicsOperation() {
         super( "rays" )
@@ -58,6 +59,7 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
                           radius as double,
                           rays as int,
                           angle as double,
-                          extent as double )
+                          extent as double,
+                          rounded as boolean )
     }
 }

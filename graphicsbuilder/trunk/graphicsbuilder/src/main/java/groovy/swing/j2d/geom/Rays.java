@@ -17,6 +17,7 @@ package groovy.swing.j2d.geom;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.Arc2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
@@ -34,16 +35,18 @@ public class Rays implements Shape, Cloneable, Centered {
    private double radius;
    private int rays;
    private double extent;
+   private boolean rounded;
 
    public Rays( double cx, double cy, double radius, int rays ) {
-      this( cx, cy, radius, rays, 0, 0.5 );
+      this( cx, cy, radius, rays, 0, 0.5, false );
    }
 
    public Rays( double cx, double cy, double radius, int rays, double extent ) {
-      this( cx, cy, radius, rays, 0, extent );
+      this( cx, cy, radius, rays, 0, extent, false );
    }
 
-   public Rays( double cx, double cy, double radius, int rays, double angle, double extent ) {
+   public Rays( double cx, double cy, double radius, int rays, double angle, double extent,
+         boolean rounded ) {
       if( rays < 2 ){
          throw new IllegalArgumentException( "rays can not be less than 2" );
       }
@@ -59,11 +62,12 @@ public class Rays implements Shape, Cloneable, Centered {
       this.rays = rays;
       this.angle = angle;
       this.extent = extent;
+      this.rounded = rounded;
       calculatePath();
    }
 
    public Object clone() {
-      return new Rays( cx, cy, radius, rays, angle, extent );
+      return new Rays( cx, cy, radius, rays, angle, extent, rounded );
    }
 
    public boolean contains( double x, double y ) {
@@ -132,6 +136,7 @@ public class Rays implements Shape, Cloneable, Centered {
       double a = angle;
       double e = (extent * t * 2) - t;
       double[][] points = new double[rays * 2][];
+      double[] angles = new double[rays * 2];
       for( int i = 0; i < sides; i++ ){
          double r = i % 2 == 0 ? a : a + e;
          r = r < 0 ? 360 + r : r;
@@ -153,14 +158,21 @@ public class Rays implements Shape, Cloneable, Centered {
             y = cy + y;
          }
          points[i] = new double[] { x, y };
+         angles[i] = r;
          a += t;
          a = a > 360 ? a - 360 : a;
       }
+
       path = new GeneralPath();
       for( int i = 0; i < rays; i++ ){
          path.moveTo( cx, cy );
          path.lineTo( points[(2 * i)][0], points[(2 * i)][1] );
-         path.lineTo( points[(2 * i) + 1][0], points[(2 * i) + 1][1] );
+         if( rounded ){
+            path.append( new Arc2D.Double( cx - radius, cy - radius, radius * 2, radius * 2,
+                  angles[(2 * i)], t + e, Arc2D.OPEN ), true );
+         }else{
+            path.lineTo( points[(2 * i) + 1][0], points[(2 * i) + 1][1] );
+         }
          path.closePath();
       }
    }
