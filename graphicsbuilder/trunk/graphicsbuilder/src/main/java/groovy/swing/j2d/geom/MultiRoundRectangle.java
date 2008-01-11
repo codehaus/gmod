@@ -28,53 +28,66 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class MultiRoundRectangle implements Shape, Cloneable {
-   private double bottomLeft;
-   private double bottomRight;
+   private double bottomLeftHeight;
+   private double bottomLeftWidth;
+   private double bottomRightHeight;
+   private double bottomRightWidth;
    private double height;
    private GeneralPath rectangle;
-   private double topLeft;
-   private double topRight;
+   private double topLeftHeight;
+   private double topLeftWidth;
+   private double topRightHeight;
+   private double topRightWidth;
    private double width;
    private double x;
    private double y;
 
-   public MultiRoundRectangle( double x, double y, double width, double height ) {
-      this( x, y, width, height, 0, 0, 0, 0 );
-   }
-
    public MultiRoundRectangle( double x, double y, double width, double height, double topLeft,
          double topRight, double bottomLeft, double bottomRight ) {
-      if( topLeft + topRight > width ){
-         throw new IllegalArgumentException( "top rounding factors are invalid (" + topLeft + ") ("
-               + topRight + ")" );
+      this( x, y, width, height, topLeft, topLeft, topRight, topRight, bottomLeft, bottomLeft,
+            bottomRight, bottomRight );
+   }
+
+   public MultiRoundRectangle( double x, double y, double width, double height,
+         double topLeftWidth, double topLeftHeight, double topRightWidth, double topRightHeight,
+         double bottomLeftWidth, double bottomLeftHeight, double bottomRightWidth,
+         double bottomRightHeight ) {
+      if( topLeftWidth + topRightWidth > width ){
+         throw new IllegalArgumentException( "top rounding factors are invalid (" + topLeftWidth
+               + ") (" + topRightWidth + ")" );
       }
-      if( bottomLeft + bottomRight > width ){
-         throw new IllegalArgumentException( "bottom rounding factors are invalid (" + bottomLeft
-               + ") (" + bottomRight + ")" );
+      if( bottomLeftWidth + bottomRightWidth > width ){
+         throw new IllegalArgumentException( "bottom rounding factors are invalid ("
+               + bottomLeftWidth + ") (" + bottomRightWidth + ")" );
       }
-      if( topLeft + bottomLeft > height ){
-         throw new IllegalArgumentException( "left rounding factors are invalid (" + topLeft
-               + ") (" + bottomLeft + ")" );
+      if( topLeftHeight + bottomLeftHeight > height ){
+         throw new IllegalArgumentException( "left rounding factors are invalid (" + topLeftWidth
+               + ") (" + bottomLeftWidth + ")" );
       }
-      if( topRight + bottomRight > height ){
-         throw new IllegalArgumentException( "ritgh rounding factors are invalid (" + topRight
-               + ") (" + bottomRight + ")" );
+      if( topRightHeight + bottomRightHeight > height ){
+         throw new IllegalArgumentException( "ritgh rounding factors are invalid (" + topRightWidth
+               + ") (" + bottomRightWidth + ")" );
       }
 
       this.x = x;
       this.y = y;
       this.width = width;
       this.height = height;
-      this.topLeft = topLeft;
-      this.topRight = topRight;
-      this.bottomLeft = bottomLeft;
-      this.bottomRight = bottomRight;
+      this.topLeftWidth = topLeftWidth;
+      this.topLeftHeight = topLeftHeight;
+      this.topRightWidth = topRightWidth;
+      this.topRightHeight = topRightHeight;
+      this.bottomLeftWidth = bottomLeftWidth;
+      this.bottomLeftHeight = bottomLeftHeight;
+      this.bottomRightWidth = bottomRightWidth;
+      this.bottomRightHeight = bottomRightHeight;
       calculateRectangle();
    }
 
    public Object clone() {
-      return new MultiRoundRectangle( x, y, width, height, topLeft, topRight, bottomLeft,
-            bottomRight );
+      return new MultiRoundRectangle( x, y, width, height, topLeftWidth, topLeftHeight,
+            topRightWidth, topRightHeight, bottomLeftWidth, bottomLeftHeight, bottomRightWidth,
+            bottomRightHeight );
    }
 
    public boolean contains( double x, double y ) {
@@ -94,11 +107,11 @@ public class MultiRoundRectangle implements Shape, Cloneable {
    }
 
    public double getBottomLeft() {
-      return bottomLeft;
+      return bottomLeftWidth;
    }
 
    public double getBottomRight() {
-      return bottomRight;
+      return bottomRightWidth;
    }
 
    public Rectangle getBounds() {
@@ -122,11 +135,11 @@ public class MultiRoundRectangle implements Shape, Cloneable {
    }
 
    public double getTopLeft() {
-      return topLeft;
+      return topLeftWidth;
    }
 
    public double getTopRight() {
-      return topRight;
+      return topRightWidth;
    }
 
    public double getWidth() {
@@ -143,32 +156,33 @@ public class MultiRoundRectangle implements Shape, Cloneable {
 
    private void calculateRectangle() {
       rectangle = new GeneralPath();
-      if( topLeft > 0 ){
-         rectangle.moveTo( x + topLeft, y );
-         rectangle.append( new Arc2D.Double( x, y, topLeft * 2, topLeft * 2, 90, 90, Arc2D.OPEN ),
-               true );
+      if( topLeftWidth > 0 ){
+         rectangle.moveTo( x + topLeftWidth, y );
+         rectangle.append( new Arc2D.Double( x, y, topLeftWidth * 2, topLeftHeight * 2, 90, 90,
+               Arc2D.OPEN ), true );
       }else{
          rectangle.moveTo( x, y );
-         rectangle.lineTo( x, y + height - bottomLeft );
+         rectangle.lineTo( x, y + height - bottomLeftHeight );
       }
 
-      if( bottomLeft > 0 ){
-         rectangle.append( new Arc2D.Double( x, y + height - (bottomLeft * 2), bottomLeft * 2,
-               bottomLeft * 2, 180, 90, Arc2D.OPEN ), true );
+      if( bottomLeftWidth > 0 ){
+         rectangle.append( new Arc2D.Double( x, y + height - (bottomLeftHeight * 2),
+               bottomLeftWidth * 2, bottomLeftHeight * 2, 180, 90, Arc2D.OPEN ), true );
       }else{
          rectangle.lineTo( x, y + height );
       }
 
-      if( bottomRight > 0 ){
-         rectangle.append( new Arc2D.Double( x + width - (bottomRight * 2), y + height
-               - (bottomRight * 2), bottomRight * 2, bottomRight * 2, 270, 90, Arc2D.OPEN ), true );
+      if( bottomRightWidth > 0 ){
+         rectangle.append( new Arc2D.Double( x + width - (bottomRightWidth * 2), y + height
+               - (bottomRightHeight * 2), bottomRightWidth * 2, bottomRightHeight * 2, 270, 90,
+               Arc2D.OPEN ), true );
       }else{
          rectangle.lineTo( x + width, y + height );
       }
 
-      if( topRight > 0 ){
-         rectangle.append( new Arc2D.Double( x + width - (topRight * 2), y, topRight * 2,
-               topRight * 2, 0, 90, Arc2D.OPEN ), true );
+      if( topRightWidth > 0 ){
+         rectangle.append( new Arc2D.Double( x + width - (topRightWidth * 2), y, topRightWidth * 2,
+               topRightHeight * 2, 0, 90, Arc2D.OPEN ), true );
       }else{
          rectangle.lineTo( x + width, y );
       }

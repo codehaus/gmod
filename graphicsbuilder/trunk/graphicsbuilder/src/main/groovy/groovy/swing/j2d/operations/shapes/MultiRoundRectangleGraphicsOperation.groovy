@@ -25,7 +25,10 @@ import groovy.swing.j2d.geom.MultiRoundRectangle
  */
 public class MultiRoundRectangleGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = super.required + ['x','y','width','height']
-    public static optional = super.optional + ['topLeft','topRight','bottomLeft','bottomRight']
+    public static optional = super.optional + ['topLeftWidth','topLeftHeight',
+                                               'topRightWidth','topRightHeight',
+                                               'bottomLeftWidth','bottomLeftHeight',
+                                               'bottomRightWidth','bottomRightHeight']
 
     private MultiRoundRectangle roundRect
 
@@ -33,10 +36,14 @@ public class MultiRoundRectangleGraphicsOperation extends AbstractShapeGraphicsO
     def y = 0
     def width = 10
     def height = 10
-    def topLeft
-    def topRight
-    def bottomLeft
-    def bottomRight
+    def topLeftWidth
+    def topLeftHeight
+    def topRightWidth
+    def topRightHeight
+    def bottomLeftWidth
+    def bottomLeftHeight
+    def bottomRightWidth
+    def bottomRightHeight
 
     public MultiRoundRectangleGraphicsOperation() {
         super( "roundRect" )
@@ -55,17 +62,37 @@ public class MultiRoundRectangleGraphicsOperation extends AbstractShapeGraphicsO
     }
 
     private void calculateRoundRect() {
-       def tl = topLeft != null ? topLeft : 0
-       def tr = topRight != null ? topRight : 0
-       def bl = bottomLeft != null ? bottomLeft : 0
-       def br = bottomRight != null ? bottomRight : 0
+       def tlw = topLeftWidth != null ? topLeftWidth :
+                    topLeftHeight != null ? topLeftHeight : 0
+       def tlh = topLeftHeight != null ? topLeftHeight :
+                    topLeftWidth != null ? topLeftWidth : 0
+
+       def trw = topRightWidth != null ? topRightWidth :
+                    topRightHeight != null ? topRightHeight : 0
+       def trh = topRightHeight != null ? topRightHeight :
+                    topRightWidth != null ? topRightWidth : 0
+
+       def blw = bottomLeftWidth != null ? bottomLeftWidth :
+                    bottomLeftHeight != null ? bottomLeftHeight : 0
+       def blh = bottomLeftHeight != null ? bottomLeftHeight :
+                    bottomLeftWidth != null ? bottomLeftWidth : 0
+
+       def brw = bottomRightWidth != null ? bottomRightWidth :
+                    bottomRightHeight != null ? bottomRightHeight : 0
+       def brh = bottomRightHeight != null ? bottomRightHeight :
+                    bottomRightWidth != null ? bottomRightWidth : 0
+
        roundRect = new MultiRoundRectangle( x as double,
                                             y as double,
                                             width as double,
                                             height as double,
-                                            tl as double,
-                                            tr as double,
-                                            bl as double,
-                                            br as double )
+                                            tlw as double,
+                                            tlh as double,
+                                            trw as double,
+                                            trh as double,
+                                            blw as double,
+                                            blh as double,
+                                            brw as double,
+                                            brh as double )
     }
 }
