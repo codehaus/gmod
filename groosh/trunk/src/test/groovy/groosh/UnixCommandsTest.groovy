@@ -49,6 +49,11 @@ class UnixCommandsTest extends GroovyTestCase {
 		assert blaResult == out
 	}
 
+	void testPipeTo() {
+		def out = (gsh._cat('src/test/resources/blah.txt') | gsh._grep('b')).toStringOut()
+		assert 'b\nba\n' == out
+	}
+	
 	void testCatToFile() {
 	    def tmpFile = File.createTempFile("groovyTest",".txt")
 		def p = gsh.cat('src/test/resources/blah.txt')

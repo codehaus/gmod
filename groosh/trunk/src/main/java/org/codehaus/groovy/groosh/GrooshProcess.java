@@ -78,6 +78,10 @@ public abstract class GrooshProcess {
 		return process;
 	}
 
+	public GrooshProcess or(GrooshProcess process) throws IOException {
+		return pipeTo(process);
+	}
+
 	// TODO should this be asynchronous, would be less obvious though!
 	public void toStdOut() throws IOException {
 		Sink sink = StandardStreams.stdout();
@@ -114,8 +118,7 @@ public abstract class GrooshProcess {
 		return this;
 	}
 
-	public void waitFor() throws InterruptedException,
-			ExecutionException {
+	public void waitFor() throws InterruptedException, ExecutionException {
 		getSource().waitForStreamsHandled();
 	}
 
