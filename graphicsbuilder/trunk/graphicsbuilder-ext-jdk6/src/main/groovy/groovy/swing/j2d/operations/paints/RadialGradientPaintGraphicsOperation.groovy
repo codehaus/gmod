@@ -114,17 +114,21 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       fx = fx == null ? cx: fx
       fy = fy == null ? cy: fy
 
-      //if( absolute ){
+      if( absolute ){
          return makePaint( cx as float,
                            cy as float,
                            fx as float,
                            fy as float )
-      /*}else{
-         return makePaint( (cx + bounds.x) as float,
-                           (cy + bounds.y) as float,
-                           (fx + bounds.x) as float,
-                           (fy + bounds.y) as float )
-      }*/
+      }else{
+         def scx = bounds.x + (bounds.width/2)
+         def scy = bounds.y + (bounds.height/2)
+         def dcx = scx - cx
+         def dcy = scy - cy
+         return makePaint( scx as float,
+                           scy as float,
+                           fx + dcx as float,
+                           fy + dcy as float )
+      }
    }
 
    public void setTransformationGroup( TransformationGroup transformationGroup ){

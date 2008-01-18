@@ -77,8 +77,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
             ],["opacity"])
             out.println(") {")
             handleFont( attrs )
@@ -109,8 +107,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
             ], ["x","y","width","height","opacity"] )
             out.println(") {")
             handleStroke( attrs )
@@ -130,8 +126,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
                "r": { p, v -> " radius: ${normalize(v)},"},
             ], ["cx","cy","opacity"] )
             out.println(") {")
@@ -152,8 +146,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
                "rx": { p, v -> " radiusx: ${normalize(v)},"},
                "ry": { p, v -> " radiusy: ${normalize(v)},"},
             ], ["cx","cy","opacity"] )
@@ -173,8 +165,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
             ], ["x1","x2","y1","y2","opacity"] )
             out.println(") {")
             handleStroke( attrs )
@@ -189,8 +179,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
                "points": { p, v -> " points: [${v.replaceAll('\\s+',',')}],"},
             ],["opacity"])
             out.println(") {")
@@ -208,8 +196,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
                "points": { p, v -> " points: [${v.replaceAll('\\s+',',')}],"},
             ],["opacity"])
             out.println(") {")
@@ -235,12 +221,10 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
             ],["x","y","opacity"])
             out.println(") {")
-            handleStroke( attrs )
-            handleTransformations( attrs )
+            handleStroke( textNode.attrs )
+            handleTransformations( textNode.attrs )
             out.printIndent()
             out.println("}")
             textNode = null
@@ -256,8 +240,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "fill-rule": { p, v -> " winding: '$v',"},
                "fill": this.&colorAttributeHandler,
                "color": this.&borderColorAttributeHandler,
-               //"stroke": this.&borderColorAttributeHandler,
-               //"stroke-width": this.&borderWidthAttributeHandler,
             ], ["opacity"])
             out.println("){")
             handleStroke( attrs )
@@ -365,23 +347,6 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
          return value[5..-2]
       }
       return "color('$value')"
-      /*
-      if( !value.startsWith("#") && !(value =~ /[0-9a-fA-F]{6}/) ){
-         return "color('$value')"
-      }
-      value = value.startsWith("#") ? value[1..-1] : value
-      if( value.length() == 3 ){
-         return "color(red: "+
-                Integer.parseInt("${value[0]}${value[0]}",16) +", green: "+
-                Integer.parseInt("${value[1]}${value[1]}",16) +", blue: "+
-                Integer.parseInt("${value[2]}${value[2]}",16) +")"
-      }else{
-         return "color(red: "+
-                Integer.parseInt(value[0..1],16) +", green: "+
-                Integer.parseInt(value[2..3],16) +", blue: "+
-                Integer.parseInt(value[4..5],16) +")"
-      }
-      */
    }
 
    private void handleAttributes( Attributes attrs, Map mappings ){

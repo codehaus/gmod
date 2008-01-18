@@ -66,9 +66,9 @@ class Svg2Groovy {
     public static void main(String[] args) {
        Thread.start {
            simple_script_source = Thread.currentThread().contextClassLoader.
-                   getResourceAsStream("groovy/swing/j2d/simple-script.txt").text
+                   getResourceAsStream("groovy/swing/j2d/app/simple-script.txt").text
            export_script_source = Thread.currentThread().contextClassLoader.
-                   getResourceAsStream("groovy/swing/j2d/export-script.txt").text
+                   getResourceAsStream("groovy/swing/j2d/app/export-script.txt").text
        }
        SwingUtilities.invokeLater {
           def app = new Svg2Groovy()
@@ -244,7 +244,7 @@ class Svg2Groovy {
        //int height = screen.height as int
 
        def graphicsPanel = new GraphicsPanel()
-       graphicsPanel.preferredSize = [800,800]
+       graphicsPanel.preferredSize = /*screen //*/[800,800]
        graphicsPanel.border = BF.createEmptyBorder()
        graphicsPanel.background = Color.white
        graphicsPanel.addGraphicsErrorListener({ evt ->
@@ -259,6 +259,8 @@ class Svg2Groovy {
              preferredSize: [800,600] ){
           panel( graphicsPanel, id: 'view' )
        }
+       //scrollPane.viewport.extentSize = [800,600] as Dimension
+       //scrollPane.viewport.viewSize = [800,600] as Dimension
 
        graphicsPanel.addMouseListener( rowHeader )
        graphicsPanel.addMouseMotionListener( rowHeader )
@@ -407,10 +409,10 @@ class Svg2Groovy {
           swing.svgSource.text = svg
           swing.update.text = "Converting SVG ..."
        }
-	   def writer = new StringWriter()
-	   def handler = new Svg2GroovyHandler(writer)
-	   reader.contentHandler = handler
-	   reader.parse( new InputSource(new StringReader(svg)) )
+       def writer = new StringWriter()
+       def handler = new Svg2GroovyHandler(writer)
+       reader.contentHandler = handler
+       reader.parse( new InputSource(new StringReader(svg)) )
        return writer.toString()
     }
 

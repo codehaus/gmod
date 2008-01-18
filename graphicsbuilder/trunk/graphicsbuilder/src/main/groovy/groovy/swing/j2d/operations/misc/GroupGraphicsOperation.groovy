@@ -122,7 +122,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
-       if( go instanceof Transformable && !(go instanceof PaintProvider) ){
+       if( go instanceof Transformable /*&& !(go instanceof PaintProvider)*/ ){
           if( transformationGroup ){
              def gtg = go.globalTransformationGroup
              if( !gtg ){
