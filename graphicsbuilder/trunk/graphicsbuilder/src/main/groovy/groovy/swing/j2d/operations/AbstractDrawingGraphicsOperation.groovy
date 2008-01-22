@@ -120,28 +120,18 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
 
     public BufferedImage asImage( GraphicsContext context ) {
        if( !image ){
-          calculateImage(context)
+          image = calculateImage(context)
        }
        image
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       def o = opacity
-       if( context.groupContext?.opacity ){
-          o = context.groupContext?.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }
+       def o = getOpacity( context )
 
        //if( operations || o != null ){
           gcopy = context.g
           context.g = context.g.create()
-          if( o != null ){
-             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-          }else{
-             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-          }
+          applyOpacity( context )
        //}
     }
 
@@ -157,13 +147,10 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void executeOperation( GraphicsContext context ) {
-        if( !asShape && !asImage ){
+        if( asImage ){
+           image = calculateImage( context )
+        }else if( !asShape ){
             def shape = getGloballyTransformedShape(context)
-            /*
-            if( alphaComposite ){
-               context.g.composite = alphaComposite
-            }
-            */
             fill( context, shape )
             draw( context, shape )
         }
@@ -172,13 +159,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     protected void fill( GraphicsContext context, Shape shape ) {
        def g = context.g
 
-       def f = fill
-       if( context.groupContext.fill != null ){
-          f = context.groupContext.fill
-       }
-       if( fill != null ){
-          f = fill
-       }
+       def f = getFill( context )
 
        // short-circuit
        // don't fill the shape if fill == false
@@ -255,20 +236,10 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        return stroke
     }
 
-    private void applyPaint( GraphicsContext context, Shape shape, paint ){
-       if( paint instanceof PaintProvider ){
-          Paint oldpaint = context.g.getPaint()
-          context.g.paint = paint.getPaint(context, shape.bounds2D)
-          applyFill( context, shape )
-          context.g.paint = oldpaint
-       }else if( paint instanceof MultiPaintProvider ){
-          paint.apply( context, shape )
-       }
-    }
-
     protected void applyFill( GraphicsContext context, Shape shape ) {
         context.g.fill( shape )
     }
+
 
     protected void draw( GraphicsContext context, Shape shape ) {
        def previousColor = null
@@ -276,21 +247,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
 
        def g = context.g
 
-       def bc = borderColor
-       if( context.groupContext.borderColor != null ){
-          bc = context.groupContext.borderColor
-       }
-       if( borderColor != null ){
-          bc = borderColor
-       }
-       def bw = borderWidth
-       if( context.groupContext.borderWidth ){
-          bw = context.groupContext.borderWidth
-       }
-       if( borderWidth != null ){
-          bw = borderWidth
-       }
-
+       def bc = getBorderColor( context )
+       def bw = getBorderWidth( context )
        def bp = getBorderPaint()
 
        // short-circuit
@@ -317,6 +275,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            previousStroke = g.stroke
            if( previousStroke instanceof BasicStroke ){
               g.stroke = previousStroke.derive(width:bw)
+           }else{
+              g.stroke = new BasicStroke( bw as float )
            }
        }
 
@@ -360,10 +320,10 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
     }
 
-    private void calculateImage( GraphicsContext context ) {
+    protected def calculateImage( GraphicsContext context ) {
        Shape shape = getLocallyTransformedShape(context)
        def bounds = shape.bounds
-       image = context.g.deviceConfiguration.createCompatibleImage(
+       BufferedImage image = context.g.deviceConfiguration.createCompatibleImage(
              bounds.width as int, bounds.height as int, Transparency.BITMASK )
        shape = AffineTransform.getTranslateInstance( (bounds.x as double)*(-1), (bounds.y as double)*(-1) )
                               .createTransformedShape(shape)
@@ -379,20 +339,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        */
 
        contextCopy.g = graphics
-
-       def o = opacity
-       if( contextCopy.groupContext?.opacity ){
-          o = contextCopy.groupContext?.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }
-
-       if( o != null ){
-          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }else{
-          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }
+       applyOpacity( contextCopy )
 
        if( operations ){
           operations.each { op -> executeNestedOperation(contextCopy,op) }
@@ -401,5 +348,88 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        fill( contextCopy, shape )
        draw( contextCopy, shape )
        graphics.dispose()
+
+       return image
+    }
+
+    protected def getFill( GraphicsContext context ){
+       def f = fill
+       if( context.groupContext.fill != null ){
+          f = context.groupContext.fill
+       }
+       if( fill != null ){
+          f = fill
+       }
+       return f
+    }
+
+    protected def getBorderColor( GraphicsContext context ){
+       def bc = borderColor
+       if( context.groupContext.borderColor != null ){
+          bc = context.groupContext.borderColor
+       }
+       if( borderColor != null ){
+          bc = borderColor
+       }
+       return bc
+    }
+
+    protected def getBorderWidth( GraphicsContext context ){
+       def bw = borderWidth
+       if( context.groupContext.borderWidth ){
+          bw = context.groupContext.borderWidth
+       }
+       if( borderWidth != null ){
+          bw = borderWidth
+       }
+       return bw
+    }
+
+    protected def getStroke( GraphicsContext context ){
+       def s = getStroke()
+       def bw = getBorderWidth(context)
+       if( bw ){
+          def ps = context.g.stroke
+          if( ps instanceof BasicStroke ){
+             return ps.derive(width:bw)
+          }else{
+             return new BasicStroke( bw as float )
+          }
+       }else if( s ){
+          return s.stroke
+       }else{
+          return context.g.stroke
+       }
+    }
+
+    protected def getOpacity( GraphicsContext context ){
+       def o = opacity
+       if( context.groupContext?.opacity ){
+          o = context.groupContext?.opacity
+       }
+       if( opacity != null ){
+          o = opacity
+       }
+       return o
+    }
+
+    protected void applyOpacity( GraphicsContext context ){
+       def o = getOpacity( context )
+       if( o != null ){
+          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+       }else{
+          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+       }
+    }
+
+    private void applyPaint( GraphicsContext context, Shape shape, paint ){
+       if( paint instanceof PaintProvider ){
+          Paint oldpaint = context.g.getPaint()
+          context.g.paint = paint.getPaint(context, shape.bounds2D)
+          applyFill( context, shape )
+          context.g.paint = oldpaint
+       }else if( paint instanceof MultiPaintProvider ){
+          paint.apply( context, shape )
+       }
     }
 }

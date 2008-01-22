@@ -13,14 +13,25 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.factory
 
 import java.awt.Shape
-import java.awt.image.BufferedImage
+import groovy.swing.j2d.operations.Filterable
+import groovy.swing.j2d.operations.FilterGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface FilterProvider /*extends GraphicsOperation*/ {
-    BufferedImage filter( BufferedImage src, BufferedImage dst, Shape clip )
+public class FilterGroupFactory extends AbstractGraphicsOperationFactory {
+    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
+            Map properties ) throws InstantiationException, IllegalAccessException {
+        return new FilterGroup()
+    }
+
+    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       if( !(parent instanceof Filterable) ){
+          throw new IllegalArgumentException("$parent does not support filters")
+       }
+       parent.filterGroup = child
+    }
 }

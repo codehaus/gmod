@@ -13,19 +13,32 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.filters.distort
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.AbstractTransformFilterProvider
+
+import com.jhlabs.image.DiffuseFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
+class DiffuseFilterProvider extends AbstractTransformFilterProvider {
+   public static required = ['scale']
 
-    void removeFilter( FilterProvider filter )
+   def scale
 
-    List getFilters()
-    */
+   DiffuseFilterProvider() {
+      super( "diffuse" )
+      filter = new DiffuseFilter()
+   }
+
+   protected def convertValue( property, value ){
+      switch( property ){
+         case "scale":
+            return value as float
+         default:
+            return super.convertValue(property,value)
+      }
+   }
 }

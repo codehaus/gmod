@@ -19,8 +19,9 @@ import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.event.GraphicsInputEvent
 import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.ShapeProvider
-import groovy.swing.j2d.operations.FilterProvider
 import groovy.swing.j2d.operations.Filterable
+import groovy.swing.j2d.operations.FilterProvider
+import groovy.swing.j2d.operations.FilterGroup
 import groovy.swing.j2d.operations.AbstractDrawingGraphicsOperation
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
@@ -50,7 +51,7 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
     Closure mouseWheelMoved
 
     private BufferedImage filteredImage
-    private List filters = []
+    FilterGroup filterGroup
 
     public AbstractShapeGraphicsOperation( String name ) {
         super( name )
@@ -101,7 +102,7 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( filters.contains(event.source) ){
+       if( event.source == filterGroup ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -113,22 +114,18 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        filteredImage = null
     }
 
-    /* ===== FILTERS ===== */
-
-    public void addFilter( FilterProvider filter ){
-       if( !filter ) return
-       filter.addPropertyChangeListener( this )
-       filters << filter
+    public void setFilterGroup( FilterGroup filterGroup ){
+       if( filterGroup ) {
+          if( this.filterGroup ){
+             this.filterGroup.removePropertyChangeListener( this )
+          }
+          this.filterGroup = filterGroup
+          this.filterGroup.addPropertyChangeListener( this )
+       }
     }
 
-    public void removeFilter( FilterProvider filter ){
-       if( !filter ) return
-       filter.removePropertyChangeListener( this )
-       filters.remove( filter )
-    }
-
-    public List getFilters(){
-       return Collections.unmodifiableList(filters)
+    public FilterGroup getFilterGroup() {
+       filterGroup
     }
 
     /* ===== OPERATOR OVERLOADING ===== */
@@ -173,21 +170,15 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
 
     protected void executeOperation( GraphicsContext context ) {
        def hasPaint = getPaint()
-       def hasFill = fill
-       if( context.groupContext.fill != null ){
-          hasFill = context.groupContext.fill
-       }
-       if( fill != null ){
-          hasFill = fill
-       }
+       def hasFill = getFill( context )
 
        // normal execution if
        // - no filters
        // - filters but no fill nor paint
        // - marked asShape = true
        // TODO review asImage !!!
-       if( filters.isEmpty() || asShape || asImage ||
-           (!filters.isEmpty() && !hasPaint && !hasFill) ){
+       if( !filterGroup || filterGroup.isEmpty() || asShape || asImage ||
+           (!filterGroup.isEmpty() && !hasPaint && !hasFill) ){
           super.executeOperation( context )
           return
        }
@@ -195,13 +186,14 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
           calculateFilteredImage( context )
        }
        Shape shape = getGloballyTransformedShape(context)
-       def sp = getStroke()
-       Shape strokedShape = sp != null ?
-             sp.stroke.createStrokedShape(shape) :
-             context.g.stroke.createStrokedShape(shape)
+       def stroke = getStroke(context)
+       Shape strokedShape = stroke.createStrokedShape(shape)
 
        def bounds = strokedShape.bounds
-       context.g.drawImage( filteredImage, bounds.x as int, bounds.y as int, null )
+       int sx = bounds.x - filterGroup.offset
+       int sy = bounds.y - filterGroup.offset
+       applyOpacity( context )
+       context.g.drawImage( filteredImage, sx, sy, null )
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
@@ -215,45 +207,27 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
 
     private void calculateFilteredImage( GraphicsContext context ){
        Shape shape = getGloballyTransformedShape(context)
-       def sp = getStroke()
-       Shape strokedShape = sp != null ?
-             sp.stroke.createStrokedShape(shape) :
-             context.g.stroke.createStrokedShape(shape)
+       def stroke = getStroke(context)
+       Shape strokedShape = stroke.createStrokedShape(shape)
 
        def strokeBounds = strokedShape.bounds
        def shapeBounds = shape.bounds
+       int swidth = strokeBounds.width + (filterGroup.offset*2)
+       int sheight = strokeBounds.height + (filterGroup.offset*2)
        BufferedImage src = context.g.deviceConfiguration.createCompatibleImage(
-             strokeBounds.width as int, strokeBounds.height as int, Transparency.BITMASK )
-       /*shape = AffineTransform.getTranslateInstance(
-          shapeBounds.x * -1,
-          shapeBounds.y * -1
-       ).createTransformedShape(shape)*/
+             swidth, sheight, Transparency.BITMASK )
        shape = AffineTransform.getTranslateInstance(
-          strokeBounds.x * -1,
-          strokeBounds.y * -1
-          //strokeBounds.x - (shapeBounds.x*2),
-          //strokeBounds.y - (shapeBounds.y*2)
+          (shapeBounds.x * -1) + filterGroup.offset,
+          (shapeBounds.x * -1) + filterGroup.offset
        ).createTransformedShape(shape)
        def graphics = src.createGraphics()
        def contextCopy = context.copy()
-       graphics.setClip( 0, 0, strokeBounds.width as int, strokeBounds.height as int )
+       graphics.setClip( 0, 0, swidth, sheight )
        //graphics.setClip( shape.bounds )
        graphics.renderingHints.putAll( context.g.renderingHints )
        contextCopy.g = graphics
 
-       def o = opacity
-       if( contextCopy.groupContext?.opacity ){
-          o = contextCopy.groupContext?.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }
-
-       if( o != null ){
-          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }else{
-          graphics.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }
+       applyOpacity( contextCopy )
 
        if( operations ){
           operations.each { op -> executeNestedOperation(contextCopy,op) }
@@ -264,10 +238,6 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        graphics.dispose()
 
        // apply filters
-       BufferedImage dst = src
-       filters.each { filter ->
-          dst = filter.filter( dst, dst )
-       }
-       filteredImage = dst
+       filteredImage = filterGroup.apply( src, shape )
     }
 }

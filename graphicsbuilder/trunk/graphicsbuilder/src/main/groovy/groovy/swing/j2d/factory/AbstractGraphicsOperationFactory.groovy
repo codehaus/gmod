@@ -33,10 +33,12 @@ import groovy.swing.j2d.operations.strokes.ShapeStrokeGraphicsOperation
  */
 abstract class AbstractGraphicsOperationFactory extends AbstractFactory {
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){
+       /*
        if( child instanceof FilterProvider && parent instanceof Filterable ){
           parent.addFilter( child )
           return
        }
+       */
 
        if( child instanceof ShapeProvider && parent instanceof ShapeStrokeGraphicsOperation ){
           parent.addShape( child )

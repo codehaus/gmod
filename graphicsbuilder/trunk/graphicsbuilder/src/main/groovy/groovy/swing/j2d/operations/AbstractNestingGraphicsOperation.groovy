@@ -42,18 +42,6 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
        executeAfterAll( context )
     }
 
-    /*
-    public void addPropertyChangeListener( PropertyChangeListener listener ) {
-       super.addPropertyChangeListener( listener )
-       operations.each { o -> o.addPropertyChangeListener( listener ) }
-    }
-
-    public void removePropertyChangeListener( PropertyChangeListener listener ) {
-       super.removePropertyChangeListener( listener )
-       operations.each { o -> o.removePropertyChangeListener( listener ) }
-    }
-    */
-
     public void addOperation( GraphicsOperation operation ) {
         if( !operation ) return
         operations << operation

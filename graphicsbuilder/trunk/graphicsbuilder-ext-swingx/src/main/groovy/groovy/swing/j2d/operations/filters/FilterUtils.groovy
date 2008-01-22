@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.filters
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.ColorCache
+import java.awt.Color
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
+final class FilterUtils  {
+   static def getColor( value ){
+      if( value instanceof String || value instanceof Color ){
+         return ColorCache.getInstance().getColor(value).rgb()
+      }
+      return value as int
+   }
 
-    void removeFilter( FilterProvider filter )
-
-    List getFilters()
-    */
+   static def getAngle( value ){
+      return Math.toRadians(value)
+   }
 }

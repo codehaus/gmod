@@ -13,21 +13,41 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.colors
+package groovy.swing.j2d.operations.filters.texture
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.InvertFilter
+import com.jhlabs.image.WeaveFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class InvertFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = []
+class WeaveFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['xWidth','yWidth','xGap','yGap','useImageColors','roundThreads','shadeCrossings']
 
-   InvertFilterProvider() {
-      super( "invert" )
-      filter = new InvertFilter()
+   def xWidth
+   def yWidth
+   def xGap
+   def yGap
+   def useImageColors
+   def roundThreads
+   def shadeCrossings
+
+   WeaveFilterProvider() {
+      super( "weave" )
+      filter = new WeaveFilter()
+   }
+
+   protected def convertValue( property, value ){
+      switch( property ){
+         case "xWidth":
+         case "yWidth":
+         case "xGap":
+         case "yGap":
+            return value as float
+         default:
+            return super.convertValue(property,value)
+      }
    }
 }

@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.filters.colors
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
+
+import com.jhlabs.image.ChannelMixFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
+class ChannelMixFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['blueGreen','redBlue','greenRed','intoR','intoG','intoB']
 
-    void removeFilter( FilterProvider filter )
+   def blueGreen
+   def redBlue
+   def greenRed
+   def intoR
+   def intoG
+   def intoB
 
-    List getFilters()
-    */
+   ChannelMixFilterProvider() {
+      super( "channelMix" )
+      filter = new ChannelMixFilter()
+   }
 }

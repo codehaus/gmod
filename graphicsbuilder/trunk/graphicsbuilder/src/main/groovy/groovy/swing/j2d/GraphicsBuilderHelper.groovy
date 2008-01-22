@@ -51,7 +51,7 @@ class GraphicsBuilderHelper {
     public static void extendColor() {
        def colorMethods = Color.metaClass.methods
        if( !colorMethods.name.find{ it == "derive" } ){
-          Color.metaClass.derive << { Map props ->
+          Color.metaClass.derive = { Map props ->
              def red = props.red != null ? props.red: delegate.red
              def green = props.green != null ? props.green: delegate.green
              def blue = props.blue != null ? props.blue: delegate.blue
@@ -60,6 +60,11 @@ class GraphicsBuilderHelper {
                                (green > 1 ? green/255: green) as float,
                                (blue > 1 ? blue/255: blue) as float,
                                (alpha > 1 ? alpha/255: alpha) as float )
+          }
+       }
+       if( !colorMethods.name.find{ it == "rgb" } ){
+          Color.metaClass.rgb = {
+             return delegate.getRGB()
           }
        }
     }

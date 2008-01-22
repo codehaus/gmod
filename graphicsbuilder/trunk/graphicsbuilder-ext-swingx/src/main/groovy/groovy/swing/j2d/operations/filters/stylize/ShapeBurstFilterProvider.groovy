@@ -18,17 +18,16 @@ package groovy.swing.j2d.operations.filters.stylize
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import java.awt.image.BufferedImage
 import com.jhlabs.image.ShapeFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ShapeBurstFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['factor','colorMap','useAlpha','invert','merge','type']
+   public static required = ['factor','colormap','useAlpha','invert','merge','type']
 
    def factor = 1
-   def colorMap
+   def colormap
    def useAlpha = true
    def invert = false
    def merge = false
@@ -37,10 +36,6 @@ class ShapeBurstFilterProvider extends PropertiesBasedFilterProvider {
    ShapeBurstFilterProvider() {
       super( "shapeBurst" )
       filter = new ShapeFilter()
-   }
-
-   public BufferedImage filter( BufferedImage src, BufferedImage dst ){
-      return filter.filter( src, dst )
    }
 
    protected def convertValue( property, value ){

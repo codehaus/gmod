@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.filters.distort
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.AbstractTransformFilterProvider
+
+import com.jhlabs.image.MarbleFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
+class MarbleFilterProvider extends AbstractTransformFilterProvider {
+   public static required = ['xScale','yScale','turbulence','amount']
 
-    void removeFilter( FilterProvider filter )
+   def xScale
+   def yScale
+   def turbulance
+   def amount
 
-    List getFilters()
-    */
+   MarbleFilterProvider() {
+      super( "marble" )
+      filter = new MarbleFilter()
+   }
 }

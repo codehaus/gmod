@@ -13,21 +13,34 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.colors
+package groovy.swing.j2d.operations.filters.stylize
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.InvertFilter
+import com.jhlabs.image.DissolveFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class InvertFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = []
+class DissolveFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['density','softness']
 
-   InvertFilterProvider() {
-      super( "invert" )
-      filter = new InvertFilter()
+   def density
+   def softness
+
+   DissolveFilterProvider() {
+      super( "dissolve" )
+      filter = new DissolveFilter()
+   }
+
+   protected def convertValue( property, value ){
+      switch( property ){
+         case "density":
+         case "softness":
+            return value as float
+         default:
+            return super.convertValue(property,value)
+      }
    }
 }

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.filters.blur
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.AbstractConvolveFilterProvider
+
+import com.jhlabs.image.AverageFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
-
-    void removeFilter( FilterProvider filter )
-
-    List getFilters()
-    */
+class AverageFilterProvider extends AbstractConvolveFilterProvider {
+   AverageFilterProvider() {
+      super( "average" )
+      filter = new AverageFilter()
+   }
 }

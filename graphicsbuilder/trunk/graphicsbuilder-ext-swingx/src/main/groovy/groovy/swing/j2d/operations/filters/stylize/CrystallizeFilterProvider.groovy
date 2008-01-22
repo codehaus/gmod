@@ -13,33 +13,39 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters
+package groovy.swing.j2d.operations.filters.stylize
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.AbstractFilterProvider
+import groovy.swing.j2d.operations.filters.FilterUtils
+import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
+import java.awt.Shape
 import java.awt.image.BufferedImage
-import java.beans.PropertyChangeEvent
+import com.jhlabs.image.CrystallizeFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-abstract class PropertiesBasedFilterProvider extends AbstractFilterProvider {
-   protected def filter
+class CrystallizeFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['edgeThickness','fadeEdges','edgeColor']
 
-   PropertiesBasedFilterProvider( String name ) {
-      super( name )
-   }
+   def edgeThickness
+   def fadeEdges
+   def edgeColor
 
-   public void propertyChange( PropertyChangeEvent event ) {
-      def propertyName = event.propertyName
-      if( isParameter(propertyName) && hasProperty(filter,propertyName) ){
-         filter."$propertyName" = convertValue(propertyName,event.newValue)
-      }
-      super.propertyChange( event )
+   CrystallizeFilterProvider() {
+      super( "crystallize" )
+      filter = new CrystallizeFilter()
    }
 
    protected def convertValue( property, value ){
-      return value
+      switch( property ){
+         case "edgeColor":
+            return FilterUtils.getColor(value)
+         case "edgeThickness":
+            return value as float
+         default:
+            return super.convertValue(property,value)
+      }
    }
 }

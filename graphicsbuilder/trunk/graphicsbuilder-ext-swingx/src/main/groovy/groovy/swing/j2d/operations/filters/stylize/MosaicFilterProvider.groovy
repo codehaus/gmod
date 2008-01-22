@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.filters.stylize
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.AbstractTransformFilterProvider
+
+import com.jhlabs.image.BlockFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
+class MosaicFilterProvider extends AbstractTransformFilterProvider {
+   public static required = ['blockSize']
 
-    void removeFilter( FilterProvider filter )
+   def blockSize
 
-    List getFilters()
-    */
+   MosaicFilterProvider() {
+      super( "mosaic" )
+      filter = new BlockFilter()
+   }
 }

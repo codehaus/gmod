@@ -172,6 +172,11 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "shapeStroke", new StrokesFactory(ShapeStrokeGraphicsOperation) )
         registerFactory( "wobbleStroke", new StrokesFactory(WobbleStrokeGraphicsOperation, true) )
         registerFactory( "zigzagStroke", new StrokesFactory(ZigzagStrokeGraphicsOperation) )
+
+        //
+        // filters
+        //
+        registerFactory( "filters", new FilterGroupFactory() )
     }
 
     private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){

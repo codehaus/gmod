@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.factory
 
-import groovy.swing.j2d.Observable
+import groovy.swing.j2d.operations.FilterGroup
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface Filterable extends Observable {
-    /*
-    void addFilter( FilterProvider filter )
+public class FilterFactory extends GraphicsOperationBeanFactory {
+   public FilterFactory( Class transformationClass ) {
+      super( transformationClass, true )
+   }
 
-    void removeFilter( FilterProvider filter )
+   public FilterFactory( Class transformationClass, boolean leaf ) {
+      super( transformationClass, leaf )
+   }
 
-    List getFilters()
-    */
+   public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
+      if( !(parent instanceof FilterGroup) ){
+         throw new IllegalArgumentException("A filter is not allowed outside 'filters' node")
+      }
+      parent.addFilter(child)
+   }
 }
