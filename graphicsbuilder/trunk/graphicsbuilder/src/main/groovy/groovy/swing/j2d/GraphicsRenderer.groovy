@@ -28,7 +28,7 @@ import java.awt.image.BufferedImage
  */
 final class GraphicsRenderer {
     private GraphicsBuilder gb = new GraphicsBuilder()
-    RenderingHints renderingHints = new RenderingHints()
+    RenderingHints renderingHints = new RenderingHints(null)
 
     public GraphicsRenderer(){
        def helpers = ["Jdk6GraphicsBuilderHelper",
