@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!--
+   /*
+   * Copyright 2005-2007 the original author or authors.
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   * 
+   *      http://www.apache.org/licenses/LICENSE-2.0
+   * 
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+-->
+
+<project
+   xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+   <parent>
+      <groupId>org.codehaus.groovy-contrib</groupId>
+      <artifactId>graphicsbuilder-parent</artifactId>
+      <version>${graphicsbuilder-version}</version>
+   </parent>
+
+   <modelVersion>4.0.0</modelVersion>
+   <artifactId>graphicsbuilder-doc</artifactId>
+   <packaging>jar</packaging>
+   <name>GraphicsBuilder [doc]</name>
+   <organization>
+      <name>GraphicsBuilder Documentation</name>
+      <url>http://groovy.codehaus.org/GraphicsBuilder</url>
+   </organization>
+
+   <description>
+      GraphicsBuilder lets you work with Java2D the Groovy way
+   </description>
+
+   <dependencies>
+      <!--
+      <dependency>
+         <groupId>org.codehaus.groovy</groupId>
+         <artifactId>groovy-all-minimal</artifactId>
+      </dependency>
+      -->
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder</artifactId>
+         <version>${graphicsbuilder-version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder-ext-jdk6</artifactId>
+         <version>${graphicsbuilder-version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder-ext-swingx</artifactId>
+         <version>${graphicsbuilder-version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>graphicsbuilder-ext-svg</artifactId>
+         <version>${graphicsbuilder-version}</version>
+      </dependency>
+      <dependency>
+         <groupId>com.jhlabs</groupId>
+         <artifactId>filters</artifactId>
+         <version>2.0.235</version>
+	 <scope>system</scope>
+	 <systemPath>${basedir}/../graphicsbuilder-ext-swingx/src/lib/Filters.jar</systemPath>
+      </dependency>
+      <!--
+      <dependency>
+         <groupId>org.codehaus.groovy-contrib</groupId>
+         <artifactId>jidebuilder</artifactId>
+         <version>1.0</version>
+      </dependency>
+      <dependency>
+         <groupId>org.jdesktop</groupId>
+         <artifactId>swingx</artifactId>
+         <version>0.9.1</version>
+      </dependency>
+      <dependency>
+         <groupId>org.tango-project</groupId>
+         <artifactId>tango-icon-theme</artifactId>
+         <version>0.8.0</version>
+      </dependency>
+      <dependency>
+         <groupId>batik</groupId>
+         <artifactId>batik-awt-util</artifactId>
+         <version>1.6-1</version>
+      </dependency>
+      -->
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <source>1.6</source>
+               <target>1.6</target>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+   <!--
+   <pluginRepositories>
+      <pluginRepository>
+         <id>codehaus-snapshot-plugins</id>
+         <name>codehaus-shapshot-plugins</name>
+         <url>http://snapshots.repository.codehaus.org/</url>
+         <snapshots>
+            <enabled>true</enabled>
+         </snapshots>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
+      </pluginRepository>
+   </pluginRepositories>
+   -->
+
+</project>

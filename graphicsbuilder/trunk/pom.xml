@@ -61,6 +61,7 @@
       <module>graphicsbuilder-ext-swingx</module>
       <module>graphicsbuilder-ext-svg</module>
       <module>graphicsbuilder-ext-jdk6</module>
+      <module>graphicsbuilder-doc</module>
 <!--
       <module>graphicsbuilder-demo</module>
 -->

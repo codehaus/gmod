@@ -40,7 +40,6 @@ import org.codehaus.groovy.control.CompilationFailedException
 class GraphicsPad implements CaretListener {
     private def graphicsBuilder
     private def swing
-    private def gsh = new GroovyShell()
     private def inputEditor
     private def runThread = null
     private def runWaitDialog
@@ -610,7 +609,7 @@ class GraphicsPad implements CaretListener {
                   def binding = [source:inputEditor.textEditor.text]
                   def template = templateEngine.createTemplate(simple_script_source).make(binding)
                   def script = template.toString()
-                  def go = graphicsBuilder.group( gsh.evaluate(script) )
+                  def go = graphicsBuilder.group( new GroovyShell().evaluate(script) )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
                   }
