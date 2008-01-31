@@ -62,6 +62,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "circleDistort", new FilterFactory(CircleFilterProvider) )
       builder.registerFactory( "curl", new FilterFactory(CurlFilterProvider) )
       builder.registerFactory( "diffuse", new FilterFactory(DiffuseFilterProvider) )
+      builder.registerFactory( "kaleidoscope", new FilterFactory(KaleidoscopeFilterProvider) )
       builder.registerFactory( "marble", new FilterFactory(MarbleFilterProvider) )
       builder.registerFactory( "ripple", new FilterFactory(RippleFilterProvider) )
       builder.registerFactory( "water", new FilterFactory(WaterFilterProvider) )
