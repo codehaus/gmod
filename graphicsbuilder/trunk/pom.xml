@@ -152,7 +152,7 @@
 
    <properties>
       <graphicsbuilder-version>0.4.5-SNAPSHOT</graphicsbuilder-version>
-      <groovy-version>1.5.1</groovy-version>
+      <groovy-version>1.5.2</groovy-version>
    </properties>
 
 </project>

@@ -16,16 +16,20 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.FilterFactory
+import groovy.swing.j2d.factory.LightFactory
 import groovy.swing.j2d.factory.TimingFrameworkFactory
 import groovy.swing.j2d.operations.filters.blur.*
 import groovy.swing.j2d.operations.filters.colors.*
 import groovy.swing.j2d.operations.filters.distort.*
 import groovy.swing.j2d.operations.filters.effects.*
+import groovy.swing.j2d.operations.filters.keying.*
+import groovy.swing.j2d.operations.filters.lights.*
 import groovy.swing.j2d.operations.filters.stylize.*
 import groovy.swing.j2d.operations.filters.texture.*
 import groovy.swing.j2d.operations.filters.transform.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
+import com.jhlabs.image.LightFilter.*
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -47,12 +51,16 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "average", new FilterFactory(AverageFilterProvider) )
       builder.registerFactory( "blur", new FilterFactory(BlurFilterProvider) )
       builder.registerFactory( "boxBlur", new FilterFactory(BoxBlurFilterProvider) )
+      builder.registerFactory( "convolve", new FilterFactory(ConvolveFilterProvider) )
       builder.registerFactory( "embossEdges", new FilterFactory(EmbossEdgesFilterProvider) )
 
       // colors
+      builder.registerFactory( "contrast", new FilterFactory(ContrastFilterProvider) )
       builder.registerFactory( "invert", new FilterFactory(InvertFilterProvider) )
 
       // distort
+      builder.registerFactory( "circleDistort", new FilterFactory(CircleFilterProvider) )
+      builder.registerFactory( "curl", new FilterFactory(CurlFilterProvider) )
       builder.registerFactory( "diffuse", new FilterFactory(DiffuseFilterProvider) )
       builder.registerFactory( "marble", new FilterFactory(MarbleFilterProvider) )
       builder.registerFactory( "ripple", new FilterFactory(RippleFilterProvider) )
@@ -61,7 +69,20 @@ class SwingXGraphicsBuilderHelper {
       // effects
       builder.registerFactory( "mirror", new FilterFactory(MirrorFilterProvider) )
 
+      // keying
+      builder.registerFactory( "chromaKey", new FilterFactory(ChromaKeyFilterProvider) )
+
+      // lights
+      builder.registerGraphicsOperationBeanFactory( "material", LightFilter.Material )
+      builder.registerFactory( "ambientLight", new LightFactory(LightFilter.AmbientLight) )
+      builder.registerFactory( "pointLight", new LightFactory(LightFilter.PointLight) )
+      builder.registerFactory( "distantLight", new LightFactory(LightFilter.DistantLight) )
+      builder.registerFactory( "spotLight", new LightFactory(LightFilter.SpotLight) )
+      builder.registerFactory( "lights", new FilterFactory(LightsFilterProvider,false) )
+      builder.registerFactory( "chrome", new FilterFactory(ChromeFilterProvider,false) )
+
       // stylize
+      builder.registerFactory( "contour", new FilterFactory(ContourFilterProvider) )
       builder.registerFactory( "dissolve", new FilterFactory(DissolveFilterProvider) )
       builder.registerFactory( "dropShadow", new FilterFactory(ShadowFilterProvider) )
       builder.registerFactory( "crystallize", new FilterFactory(CrystallizeFilterProvider) )
@@ -70,6 +91,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "shapeBurst", new FilterFactory(ShapeBurstFilterProvider) )
 
       // texture
+      builder.registerFactory( "cellular", new FilterFactory(CellularFilterProvider) )
       builder.registerFactory( "check", new FilterFactory(CheckFilterProvider) )
       builder.registerFactory( "caustics", new FilterFactory(CausticsFilterProvider) )
       builder.registerFactory( "brushedMetal", new FilterFactory(BrushedMetalFilterProvider) )
