@@ -52,9 +52,15 @@ abstract class AbstractTransformFilterProvider extends PropertiesBasedFilterProv
       }
       if( value instanceof String ){
          switch( value ){
-            case 'zero': return TransformFilter.ZERO
-            case 'clamp': return TransformFilter.CLAMP
-            case 'wrap': return TransformFilter.WRAP
+            case 'zero':
+            case 'zeroEdgeAction':
+               return TransformFilter.ZERO
+            case 'clamp':
+            case 'clampEdgeAction':
+               return TransformFilter.CLAMP
+            case 'wrap':
+            case 'wrapEdgeAction':
+               return TransformFilter.WRAP
          }
       }
       throw new IllegalArgumentException("Invalid value for ${this}.edgeAction")
@@ -66,8 +72,12 @@ abstract class AbstractTransformFilterProvider extends PropertiesBasedFilterProv
       }
       if( value instanceof String ){
          switch( value ){
-            case 'nearest': return TransformFilter.NEAREST_NEIGHBOUR
-            case 'bilinear': return TransformFilter.BILINEAR
+            case 'nearest':
+            case 'nearestInterpolation':
+               return TransformFilter.NEAREST_NEIGHBOUR
+            case 'bilinear':
+            case 'bilinearInterpolation':
+               return TransformFilter.BILINEAR
          }
       }
       throw new IllegalArgumentException("Invalid value for ${this}.interpolation")

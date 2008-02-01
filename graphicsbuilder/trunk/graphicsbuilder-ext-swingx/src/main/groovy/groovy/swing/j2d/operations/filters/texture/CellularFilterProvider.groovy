@@ -80,11 +80,21 @@ class CellularFilterProvider extends PropertiesBasedFilterProvider {
       }
       if( value instanceof String ){
          switch( value ){
-            case "random": return CellularFilter.RANDOM
-            case "square": return CellularFilter.SQUARE
-            case "hexagonal": return CellularFilter.HEXAGONAL
-            case "octagonal": return CellularFilter.OCTAGONAL
-            case "triangular": return CellularFilter.TRIANGULAR
+            case "random":
+            case "randomCell":
+               return CellularFilter.RANDOM
+            case "square":
+            case "squareCell":
+               return CellularFilter.SQUARE
+            case "hexagonal":
+            case "hexagonalCell":
+               return CellularFilter.HEXAGONAL
+            case "octagonal":
+            case "octagonalCell":
+               return CellularFilter.OCTAGONAL
+            case "triangular":
+            case "triangularCell":
+               return CellularFilter.TRIANGULAR
          }
       }
       throw new IllegalArgumentException("${this}.gridType has an invalid value of '${value}'")

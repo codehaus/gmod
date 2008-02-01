@@ -45,10 +45,10 @@ class DetectEdgesFilterProvider extends PropertiesBasedFilterProvider {
    }
 
    private def getMatrix( value ){
-      if( value instanceof int[] ){
+      if( value instanceof float[] ){
          return value
       }else if( value instanceof List ){
-         return value as int[]
+         return value as float[]
       }else if( value instanceof String ){
          value = value.toUpperCase().replaceAll(" ","_")
          return EdgeFilter."$value"

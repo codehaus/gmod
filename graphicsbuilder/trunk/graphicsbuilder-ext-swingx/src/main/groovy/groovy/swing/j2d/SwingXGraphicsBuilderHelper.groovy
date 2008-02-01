@@ -32,7 +32,7 @@ import groovy.swing.j2d.operations.filters.transform.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
 import com.jhlabs.image.LightFilter.*
-
+import com.jhlabs.image.CellularFilterimport com.jhlabs.image.TransformFilter
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -54,14 +54,14 @@ class SwingXGraphicsBuilderHelper {
 
       // binary
       builder.registerFactory( "dilate", new FilterFactory(DilateFilterProvider) )
-      //builder.registerFactory( "erode", new FilterFactory(ErodeFilterProvider) )
+      builder.registerFactory( "erode", new FilterFactory(ErodeFilterProvider) )
 
       // blur
       builder.registerFactory( "average", new FilterFactory(AverageFilterProvider) )
       builder.registerFactory( "blur", new FilterFactory(BlurFilterProvider) )
       builder.registerFactory( "boxBlur", new FilterFactory(BoxBlurFilterProvider) )
       builder.registerFactory( "convolve", new FilterFactory(ConvolveFilterProvider) )
-      //builder.registerFactory( "despeckle", new FilterFactory(DespeckleFilterProvider) )
+      builder.registerFactory( "despeckle", new FilterFactory(DespeckleFilterProvider) )
       builder.registerFactory( "detectEdges", new FilterFactory(DetectEdgesFilterProvider) )
       builder.registerFactory( "embossEdges", new FilterFactory(EmbossEdgesFilterProvider) )
 
@@ -71,7 +71,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "dither", new FilterFactory(DitherFilterProvider) )
       builder.registerFactory( "equalize", new FilterFactory(EqualizeFilterProvider) )
       builder.registerFactory( "exposure", new FilterFactory(ExposureFilterProvider) )
-      //builder.registerFactory( "fade", new FilterFactory(FadeFilterProvider) )
+      builder.registerFactory( "fade", new FilterFactory(FadeFilterProvider) )
       builder.registerFactory( "invert", new FilterFactory(InvertFilterProvider) )
 
       // distort
@@ -120,7 +120,45 @@ class SwingXGraphicsBuilderHelper {
       // transform
       builder.registerFactory( "flip", new FilterFactory(FlipFilterProvider) )
 
-      // deteckEdges matrices
+      // -- VARIABLES
+
+      // transform
+      builder.zeroEdgeAction = TransformFilter.ZERO
+      builder.clampEdgeAction = TransformFilter.CLAMP
+      builder.warpEdgeAction = TransformFilter.WRAP
+      builder.nearestInterpolation = TransformFilter.NEAREST_NEIGHBOUR
+      builder.bilinearInterpolation = TransformFilter.BILINEAR
+
+      // flips
+      builder.flipH = FlipFilter.FLIP_H
+      builder.flipV = FlipFilter.FLIP_V
+      builder.flipHV = FlipFilter.FLIP_HV
+      builder.flip90CW = FlipFilter.FLIP_90CW
+      builder.flip90CCW = FlipFilter.FLIP_90CCW
+      builder.flip180 = FlipFilter.FLIP_180
+
+      // shapeBurst
+      builder.linearBurst = ShapeFilter.LINEAR
+      builder.circleUpBurst = ShapeFilter.CIRCLE_UP
+      builder.upBurst = ShapeFilter.CIRCLE_UP
+      builder.circleDownBurst = ShapeFilter.CIRCLE_DOWN
+      builder.downBurst = ShapeFilter.CIRCLE_DOWN
+      builder.smoothBurst = ShapeFilter.SMOOTH
+
+      // ripple
+      builder.sineRipple = RippleFilter.SINE
+      builder.sawtoothRipple = RippleFilter.SAWTOOTH
+      builder.triangleRipple = RippleFilter.TRIANGLE
+      builder.noiseRipple = RippleFilter.NOISE
+
+      // cellular
+      builder.randomCell = CellularFilter.RANDOM
+      builder.squareCell = CellularFilter.SQUARE
+      builder.hexagonalCell = CellularFilter.HEXAGONAL
+      builder.octagonalCell = CellularFilter.OCTAGONAL
+      builder.triangularCell = CellularFilter.TRIANGULAR
+
+      // detectEdges matrices
       builder.robertsV = EdgeFilter.ROBERTS_V
       builder.robertsH = EdgeFilter.ROBERTS_H
       builder.prewittV = EdgeFilter.PREWITT_V

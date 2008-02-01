@@ -57,10 +57,18 @@ class RippleFilterProvider extends AbstractTransformFilterProvider {
       }
       if( value instanceof String ){
          switch( waveType ){
-            case "sine": return RippleFilter.SINE
-            case "sawtooth": return RippleFilter.SAWTOOTH
-            case "triangle": return RippleFilter.TRIANGLE
-            case "noise": return RippleFilter.NOISE
+            case "sine":
+            case "sineRipple":
+               return RippleFilter.SINE
+            case "sawtooth":
+            case "sawtoothRipple":
+               return RippleFilter.SAWTOOTH
+            case "triangle":
+            case "triangleRipple":
+               return RippleFilter.TRIANGLE
+            case "noise":
+            case "noiseRipple":
+               return RippleFilter.NOISE
          }
       }
       throw new IllegalArgumentException("Invalid value for ${this}.waveType")

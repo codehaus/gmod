@@ -54,18 +54,24 @@ class ShapeBurstFilterProvider extends PropertiesBasedFilterProvider {
       if( value instanceof String ){
          switch( value ){
             case "linear":
+            case "linearBurst":
                return ShapeFilter.LINEAR
             case "up":
             case "circleup":
             case "circle up":
             case "circle_up":
+            case "circleUpBurst":
+            case "upBurst":
                return ShapeFilter.CIRCLE_UP
             case "down":
             case "circledown":
             case "circle down":
             case "circle_down":
+            case "circleDownBurst":
+            case "downBurst":
                return ShapeFilter.CIRCLE_DOWN
             case "smooth":
+            case "smoothBurst":
                return ShapeFilter.SMOOTH
          }
          throw new IllegalArgumentException("shapeBurst.type has an invalid value of '${value}'")
