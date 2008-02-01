@@ -13,29 +13,32 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters
+package groovy.swing.j2d.operations.filters.colors
 
-import groovy.swing.j2d.ColorCache
-import java.awt.Color
-import java.awt.image.BufferedImage
+import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
+
+import com.jhlabs.image.ExposureFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-final class FilterUtils  {
-   static def getColor( value ){
-      if( value instanceof String || value instanceof Color ){
-         return ColorCache.getInstance().getColor(value).rgb()
+class ExposureFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['exposure']
+
+   def exposure
+
+   ExposureFilterProvider() {
+      super( "exposure" )
+      filter = new ExposureFilter()
+   }
+
+   protected def convertValue( property, value ){
+      switch( property ){
+         case "exposure":
+            return value as float
+         default:
+            return super.convertValue(property,value)
       }
-      return value as int
-   }
-
-   static def getAngle( value ){
-      return Math.toRadians(value)
-   }
-
-   static def getImage( value ){
-      // TODO handle image and shape operations
-      return value
    }
 }

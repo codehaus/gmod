@@ -18,6 +18,8 @@ package groovy.swing.j2d
 import groovy.swing.j2d.factory.FilterFactory
 import groovy.swing.j2d.factory.LightFactory
 import groovy.swing.j2d.factory.TimingFrameworkFactory
+import groovy.swing.j2d.operations.filters.alpha.*
+import groovy.swing.j2d.operations.filters.binary.*
 import groovy.swing.j2d.operations.filters.blur.*
 import groovy.swing.j2d.operations.filters.colors.*
 import groovy.swing.j2d.operations.filters.distort.*
@@ -40,28 +42,43 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "animate", new TimingFrameworkFactory() )
 
       //
-      // filters
+      // colormaps
       //
       builder.registerGraphicsOperationBeanFactory( "grayscaleColormap", GrayscaleColormap )
       builder.registerGraphicsOperationBeanFactory( "linearColormap", LinearColormap )
       builder.registerGraphicsOperationBeanFactory( "spectrumColormap", SpectrumColormap )
       builder.registerGraphicsOperationBeanFactory( "splineColormap", SplineColormap )
 
+      // alpha
+      builder.registerFactory( "erodeAlpha", new FilterFactory(ErodeAlphaFilterProvider) )
+
+      // binary
+      builder.registerFactory( "dilate", new FilterFactory(DilateFilterProvider) )
+      //builder.registerFactory( "erode", new FilterFactory(ErodeFilterProvider) )
+
       // blur
       builder.registerFactory( "average", new FilterFactory(AverageFilterProvider) )
       builder.registerFactory( "blur", new FilterFactory(BlurFilterProvider) )
       builder.registerFactory( "boxBlur", new FilterFactory(BoxBlurFilterProvider) )
       builder.registerFactory( "convolve", new FilterFactory(ConvolveFilterProvider) )
+      //builder.registerFactory( "despeckle", new FilterFactory(DespeckleFilterProvider) )
+      builder.registerFactory( "detectEdges", new FilterFactory(DetectEdgesFilterProvider) )
       builder.registerFactory( "embossEdges", new FilterFactory(EmbossEdgesFilterProvider) )
 
       // colors
       builder.registerFactory( "contrast", new FilterFactory(ContrastFilterProvider) )
+      builder.registerFactory( "diffusion", new FilterFactory(DiffusionFilterProvider) )
+      builder.registerFactory( "dither", new FilterFactory(DitherFilterProvider) )
+      builder.registerFactory( "equalize", new FilterFactory(EqualizeFilterProvider) )
+      builder.registerFactory( "exposure", new FilterFactory(ExposureFilterProvider) )
+      //builder.registerFactory( "fade", new FilterFactory(FadeFilterProvider) )
       builder.registerFactory( "invert", new FilterFactory(InvertFilterProvider) )
 
       // distort
       builder.registerFactory( "circleDistort", new FilterFactory(CircleFilterProvider) )
       builder.registerFactory( "curl", new FilterFactory(CurlFilterProvider) )
       builder.registerFactory( "diffuse", new FilterFactory(DiffuseFilterProvider) )
+      builder.registerFactory( "displace", new FilterFactory(DisplaceFilterProvider) )
       builder.registerFactory( "kaleidoscope", new FilterFactory(KaleidoscopeFilterProvider) )
       builder.registerFactory( "marble", new FilterFactory(MarbleFilterProvider) )
       builder.registerFactory( "ripple", new FilterFactory(RippleFilterProvider) )
@@ -87,6 +104,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "dissolve", new FilterFactory(DissolveFilterProvider) )
       builder.registerFactory( "dropShadow", new FilterFactory(ShadowFilterProvider) )
       builder.registerFactory( "crystallize", new FilterFactory(CrystallizeFilterProvider) )
+      builder.registerFactory( "emboss", new FilterFactory(EmbossFilterProvider) )
       builder.registerFactory( "mosaic", new FilterFactory(MosaicFilterProvider) )
       builder.registerFactory( "pointillize", new FilterFactory(PointillizeFilterProvider) )
       builder.registerFactory( "shapeBurst", new FilterFactory(ShapeBurstFilterProvider) )
@@ -101,5 +119,27 @@ class SwingXGraphicsBuilderHelper {
 
       // transform
       builder.registerFactory( "flip", new FilterFactory(FlipFilterProvider) )
+
+      // deteckEdges matrices
+      builder.robertsV = EdgeFilter.ROBERTS_V
+      builder.robertsH = EdgeFilter.ROBERTS_H
+      builder.prewittV = EdgeFilter.PREWITT_V
+      builder.prewittH = EdgeFilter.PREWITT_H
+      builder.sobelV = EdgeFilter.SOBEL_V
+      builder.sobelH = EdgeFilter.SOBEL_H
+      builder.freiChenV = EdgeFilter.FREI_CHEN_V
+      builder.freChenH = EdgeFilter.FREI_CHEN_H
+
+      // dither matrices
+      builder.ditherMagic2x2Matrix = DitherFilter.ditherMagic2x2Matrix
+      builder.ditherMagic4x4Matrix = DitherFilter.ditherMagic4x4Matrix
+      builder.ditherOrdered4x4Matrix = DitherFilter.ditherOrdered4x4Matrix
+      builder.ditherLines4x4Matrix = DitherFilter.ditherLines4x4Matrix
+      builder.dither90Halftone6x6Matrix = DitherFilter.dither90Halftone6x6Matrix
+      builder.ditherOrdered6x6Matrix = DitherFilter.ditherOrdered6x6Matrix
+      builder.ditherOrdered8x8Matrix = DitherFilter.ditherOrdered8x8Matrix
+      builder.ditherCluster3Matrix = DitherFilter.ditherCluster3Matrix
+      builder.ditherCluster4Matrix = DitherFilter.ditherCluster4Matrix
+      builder.ditherCluster8Matrix = DitherFilter.ditherCluster8Matrix
    }
 }
