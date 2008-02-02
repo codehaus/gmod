@@ -81,19 +81,19 @@ class CellularFilterProvider extends PropertiesBasedFilterProvider {
       if( value instanceof String ){
          switch( value ){
             case "random":
-            case "randomCell":
+            case "cellRandom":
                return CellularFilter.RANDOM
             case "square":
-            case "squareCell":
+            case "cellSquare":
                return CellularFilter.SQUARE
             case "hexagonal":
-            case "hexagonalCell":
+            case "cellHexagonal":
                return CellularFilter.HEXAGONAL
             case "octagonal":
-            case "octagonalCell":
+            case "cellOctagonal":
                return CellularFilter.OCTAGONAL
             case "triangular":
-            case "triangularCell":
+            case "cellTriangular":
                return CellularFilter.TRIANGULAR
          }
       }

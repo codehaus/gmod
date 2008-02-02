@@ -53,13 +53,13 @@ abstract class AbstractTransformFilterProvider extends PropertiesBasedFilterProv
       if( value instanceof String ){
          switch( value ){
             case 'zero':
-            case 'zeroEdgeAction':
+            case 'edgeActionZero':
                return TransformFilter.ZERO
             case 'clamp':
-            case 'clampEdgeAction':
+            case 'edgeActionClamp':
                return TransformFilter.CLAMP
             case 'wrap':
-            case 'wrapEdgeAction':
+            case 'edgeActionWrap':
                return TransformFilter.WRAP
          }
       }
@@ -73,10 +73,10 @@ abstract class AbstractTransformFilterProvider extends PropertiesBasedFilterProv
       if( value instanceof String ){
          switch( value ){
             case 'nearest':
-            case 'nearestInterpolation':
+            case 'interpolationNearest':
                return TransformFilter.NEAREST_NEIGHBOUR
             case 'bilinear':
-            case 'bilinearInterpolation':
+            case 'interpolationBilinear':
                return TransformFilter.BILINEAR
          }
       }

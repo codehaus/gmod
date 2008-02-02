@@ -13,34 +13,47 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.effects
+package groovy.swing.j2d.operations.filters.texture
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.FourColorFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
+class FourColorFillFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['dimensions','colorNW','colorNE','colorSW','colorSE']
 
-   def gap
-   def opacity
-   def centreY
+   def dimensions
+   def colorNW
+   def colorNE
+   def colorSW
+   def colorSE
 
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
+   FourColorFillFilterProvider() {
+      super( "brushedMetal" )
+      filter = new FourColorFilter()
+   }
+
+   protected void setFilterProperty( name, value ){
+      if( name == "dimensions" ){
+         def dimension = FilterUtils.getDimension(value)
+         filter.setDimensions( dimension.width as int, dimension.height as int )
+      }else{
+         super.setFilterProperty( name, value )
+      }
    }
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
-            return value as float
+         case "colorNW":
+         case "colorNE":
+         case "colorSW":
+         case "colorSE":
+            return FilterUtils.getColor(value)
          default:
             return super.convertValue(property,value)
       }

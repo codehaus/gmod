@@ -13,33 +13,36 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.effects
+package groovy.swing.j2d.operations.filters.distort
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
+import groovy.swing.j2d.operations.filters.FilterUtils
+import groovy.swing.j2d.operations.filters.AbstractTransformFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.FieldWarpFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
+class FieldWarpFilterProvider extends AbstractTransformFilterProvider {
+   public static required = ['amount','power','inLines','outLines','strength']
 
-   def gap
-   def opacity
-   def centreY
+   def amount
+   def power
+   def inLines
+   def outLines
+   def strength
 
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
+   FieldWarpFilterProvider() {
+      super( "fieldWarp" )
+      filter = new FieldWarpFilter()
    }
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
+         case "amount":
+         case "power":
+         case "strength":
             return value as float
          default:
             return super.convertValue(property,value)

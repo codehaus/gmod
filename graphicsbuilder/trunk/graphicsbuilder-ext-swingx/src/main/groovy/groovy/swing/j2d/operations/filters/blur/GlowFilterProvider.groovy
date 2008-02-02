@@ -13,33 +13,29 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.effects
+package groovy.swing.j2d.operations.filters.blur
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.GlowFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
+class GlowFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['amount']
 
-   def gap
-   def opacity
-   def centreY
+   def amount
 
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
+   GlowFilterProvider() {
+      super( "glow" )
+      filter = new GlowFilter()
    }
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
+         case "amount":
             return value as float
          default:
             return super.convertValue(property,value)

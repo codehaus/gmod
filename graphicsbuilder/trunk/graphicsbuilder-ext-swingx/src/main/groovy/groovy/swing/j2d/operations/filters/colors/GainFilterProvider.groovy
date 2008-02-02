@@ -13,33 +13,31 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.effects
+package groovy.swing.j2d.operations.filters.colors
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.GainFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
+class GainFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['gain','bias']
 
-   def gap
-   def opacity
-   def centreY
+   def gain
+   def bias
 
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
+   GainFilterProvider() {
+      super( "gain" )
+      filter = new GainFilter()
    }
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
+         case "gain":
+         case "bias":
             return value as float
          default:
             return super.convertValue(property,value)

@@ -27,7 +27,9 @@ public class AntialiasFactory extends AbstractGraphicsOperationFactory {
         RenderingHintGraphicsOperation go = new RenderingHintGraphicsOperation()
         go.key = 'antialiasing'
         setAntialiasValue(go,value)
-        setAntialiasValue(go,properties.remove("enabled"))
+        if( properties.containsKey("enabled") ){
+           setAntialiasValue(go,properties.remove("enabled"))
+        }
         return go
     }
 
@@ -46,7 +48,7 @@ public class AntialiasFactory extends AbstractGraphicsOperationFactory {
        }else if( value instanceof String ){
           if( "off" == value ){ go.value = 'antialias off' }
           else if( "on" == value ){ go.value = 'antialias on' }
-          else{ throw new IllegalArgumentException("value must be a bololean or any of ['on'|'off']") }
+          else{ throw new IllegalArgumentException("value must be a boolean or any of ['on'|'off']") }
        }
     }
 }

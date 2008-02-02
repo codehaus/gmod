@@ -39,7 +39,7 @@ abstract class PropertiesBasedFilterProvider extends AbstractFilterProvider {
    public void propertyChange( PropertyChangeEvent event ) {
       def propertyName = event.propertyName
       if( isParameter(propertyName) && hasProperty(filter,propertyName) ){
-         filter."$propertyName" = convertValue(propertyName,event.newValue)
+         setFilterProperty( propertyName, event.newValue )
       }
       super.propertyChange( event )
    }
@@ -57,6 +57,10 @@ abstract class PropertiesBasedFilterProvider extends AbstractFilterProvider {
       }else{
          return filter.filter( src, dst )
       }
+   }
+
+   protected void setFilterProperty( name, value ){
+      filter."$name" = convertValue(name,value)
    }
 
    protected def convertValue( property, value ){

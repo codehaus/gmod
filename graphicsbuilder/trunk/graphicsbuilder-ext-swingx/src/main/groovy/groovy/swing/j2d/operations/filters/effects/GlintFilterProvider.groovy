@@ -18,29 +18,36 @@ package groovy.swing.j2d.operations.filters.effects
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.GlintFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
+class GlintFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['threshold','blur','amount','length','glintOnly','colormap']
 
-   def gap
-   def opacity
-   def centreY
+   def threshold
+   def blur
+   def amount
+   def length
+   def glintOnly
+   def colormap
 
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
+   GlintFilterProvider() {
+      super( "glint" )
+      filter = new GlintFilter()
    }
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
+         case "threshold":
+         case "blur":
+         case "amount":
             return value as float
+         case "length":
+            return value as int
+         case "glintOnly":
+            return value as boolean
          default:
             return super.convertValue(property,value)
       }

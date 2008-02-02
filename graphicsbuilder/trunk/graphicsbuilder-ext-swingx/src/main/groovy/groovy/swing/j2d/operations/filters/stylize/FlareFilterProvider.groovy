@@ -13,29 +13,33 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.colors
+package groovy.swing.j2d.operations.filters.stylize
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.FadeFilter
+import com.jhlabs.image.FlareFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class FadeFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['fadeStart','fadeWidth','sides','invert','dimensions']
+class FlareFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['radius','baseAmount','ringAmount','rayAmount','color',
+                             'ringWidth','dimensions','centre']
 
-   def fadeStart
-   def fadeWidth
-   def sides
-   def invert
+   def radius
+   def baseAmount
+   def ringAmount
+   def rayAmount
+   def color
+   def ringWidth
    def dimensions
+   def centre
 
-   FadeFilterProvider() {
-      super( "fade" )
-      filter = new FadeFilter()
+   FlareFilterProvider() {
+      super( "flare" )
+      filter = new FlareFilter()
    }
 
    protected void setFilterProperty( name, value ){
@@ -49,13 +53,16 @@ class FadeFilterProvider extends PropertiesBasedFilterProvider {
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "invert":
-            return value as boolean
-         case "fadeStart":
-         case "fadeWidth":
+         case "color":
+            return FilterUtils.getColor(value)
+         case "radius":
+         case "baseAmount":
+         case "ringAmount":
+         case "rayAmount":
+         case "ringWidth":
             return value as float
-         case "sides":
-            return value as int
+         case "centre":
+            return FilterUtils.getPoint2D(value)
          default:
             return super.convertValue(property,value)
       }

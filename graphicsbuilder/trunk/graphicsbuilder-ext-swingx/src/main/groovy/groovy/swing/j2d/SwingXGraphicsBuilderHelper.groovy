@@ -16,6 +16,7 @@
 package groovy.swing.j2d
 
 import groovy.swing.j2d.factory.FilterFactory
+import groovy.swing.j2d.factory.FieldWarpLineFactory
 import groovy.swing.j2d.factory.LightFactory
 import groovy.swing.j2d.factory.TimingFrameworkFactory
 import groovy.swing.j2d.operations.filters.alpha.*
@@ -31,8 +32,7 @@ import groovy.swing.j2d.operations.filters.texture.*
 import groovy.swing.j2d.operations.filters.transform.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
-import com.jhlabs.image.LightFilter.*
-import com.jhlabs.image.CellularFilterimport com.jhlabs.image.TransformFilter
+import com.jhlabs.image.LightFilter.*
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -44,6 +44,7 @@ class SwingXGraphicsBuilderHelper {
       //
       // colormaps
       //
+      builder.registerGraphicsOperationBeanFactory( "gradientColormap", Gradient )
       builder.registerGraphicsOperationBeanFactory( "grayscaleColormap", GrayscaleColormap )
       builder.registerGraphicsOperationBeanFactory( "linearColormap", LinearColormap )
       builder.registerGraphicsOperationBeanFactory( "spectrumColormap", SpectrumColormap )
@@ -64,6 +65,8 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "despeckle", new FilterFactory(DespeckleFilterProvider) )
       builder.registerFactory( "detectEdges", new FilterFactory(DetectEdgesFilterProvider) )
       builder.registerFactory( "embossEdges", new FilterFactory(EmbossEdgesFilterProvider) )
+      builder.registerFactory( "gaussianBlur", new FilterFactory(GaussianBlurFilterProvider) )
+      builder.registerFactory( "glow", new FilterFactory(GlowFilterProvider) )
 
       // colors
       builder.registerFactory( "contrast", new FilterFactory(ContrastFilterProvider) )
@@ -72,6 +75,9 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "equalize", new FilterFactory(EqualizeFilterProvider) )
       builder.registerFactory( "exposure", new FilterFactory(ExposureFilterProvider) )
       builder.registerFactory( "fade", new FilterFactory(FadeFilterProvider) )
+      builder.registerFactory( "fill", new FilterFactory(FillFilterProvider) )
+      builder.registerFactory( "gain", new FilterFactory(GainFilterProvider) )
+      builder.registerFactory( "gamma", new FilterFactory(GammaFilterProvider) )
       builder.registerFactory( "invert", new FilterFactory(InvertFilterProvider) )
 
       // distort
@@ -79,12 +85,17 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "curl", new FilterFactory(CurlFilterProvider) )
       builder.registerFactory( "diffuse", new FilterFactory(DiffuseFilterProvider) )
       builder.registerFactory( "displace", new FilterFactory(DisplaceFilterProvider) )
+      builder.registerFactory( "inFieldWarpLine", new FieldWarpLineFactory(false) )
+      builder.registerFactory( "outFieldWarpLine", new FieldWarpLineFactory(true) )
+      builder.registerFactory( "fieldWarp", new FilterFactory(FieldWarpFilterProvider,false) )
       builder.registerFactory( "kaleidoscope", new FilterFactory(KaleidoscopeFilterProvider) )
       builder.registerFactory( "marble", new FilterFactory(MarbleFilterProvider) )
       builder.registerFactory( "ripple", new FilterFactory(RippleFilterProvider) )
       builder.registerFactory( "water", new FilterFactory(WaterFilterProvider) )
 
       // effects
+      builder.registerFactory( "feedback", new FilterFactory(FeedbackFilterProvider) )
+      builder.registerFactory( "glint", new FilterFactory(GlintFilterProvider) )
       builder.registerFactory( "mirror", new FilterFactory(MirrorFilterProvider) )
 
       // keying
@@ -105,15 +116,21 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "dropShadow", new FilterFactory(ShadowFilterProvider) )
       builder.registerFactory( "crystallize", new FilterFactory(CrystallizeFilterProvider) )
       builder.registerFactory( "emboss", new FilterFactory(EmbossFilterProvider) )
+      builder.registerFactory( "flare", new FilterFactory(FlareFilterProvider) )
+      builder.registerFactory( "flush3D", new FilterFactory(Flush3DFilterProvider) )
       builder.registerFactory( "mosaic", new FilterFactory(MosaicFilterProvider) )
       builder.registerFactory( "pointillize", new FilterFactory(PointillizeFilterProvider) )
       builder.registerFactory( "shapeBurst", new FilterFactory(ShapeBurstFilterProvider) )
 
       // texture
+      builder.registerFactory( "brushedMetal", new FilterFactory(BrushedMetalFilterProvider) )
       builder.registerFactory( "cellular", new FilterFactory(CellularFilterProvider) )
       builder.registerFactory( "check", new FilterFactory(CheckFilterProvider) )
       builder.registerFactory( "caustics", new FilterFactory(CausticsFilterProvider) )
-      builder.registerFactory( "brushedMetal", new FilterFactory(BrushedMetalFilterProvider) )
+      def fbm = new FilterFactory(FBMFilterProvider)
+      builder.registerFactory( "fractalBrownianMotion", fbm )
+      builder.registerFactory( "fbm", fbm )
+      builder.registerFactory( "fourColorFill", new FilterFactory(FourColorFillFilterProvider) )
       builder.registerFactory( "weave", new FilterFactory(WeaveFilterProvider) )
       builder.registerFactory( "wood", new FilterFactory(WoodFilterProvider) )
 
@@ -122,12 +139,20 @@ class SwingXGraphicsBuilderHelper {
 
       // -- VARIABLES
 
+      // light
+      builder.colorsFromImage = LightFilter.COLORS_FROM_IMAGE
+      builder.colorsConstant = LightFilter.COLORS_CONSTANT
+      builder.bumpsFromBevel = LightFilter.BUMPS_FROM_BEVEL
+      builder.bumpsFromImage = LightFilter.BUMPS_FROM_IMAGE
+      builder.bumpsFromImageAlpha = LightFilter.BUMPS_FROM_IMAGE_ALPHA
+      builder.bumpsFromMap = LightFilter.BUMPS_FROM_MAP
+
       // transform
-      builder.zeroEdgeAction = TransformFilter.ZERO
-      builder.clampEdgeAction = TransformFilter.CLAMP
-      builder.warpEdgeAction = TransformFilter.WRAP
-      builder.nearestInterpolation = TransformFilter.NEAREST_NEIGHBOUR
-      builder.bilinearInterpolation = TransformFilter.BILINEAR
+      builder.edgeActionZero = TransformFilter.ZERO
+      builder.edgeActionClamp = TransformFilter.CLAMP
+      builder.edgeActionWrap = TransformFilter.WRAP
+      builder.interpolationNearest = TransformFilter.NEAREST_NEIGHBOUR
+      builder.interpolationBilinear = TransformFilter.BILINEAR
 
       // flips
       builder.flipH = FlipFilter.FLIP_H
@@ -138,25 +163,25 @@ class SwingXGraphicsBuilderHelper {
       builder.flip180 = FlipFilter.FLIP_180
 
       // shapeBurst
-      builder.linearBurst = ShapeFilter.LINEAR
-      builder.circleUpBurst = ShapeFilter.CIRCLE_UP
-      builder.upBurst = ShapeFilter.CIRCLE_UP
-      builder.circleDownBurst = ShapeFilter.CIRCLE_DOWN
-      builder.downBurst = ShapeFilter.CIRCLE_DOWN
-      builder.smoothBurst = ShapeFilter.SMOOTH
+      builder.burstLinear = ShapeFilter.LINEAR
+      builder.burstCircleUp = ShapeFilter.CIRCLE_UP
+      builder.burstUp = ShapeFilter.CIRCLE_UP
+      builder.burstCircleDown = ShapeFilter.CIRCLE_DOWN
+      builder.burstDown = ShapeFilter.CIRCLE_DOWN
+      builder.burstSmooth = ShapeFilter.SMOOTH
 
       // ripple
-      builder.sineRipple = RippleFilter.SINE
-      builder.sawtoothRipple = RippleFilter.SAWTOOTH
-      builder.triangleRipple = RippleFilter.TRIANGLE
-      builder.noiseRipple = RippleFilter.NOISE
+      builder.rippleSine = RippleFilter.SINE
+      builder.rippleSawtooth = RippleFilter.SAWTOOTH
+      builder.rippleTriangle = RippleFilter.TRIANGLE
+      builder.rippleNoise = RippleFilter.NOISE
 
       // cellular
-      builder.randomCell = CellularFilter.RANDOM
-      builder.squareCell = CellularFilter.SQUARE
-      builder.hexagonalCell = CellularFilter.HEXAGONAL
-      builder.octagonalCell = CellularFilter.OCTAGONAL
-      builder.triangularCell = CellularFilter.TRIANGULAR
+      builder.cellRandom = CellularFilter.RANDOM
+      builder.cellSquare = CellularFilter.SQUARE
+      builder.cellHexagonal = CellularFilter.HEXAGONAL
+      builder.cellOctagonal = CellularFilter.OCTAGONAL
+      builder.cellTriangular = CellularFilter.TRIANGULAR
 
       // detectEdges matrices
       builder.robertsV = EdgeFilter.ROBERTS_V
@@ -179,5 +204,35 @@ class SwingXGraphicsBuilderHelper {
       builder.ditherCluster3Matrix = DitherFilter.ditherCluster3Matrix
       builder.ditherCluster4Matrix = DitherFilter.ditherCluster4Matrix
       builder.ditherCluster8Matrix = DitherFilter.ditherCluster8Matrix
+
+      // fbm
+      builder.basisCellular = FBMFilter.CELLULAR
+      builder.basisNoise = FBMFilter.NOISE
+      builder.basisRidged = FBMFilter.RIDGED
+      builder.basisSCNoise = FBMFilter.SCNOISE
+      builder.basisVLNoise = FBMFilter.VLNOISE
+
+      // pixelUtils
+      builder.pixelReplace = PixelUtils.REPLACE
+      builder.pixelNormal = PixelUtils.NORMAL
+      builder.pixelMin = PixelUtils.MIN
+      builder.pixelMax = PixelUtils.MAX
+      builder.pixelAdd = PixelUtils.ADD
+      builder.pixelSubtract = PixelUtils.SUBTRACT
+      builder.pixelDifference = PixelUtils.DIFFERENCE
+      builder.pixelMultiply = PixelUtils.MULTIPLY
+      builder.pixelHue = PixelUtils.HUE
+      builder.pixelSaturation = PixelUtils.SATURATION
+      builder.pixelValue = PixelUtils.VALUE
+      builder.pixelColor = PixelUtils.COLOR
+      builder.pixelScreen = PixelUtils.SCREEN
+      builder.pixelAverage = PixelUtils.AVERAGE
+      builder.pixelOverlay = PixelUtils.OVERLAY
+      builder.pixelClear = PixelUtils.CLEAR
+      builder.pixelExchange = PixelUtils.EXCHANGE
+      builder.pixelDissolve = PixelUtils.DISSOLVE
+      builder.pixelDstIn = PixelUtils.DST_IN
+      builder.pixelAlpha = PixelUtils.ALPHA
+      builder.pixelAlphaToGray = PixelUtils.ALPHA_TO_GRAY
    }
 }

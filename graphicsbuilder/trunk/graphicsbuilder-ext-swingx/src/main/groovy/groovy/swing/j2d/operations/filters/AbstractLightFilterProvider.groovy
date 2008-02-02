@@ -79,8 +79,8 @@ abstract class AbstractLightFilterProvider extends PropertiesBasedFilterProvider
       }
       if( value instanceof String ){
          switch( value ){
-            case 'image': return LightFilter.COLORS_FROM_IMAGE
-            case 'constant': return LightFilter.COLORS_FROM_IMAGE
+            case 'colorsFromImage': return LightFilter.COLORS_FROM_IMAGE
+            case 'colorsConstant': return LightFilter.COLORS_CONSTANT
          }
       }
       throw new IllegalArgumentException("Invalid value for ${this}.colorSource")
@@ -92,10 +92,10 @@ abstract class AbstractLightFilterProvider extends PropertiesBasedFilterProvider
       }
       if( value instanceof String ){
          switch( value ){
-            case 'image':return LightFilter.BUMPS_FROM_IMAGE
-            case 'alpha': return LightFilter.BUMPS_FROM_IMAGE_ALPHA
-            case 'map': return LightFilter.BUMPS_FROM_MAP
-            case 'bevel': return LightFilter.BUMPS_FROM_BEVEL
+            case 'bumpsFromImage':return LightFilter.BUMPS_FROM_IMAGE
+            case 'bumpsFromImageAlpha': return LightFilter.BUMPS_FROM_IMAGE_ALPHA
+            case 'bumpsFromMap': return LightFilter.BUMPS_FROM_MAP
+            case 'bumpsFromBevel': return LightFilter.BUMPS_FROM_BEVEL
          }
       }
       throw new IllegalArgumentException("Invalid value for ${this}.bumpSource")

@@ -177,6 +177,12 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         // filters
         //
         registerFactory( "filters", new FilterGroupFactory() )
+
+        // variables
+        variables['on'] = true
+        variables['yes'] = true
+        variables['off'] = false
+        variables['no'] = false
     }
 
     private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){

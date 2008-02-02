@@ -13,33 +13,29 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.effects
+package groovy.swing.j2d.operations.filters.blur
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.GaussianFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
+class GaussianBlurFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['radius']
 
-   def gap
-   def opacity
-   def centreY
+   def radius
 
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
+   GaussianBlurFilterProvider() {
+      super( "gaussianBlur" )
+      filter = new GaussianFilter()
    }
 
    protected def convertValue( property, value ){
       switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
+         case "radius":
             return value as float
          default:
             return super.convertValue(property,value)

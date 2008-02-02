@@ -13,36 +13,19 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.effects
+package groovy.swing.j2d.operations.filters.stylize
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.MirrorFilter
+import com.jhlabs.image.Flush3DFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MirrorFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['gap','opacity','centreY']
-
-   def gap
-   def opacity
-   def centreY
-
-   MirrorFilterProvider() {
-      super( "mirror" )
-      filter = new MirrorFilter()
-   }
-
-   protected def convertValue( property, value ){
-      switch( property ){
-         case "gap":
-         case "opacity":
-         case "centreY":
-            return value as float
-         default:
-            return super.convertValue(property,value)
-      }
+class Flush3DFilterProvider extends PropertiesBasedFilterProvider {
+   Flush3DFilterProvider() {
+      super( "flush3D" )
+      filter = new Flush3DFilter()
    }
 }

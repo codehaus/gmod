@@ -58,16 +58,16 @@ class RippleFilterProvider extends AbstractTransformFilterProvider {
       if( value instanceof String ){
          switch( waveType ){
             case "sine":
-            case "sineRipple":
+            case "rippleSine":
                return RippleFilter.SINE
             case "sawtooth":
-            case "sawtoothRipple":
+            case "rippleSawtooth":
                return RippleFilter.SAWTOOTH
             case "triangle":
-            case "triangleRipple":
+            case "rippleTriangle":
                return RippleFilter.TRIANGLE
             case "noise":
-            case "noiseRipple":
+            case "rippleNoise":
                return RippleFilter.NOISE
          }
       }
