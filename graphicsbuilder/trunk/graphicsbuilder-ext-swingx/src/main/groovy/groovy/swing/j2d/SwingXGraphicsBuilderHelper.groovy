@@ -78,6 +78,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "fill", new FilterFactory(FillFilterProvider) )
       builder.registerFactory( "gain", new FilterFactory(GainFilterProvider) )
       builder.registerFactory( "gamma", new FilterFactory(GammaFilterProvider) )
+      builder.registerFactory( "grayOut", new FilterFactory(GrayOutFilterProvider) )
       builder.registerFactory( "invert", new FilterFactory(InvertFilterProvider) )
 
       // distort
@@ -97,6 +98,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "feedback", new FilterFactory(FeedbackFilterProvider) )
       builder.registerFactory( "glint", new FilterFactory(GlintFilterProvider) )
       builder.registerFactory( "mirror", new FilterFactory(MirrorFilterProvider) )
+      builder.registerFactory( "smear", new FilterFactory(SmearFilterProvider) )
 
       // keying
       builder.registerFactory( "chromaKey", new FilterFactory(ChromaKeyFilterProvider) )
@@ -234,5 +236,11 @@ class SwingXGraphicsBuilderHelper {
       builder.pixelDstIn = PixelUtils.DST_IN
       builder.pixelAlpha = PixelUtils.ALPHA
       builder.pixelAlphaToGray = PixelUtils.ALPHA_TO_GRAY
+
+      // smear
+      builder.smearCrosses = SmearFilter.CROSSES
+      builder.smearLines = SmearFilter.LINES
+      builder.smearCircles = SmearFilter.CIRCLES
+      builder.smearSquares = SmearFilter.SQUARES
    }
 }
