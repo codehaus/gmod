@@ -16,14 +16,16 @@
 package groovy.swing.j2d.operations.filters.effects
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.ColormapAware
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
+import com.jhlabs.image.Colormap
 import com.jhlabs.image.GlintFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GlintFilterProvider extends PropertiesBasedFilterProvider {
+class GlintFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static required = ['threshold','blur','amount','length','glintOnly','colormap']
 
    def threshold
@@ -31,7 +33,7 @@ class GlintFilterProvider extends PropertiesBasedFilterProvider {
    def amount
    def length
    def glintOnly
-   def colormap
+   Colormap colormap
 
    GlintFilterProvider() {
       super( "glint" )

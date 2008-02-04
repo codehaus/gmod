@@ -16,15 +16,17 @@
 package groovy.swing.j2d.operations.filters.texture
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.ColormapAware
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 import com.jhlabs.image.CellularFilter
+import com.jhlabs.image.Colormap
 import com.jhlabs.image.CellularFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class CellularFilterProvider extends PropertiesBasedFilterProvider {
+class CellularFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static required = ['scale','stretch','angleCoefficient','gradientCoefficient',
                              'f1','f2','f3','f4','randomness','distancePower','turbulence',
                              'amount','gridType','angle','colormap']
@@ -43,7 +45,7 @@ class CellularFilterProvider extends PropertiesBasedFilterProvider {
    def amount
    def gridType
    def angle
-   def colormap
+   Colormap colormap
 
    CellularFilterProvider() {
       super( "cellular" )

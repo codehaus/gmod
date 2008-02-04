@@ -16,19 +16,21 @@
 package groovy.swing.j2d.operations.filters.effects
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.ColormapAware
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
+import com.jhlabs.image.Colormap
 import com.jhlabs.image.SmearFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class SmearFilterProvider extends PropertiesBasedFilterProvider {
+class SmearFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static required = ['colormap','angle','density','distance','shape',
                              'mix','background']
 
-   def colormap
+   Colormap colormap
    def angle
    def density
    def distance

@@ -16,15 +16,17 @@
 package groovy.swing.j2d.operations.filters.texture
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.ColormapAware
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
+import com.jhlabs.image.Colormap
 import com.jhlabs.image.FBMFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class FBMFilterProvider extends PropertiesBasedFilterProvider {
+class FBMFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static required = ['amount','operation','scale','strecth','angle',
                              'octaves','h','lacunarity','gain','bias','colormap',
                              'basisType','basis']
@@ -39,7 +41,7 @@ class FBMFilterProvider extends PropertiesBasedFilterProvider {
    def gain
    def bias
    def operation
-   def colormap
+   Colormap colormap
    def basisType
    def basis
 

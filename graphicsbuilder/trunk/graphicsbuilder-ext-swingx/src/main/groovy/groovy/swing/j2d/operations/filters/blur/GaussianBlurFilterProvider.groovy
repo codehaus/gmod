@@ -16,14 +16,14 @@
 package groovy.swing.j2d.operations.filters.blur
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
+import groovy.swing.j2d.operations.filters.AbstractConvolveFilterProvider
 
 import com.jhlabs.image.GaussianFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GaussianBlurFilterProvider extends PropertiesBasedFilterProvider {
+class GaussianBlurFilterProvider extends AbstractConvolveFilterProvider {
    public static required = ['radius']
 
    def radius

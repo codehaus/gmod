@@ -21,7 +21,9 @@ import java.awt.Dimension
 import java.awt.geom.Point2D
 import java.awt.image.BufferedImage
 import com.jhlabs.image.PixelUtils
+import com.jhlabs.math.Function1D
 import com.jhlabs.math.Function2D
+import com.jhlabs.math.Function3D
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -120,11 +122,29 @@ final class FilterUtils  {
       return null
    }
 
+   static getFunction1D( value ){
+      if( value instanceof Function1D ){
+         return value
+      }else if( value instanceof Closure ){
+         return value as Function1D
+      }
+      return null
+   }
+
    static getFunction2D( value ){
       if( value instanceof Function2D ){
          return value
       }else if( value instanceof Closure ){
          return value as Function2D
+      }
+      return null
+   }
+
+   static getFunction3D( value ){
+      if( value instanceof Function3D ){
+         return value
+      }else if( value instanceof Closure ){
+         return value as Function3D
       }
       return null
    }

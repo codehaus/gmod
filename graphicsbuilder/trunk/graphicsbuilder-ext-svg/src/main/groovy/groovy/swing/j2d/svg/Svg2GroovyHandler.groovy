@@ -75,7 +75,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             out.print("group(")
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
             ],["opacity"])
             out.println(") {")
@@ -105,7 +105,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             }
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
             ], ["x","y","width","height","opacity"] )
             out.println(") {")
@@ -124,7 +124,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             out.print("circle(")
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
                "r": { p, v -> " radius: ${normalize(v)},"},
             ], ["cx","cy","opacity"] )
@@ -144,7 +144,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             out.print("ellipse(")
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
                "rx": { p, v -> " radiusx: ${normalize(v)},"},
                "ry": { p, v -> " radiusy: ${normalize(v)},"},
@@ -194,7 +194,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             out.print("polygon(")
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
                "points": { p, v -> " points: [${v.replaceAll('\\s+',',')}],"},
             ],["opacity"])
@@ -219,7 +219,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             }
             handleAttributes( textNode.attrs, [
                "id": this.&idAttributeHandler,
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
             ],["x","y","opacity"])
             out.println(") {")
@@ -238,7 +238,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
             handleAttributes( attrs, [
                "id": this.&idAttributeHandler,
                "fill-rule": { p, v -> " winding: '$v',"},
-               "fill": this.&colorAttributeHandler,
+               "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
             ], ["opacity"])
             out.println("){")
@@ -321,12 +321,16 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
       return " $property: '$value',"
    }
 
-   private String colorAttributeHandler( String property, value ){
-      return " $property: ${getColorValue(value)},"
-   }
-
    private String borderColorAttributeHandler( String property, value ){
       return " borderColor: ${getColorValue(value)},"
+   }
+
+   private String colorAttributeHandler( String property, value ){
+      return " color: ${getColorValue(value)},"
+   }
+
+   private String fillAttributeHandler( String property, value ){
+      return " fill: ${getColorValue(value)},"
    }
 
    private String borderWidthAttributeHandler( String property, value ){
@@ -456,7 +460,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
          out.printIndent()
          out.print("basicStroke(")
          handleAttributes( attrs, [
-            "stroke": this.&borderColorAttributeHandler,
+            "stroke": this.&colorAttributeHandler,
             "stroke-width": { p, v -> " width: ${normalize(v)},"},
             "stroke-linecap": { p, v -> " cap: '$v',"},
             "stroke-linejoin": { p, v -> " join: '$v',"},

@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.factory
 
+import groovy.swing.j2d.operations.FilterAware
 import groovy.swing.j2d.operations.FilterGroup
 
 /**
@@ -30,9 +31,12 @@ public class FilterFactory extends GraphicsOperationBeanFactory {
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
-      if( !(parent instanceof FilterGroup) ){
+      if( parent instanceof FilterGroup ){
+         parent.addFilter(child)
+      }else if( !parent instanceof FilterAware ){
+         parent.setFilter(child)
+      }else{
          throw new IllegalArgumentException("A filter is not allowed outside 'filters' node")
       }
-      parent.addFilter(child)
    }
 }

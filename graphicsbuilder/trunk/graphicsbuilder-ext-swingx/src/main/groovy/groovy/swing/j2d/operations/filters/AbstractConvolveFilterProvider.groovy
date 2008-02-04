@@ -17,7 +17,6 @@ package groovy.swing.j2d.operations.filters
 
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
 import java.awt.Color
 import com.jhlabs.image.ConvolveFilter

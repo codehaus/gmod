@@ -15,10 +15,7 @@
 
 package groovy.swing.j2d
 
-import groovy.swing.j2d.factory.FilterFactory
-import groovy.swing.j2d.factory.FieldWarpLineFactory
-import groovy.swing.j2d.factory.LightFactory
-import groovy.swing.j2d.factory.TimingFrameworkFactory
+import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.filters.alpha.*
 import groovy.swing.j2d.operations.filters.binary.*
 import groovy.swing.j2d.operations.filters.blur.*
@@ -27,9 +24,11 @@ import groovy.swing.j2d.operations.filters.distort.*
 import groovy.swing.j2d.operations.filters.effects.*
 import groovy.swing.j2d.operations.filters.keying.*
 import groovy.swing.j2d.operations.filters.lights.*
+import groovy.swing.j2d.operations.filters.render.*
 import groovy.swing.j2d.operations.filters.stylize.*
 import groovy.swing.j2d.operations.filters.texture.*
 import groovy.swing.j2d.operations.filters.transform.*
+import groovy.swing.j2d.operations.filters.transitions.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
 import com.jhlabs.image.LightFilter.*
@@ -44,18 +43,25 @@ class SwingXGraphicsBuilderHelper {
       //
       // colormaps
       //
+      builder.registerFactory( "knot", new KnotFactory() )
       builder.registerGraphicsOperationBeanFactory( "gradientColormap", Gradient )
-      builder.registerGraphicsOperationBeanFactory( "grayscaleColormap", GrayscaleColormap )
-      builder.registerGraphicsOperationBeanFactory( "linearColormap", LinearColormap )
-      builder.registerGraphicsOperationBeanFactory( "spectrumColormap", SpectrumColormap )
-      builder.registerGraphicsOperationBeanFactory( "splineColormap", SplineColormap )
+      builder.registerFactory( "grayscaleColormap", new ColormapFactory(GrayscaleColormap) )
+      builder.registerFactory( "linearColormap", new LinearColormapFactory() )
+      builder.registerFactory( "spectrumColormap", new ColormapFactory(SpectrumColormap) )
+      builder.registerFactory( "splineColormap", new ColormapFactory(SplineColormap,false) )
 
       // alpha
       builder.registerFactory( "erodeAlpha", new FilterFactory(ErodeAlphaFilterProvider) )
+      builder.registerFactory( "invertAlpha", new FilterFactory(InvertAlphaFilterProvider) )
+      builder.registerFactory( "premultiply", new FilterFactory(PremultiplyFilterProvider) )
+      builder.registerFactory( "unpremultiply", new FilterFactory(UnpremultiplyFilterProvider) )
 
       // binary
-      builder.registerFactory( "dilate", new FilterFactory(DilateFilterProvider) )
-      builder.registerFactory( "erode", new FilterFactory(ErodeFilterProvider) )
+      builder.registerFactory( "dilate", new FilterFactory(DilateFilterProvider,false) )
+      builder.registerFactory( "erode", new FilterFactory(ErodeFilterProvider,false) )
+      builder.registerFactory( "life", new FilterFactory(LifeFilterProvider,false) )
+      builder.registerFactory( "outline", new FilterFactory(OutlineFilterProvider,false) )
+      builder.registerFactory( "skeletonize", new FilterFactory(SkeletonizeFilterProvider,false) )
 
       // blur
       builder.registerFactory( "average", new FilterFactory(AverageFilterProvider) )
@@ -65,8 +71,19 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "despeckle", new FilterFactory(DespeckleFilterProvider) )
       builder.registerFactory( "detectEdges", new FilterFactory(DetectEdgesFilterProvider) )
       builder.registerFactory( "embossEdges", new FilterFactory(EmbossEdgesFilterProvider) )
+      builder.registerFactory( "fastMotionBlur", new FilterFactory(FastMotionBlurFilterProvider) )
       builder.registerFactory( "gaussianBlur", new FilterFactory(GaussianBlurFilterProvider) )
       builder.registerFactory( "glow", new FilterFactory(GlowFilterProvider) )
+      builder.registerFactory( "lensBlur", new FilterFactory(LensBlurFilterProvider) )
+      builder.registerFactory( "maximum", new FilterFactory(MaximumFilterProvider) )
+      builder.registerFactory( "median", new FilterFactory(MedianFilterProvider) )
+      builder.registerFactory( "minimum", new FilterFactory(MinimumFilterProvider) )
+      builder.registerFactory( "motionBlur", new FilterFactory(MotionBlurFilterProvider) )
+      builder.registerFactory( "sharpen", new FilterFactory(SharpenFilterProvider) )
+      builder.registerFactory( "smartBlur", new FilterFactory(SmartBlurFilterProvider) )
+      builder.registerFactory( "smooth", new FilterFactory(SmoothFilterProvider) )
+      builder.registerFactory( "unsharp", new FilterFactory(UnsharpFilterProvider) )
+      builder.registerFactory( "variableBlur", new FilterFactory(VariableBlurFilterProvider) )
 
       // colors
       builder.registerFactory( "contrast", new FilterFactory(ContrastFilterProvider) )
@@ -79,7 +96,19 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "gain", new FilterFactory(GainFilterProvider) )
       builder.registerFactory( "gamma", new FilterFactory(GammaFilterProvider) )
       builder.registerFactory( "grayOut", new FilterFactory(GrayOutFilterProvider) )
+      builder.registerFactory( "grayscale", new FilterFactory(GrayscaleFilterProvider) )
+      builder.registerFactory( "hsbAdjust", new FilterFactory(HSBAdjustFilterProvider) )
       builder.registerFactory( "invert", new FilterFactory(InvertFilterProvider) )
+      builder.registerFactory( "levels", new FilterFactory(LevelsFilterProvider) )
+      builder.registerFactory( "lookup", new FilterFactory(LookupFilterProvider,false) )
+      builder.registerFactory( "maskColor", new FilterFactory(MaskFilterProvider) )
+      builder.registerFactory( "posterize", new FilterFactory(PosterizeFilterProvider) )
+      builder.registerFactory( "quantize", new FilterFactory(QuantizeFilterProvider) )
+      builder.registerFactory( "rescaleColors", new FilterFactory(RescaleColorsFilterProvider) )
+      builder.registerFactory( "rgbAdjust", new FilterFactory(RGBAdjustFilterProvider) )
+      builder.registerFactory( "saturation", new FilterFactory(SaturationFilterProvider) )
+      builder.registerFactory( "solarize", new FilterFactory(SolarizeFilterProvider) )
+      builder.registerFactory( "transparency", new FilterFactory(TransparencyFilterProvider) )
 
       // distort
       builder.registerFactory( "circleDistort", new FilterFactory(CircleFilterProvider) )
@@ -90,15 +119,27 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "outFieldWarpLine", new FieldWarpLineFactory(true) )
       builder.registerFactory( "fieldWarp", new FilterFactory(FieldWarpFilterProvider,false) )
       builder.registerFactory( "kaleidoscope", new FilterFactory(KaleidoscopeFilterProvider) )
+      builder.registerFactory( "mapCoordinates", new FilterFactory(MapCoordinatesFilterProvider) )
       builder.registerFactory( "marble", new FilterFactory(MarbleFilterProvider) )
+      builder.registerFactory( "meshWarp", new FilterFactory(MeshWarpFilterProvider) )
+      builder.registerFactory( "warpGrid", new WarpGridFactory() )
+      builder.registerFactory( "perspective", new FilterFactory(PerspectiveFilterProvider) )
+      builder.registerFactory( "pinch", new FilterFactory(PinchFilterProvider) )
+      builder.registerFactory( "polar", new FilterFactory(PolarFilterProvider) )
       builder.registerFactory( "ripple", new FilterFactory(RippleFilterProvider) )
+      builder.registerFactory( "sphereDistort", new FilterFactory(SphereFilterProvider) )
+      builder.registerFactory( "swim", new FilterFactory(SwimFilterProvider) )
+      builder.registerFactory( "twirl", new FilterFactory(TwirlFilterProvider) )
       builder.registerFactory( "water", new FilterFactory(WaterFilterProvider) )
 
       // effects
+      builder.registerFactory( "composite", new FilterFactory(CompositeFilterProvider) )
       builder.registerFactory( "feedback", new FilterFactory(FeedbackFilterProvider) )
-      builder.registerFactory( "glint", new FilterFactory(GlintFilterProvider) )
+      builder.registerFactory( "glint", new FilterFactory(GlintFilterProvider,false) )
+      builder.registerFactory( "interpolate", new FilterFactory(InterpolateFilterProvider,false) )
+      //builder.registerFactory( "iterated", new FilterFactory(IteratedFilterProvider,false) )
       builder.registerFactory( "mirror", new FilterFactory(MirrorFilterProvider) )
-      builder.registerFactory( "smear", new FilterFactory(SmearFilterProvider) )
+      builder.registerFactory( "smear", new FilterFactory(SmearFilterProvider,false) )
 
       // keying
       builder.registerFactory( "chromaKey", new FilterFactory(ChromaKeyFilterProvider) )
@@ -112,6 +153,9 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "lights", new FilterFactory(LightsFilterProvider,false) )
       builder.registerFactory( "chrome", new FilterFactory(ChromeFilterProvider,false) )
 
+      // render
+      builder.registerFactory( "scratch", new FilterFactory(ScratchFilterProvider) )
+
       // stylize
       builder.registerFactory( "contour", new FilterFactory(ContourFilterProvider) )
       builder.registerFactory( "dissolve", new FilterFactory(DissolveFilterProvider) )
@@ -120,24 +164,43 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "emboss", new FilterFactory(EmbossFilterProvider) )
       builder.registerFactory( "flare", new FilterFactory(FlareFilterProvider) )
       builder.registerFactory( "flush3D", new FilterFactory(Flush3DFilterProvider) )
+      builder.registerFactory( "halftone", new FilterFactory(HalftoneFilterProvider) )
+      builder.registerFactory( "javaLnF", new FilterFactory(JavaLnFFilterProvider) )
+      builder.registerFactory( "lightRays", new FilterFactory(LightRaysFilterProvider,false) )
       builder.registerFactory( "mosaic", new FilterFactory(MosaicFilterProvider) )
+      builder.registerFactory( "noise", new FilterFactory(NoiseFilterProvider) )
+      builder.registerFactory( "oil", new FilterFactory(OilFilterProvider) )
       builder.registerFactory( "pointillize", new FilterFactory(PointillizeFilterProvider) )
-      builder.registerFactory( "shapeBurst", new FilterFactory(ShapeBurstFilterProvider) )
+      builder.registerFactory( "shapeBurst", new FilterFactory(ShapeBurstFilterProvider,false) )
+      builder.registerFactory( "shade", new FilterFactory(ShadeFilterProvider) )
+      builder.registerFactory( "shine", new FilterFactory(ShineFilterProvider) )
+      builder.registerFactory( "stamp", new FilterFactory(StampFilterProvider) )
+      builder.registerFactory( "threshold", new FilterFactory(ThresholdFilterProvider) )
 
       // texture
       builder.registerFactory( "brushedMetal", new FilterFactory(BrushedMetalFilterProvider) )
-      builder.registerFactory( "cellular", new FilterFactory(CellularFilterProvider) )
+      builder.registerFactory( "cellular", new FilterFactory(CellularFilterProvider,false) )
       builder.registerFactory( "check", new FilterFactory(CheckFilterProvider) )
       builder.registerFactory( "caustics", new FilterFactory(CausticsFilterProvider) )
-      def fbm = new FilterFactory(FBMFilterProvider)
+      def fbm = new FilterFactory(FBMFilterProvider,false)
       builder.registerFactory( "fractalBrownianMotion", fbm )
       builder.registerFactory( "fbm", fbm )
       builder.registerFactory( "fourColorFill", new FilterFactory(FourColorFillFilterProvider) )
+      builder.registerFactory( "marbleTexture", new FilterFactory(MarbleTextureFilterProvider,false) )
+      builder.registerFactory( "noiseTexture", new FilterFactory(NoiseTextureFilterProvider,false) )
+      builder.registerFactory( "plasma", new FilterFactory(PlasmaFilterProvider,false) )
+      builder.registerFactory( "quilt", new FilterFactory(QuiltFilterProvider,false) )
+      //builder.registerFactory( "sky", new FilterFactory(SkyFilterProvider) )
+      builder.registerFactory( "sparkle", new FilterFactory(SparkleFilterProvider) )
       builder.registerFactory( "weave", new FilterFactory(WeaveFilterProvider) )
-      builder.registerFactory( "wood", new FilterFactory(WoodFilterProvider) )
+      builder.registerFactory( "wood", new FilterFactory(WoodFilterProvider,false) )
 
       // transform
       builder.registerFactory( "flip", new FilterFactory(FlipFilterProvider) )
+
+      // transitions
+      builder.registerFactory( "gradientWipe", new FilterFactory(GradientWipeFilterProvider) )
+      builder.registerFactory( "shatter", new FilterFactory(ShatterFilterProvider) )
 
       // -- VARIABLES
 
@@ -242,5 +305,24 @@ class SwingXGraphicsBuilderHelper {
       builder.smearLines = SmearFilter.LINES
       builder.smearCircles = SmearFilter.CIRCLES
       builder.smearSquares = SmearFilter.SQUARES
+
+      // knot
+  	  builder.knotRgb = Gradient.RGB
+	  builder.knotHueCV = Gradient.HUE_CW
+	  builder.knotHueCCW = Gradient.HUE_CCW
+	  builder.knotLinear = Gradient.LINEAR
+	  builder.knotSpline = Gradient.SPLINE
+	  builder.knotCircleUp = Gradient.CIRCLE_UP
+	  builder.knotCircleDown = Gradient.CIRCLE_DOWN
+      builder.knotConstant = Gradient.CONSTANT
+
+      // noise
+      builder.noiseGaussian = NoiseFilter.GAUSSIAN
+      builder.noiseUniform = NoiseFilter.UNIFORM
+
+      // polar
+      builder.rectToPolar = PolarFilter.RECT_TO_POLAR
+      builder.polarToRect = PolarFilter.POLAR_TO_RECT
+      builder.invertInCircle = PolarFilter.INVERT_IN_CIRCLE
    }
 }

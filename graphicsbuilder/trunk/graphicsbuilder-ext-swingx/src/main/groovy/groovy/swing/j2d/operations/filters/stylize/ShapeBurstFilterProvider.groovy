@@ -16,22 +16,24 @@
 package groovy.swing.j2d.operations.filters.stylize
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.ColormapAware
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
+import com.jhlabs.image.Colormap
 import com.jhlabs.image.ShapeFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ShapeBurstFilterProvider extends PropertiesBasedFilterProvider {
+class ShapeBurstFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static required = ['factor','colormap','useAlpha','invert','merge','type']
 
-   def factor = 1
-   def colormap
-   def useAlpha = true
-   def invert = false
-   def merge = false
-   def type = 'linear'
+   def factor
+   Colormap colormap
+   def useAlpha
+   def invert
+   def merge
+   def type
 
    ShapeBurstFilterProvider() {
       super( "shapeBurst" )

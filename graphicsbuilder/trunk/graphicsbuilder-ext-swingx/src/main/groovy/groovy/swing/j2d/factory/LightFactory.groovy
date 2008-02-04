@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.factory
 
+import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.operations.filters.AbstractLightFilterProvider
 
 /**
@@ -26,6 +27,12 @@ public class LightFactory extends GraphicsOperationBeanFactory {
    }
 
    public boolean isLeaf(){
+      return true
+   }
+
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ){
+      def color = attributes.remove("color")
+      if( color != null ) node.color = ColorCache.getInstance().getColor(color).getRGB()
       return true
    }
 

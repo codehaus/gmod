@@ -24,8 +24,17 @@ import com.jhlabs.image.LightFilter
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class LightsFilterProvider extends AbstractLightFilterProvider {
+   boolean originalLight
+
    LightsFilterProvider() {
       super( "lights" )
       filter = new LightFilter()
+   }
+
+   public void setOriginalLight( boolean on ){
+      if( !on && !originalLight ){
+         filter.removeLight( filter.lights[0] )
+         originalLight = true
+      }
    }
 }

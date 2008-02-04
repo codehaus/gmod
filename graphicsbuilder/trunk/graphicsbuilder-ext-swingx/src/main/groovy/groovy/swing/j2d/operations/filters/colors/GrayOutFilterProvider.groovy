@@ -24,8 +24,6 @@ import com.jhlabs.image.GrayFilter
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class GrayOutFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = []
-
    GrayOutFilterProvider() {
       super( "grayOut" )
       filter = new GrayFilter()

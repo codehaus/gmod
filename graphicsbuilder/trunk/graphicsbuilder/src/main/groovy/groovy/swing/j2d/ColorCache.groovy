@@ -77,6 +77,10 @@ public class ColorCache {
        return color
     }
 
+    public Color getColor( Number value ){
+       return new Color( value.intValue(), true )
+    }
+
     /**
      * Stores a color on the cache.<br>
      * It will override any existing custom color with the same name.

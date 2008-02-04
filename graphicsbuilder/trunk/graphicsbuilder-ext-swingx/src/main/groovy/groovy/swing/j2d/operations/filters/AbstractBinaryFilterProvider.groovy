@@ -17,21 +17,21 @@ package groovy.swing.j2d.operations.filters
 
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
 import java.awt.Color
+import com.jhlabs.image.Colormap
 import com.jhlabs.math.BinaryFunction
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-abstract class AbstractBinaryFilterProvider extends PropertiesBasedFilterProvider {
+abstract class AbstractBinaryFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static optional = super.optional + ['newColor','blackFunction','iterations','colormap']
 
    def newColor
    def blackFunction
    def iterations
-   def colormap
+   Colormap colormap
 
    AbstractBinaryFilterProvider( String name ) {
       super( name )

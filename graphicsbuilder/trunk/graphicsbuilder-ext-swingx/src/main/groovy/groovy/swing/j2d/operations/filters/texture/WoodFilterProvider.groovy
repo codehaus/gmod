@@ -16,15 +16,17 @@
 package groovy.swing.j2d.operations.filters.texture
 
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.filters.ColormapAware
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
+import com.jhlabs.image.Colormap
 import com.jhlabs.image.WoodFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class WoodFilterProvider extends PropertiesBasedFilterProvider {
+class WoodFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
    public static required = ['scale','stretch','angle','rings','turbulence','fibres','gain','colormap']
 
    def scale
@@ -34,7 +36,7 @@ class WoodFilterProvider extends PropertiesBasedFilterProvider {
    def turbulence
    def fibres
    def gain
-   def colormap
+   Colormap colormap
 
    WoodFilterProvider() {
       super( "wood" )

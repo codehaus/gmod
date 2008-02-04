@@ -16,29 +16,21 @@
 package groovy.swing.j2d.operations.filters.blur
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
+import groovy.swing.j2d.operations.filters.AbstractConvolveFilterProvider
 
 import com.jhlabs.image.GlowFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GlowFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['amount']
+class GlowFilterProvider extends AbstractConvolveFilterProvider {
+   public static required = ['amount','radius']
 
    def amount
+   def radius
 
    GlowFilterProvider() {
       super( "glow" )
       filter = new GlowFilter()
-   }
-
-   protected def convertValue( property, value ){
-      switch( property ){
-         case "amount":
-            return value as float
-         default:
-            return super.convertValue(property,value)
-      }
    }
 }
