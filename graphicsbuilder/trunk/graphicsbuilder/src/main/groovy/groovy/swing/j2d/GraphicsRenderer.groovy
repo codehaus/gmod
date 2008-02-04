@@ -174,7 +174,7 @@ final class GraphicsRenderer {
      *
      * @return a File reference to written image
      */
-    public File renderToFile( String filname, int width, int height, Closure closure ){
+    public File renderToFile( String filename, int width, int height, Closure closure ){
        return renderToFile( filename, width, height, gb.group(closure) )
     }
     
