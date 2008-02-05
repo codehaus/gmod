@@ -31,7 +31,8 @@ import groovy.swing.j2d.operations.filters.transform.*
 import groovy.swing.j2d.operations.filters.transitions.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
-import com.jhlabs.image.LightFilter.*
+import com.jhlabs.image.LightFilter.*
+import composite.BlendComposite
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -39,6 +40,7 @@ class SwingXGraphicsBuilderHelper {
    public static void registerOperations( GraphicsBuilder builder ) {
       builder.registerGraphicsOperationBeanFactory( "morph", MorphGraphicsOperation )
       builder.registerFactory( "animate", new TimingFrameworkFactory() )
+      builder.registerFactory( "blendComposite", new BlendCompositeFactory() )
 
       //
       // colormaps
@@ -324,5 +326,39 @@ class SwingXGraphicsBuilderHelper {
       builder.rectToPolar = PolarFilter.RECT_TO_POLAR
       builder.polarToRect = PolarFilter.POLAR_TO_RECT
       builder.invertInCircle = PolarFilter.INVERT_IN_CIRCLE
+
+      // blendComposite
+      builder.blendNormal = BlendComposite.BlendingMode.NORMAL
+      builder.blendAverage = BlendComposite.BlendingMode.AVERAGE
+      builder.blendMultiply = BlendComposite.BlendingMode.MULTIPLY
+      builder.blendScreen = BlendComposite.BlendingMode.SCREEN
+      builder.blendDarken = BlendComposite.BlendingMode.DARKEN
+      builder.blendLighten = BlendComposite.BlendingMode.LIGHTEN
+      builder.blendOverlay = BlendComposite.BlendingMode.OVERLAY
+      builder.blendHardLight = BlendComposite.BlendingMode.HARD_LIGHT
+      builder.blendSoftLight = BlendComposite.BlendingMode.SOFT_LIGHT
+      builder.blendDifference = BlendComposite.BlendingMode.DIFFERENCE
+      builder.blendNegation = BlendComposite.BlendingMode.NEGATION
+      builder.blendExclusion = BlendComposite.BlendingMode.EXCLUSION
+      builder.blendColorDodge = BlendComposite.BlendingMode.COLOR_DODGE
+      builder.blendInverseColorDodge = BlendComposite.BlendingMode.INVERSE_COLOR_DODGE
+      builder.blendSoftDodge = BlendComposite.BlendingMode.SOFT_DODGE
+      builder.blendColorBurn = BlendComposite.BlendingMode.COLOR_BURN
+      builder.blendInverseColorBurn = BlendComposite.BlendingMode.INVERSE_COLOR_BURN
+      builder.blendSoftBurn = BlendComposite.BlendingMode.SOFT_BURN
+      builder.blendReflect = BlendComposite.BlendingMode.REFLECT
+      builder.blendGlow = BlendComposite.BlendingMode.GLOW
+      builder.blendFreeze = BlendComposite.BlendingMode.FREEZE
+      builder.blendHeat = BlendComposite.BlendingMode.HEAT
+      builder.blendAdd = BlendComposite.BlendingMode.ADD
+      builder.blendSubtract = BlendComposite.BlendingMode.SUBTRACT
+      builder.blendStamp = BlendComposite.BlendingMode.STAMP
+      builder.blendRed = BlendComposite.BlendingMode.RED
+      builder.blendGreen = BlendComposite.BlendingMode.GREEN
+      builder.blendBlue = BlendComposite.BlendingMode.BLUE
+      builder.blendHue = BlendComposite.BlendingMode.HUE
+      builder.blendSaturation = BlendComposite.BlendingMode.SATURATION
+      builder.blendColor = BlendComposite.BlendingMode.COLOR
+      builder.blendLuminosity = BlendComposite.BlendingMode.LUMINOSITY
    }
 }

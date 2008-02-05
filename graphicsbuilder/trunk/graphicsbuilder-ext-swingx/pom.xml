@@ -72,6 +72,13 @@
 	 <scope>system</scope>
 	 <systemPath>${basedir}/src/lib/Filters.jar</systemPath>
       </dependency>
+      <dependency>
+         <groupId>org.curious-creature</groupId>
+         <artifactId>blendComposite</artifactId>
+         <version>1.0</version>
+	 <scope>system</scope>
+	 <systemPath>${basedir}/src/lib/blendComposite.jar</systemPath>
+      </dependency>
    </dependencies>
 
    <build>

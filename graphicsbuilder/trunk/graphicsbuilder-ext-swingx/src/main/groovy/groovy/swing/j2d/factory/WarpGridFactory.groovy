@@ -27,9 +27,9 @@ public class WarpGridFactory extends GraphicsOperationBeanFactory {
 
    public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
          Map properties ) throws InstantiationException, IllegalAccessException {
-     if( FactoryBuilderSupport.checkValueIsTypeNotString( value, name, WarpGrid ) ){
+      if( FactoryBuilderSupport.checkValueIsTypeNotString( value, name, WarpGrid ) ){
          return value
-     }else{
+      }else{
          def rows = properties.remove("rows")
          def cols = properties.remove("cols")
          def w = properties.remove("w")
@@ -39,7 +39,7 @@ public class WarpGridFactory extends GraphicsOperationBeanFactory {
          w = w ? w : 0
          h = h ? h : 0
          return new WarpGrid( rows as int, cols as int, w as int, h as int )
-     }
+      }
    }
 
    public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {

@@ -35,7 +35,7 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
     public static required = []
-    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','alphaComposite']
+    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','composite']
 
     private BufferedImage image
     protected Shape locallyTransformedShape
@@ -52,7 +52,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     def asShape
     def asImage
     def opacity
-    def alphaComposite
+    def composite
 
     AbstractDrawingGraphicsOperation( String name ) {
         super( name )

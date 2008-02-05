@@ -90,6 +90,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "clip", new ClipFactory() )
         registerFactory( "antialias", new AntialiasFactory() )
         registerFactory( "\$swing", new SwingFactory() )
+        registerFactory( "alphaComposite", new AlphaCompositeFactory() )
 
         //
         // shapes
@@ -109,7 +110,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerGraphicsOperationBeanFactory( "cross", CrossGraphicsOperation )
         registerGraphicsOperationBeanFactory( "star", StarGraphicsOperation )
         registerGraphicsOperationBeanFactory( "roundRect", MultiRoundRectangleGraphicsOperation )
-        registerGraphicsOperationBeanFactory( "glyph", GlyphGraphicsOperation )
+        //registerGraphicsOperationBeanFactory( "glyph", GlyphGraphicsOperation )
 
         //
         // paths
@@ -183,6 +184,19 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         variables['yes'] = true
         variables['off'] = false
         variables['no'] = false
+
+        variables['alphaClear'] = AlphaComposite.CLEAR
+        variables['alphaDst'] = AlphaComposite.DST
+        variables['alphaDstAtop'] = AlphaComposite.DST_ATOP
+        variables['alphaDstIn'] = AlphaComposite.DST_IN
+        variables['alphaDstOut'] = AlphaComposite.DST_OUT
+        variables['alphaDstOver'] = AlphaComposite.DST_OVER
+        variables['alphaSrc'] = AlphaComposite.SRC
+        variables['alphaSrcAtop'] = AlphaComposite.SRC_ATOP
+        variables['alphaSrcIn'] = AlphaComposite.SRC_IN
+        variables['alphaSrcOut'] = AlphaComposite.SRC_OUT
+        variables['alphaSrcOver'] = AlphaComposite.SRC_OVER
+        variables['alphaXor'] = AlphaComposite.XOR
     }
 
     private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){

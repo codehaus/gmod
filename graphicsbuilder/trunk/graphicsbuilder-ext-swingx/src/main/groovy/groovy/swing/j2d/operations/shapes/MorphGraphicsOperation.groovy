@@ -53,10 +53,10 @@ class MorphGraphicsOperation extends AbstractShapeGraphicsOperation {
 
    private void calculateMorphedShape( GraphicsContext context ) {
       if( start instanceof ShapeProvider && start.asShape != null && start.asShape ){
-         start = start.getShape(context)
+         start = start.getLocallyTransformedShape(context)
       }
       if( end instanceof ShapeProvider && end.asShape != null && end.asShape ){
-         end = end.getShape(context)
+         end = end.getLocallyTransformedShape(context)
       }
 
       morphedShape = new Morphing2D( start, end )

@@ -62,7 +62,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                out.println("// viewBox = [$viewBox]")
             }
             out.printIndent()
-            out.println("renderingHint( key: 'antialiasing', value: 'antialias on' )")
+            out.println("antialias on")
          },
          end: { ->
             out.decrementIndent()

@@ -15,6 +15,7 @@
 
 package groovy.swing.j2d.operations.shapes
 
+import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.event.GraphicsInputEvent
 import groovy.swing.j2d.event.GraphicsInputListener
@@ -193,7 +194,11 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        int sx = bounds.x - filterGroup.offset
        int sy = bounds.y - filterGroup.offset
        applyOpacity( context )
+
+       def oldComposite = context.g.composite
+       if( composite ) context.g.composite = composite
        context.g.drawImage( filteredImage, sx, sy, null )
+       context.g.composite = oldComposite
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
@@ -215,7 +220,7 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        int swidth = strokeBounds.width + (filterGroup.offset*2)
        int sheight = strokeBounds.height + (filterGroup.offset*2)
        BufferedImage src = context.g.deviceConfiguration.createCompatibleImage(
-             swidth, sheight, Transparency.BITMASK )
+             swidth, sheight, Transparency.TRANSLUCENT )
        shape = AffineTransform.getTranslateInstance(
           (shapeBounds.x * -1) + filterGroup.offset,
           (shapeBounds.x * -1) + filterGroup.offset
@@ -223,6 +228,10 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        def graphics = src.createGraphics()
        def contextCopy = context.copy()
        graphics.setClip( 0, 0, swidth, sheight )
+       def background = graphics.color
+       graphics.color = ColorCache.getInstance().getColor('none')
+       graphics.fillRect( 0, 0, swidth, sheight )
+       graphics.color = background
        //graphics.setClip( shape.bounds )
        graphics.renderingHints.putAll( context.g.renderingHints )
        contextCopy.g = graphics
