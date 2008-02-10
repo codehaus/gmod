@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>groovy</groupId>
     <artifactId>GSQL</artifactId>
-    <version>1.5</version>
+    <version>1.5.0</version>
     <name>Groovy SQL</name>
     <description>Groovy SQL support framework</description>
     
