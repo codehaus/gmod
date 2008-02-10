@@ -12,25 +12,28 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-package org.codehaus.groovy.groosh.process;
+package org.codehaus.groovy.groosh.sink;
 
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.codehaus.groovy.groosh.process.IOUtil;
+
 /**
  * 
- * @author Alexander Egger
+ * @author Yuri Schimke
  * 
  */
-public class IOStreams {
-	public static class IOSource extends Source {
-		private InputStream is;
-
-		public IOSource(InputStream is) {
-			this.is = is;
-		}
-
+// TODO don't let stdout, stderr be closed
+public class StandardStreams {
+	public static class InSource extends Source {
 		public void connect(Sink sink) {
+			InputStream is = new FileInputStream(FileDescriptor.in);
+
 			if (sink.providesOutputStream()) {
 				streamPumpResult = IOUtil.pumpAsync(is, sink.getOutputStream());
 			} else if (sink.receivesStream()) {
@@ -41,20 +44,19 @@ public class IOStreams {
 		}
 	}
 
-	public static Source source(InputStream is) {
-		return new IOSource(is);
+	public static Source stdin() {
+		return new InSource();
 	}
 
-	public static class IOSink extends Sink {
-		private OutputStream os;
-
-		public IOSink(OutputStream os) {
-			this.os = os;
-		}
-
+	public static class ErrSink extends Sink {
 		@Override
 		public OutputStream getOutputStream() {
-			return os;
+			return new FileOutputStream(FileDescriptor.err) {
+				public void close() throws IOException {
+					// ignore close
+					flush();
+				}
+			};
 		}
 
 		@Override
@@ -63,7 +65,29 @@ public class IOStreams {
 		}
 	}
 
-	public static Sink sink(OutputStream os) {
-		return new IOSink(os);
+	public static Sink stderr() {
+		return new ErrSink();
 	}
+
+	public static class OutSink extends Sink {
+		@Override
+		public OutputStream getOutputStream() {
+			return new FileOutputStream(FileDescriptor.out) {
+				public void close() throws IOException {
+					// ignore close
+					flush();
+				}
+			};
+		}
+
+		@Override
+		public boolean providesOutputStream() {
+			return true;
+		}
+	}
+
+	public static Sink stdout() {
+		return new OutSink();
+	}
+
 }

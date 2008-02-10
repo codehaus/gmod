@@ -10,6 +10,7 @@
 	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/asm-2.2.jar"/>
 	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/asm-tree-2.2.jar"/>
 	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/commons-cli-1.0.jar"/>
-	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-1.5.0.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-1.5.1.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-eclipse.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

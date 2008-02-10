@@ -12,11 +12,12 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-package org.codehaus.groovy.groosh.process;
+package org.codehaus.groovy.groosh.sink;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 
 /**
  * 
@@ -30,7 +31,7 @@ public abstract class Source {
 	public abstract void connect(Sink sink) throws IOException;
 
 	/**
-	 * The input stream is pumped to the output stream asynchronosly. Call this
+	 * The input stream is pumped to the output stream asynchronously. Call this
 	 * method to wait until the output stream and input stream are fully
 	 * processed and closed.
 	 * 

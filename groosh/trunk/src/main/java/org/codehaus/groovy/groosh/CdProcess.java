@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.groovy.groosh.process.Sink;
-import org.codehaus.groovy.groosh.process.Source;
+import org.codehaus.groovy.groosh.sink.Sink;
+import org.codehaus.groovy.groosh.sink.Source;
 
 /**
  * Implements a basic 'cd' command which changes the base directory used to
@@ -89,11 +89,15 @@ public class CdProcess extends GrooshProcess {
 
 	}
 
-	public Sink getSink() {
+	public Sink getInput() {
 		return null;
 	}
 
-	public Source getSource() {
+	public Source getOutput() {
+		return null;
+	}
+
+	public Source getError() {
 		return null;
 	}
 }

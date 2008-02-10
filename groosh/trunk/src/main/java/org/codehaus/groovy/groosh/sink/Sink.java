@@ -12,15 +12,32 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-package org.codehaus.groovy.groosh.process;
+package org.codehaus.groovy.groosh.sink;
+
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * 
  * @author Yuri Schimke
  * 
  */
-public class CharSequenceSource extends Source {
-	public void connect(Sink sink) {
-		throw new RuntimeException();
+public class Sink {
+
+	public boolean receivesStream() {
+		return false;
 	}
+
+	public boolean providesOutputStream() {
+		return false;
+	}
+
+	public OutputStream getOutputStream() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setInputStream(InputStream channel) {
+		throw new UnsupportedOperationException();
+	}
+
 }

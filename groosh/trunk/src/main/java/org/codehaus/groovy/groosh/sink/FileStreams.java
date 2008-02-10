@@ -12,26 +12,30 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-package org.codehaus.groovy.groosh.process;
+package org.codehaus.groovy.groosh.sink;
 
-import java.io.FileDescriptor;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.codehaus.groovy.groosh.process.IOUtil;
 
 /**
  * 
  * @author Yuri Schimke
  * 
  */
-// TODO don't let stdout, stderr be closed
-public class StandardStreams {
-	public static class InSource extends Source {
-		public void connect(Sink sink) {
-			InputStream is = new FileInputStream(FileDescriptor.in);
+public class FileStreams {
+	public static class FileSource extends Source {
+		private FileInputStream is;
 
+		public FileSource(File f) throws FileNotFoundException {
+			this.is = new FileInputStream(f);
+		}
+
+		public void connect(Sink sink) {
 			if (sink.providesOutputStream()) {
 				streamPumpResult = IOUtil.pumpAsync(is, sink.getOutputStream());
 			} else if (sink.receivesStream()) {
@@ -42,19 +46,20 @@ public class StandardStreams {
 		}
 	}
 
-	public static Source stdin() {
-		return new InSource();
+	public static Source fileSource(File file) throws FileNotFoundException {
+		return new FileSource(file);
 	}
 
-	public static class ErrSink extends Sink {
+	public static class FileSink extends Sink {
+		private FileOutputStream os;
+
+		public FileSink(File f, boolean append) throws FileNotFoundException {
+			this.os = new FileOutputStream(f, append);
+		}
+
 		@Override
 		public OutputStream getOutputStream() {
-			return new FileOutputStream(FileDescriptor.err) {
-				public void close() throws IOException {
-					// ignore close
-					flush();
-				}
-			};
+			return os;
 		}
 
 		@Override
@@ -63,29 +68,8 @@ public class StandardStreams {
 		}
 	}
 
-	public static Sink stderr() {
-		return new ErrSink();
+	public static Sink fileSink(File file, boolean append)
+			throws FileNotFoundException {
+		return new FileSink(file, append);
 	}
-
-	public static class OutSink extends Sink {
-		@Override
-		public OutputStream getOutputStream() {
-			return new FileOutputStream(FileDescriptor.out) {
-				public void close() throws IOException {
-					// ignore close
-					flush();
-				}
-			};
-		}
-
-		@Override
-		public boolean providesOutputStream() {
-			return true;
-		}
-	}
-
-	public static Sink stdout() {
-		return new OutSink();
-	}
-
 }

@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 
-import org.codehaus.groovy.groosh.process.DevNull;
-import org.codehaus.groovy.groosh.process.FileStreams;
-import org.codehaus.groovy.groosh.process.IOStreams;
-import org.codehaus.groovy.groosh.process.Sink;
-import org.codehaus.groovy.groosh.process.Source;
-import org.codehaus.groovy.groosh.process.StandardStreams;
-import org.codehaus.groovy.groosh.process.StringStreams;
+import org.codehaus.groovy.groosh.sink.DevNull;
+import org.codehaus.groovy.groosh.sink.FileStreams;
+import org.codehaus.groovy.groosh.sink.IOStreams;
+import org.codehaus.groovy.groosh.sink.Sink;
+import org.codehaus.groovy.groosh.sink.Source;
+import org.codehaus.groovy.groosh.sink.StandardStreams;
+import org.codehaus.groovy.groosh.sink.StringStreams;
 
 // TODO class should not be reentrant 
 // that is if output is already set, don't let it be done twice.
@@ -35,31 +35,37 @@ import org.codehaus.groovy.groosh.process.StringStreams;
  * 
  */
 public abstract class GrooshProcess {
-	protected abstract Sink getSink();
 
-	protected abstract Source getSource();
+	protected abstract Sink getInput();
 
-	public String toStringOut() throws IOException {
+	protected abstract Source getOutput();
+
+	protected abstract Source getError();
+
+	public abstract void startStreamHandling() throws IOException;
+
+	public abstract void waitForExit() throws IOException;
+
+	public String getText() throws IOException {
 		StringStreams.StringSink sink = StringStreams.stringSink();
 
-		getSource().connect(sink);
+		getOutput().connect(sink);
 		startStreamHandling();
 
 		return sink.toString();
 	}
 
 	public String toStream(OutputStream os) throws IOException {
-		Sink sink = IOStreams.sink(os);
+		Sink sink = IOStreams.outputStreamSource(os);
 
-		getSource().connect(sink);
+		getOutput().connect(sink);
 		startStreamHandling();
 
 		return sink.toString();
 	}
 
-	// TODO should this be asynchronous, would be less obvious though!
 	public void toFile(File f) throws IOException {
-		Sink sink = FileStreams.sink(f, false);
+		Sink sink = FileStreams.fileSink(f, false);
 
 		processSink(sink);
 	}
@@ -68,9 +74,8 @@ public abstract class GrooshProcess {
 		toFile(new File(fn));
 	}
 
-	// needs to be asynchronous so they can continue the chain
 	public GrooshProcess pipeTo(GrooshProcess process) throws IOException {
-		getSource().connect(process.getSink());
+		getOutput().connect(process.getInput());
 
 		startStreamHandling();
 
@@ -82,7 +87,6 @@ public abstract class GrooshProcess {
 		return pipeTo(process);
 	}
 
-	// TODO should this be asynchronous, would be less obvious though!
 	public void toStdOut() throws IOException {
 		Sink sink = StandardStreams.stdout();
 
@@ -90,13 +94,13 @@ public abstract class GrooshProcess {
 	}
 
 	public void toDevNull() throws IOException {
-		Sink sink = DevNull.createSink();
+		Sink sink = DevNull.devNullSink();
 
 		processSink(sink);
 	}
 
 	private void processSink(Sink sink) throws IOException {
-		getSource().connect(sink);
+		getOutput().connect(sink);
 		startStreamHandling();
 		waitForExit();
 
@@ -105,7 +109,7 @@ public abstract class GrooshProcess {
 	public GrooshProcess fromStdIn() throws IOException {
 		Source source = StandardStreams.stdin();
 
-		source.connect(getSink());
+		source.connect(getInput());
 
 		return this;
 	}
@@ -113,16 +117,13 @@ public abstract class GrooshProcess {
 	public GrooshProcess fromString(String s) throws IOException {
 		Source source = StringStreams.stringSource(s);
 
-		source.connect(getSink());
+		source.connect(getInput());
 
 		return this;
 	}
 
 	public void waitFor() throws InterruptedException, ExecutionException {
-		getSource().waitForStreamsHandled();
+		getOutput().waitForStreamsHandled();
 	}
 
-	public abstract void startStreamHandling() throws IOException;
-
-	public abstract void waitForExit() throws IOException;
 }

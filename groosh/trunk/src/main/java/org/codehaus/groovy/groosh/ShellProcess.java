@@ -20,8 +20,8 @@ import java.util.Map;
 
 import org.codehaus.groovy.groosh.process.AppProcess;
 import org.codehaus.groovy.groosh.process.ProcessFactory;
-import org.codehaus.groovy.groosh.process.Sink;
-import org.codehaus.groovy.groosh.process.Source;
+import org.codehaus.groovy.groosh.sink.Sink;
+import org.codehaus.groovy.groosh.sink.Source;
 
 /**
  * 
@@ -44,12 +44,16 @@ public class ShellProcess extends GrooshProcess {
 		process.start();
 	}
 
-	public Sink getSink() {
+	public Sink getInput() {
 		return process.getInput();
 	}
 
-	public Source getSource() {
+	public Source getOutput() {
 		return process.getOutput();
+	}
+
+	public Source getError() {
+		return process.getError();
 	}
 
 	public void destroy() {

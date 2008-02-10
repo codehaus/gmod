@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.groovy.groosh.ExecDir;
+import org.codehaus.groovy.groosh.sink.Sink;
+import org.codehaus.groovy.groosh.sink.Source;
+import org.codehaus.groovy.groosh.sink.StandardStreams;
 
 /**
  * 
@@ -63,7 +66,7 @@ public class JavaProcess implements AppProcess {
 		// Should we throw away, it would make it explicit to direct the output
 		// somewhere.
 		if (!outHandled)
-			IOUtil.pumpAsync(process.getInputStream(), StandardStreams.stderr()
+			IOUtil.pumpAsync(process.getInputStream(), StandardStreams.stdout()
 					.getOutputStream());
 
 		if (!errHandled)
@@ -121,9 +124,8 @@ public class JavaProcess implements AppProcess {
 		public void connect(Sink sink) {
 			if (sink.providesOutputStream()) {
 				outHandled = true;
-				// TODO handle result
-				streamPumpResult = IOUtil.pumpAsync(process.getInputStream(), sink
-						.getOutputStream());
+				streamPumpResult = IOUtil.pumpAsync(process.getInputStream(),
+						sink.getOutputStream());
 			} else if (sink.receivesStream()) {
 				outHandled = true;
 				sink.setInputStream(process.getInputStream());
@@ -137,12 +139,11 @@ public class JavaProcess implements AppProcess {
 		public void connect(Sink sink) {
 			if (sink.providesOutputStream()) {
 				errHandled = true;
-				// TODO handle result
-				streamPumpResult = IOUtil.pumpAsync(process.getInputStream(), sink
-						.getOutputStream());
+				streamPumpResult = IOUtil.pumpAsync(process.getErrorStream(),
+						sink.getOutputStream());
 			} else if (sink.receivesStream()) {
 				errHandled = true;
-				sink.setInputStream(process.getInputStream());
+				sink.setInputStream(process.getErrorStream());
 			} else {
 				throw new UnsupportedOperationException("sink type unknown");
 			}

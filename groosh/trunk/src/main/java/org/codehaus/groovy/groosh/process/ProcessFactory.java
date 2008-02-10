@@ -26,12 +26,10 @@ import org.codehaus.groovy.groosh.ExecDir;
  * 
  */
 public class ProcessFactory {
-	// public static AppProcess buildProcessPipeline(String commandLine) {
-	// throw new UnsupportedOperationException();
-	// }
 
 	public static AppProcess buildProcess(List<String> command,
 			Map<String, String> env, ExecDir execDir) throws IOException {
 		return JavaProcess.createProcess(command, env, execDir);
 	}
+
 }

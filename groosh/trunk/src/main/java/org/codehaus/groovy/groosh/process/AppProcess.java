@@ -16,13 +16,14 @@ package org.codehaus.groovy.groosh.process;
 
 import java.io.IOException;
 
+import org.codehaus.groovy.groosh.sink.Sink;
+import org.codehaus.groovy.groosh.sink.Source;
+
 /**
  * 
  * @author Yuri Schimke
  * 
  */
-// TODO how does the completion of the input/output i.e. to a file get
-// monitored?
 public interface AppProcess {
 	Sink getInput();
 

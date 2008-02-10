@@ -12,25 +12,24 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-package org.codehaus.groovy.groosh.process;
+package org.codehaus.groovy.groosh.sink;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.codehaus.groovy.groosh.process.IOUtil;
 
 /**
  * 
- * @author Yuri Schimke
+ * @author Alexander Egger
  * 
  */
-public class FileStreams {
-	public static class FileSource extends Source {
-		private FileInputStream is;
+public class IOStreams {
+	public static class IOSource extends Source {
+		private InputStream is;
 
-		public FileSource(File f) throws FileNotFoundException {
-			this.is = new FileInputStream(f);
+		public IOSource(InputStream is) {
+			this.is = is;
 		}
 
 		public void connect(Sink sink) {
@@ -44,15 +43,15 @@ public class FileStreams {
 		}
 	}
 
-	public static Source source(File file) throws FileNotFoundException {
-		return new FileSource(file);
+	public static Source inputStreamSource(InputStream is) {
+		return new IOSource(is);
 	}
 
-	public static class FileSink extends Sink {
-		private FileOutputStream os;
+	public static class IOSink extends Sink {
+		private OutputStream os;
 
-		public FileSink(File f, boolean append) throws FileNotFoundException {
-			this.os = new FileOutputStream(f, append);
+		public IOSink(OutputStream os) {
+			this.os = os;
 		}
 
 		@Override
@@ -66,8 +65,7 @@ public class FileStreams {
 		}
 	}
 
-	public static Sink sink(File file, boolean append)
-			throws FileNotFoundException {
-		return new FileSink(file, append);
+	public static Sink outputStreamSource(OutputStream os) {
+		return new IOSink(os);
 	}
 }

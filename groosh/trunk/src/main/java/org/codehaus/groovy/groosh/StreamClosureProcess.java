@@ -27,9 +27,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.codehaus.groovy.groosh.process.IOUtil;
-import org.codehaus.groovy.groosh.process.Sink;
-import org.codehaus.groovy.groosh.process.Source;
-import org.codehaus.groovy.groosh.process.StandardStreams;
+import org.codehaus.groovy.groosh.sink.Sink;
+import org.codehaus.groovy.groosh.sink.Source;
+import org.codehaus.groovy.groosh.sink.StandardStreams;
 
 /**
  * 
@@ -98,7 +98,7 @@ public class StreamClosureProcess extends GrooshProcess implements
 		}
 	}
 
-	protected Sink getSink() {
+	protected Sink getInput() {
 		return new ClosureSink();
 	}
 
@@ -117,7 +117,11 @@ public class StreamClosureProcess extends GrooshProcess implements
 		}
 	}
 
-	protected Source getSource() {
+	protected Source getOutput() {
 		return new ClosureSource();
+	}
+
+	protected Source getError() {
+		return null;
 	}
 }
