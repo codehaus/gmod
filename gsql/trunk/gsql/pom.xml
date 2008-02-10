@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>groovy</groupId>
     <artifactId>GSQL</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.5</version>
     <name>Groovy SQL</name>
     <description>Groovy SQL support framework</description>
     
@@ -72,9 +72,9 @@
             </plugin>
             
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.codehaus.mojo.groovy</groupId>
                 <artifactId>groovy-maven-plugin</artifactId>
-                <version>1.0-alpha-2-SNAPSHOT</version>
+                <version>1.0-beta-3</version>
                 <executions>
                     <execution>
                         <id>compile</id>
@@ -82,8 +82,8 @@
                         <phase>process-resources</phase>
                         <goals><goal>compile</goal></goals>
                         <configuration>
-                            <debug>false</debug>
-                            <verbose>true</verbose>
+                            <debug>true</debug>
+                            <verbose>false</verbose>
                             <sources>
                                 <fileset>
                                     <directory>${pom.basedir}/src</directory>
@@ -100,8 +100,8 @@
                         <phase>test-compile</phase>
                         <goals><goal>testCompile</goal></goals>
                         <configuration>
-                            <debug>false</debug>
-                            <verbose>true</verbose>
+                            <debug>true</debug>
+                            <verbose>false</verbose>
                             <sources>
                                 <fileset>
                                     <directory>${pom.basedir}/test</directory>
@@ -166,9 +166,35 @@
     
     <dependencies>
         <dependency>
-            <groupId>groovy</groupId>
+            <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
-            <version>1.0</version>
+            <version>1.5.4</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>avalon-framework</groupId>
+            	    <artifactId>avalon-framework</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>javax.servlet</groupId>
+            	    <artifactId>servlet-api</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>jline</groupId>
+            	    <artifactId>jline</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>logkit</groupId>
+            	    <artifactId>logkit</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>ant</groupId>
+            	    <artifactId>ant</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>ant</groupId>
+            	    <artifactId>ant-launcher</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -178,7 +204,21 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
+            <version>1.2.15</version>
+            <exclusions>
+            	<exclusion>
+            	    <groupId>com.sun.jmx</groupId>
+            	    <artifactId>jmxri</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>javax.jms</groupId>
+            	    <artifactId>jms</artifactId>
+            	</exclusion>
+            	<exclusion>
+            	    <groupId>com.sun.jdmk</groupId>
+            	    <artifactId>jmxtools</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -205,7 +245,7 @@
         </dependency>
     </dependencies>
   
-    <!-- Include the Codehaus snapshot repository so Maven2 can find the groovy plugin -->
+    <!-- Include the Codehaus repositories so Maven2 can find the groovy plugin -->
     <repositories>
         <repository>
             <id>codehaus-snapshots</id>
@@ -213,6 +253,13 @@
             <url>http://snapshots.repository.codehaus.org</url>
             <releases><enabled>false</enabled></releases>
             <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>codehaus</id>
+            <name>Codehaus</name>
+            <url>http://repository.codehaus.org</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
         </repository>
     </repositories>
 </project>
