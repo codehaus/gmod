@@ -12,7 +12,8 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 import static groosh.Groosh.groosh as shell;
+import static org.codehaus.groovy.groosh.stream.StandardStreams.stdout
 
-shell().cat('src/test/resources/blah.txt').toStdOut()
+shell().cat('src/test/resources/blah.txt') | stdout()
 
 

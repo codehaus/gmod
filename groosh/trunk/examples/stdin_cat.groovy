@@ -12,9 +12,10 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh();
+import static groosh.Groosh.groosh as shell;
+import static org.codehaus.groovy.groosh.stream.StandardStreams.stdout
+import static org.codehaus.groovy.groosh.stream.StandardStreams.stin
 
-// does this fail if you change c to cat?
-gsh.cat().fromStdIn().toStdOut();
+shell().cat().fromStdIn().toStdOut();
 
 

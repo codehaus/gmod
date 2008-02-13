@@ -12,8 +12,10 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh();
+import static org.codehaus.groovy.groosh.stream.StandardStreams.stdout
 
-gsh.cat('src/test/resources/words').pipeTo(gsh._grep('lexia')).toStdOut();
+gsh = new groosh.Groosh()
+
+gsh.cat('src/test/resources/words') | gsh._grep('lexia') | stdout()
 
 

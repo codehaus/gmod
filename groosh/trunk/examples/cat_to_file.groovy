@@ -12,8 +12,8 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh();
+gsh = new groosh.Groosh()
 
-gsh.cat('src/test/resources/blah.txt').toFile(new File('blah.out'));
+gsh.cat('src/test/resources/blah.txt') >> 'blah.out'
 
 

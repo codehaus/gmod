@@ -11,13 +11,13 @@
 //  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
-
-gsh = new groosh.Groosh();
+import static groosh.Groosh.groosh as shell;
+import static org.codehaus.groovy.groosh.stream.StandardStreams.stdout
 
 if (args.length == 0) {
-  System.err.println("please provide a search pattern");
-  System.err.println("usage: dict_args querystring");
+  System.err.println("please provide a search pattern")
+  System.err.println("usage: dict_args querystring")
 } else {
-  gsh.cat('src/test/resources/words').pipeTo(gsh._grep(args[0])).toStdOut();
+  shell().cat('src/test/resources/words') | shell()._grep(args[0]) | stdout()
 }
 

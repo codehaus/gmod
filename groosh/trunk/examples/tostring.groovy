@@ -12,9 +12,9 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh();
+gsh = new groosh.Groosh()
 
-s = gsh.cat('src/test/resources/blah.txt').pipeTo(gsh._grep('a')).toStringOut();
+def s = (gsh.cat('src/test/resources/blah.txt') | gsh._grep('a')).text
 
-System.out.println('->' + s.toString() + '<-');
+println('->' + s + '<-')
 
