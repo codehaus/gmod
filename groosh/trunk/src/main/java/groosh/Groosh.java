@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.groovy.groosh.CdProcess;
-import org.codehaus.groovy.groosh.ExecDir;
 import org.codehaus.groovy.groosh.GridClosureProcess;
 import org.codehaus.groovy.groosh.GrooshProcess;
+import org.codehaus.groovy.groosh.JavaProcess;
 import org.codehaus.groovy.groosh.LineClosureProcess;
-import org.codehaus.groovy.groosh.ShellProcess;
 import org.codehaus.groovy.groosh.StreamClosureProcess;
-import org.codehaus.groovy.groosh.process.IOUtil;
+import org.codehaus.groovy.util.ExecDir;
+import org.codehaus.groovy.util.IOUtil;
 
 /**
  * The actual shell. Objects of this class are responsible to execute processes
@@ -93,7 +93,7 @@ public class Groosh extends GroovyObjectSupport {
 			name = name.substring("sudo_".length());
 			withSudo = true;
 		}
-		// gsh.grep results in Groovies grep methode to be called
+		// gsh.grep results in Groovies grep method to be called
 		// not into the shell command created. Adding _ as a prefix
 		// tells us that we mean the shell command.
 		if (name.startsWith("_")) {
@@ -124,7 +124,7 @@ public class Groosh extends GroovyObjectSupport {
 					command.addAll(getArgs(args));
 				}
 				// System.out.println(listAsString(command));
-				process = new ShellProcess(command, env, execDir);
+				process = new JavaProcess(command, env, execDir);
 				if (withSudo) {
 					process.fromString(sudoPassword);
 				}
