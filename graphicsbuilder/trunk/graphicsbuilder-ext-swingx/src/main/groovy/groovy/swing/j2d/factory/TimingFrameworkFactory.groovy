@@ -33,7 +33,7 @@ import org.codehaus.groovy.binding.FullBinding
  *  resolution (int) : for indescrete ranges, time between updates
  *  startDelay (int) : ms to delay start
  *  startDirection (Animator.Direction) : direction to start
- *  startValue (range value) : value to start animations at.
+ *  startFraction (range value) : value to start animations at.
  *  endBehavior (Animator.endBehavior) :
  *  acceleration (float) : fraction of time to accelerate
  *  deceleration (float) : fraction of time to accelerate
@@ -58,8 +58,20 @@ public class TimingFrameworkFactory extends AbstractFactory {
             properties.put("range", value);
         }
 
+        def firstValue = properties.get('startValue') ? properties.get('startValue') : [0]
+        if( !properties.remove('startValue') ){
+            def range = properties.get('range')
+            if( range instanceof Range ){
+                firstValue = range.from
+            }else if( range instanceof List ){
+                firstValue = range[0]
+            }else if( range instanceof Map ){
+                firstValue = range.values()[0]
+            }
+        }
+
         FullBinding fb = new TimingFrameworkTriggerBinding().createBinding(
-                new ClosureSourceBinding({it}, [0]), null);
+                new ClosureSourceBinding({it}, firstValue), null);
 
         if (isDiscreteRange(properties.get('range'))) {
             if (properties.containsKey("resolution")) {

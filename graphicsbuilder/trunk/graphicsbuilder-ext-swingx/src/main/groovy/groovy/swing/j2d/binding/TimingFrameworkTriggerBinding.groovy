@@ -86,10 +86,10 @@ class TimingFrameworkFullBinding extends AbstractFullBinding implements TimingTa
 
     // more complex ones...
     void setStart(boolean start) {if (start) {animator.start()}}
-    void setStartValue(startValue) {
+    void setStartFraction(startFraction) {
         if (basicRange) {
-            if (basicRange.containsWithinBounds(startValue)) {
-                animator.startValue = ((startValue - basicRange.from) / basicRange.to - basicRange - from) as float
+            if (basicRange.containsWithinBounds(startFraction)) {
+                animator.startFraction = ((startFraction - basicRange.from) / basicRange.to - basicRange - from) as float
             }
             // else throw error?
         } // else throw error?
@@ -110,7 +110,9 @@ class TimingFrameworkFullBinding extends AbstractFullBinding implements TimingTa
                     throw new RuntimeException("The keys in an animate range should be all convertable to float, '$k' isn't")
                 }
             }
-            keyFrames = new KeyFrames(new KeyValues(*timesMap.values()), new KeyTimes(*timesMap.keySet()));
+            def tmplist = []
+            tmplist.addAll(timesMap.values())
+            keyFrames = new KeyFrames(new KeyValues(*tmplist), new KeyTimes(*timesMap.keySet()));
         }
     }
 
@@ -139,7 +141,29 @@ class TimingFrameworkFullBinding extends AbstractFullBinding implements TimingTa
         }
     }
 
+    public void start() {
+        bound ? rebind() : bind()
+    }
 
+    public void stop() {
+        unbind()
+    }
+
+    public void pause() {
+       if( bound ) animator.pause()
+    }
+
+    public void resume() {
+       if( bound ) animator.resume()
+    }
+
+    public void restart(){
+       if( bound ){
+          animator.stop()
+       }
+       animator.start()
+       bound = true
+    }
 
     //timingtarget methods
     public void timingEvent(float v) {
@@ -158,5 +182,4 @@ class TimingFrameworkFullBinding extends AbstractFullBinding implements TimingTa
     public void repeat() {
         // ignore
     }
-
 }

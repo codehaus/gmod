@@ -1,32 +1,24 @@
-import java.awt.*
-import java.awt.geom.*
-import javax.swing.*
-import org.jdesktop.swingx.geom.*
 import groovy.swing.SwingBuilder
 import groovy.swing.j2d.*
-import groovy.swing.j2d.geom.*
+
+// You'll require the following imports
+// depending on the drawing code you wrote
+//
+//import java.awt.*
+//import java.awt.geom.*
+//import javax.swing.*
+//import groovy.swing.j2d.geom.*
+//import org.jdesktop.swingx.geom.*
 
 def gb = new GraphicsBuilder()
-def helpers = ["Jdk6GraphicsBuilderHelper",
-               "SwingXGraphicsBuilderHelper",
-               "BatikGraphicsBuilderHelper"]
-helpers.each { helper ->
-   try{
-      Class helperClass = Class.forName("groovy.swing.j2d.\${helper}")
-      helperClass.registerOperations( gb )
-   }catch( Exception e ){
-      System.err.println("Couldn't register \${helper}")
-   }
-}
 
 def graphicsOperation = gb.group {
    ${source}
 }
 
 def swing = SwingBuilder.build {
-   frame( id: 'frame', title: '${title}', size: [600,480], locationRelativeTo: null ){
+   frame( title: '${title}', size: [600,480],
+          locationRelativeTo: null, show: true ){
       panel( new GraphicsPanel(), graphicsOperation: graphicsOperation )
    }
 }
-
-swing.doLater { frame.visible = true }

@@ -40,11 +40,25 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private boolean building = false
     private GroovyShell shell
 
-    public GraphicsBuilder() {
+    public GraphicsBuilder( boolean registerExtensions = true ) {
         GraphicsBuilderHelper.extendShapes()
         GraphicsBuilderHelper.extendColor()
         GraphicsBuilderHelper.extendBasicStroke()
         registerOperations()
+
+        if( registerExtensions ){
+           def helpers = ["Jdk6GraphicsBuilderHelper",
+                          "SwingXGraphicsBuilderHelper",
+                          "BatikGraphicsBuilderHelper"]
+           helpers.each { helper ->
+              try{
+                 Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
+                 helperClass.registerOperations( this )
+              }catch( Exception e ){
+                 System.err.println("GraphicsRenderer: couldn't register ${helper}")
+              }
+           }
+        }
     }
 
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {

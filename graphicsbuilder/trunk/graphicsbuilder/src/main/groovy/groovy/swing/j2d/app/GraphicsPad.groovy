@@ -37,17 +37,16 @@ import org.codehaus.groovy.control.CompilationFailedException
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GraphicsPad implements CaretListener {
-    private def graphicsBuilder
+class GraphicsPad extends Binding implements CaretListener {
+    private prefs = Preferences.userNodeForPackage(Console)
+
     private def swing
-    private def inputEditor
+    private def gb
     private def runThread = null
-    private def runWaitDialog
-    private def frame
 
     private boolean dirty
     private def scriptFile
-    private File currentFileChooserDir = new File(Preferences.userNodeForPackage(GraphicsPad).get('currentFileChooserDir', '.'))
+    private File currentFileChooserDir = new File(prefs.get('currentFileChooserDir', '.'))
     private static String ICON_PATH = '/groovy/ui/ConsoleIcon.png' // used by ObjectBrowser too
 
         // row info
@@ -68,373 +67,36 @@ class GraphicsPad implements CaretListener {
            export_script_source = Thread.currentThread().contextClassLoader.
                    getResourceAsStream("groovy/swing/j2d/app/export-script.txt").text
        }
-       SwingUtilities.invokeLater {
-          def app = new GraphicsPad()
-          app.run()
-       }
+
+       new GraphicsPad().run()
     }
 
     GraphicsPad(){
        buildUI()
-       setupGraphicsBuilder()
+       gb = new GraphicsBuilder()
     }
 
     public void run(){
        swing.doLater {
-          frame.visible = true
-          inputEditor.textEditor.requestFocus()
-       }
-    }
-
-    private void setupGraphicsBuilder(){
-       graphicsBuilder = new GraphicsBuilder()
-       def helpers = ["Jdk6GraphicsBuilderHelper",
-                      "SwingXGraphicsBuilderHelper",
-                      "BatikGraphicsBuilderHelper"]
-       helpers.each { helper ->
-           try{
-              Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
-              helperClass.registerOperations( graphicsBuilder )
-           }catch( Exception e ){
-              e.printStackTrace()
-              System.err.println("Couldn't register ${helper}")
-           }
+          inputArea.requestFocus()
        }
     }
 
     private void buildUI(){
-       inputEditor = new ConsoleTextEditor()
        swing = new SwingBuilder()
 
        swing.lookAndFeel('system')
-       System.setProperty("apple.laf.useScreenMenuBar", "true")
-       System.setProperty("com.apple.mrj.application.apple.menu.about.name", "GraphicsPad")
+       swing.controller = this
+       swing.doLater {
+          build(GraphicsActions)
+          build(GraphicsView)
 
-       swing.actions {
-           action(id: 'newFileAction',
-               name: 'New File',
-               closure: this.&fileNewFile,
-               mnemonic: 'N',
-               accelerator: shortcut('N'),
-               smallIcon: imageIcon(resource:"icons/page.png", class:Console),
-               shortDescription: 'New Groovy Script'
-           )
-           action(id: 'newWindowAction',
-               name: 'New Window',
-               closure: this.&fileNewWindow,
-               mnemonic: 'W',
-               accelerator: shortcut('shift N')
-           )
-           action(id: 'openAction',
-               name: 'Open',
-               closure: this.&fileOpen,
-               mnemonic: 'O',
-               accelerator: shortcut('O'),
-               smallIcon: imageIcon(resource:"icons/folder_page.png", class:Console),
-               shortDescription: 'Open Groovy Script'
-           )
-           action(id: 'saveAction',
-               name: 'Save',
-               closure: this.&fileSave,
-               mnemonic: 'S',
-               accelerator: shortcut('S'),
-               smallIcon: imageIcon(resource:"icons/disk.png", class:Console),
-               shortDescription: 'Save Groovy Script'
-           )
-           action(id: 'saveAsAction',
-               name: 'Save As...',
-               closure: this.&fileSaveAs,
-               mnemonic: 'A',
-           )
-           action(id: 'exportAction',
-               name: 'Export...',
-               closure: this.&fileExport
-           )
-           action(inputEditor.printAction,
-               id: 'printAction',
-               name: 'Print...',
-               mnemonic: 'P',
-               accelerator: shortcut('P')
-           )
-           action(id: 'exitAction',
-               name: 'Exit',
-               closure: this.&exit,
-               mnemonic: 'X'
-           )
-           // whether or not application exit should have an
-           // accellerator is debatable in usability circles
-           // at the very least a confirm dialog should dhow up
-           //accelerator: shortcut('Q')
-           action(inputEditor.undoAction,
-               id: 'undoAction',
-               name: 'Undo',
-               mnemonic: 'U',
-               accelerator: shortcut('Z'),
-               smallIcon: imageIcon(resource:"icons/arrow_undo.png", class:Console),
-               shortDescription: 'Undo'
-           )
-           action(inputEditor.redoAction,
-               id: 'redoAction',
-               name: 'Redo',
-               mnemonic: 'R',
-               accelerator: shortcut('shift Z'), // is control-shift-Z or control-Y more common?
-               smallIcon: imageIcon(resource:"icons/arrow_redo.png", class:Console),
-               shortDescription: 'Redo'
-           )
-           action(id: 'findAction',
-               name: 'Find...',
-               closure: this.&find,
-               mnemonic: 'F',
-               accelerator: shortcut('F'),
-               smallIcon: imageIcon(resource:"icons/find.png", class:Console),
-               shortDescription: 'Find'
-           )
-           action(id: 'findNextAction',
-               name: 'Find Next',
-               closure: this.&findNext,
-               mnemonic: 'N',
-               accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0)
-           )
-           action(id: 'findPreviousAction',
-               name: 'Find Previous',
-               closure: this.&findPrevious,
-               mnemonic: 'V',
-               accelerator: KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK)
-           )
-           action(id: 'replaceAction',
-               name: 'Replace...',
-               closure: this.&replace,
-               mnemonic: 'E',
-               accelerator: shortcut('H'),
-               smallIcon: imageIcon(resource:"icons/text_replace.png", class:Console),
-               shortDescription: 'Replace'
-           )
-           action(id: 'cutAction',
-               name: 'Cut',
-               closure: this.&cut,
-               mnemonic: 'T',
-               accelerator: shortcut('X'),
-               smallIcon: imageIcon(resource:"icons/cut.png", class:Console),
-               shortDescription: 'Cut'
-           )
-           action(id: 'copyAction',
-               name: 'Copy',
-               closure: this.&copy,
-               mnemonic: 'C',
-               accelerator: shortcut('C'),
-               smallIcon: imageIcon(resource:"icons/page_copy.png", class:Console),
-               shortDescription: 'Copy'
-           )
-           action(id: 'pasteAction',
-               name: 'Paste',
-               closure: this.&paste,
-               mnemonic: 'P',
-               accelerator: shortcut('V'),
-               smallIcon: imageIcon(resource:"icons/page_paste.png", class:Console),
-               shortDescription: 'Paste'
-           )
-           action(id: 'selectAllAction',
-               name: 'Select All',
-               closure: this.&selectAll,
-               mnemonic: 'A',
-               accelerator: shortcut('A')
-           )
-           action(id: 'runAction',
-               name: 'Run',
-               closure: this.&executeCode,
-               mnemonic: 'R',
-               keyStroke: shortcut('ENTER'),
-               accelerator: shortcut('R'),
-               smallIcon: imageIcon(resource:"icons/script_go.png", class:Console),
-               shortDescription: 'Execute Groovy Script'
-           )
-           action(id: 'largerFontAction',
-               name: 'Larger Font',
-               closure: this.&largerFont,
-               mnemonic: 'L',
-               accelerator: shortcut('shift L')
-           )
-           action(id: 'smallerFontAction',
-               name: 'Smaller Font',
-               closure: this.&smallerFont,
-               mnemonic: 'S',
-               accelerator: shortcut('shift S')
-           )
-           action(id: 'aboutAction',
-               name: 'About',
-               closure: this.&showAbout,
-               mnemonic: 'A'
-           )
-           action(id: 'interruptAction',
-               name: 'Interrupt',
-               closure: this.&confirmRunInterrupt
-           )
+          swing.bind(source:swing.inputEditor.undoAction, sourceProperty:'enabled',
+                  target:undoAction, targetProperty:'enabled')
+          swing.bind(source:swing.inputEditor.redoAction, sourceProperty:'enabled',
+                  target:swing.redoAction, targetProperty:'enabled')
        }
-
-       frame = swing.frame( title: "GraphicsPad", size: [1024,800],
-             locationRelativeTo: null,
-             iconImage: swing.imageIcon(ICON_PATH).image,
-             defaultCloseOperation: WindowConstants.DO_NOTHING_ON_CLOSE ){
-           menuBar {
-               menu(text: 'File', mnemonic: 'F') {
-                   menuItem(newFileAction)
-                   menuItem(newWindowAction)
-                   menuItem(openAction)
-                   separator()
-                   menuItem(saveAction)
-                   menuItem(saveAsAction)
-                   menuItem(exportAction)
-                   separator()
-                   menuItem(printAction)
-                   separator()
-                   menuItem(exitAction)
-               }
-
-               menu(text: 'Edit', mnemonic: 'E') {
-                   menuItem(undoAction)
-                   menuItem(redoAction)
-                   separator()
-                   menuItem(cutAction)
-                   menuItem(copyAction)
-                   menuItem(pasteAction)
-                   separator()
-                   menuItem(findAction)
-                   menuItem(findNextAction)
-                   menuItem(findPreviousAction)
-                   menuItem(replaceAction)
-                   separator()
-                   menuItem(selectAllAction)
-               }
-
-              menu(text: 'View', mnemonic: 'V') {
-                 menuItem(largerFontAction)
-                 menuItem(smallerFontAction)
-              }
-
-             menu(text: 'Script', mnemonic: 'S') {
-                 menuItem(runAction)
-             }
-
-             menu(text: 'Help', mnemonic: 'H') {
-                 menuItem(aboutAction)
-             }
-          }
-
-          borderLayout()
-
-           toolBar(rollover:true, constraints:BL.NORTH) {
-               button(newFileAction, text:null)
-               button(openAction, text:null)
-               button(saveAction, text:null)
-               separator(orientation:SwingConstants.VERTICAL)
-               button(undoAction, text:null)
-               button(redoAction, text:null)
-               separator(orientation:SwingConstants.VERTICAL)
-               button(cutAction, text:null)
-               button(copyAction, text:null)
-               button(pasteAction, text:null)
-               separator(orientation:SwingConstants.VERTICAL)
-               button(findAction, text:null)
-               button(replaceAction, text:null)
-               separator(orientation:SwingConstants.VERTICAL)
-               button(runAction, text:null)
-           }
-
-          panel {
-             gridLayout( cols: 1, rows: 2 )
-             widget( buildViewPanel(swing) )
-             widget( buildCodePanel(swing) )
-          }
-
-          panel(id: 'statusPanel', constraints: BL.SOUTH) {
-              gridBagLayout()
-              separator(constraints:gbc(gridwidth:GridBagConstraints.REMAINDER, fill:GridBagConstraints.HORIZONTAL))
-              label('Welcome to GraphicsPad.',
-                  id: 'status',
-                  constraints:gbc(weightx:1.0,
-                      anchor:GridBagConstraints.WEST,
-                      fill:GridBagConstraints.HORIZONTAL,
-                      insets: [1,3,1,3])
-              )
-              separator(orientation:SwingConstants.VERTICAL, constraints:gbc(fill:GridBagConstraints.VERTICAL))
-              label('1:1',
-                  id: 'rowNumAndColNum',
-                  constraints:gbc(insets: [1,3,1,3])
-              )
-          }
-       }
-
-       frame.windowClosing = this.&exit
-
-       runWaitDialog = swing.dialog(title: 'Groovy executing',
-             owner: frame,
-             modal: true ) {
-          vbox(border: BF.createEmptyBorder(6, 6, 6, 6)) {
-             label(text: "Groovy is now executing. Please wait.", alignmentX: 0.5f)
-             vstrut()
-             button(interruptAction,
-                 margin: new Insets(10, 20, 10, 20),
-                 alignmentX: 0.5f
-             )
-          }
-       }
-
-       inputEditor.textEditor.addCaretListener(this)
-       rootElement = inputEditor.textEditor.document.defaultRootElement
     }
-
-    private def buildViewPanel( swing ){
-       def graphicsPanel = new GraphicsPanel()
-       graphicsPanel.border = BF.createEmptyBorder()
-       graphicsPanel.background = Color.white
-       graphicsPanel.addGraphicsErrorListener({ evt ->
-           displayError( evt.cause.localizedMessage )
-       } as GraphicsErrorListener )
-
-       Toolkit toolkit = Toolkit.getDefaultToolkit()
-       Dimension screen = toolkit.getScreenSize()
-
-       def rowHeader = swing.widget( new ScrollPaneRuler(ScrollPaneRuler.VERTICAL), opaque: true,
-             preferredSize: [20,screen.width as int] )
-       def columnHeader = swing.widget( new ScrollPaneRuler(ScrollPaneRuler.HORIZONTAL), opaque: true,
-             preferredSize: [screen.height as int,20] )
-       def scrollPane = swing.scrollPane( border: /*BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "View"),*/
-             BF.createLineBorder(Color.BLACK),
-             rowHeaderView: rowHeader, columnHeaderView: columnHeader ){
-          panel( graphicsPanel, id: 'view' )
-       }
-
-       //scrollPane.addMouseListener( rowHeader )
-       //scrollPane.addMouseMotionListener( rowHeader )
-       //scrollPane.addMouseListener( columnHeader )
-       //scrollPane.addMouseMotionListener( columnHeader )
-
-       graphicsPanel.addMouseListener( rowHeader )
-       graphicsPanel.addMouseMotionListener( rowHeader )
-       graphicsPanel.addMouseListener( columnHeader )
-       graphicsPanel.addMouseMotionListener( columnHeader )
-
-       return scrollPane
-    }
-
-    private def buildCodePanel( swing ){
-        def sourcePanel = swing.panel {
-           borderLayout( )
-           scrollPane( constraints: BL.CENTER, border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "Source") ) {
-              container( inputEditor, id: 'source', border: BF.createEmptyBorder(),
-                        font: new Font( Font.MONOSPACED, Font.PLAIN, 14 ) ){
-                 action(runAction)
-              }
-           }
-           scrollPane( constraints: BL.SOUTH, border: BF.createTitledBorder(BF.createLineBorder(Color.BLACK), "Errors") ) {
-              textArea( id: 'error',  rows: 2 )
-           }
-        }
-
-        inputEditor.textEditor.document.addDocumentListener({ setDirty(true) } as DocumentListener)
-
-        return sourcePanel
-     }
 
     // ---------- ACTIONS -----------
 
@@ -450,7 +112,7 @@ class GraphicsPad implements CaretListener {
         if (askToSaveFile()) {
             scriptFile = null
             setDirty(false)
-            inputEditor.textEditor.text = ''
+            inputArea.text = ''
         }
     }
 
@@ -464,9 +126,9 @@ class GraphicsPad implements CaretListener {
     void fileOpen(EventObject evt = null) {
         scriptFile = selectFilename()
         if (scriptFile != null) {
-            inputEditor.textEditor.text = scriptFile.readLines().join('\n')
+            inputArea.text = scriptFile.readLines().join('\n')
             setDirty(false)
-            inputEditor.textEditor.caretPosition = 0
+            inputArea.caretPosition = 0
         }
     }
 
@@ -475,7 +137,7 @@ class GraphicsPad implements CaretListener {
         if (scriptFile == null) {
             return fileSaveAs(evt)
         } else {
-            scriptFile.write(inputEditor.textEditor.text)
+            scriptFile.write(inputArea.text)
             setDirty(false)
             return true
         }
@@ -484,7 +146,7 @@ class GraphicsPad implements CaretListener {
     boolean fileSaveAs(EventObject evt = null) {
         scriptFile = selectFilename("Save")
         if (scriptFile != null) {
-            scriptFile.write(inputEditor.textEditor.text)
+            scriptFile.write(inputArea.text)
             setDirty(false)
             return true
         } else {
@@ -495,7 +157,7 @@ class GraphicsPad implements CaretListener {
     boolean fileExport(EventObject evt = null) {
         scriptFile = selectFilename("Export")
         if (scriptFile != null) {
-            def binding = [source:inputEditor.textEditor.text, title: scriptFile.name - ".groovy"]
+            def binding = [source:inputArea.text, title: scriptFile.name - ".groovy"]
             def template = templateEngine.createTemplate(export_script_source).make(binding)
             def script = template.toString()
             scriptFile.write(script)
@@ -507,15 +169,15 @@ class GraphicsPad implements CaretListener {
     }
 
     void largerFont(EventObject evt = null) {
-       if (inputEditor.textEditor.font.size > 40) return
-       def newFont = new Font('Monospaced', Font.PLAIN, inputEditor.textEditor.font.size + 2)
-       inputEditor.textEditor.font = newFont
+       if (inputArea.font.size > 40) return
+       def newFont = new Font('Monospaced', Font.PLAIN, inputArea.font.size + 2)
+       inputArea.font = newFont
     }
 
     void smallerFont(EventObject evt = null){
-       if (inputEditor.textEditor.font.size < 5) return
-       def newFont = new Font('Monospaced', Font.PLAIN, inputEditor.textEditor.font.size - 2)
-       inputEditor.textEditor.font = newFont
+       if (inputArea.font.size < 5) return
+       def newFont = new Font('Monospaced', Font.PLAIN, inputArea.font.size - 2)
+       inputArea.font = newFont
     }
 
     def selectFilename(name = "Open") {
@@ -532,8 +194,10 @@ class GraphicsPad implements CaretListener {
     }
 
     void setDirty(boolean newDirty) {
-        dirty = newDirty
-        updateTitle()
+       //TODO when @BoundProperty is live, this should be handled via listeners
+       dirty = newDirty
+       swing.saveAction.enabled = newDirty
+       updateTitle()
     }
 
     void showAbout(EventObject evt = null) {
@@ -575,7 +239,7 @@ class GraphicsPad implements CaretListener {
     void invokeTextAction(evt, closure) {
        def source = evt.getSource()
        if (source != null) {
-           closure(inputEditor.textEditor)
+           closure(inputArea)
        }
     }
 
@@ -596,21 +260,21 @@ class GraphicsPad implements CaretListener {
     }
 
     void executeCode( EventObject evt = null ){
-        if( !inputEditor.textEditor.text.trim() ){
+        if( !inputArea.text.trim() ){
            displayError( "Please type some code" )
         }else{
-           swing.status.text = 'Running Script...'
            runThread = Thread.start {
               try {
                   SwingUtilities.invokeLater {
+                     status.text = 'Running Script...'
                      showRunWaitDialog()
-                     swing.error.text = ""
-                     swing.view.removeAll()
+                     error.text = ""
+                     view.removeAll()
                   }
-                  def binding = [source:inputEditor.textEditor.text]
+                  def binding = [source:inputArea.text]
                   def template = templateEngine.createTemplate(simple_script_source).make(binding)
                   def script = template.toString()
-                  def go = graphicsBuilder.group( new GroovyShell().evaluate(script) )
+                  def go = gb.group( new GroovyShell().evaluate(script) )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check the code.")
                   }
@@ -650,7 +314,7 @@ class GraphicsPad implements CaretListener {
     }
 
     void clearCode( EventObject evt = null ){
-       inputEditor.textEditor.text = ""
+       inputArea.text = ""
        swing.error.text = ""
     }
 
@@ -668,8 +332,7 @@ class GraphicsPad implements CaretListener {
         }
         switch (JOptionPane.showConfirmDialog(frame,
             "Save changes to " + scriptFile.name + "?",
-            "GraphicsPad", JOptionPane.YES_NO_CANCEL_OPTION))
-        {
+            "GraphicsPad", JOptionPane.YES_NO_CANCEL_OPTION)){
             case JOptionPane.YES_OPTION:
                 return fileSave()
             case JOptionPane.NO_OPTION:
@@ -689,12 +352,12 @@ class GraphicsPad implements CaretListener {
     }
 
     void caretUpdate(CaretEvent e){
-        cursorPos = inputEditor.textEditor.getCaretPosition()
+        cursorPos = inputArea.getCaretPosition()
         rowNum = rootElement.getElementIndex(cursorPos) + 1
 
         def rowElement = rootElement.getElement(rowNum - 1)
         colNum = cursorPos - rowElement.getStartOffset() + 1
 
-        swing.rowNumAndColNum.setText("$rowNum:$colNum")
+        rowNumAndColNum.setText("$rowNum:$colNum")
     }
 }

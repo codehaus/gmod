@@ -32,7 +32,8 @@ import groovy.swing.j2d.operations.filters.transitions.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
 import com.jhlabs.image.LightFilter.*
-import composite.BlendComposite
+import composite.BlendComposite
+import org.jdesktop.animation.timing.Animator.*
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -360,5 +361,15 @@ class SwingXGraphicsBuilderHelper {
       builder.blendSaturation = BlendComposite.BlendingMode.SATURATION
       builder.blendColor = BlendComposite.BlendingMode.COLOR
       builder.blendLuminosity = BlendComposite.BlendingMode.LUMINOSITY
+
+      // animation related variables
+      builder.endBehaviorHold = EndBehavior.HOLD
+      builder.endBehaviorReset = EndBehavior.RESET
+      builder.directionForward = Direction.FORWARD
+      builder.directionBackward = Direction.BACKWARD
+      builder.repeatBehaviorLoop = RepeatBehavior.LOOP
+      builder.repeatBehaviorReverse = RepeatBehavior.REVERSE
+      builder.inifiniteDuration = -1
+      builder.inifiteRepeatCount = -1
    }
 }
