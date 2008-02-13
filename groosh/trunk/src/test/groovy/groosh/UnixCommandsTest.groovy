@@ -45,40 +45,45 @@ class UnixCommandsTest extends GroovyTestCase {
 		"dyslexia's\n" 
 		
 	void testBasicCat() {
-		def out = gsh._cat('src/test/resources/blah.txt').toStringOut()
+		def out = gsh._cat('src/test/resources/blah.txt').text
 		assert blaResult == out
 	}
 
 	void testPipeTo() {
-		def out = (gsh._cat('src/test/resources/blah.txt') | gsh._grep('b')).toStringOut()
+		def out = (gsh._cat('src/test/resources/blah.txt') | gsh._grep('b')).text
 		assert 'b\nba\n' == out
 	}
 	
 	void testCatToFile() {
 	    def tmpFile = File.createTempFile("groovyTest",".txt")
-		def p = gsh.cat('src/test/resources/blah.txt')
-		p.toFile(tmpFile)
+		def p = gsh.cat('src/test/resources/blah.txt') >> tmpFile
 		p.waitFor()
-		assert blaResult == tmpFile.getText()
+		assert blaResult == tmpFile.text
 	}
 	
 	void testDict() {
-		def out = gsh.cat('src/test/resources/words').pipeTo(gsh._grep('lexia')).toStringOut();
+		def out = (gsh.cat('src/test/resources/words') | gsh._grep('lexia')).text
 		assert dictResult == out
 	}
 
 	void testEachLine() {
-		def cat = gsh.cat('src/test/resources/blah.txt');
+		def cat = gsh.cat('src/test/resources/blah.txt')
 		def lines = gsh.each_line { line,w -> 
-		  w.write("*");
-		  w.write(line);
-		  w.write("\n");
-		};
+		  w.write("*")
+		  w.write(line)
+		  w.write("\n")
+		}
 
-		cat.pipeTo(lines);
-		def out = lines.toStringOut();
+		cat | lines
+		def out = lines.text
 		
 		assert eachLineResult == out
+	}
+	
+	void testReadFromString() {
+		
+		def out = (gsh._grep('a') << "src/test/resources/blah.txt").text
+		assert "a\nba\n" == out
 	}
 
 }
