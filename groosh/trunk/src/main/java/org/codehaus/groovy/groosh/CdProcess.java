@@ -19,8 +19,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.groovy.groosh.sink.Sink;
-import org.codehaus.groovy.groosh.sink.Source;
+import org.codehaus.groovy.groosh.stream.Sink;
+import org.codehaus.groovy.groosh.stream.Source;
+import org.codehaus.groovy.util.ExecDir;
 
 /**
  * Implements a basic 'cd' command which changes the base directory used to

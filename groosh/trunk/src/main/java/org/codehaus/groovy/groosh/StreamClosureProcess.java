@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import org.codehaus.groovy.groosh.process.IOUtil;
-import org.codehaus.groovy.groosh.sink.Sink;
-import org.codehaus.groovy.groosh.sink.Source;
-import org.codehaus.groovy.groosh.sink.StandardStreams;
+import org.codehaus.groovy.groosh.stream.Sink;
+import org.codehaus.groovy.groosh.stream.Source;
+import org.codehaus.groovy.groosh.stream.StandardStreams;
+import org.codehaus.groovy.util.IOUtil;
 
 /**
  * 

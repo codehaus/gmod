@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 
-import org.codehaus.groovy.groosh.sink.DevNull;
-import org.codehaus.groovy.groosh.sink.FileStreams;
-import org.codehaus.groovy.groosh.sink.IOStreams;
-import org.codehaus.groovy.groosh.sink.Sink;
-import org.codehaus.groovy.groosh.sink.Source;
-import org.codehaus.groovy.groosh.sink.StandardStreams;
-import org.codehaus.groovy.groosh.sink.StringStreams;
+import org.codehaus.groovy.groosh.stream.DevNull;
+import org.codehaus.groovy.groosh.stream.FileStreams;
+import org.codehaus.groovy.groosh.stream.IOStreams;
+import org.codehaus.groovy.groosh.stream.Sink;
+import org.codehaus.groovy.groosh.stream.Source;
+import org.codehaus.groovy.groosh.stream.StandardStreams;
+import org.codehaus.groovy.groosh.stream.StringStreams;
 
 // TODO class should not be reentrant 
 // that is if output is already set, don't let it be done twice.
@@ -64,14 +64,15 @@ public abstract class GrooshProcess {
 		return sink.toString();
 	}
 
-	public void toFile(File f) throws IOException {
+	public GrooshProcess toFile(File f) throws IOException {
 		Sink sink = FileStreams.fileSink(f, false);
 
 		processSink(sink);
+		return this;
 	}
 
-	public void toFile(String fn) throws IOException {
-		toFile(new File(fn));
+	public GrooshProcess toFile(String fn) throws IOException {
+		return toFile(new File(fn));
 	}
 
 	public GrooshProcess pipeTo(GrooshProcess process) throws IOException {
@@ -87,6 +88,27 @@ public abstract class GrooshProcess {
 		return pipeTo(process);
 	}
 
+	public GrooshProcess or(Sink sink) throws IOException {
+		processSink(sink);
+		return this;
+	}
+
+	public GrooshProcess leftShift(String file) throws IOException {
+		return fromFile(file);
+	}
+
+	public GrooshProcess leftShift(File file) throws IOException {
+		return fromFile(file);
+	}
+
+	public GrooshProcess rightShift(String file) throws IOException {
+		return toFile(file);
+	}
+
+	public GrooshProcess rightShift(File file) throws IOException {
+		return toFile(file);
+	}
+
 	public void toStdOut() throws IOException {
 		Sink sink = StandardStreams.stdout();
 
@@ -94,7 +116,7 @@ public abstract class GrooshProcess {
 	}
 
 	public void toDevNull() throws IOException {
-		Sink sink = DevNull.devNullSink();
+		Sink sink = DevNull.devnull();
 
 		processSink(sink);
 	}
@@ -111,6 +133,18 @@ public abstract class GrooshProcess {
 
 		source.connect(getInput());
 
+		return this;
+	}
+
+	public GrooshProcess fromFile(File file) throws IOException {
+		Source source = FileStreams.fileSource(file);
+		source.connect(getInput());
+		return this;
+	}
+
+	public GrooshProcess fromFile(String file) throws IOException {
+		Source source = FileStreams.fileSource(new File(file));
+		source.connect(getInput());
 		return this;
 	}
 
