@@ -23,6 +23,7 @@ import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.event.TreeSelectionListener
 import org.kordamp.groovy.swing.jide.JideBuilder
+import org.codehaus.groovy.junctions.swingx.PostPane
 
 import com.sun.syndication.feed.synd.SyndFeed
 import com.sun.syndication.io.SyndFeedInput
@@ -59,6 +60,7 @@ class Main extends Binding {
       }
 
       swing = new SwingXBuilder()
+      swing.registerBeanFactory( "postPane", PostPane )
       swing.lookAndFeel('system')
       swing.controller = this
       // create the actions
@@ -138,10 +140,12 @@ class Main extends Binding {
          swing.postContainer.removeAll()
          swing.taskPaneContainer( swing.postContainer ){
             feed.entries.each { entry ->
-               taskPane( title: entry.title, expanded: false,
+               postPane( title: entry.title, expanded: false,
+                         publishedDate: entry.publishedDate,
                          icon: imageIcon(image:postIcon) ){
                   def sp = scrollPane {
-                     editorPane( contentType: "text/html", text: entry.description.value,
+                     def content = entry.description?.value ?: entry.contents?.value[0]
+                     editorPane( contentType: "text/html", text: content,
                                  editable: false )
                   }
                   sp.preferredSize = new Dimension(w,sp.preferredSize.height as int)

@@ -18,6 +18,7 @@ package org.codehaus.groovy.junctions.ui
 
 import org.codehaus.groovy.junctions.ViewUtils
 import java.awt.BorderLayout as BL
+import java.awt.Dimension
 import javax.swing.tree.*
 import java.awt.ComponentOrientation as CO
 import javax.swing.ScrollPaneConstants as SPC
@@ -31,7 +32,7 @@ panel {
             gridLayout( cols: 1, rows: 1 )
             button( classicSwing: true, action: addSubscriptionAction )
          }
-         scrollPane( constraints: BL.CENTER,
+         sp = scrollPane( constraints: BL.CENTER,
                      verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS,
                      componentOrientation: CO.RIGHT_TO_LEFT ){
             tree( id: 'feedContainer',
@@ -40,6 +41,7 @@ panel {
                leafIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_16.png"))
             )
          }
+         sp.preferredSize = new Dimension(200,sp.preferredSize.height as int)
          panel( constraints: BL.SOUTH ) {
             gridLayout( cols: 1, rows: 2 )
             button( classicSwing: true, action: refreshSubscriptionsAction )
