@@ -18,12 +18,14 @@ package org.codehaus.groovy.junctions
 
 import javax.swing.SwingUtilities
 import groovy.swing.SwingXBuilder
+import java.awt.Color
 import java.awt.Dimension
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.event.TreeSelectionListener
 import org.kordamp.groovy.swing.jide.JideBuilder
 import org.codehaus.groovy.junctions.swingx.PostPane
+import javax.swing.BorderFactory as BF
 
 import com.sun.syndication.feed.synd.SyndFeed
 import com.sun.syndication.io.SyndFeedInput
@@ -61,6 +63,7 @@ class Main extends Binding {
 
       swing = new SwingXBuilder()
       swing.registerBeanFactory( "postPane", PostPane )
+      swing.registerLayouts()
       swing.lookAndFeel('system')
       swing.controller = this
       // create the actions
@@ -146,9 +149,12 @@ class Main extends Binding {
                   def sp = scrollPane {
                      def content = entry.description?.value ?: entry.contents?.value[0]
                      editorPane( contentType: "text/html", text: content,
-                                 editable: false )
+                                 editable: false, border: BF.createEmptyBorder(),
+                                 background: Color.LIGHT_GRAY )
                   }
-                  sp.preferredSize = new Dimension(w,sp.preferredSize.height as int)
+                  def h = sp.preferredSize.height as int
+                  h = h < 100 ? 100 : h
+                  sp.preferredSize = new Dimension(w,h)
                }
             }
          }

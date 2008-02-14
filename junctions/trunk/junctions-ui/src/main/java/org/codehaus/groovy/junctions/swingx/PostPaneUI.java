@@ -10,10 +10,13 @@ import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.plaf.ComponentUI;
 
 import org.jdesktop.swingx.JXTaskPane;
@@ -37,6 +40,12 @@ public class PostPaneUI extends BasicTaskPaneUI {
 
    protected Border createPaneBorder() {
       return new GlossyPaneBorder();
+   }
+   
+   protected Border createContentPaneBorder(){
+      Color borderColor = UIManager.getColor("TaskPane.borderColor");
+      return new CompoundBorder(new ContentPaneBorder(borderColor),
+              BorderFactory.createEmptyBorder(4, 4, 4, 4));
    }
 
    protected static class HeaderChevronIcon implements Icon {
@@ -112,7 +121,7 @@ public class PostPaneUI extends BasicTaskPaneUI {
          dim.height = getTitleHeight();
 
          dim.width += label2.getPreferredSize().width;
-         dim.width += 3;
+         dim.width += 8;
 
          return dim;
       }
@@ -122,10 +131,10 @@ public class PostPaneUI extends BasicTaskPaneUI {
          return true;
       }
 
-      @Override
+      /*
       protected void paintChevronControls( JXTaskPane group, Graphics g, int x, int y, int width,
             int height ) {
-
+         
          HeaderChevronIcon chevron;
          if( group.isExpanded() ){
             chevron = new HeaderChevronIcon( true );
@@ -137,11 +146,11 @@ public class PostPaneUI extends BasicTaskPaneUI {
          chevron.paintIcon( group, g, chevronX, chevronY );
          chevron.paintIcon( group, g, chevronX, chevronY + chevron.getIconHeight() + 1 );
       }
+      */
 
-      @Override
+      /*
       protected void paintOvalAroundControls( JXTaskPane jxtaskpane, Graphics g, int i, int j,
             int k, int l ) {
-         /*
          if( jxtaskpane.isSpecial() ){
             g.setColor( specialTitleBackground.brighter() );
             g.drawOval( i, j, k, l );
@@ -177,8 +186,8 @@ public class PostPaneUI extends BasicTaskPaneUI {
                g2.drawOval( i + x, j + x, k - (x * 2), l - (x * 2) );
             }
          }
-         */
       }
+      */
 
       protected void paintExpandedControls( JXTaskPane group, Graphics g, int x, int y, int width,
             int height ) {
@@ -209,10 +218,10 @@ public class PostPaneUI extends BasicTaskPaneUI {
          label.paint( g );
          g.translate( -x, -y );
 
-         g.translate( x + width - width2, y );
+         g.translate( x + width - width2 - 8, y );
          label2.setBounds( 0, 0, width2, height );
          label2.paint( g );
-         g.translate( -x - width + width2, -y );
+         g.translate( -x - width + width2 + 8, -y );
       }
 
       protected void paintTitleBackground( JXTaskPane group, Graphics g ) {

@@ -19,8 +19,8 @@ package org.codehaus.groovy.junctions
 import java.awt.BorderLayout as BL
 
 frame = controller.frame
-dialog( title: 'About Junctions',
-        id: 'aboutDialog', owner: frame, size: [320,240], locationRelativeTo: frame ){
+dialog( title: 'About Junctions', id: 'aboutDialog', pack: true,
+      owner: frame, size: [320,240], locationRelativeTo: frame ){
    borderLayout()
    bannerPanel(title: 'Junctions', subtitle: 'A Groovy RSS reader',
          constraints: BL.NORTH,
@@ -32,14 +32,14 @@ dialog( title: 'About Junctions',
 }
 
 dialog( title: 'Add Subscription', id: 'addSubscriptionDialog',
-      owner: frame, locationRelativeTo: frame, size: [320,150] ){
-   borderLayout( hgap: 20 )
+      owner: frame, locationRelativeTo: frame, size: [320,150], pack:true ){
+   borderLayout( hgap: 20, vgap: 20 )
    bannerPanel(title: 'Add Subscription', constraints: BL.NORTH,
          titleIcon: imageIcon(ViewUtils.loadImage("zeusboxstudio-feedicons2/subscribe_32.png")) )
    panel( constraints: BL.CENTER ) {
-      gridLayout( cols: 1, rows: 3 )
+      gridLayout( cols: 1, rows: 3, hgap: 20 )
       label( "Paste a site or feed url" )
-      textField( id: 'feedUrl' )
+      textField( id: 'feedUrl', columns: 30 )
       label( "e.g., groovyblogs.org" )
    }
    buttonPanel( constraints: BL.SOUTH ) {

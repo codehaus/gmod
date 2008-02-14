@@ -21,11 +21,13 @@ import java.awt.BorderLayout as BL
 import java.awt.Dimension
 import javax.swing.tree.*
 import java.awt.ComponentOrientation as CO
+import javax.swing.BorderFactory as BF
 import javax.swing.ScrollPaneConstants as SPC
+import static javax.swing.JSplitPane.HORIZONTAL_SPLIT
 
-panel {
-   borderLayout()
-   titledPanel( title: 'Subscriptions', constraints: BL.WEST ){
+splitPane(id: 'splitPane', resizeWeight: 0.50F,
+      orientation: HORIZONTAL_SPLIT ){
+   titledPanel( title: 'Subscriptions', constraints: BL.WEST, id: 'subscriptionsPanel' ){
       panel {
          borderLayout()
          panel( constraints: BL.NORTH ) {
@@ -50,11 +52,21 @@ panel {
       }
    }
    titledPanel( title: '...', constraints: BL.CENTER, id: 'mainPanel' ){
-      scrollPane( verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS ){
-         taskPaneContainer( id: 'postContainer' )
+      scrollPane( verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS,
+            border: BF.createEmptyBorder() ){
+         taskPaneContainer( id: 'postContainer', border: BF.createEmptyBorder() ){
+            verticalLayout(gap:2)
+         }
       }
    }
 }
+
+def size = subscriptionsPanel.preferredSize
+size.width = (frame.size.width*1/4)
+subscriptionsPanel.preferredSize = size
+size = mainPanel.preferredSize
+size.width = (frame.size.width*3/4)
+mainPanel.preferredSize = size
 
 def root = new DefaultMutableTreeNode( "Subscriptions" )
 root.add( new DefaultMutableTreeNode("unclassified") )

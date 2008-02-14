@@ -49,13 +49,16 @@ frame( title: 'Junctions',
       size: [800,600],
       location: [0,0],
       show: true,
+      pack:true,
       id:'frame' ) {
    build(menuBarClass)
    build(contentPaneClass)
    build(statusBarClass)
 }
 
-dialog( id: 'waitDialog', owner: frame, size: [240,120], locationRelativeTo: frame, classicSwing:true ){
+dialog( id: 'waitDialog', owner: frame, 
+        size: [240,120], locationRelativeTo: frame, 
+        classicSwing:true, pack: false ){
    gridLayout( cols: 1, rows: 2 )
    label( "Processing", horizontalAlignment: CENTER, verticalAlignment: CENTER )
    busyLabel( busy: true, horizontalAlignment: CENTER, verticalAlignment: CENTER )
