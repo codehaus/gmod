@@ -1,0 +1,98 @@
+// Based on SwingXBuilder's build.gant
+
+Ant.property ( file : 'local.build.properties' )
+Ant.property ( file : 'build.properties' )
+
+includeTargets << gant.targets.Clean
+cleanPattern << [ '**/*~' ,  '**/*.bak' ]
+cleanDirectory << [ Ant.project.properties.'junctions.dist' , Ant.project.properties.'junctions.build' ]
+
+Ant.path ( id : 'lib.groovy' ) { fileset ( dir : System.properties.'groovy.home' + '/lib' , includes : '**/*.jar' ) }
+Ant.path ( id : 'build.classpath' ) {
+  fileset ( dir : Ant.project.properties.'junctions.lib' , includes : '**/*.jar' )
+  fileset ( dir : System.properties.'java.home', includes : 'lib/tools.jar' )
+  path ( refid :  'lib.groovy' )
+}
+Ant.path ( id : 'test.classpath' ) {
+  path ( refid :  'build.classpath' )
+  dirset ( dir : Ant.project.properties.'junctions.build.classes' )
+}
+Ant.path ( id : 'runtime.classpath' ) {
+  path ( refid :  'build.classpath' )
+  dirset ( dir : Ant.project.properties.'junctions.build.classes' )
+}
+
+Ant.taskdef ( name : 'groovyc' , classname : 'org.codehaus.groovy.ant.Groovyc' , classpathref : 'lib.groovy' )
+Ant.taskdef ( name : 'groovy' , classname : 'org.codehaus.groovy.ant.Groovy' , classpathref : 'lib.groovy' )
+
+target ( '-initialize' : '' ) {
+  mkdir ( dir : Ant.project.properties.'junctions.build.classes' )
+  mkdir ( dir : Ant.project.properties.'junctions.build.reports' )
+  mkdir ( dir : Ant.project.properties.'junctions.build.tests' )
+  mkdir ( dir : Ant.project.properties.'junctions.dist' )
+}
+
+target ( compile : 'Compile all classes.' ) {
+  depends ( '-initialize' )
+  groovyc ( srcdir : Ant.project.properties.'junctions.src.main' , destDir : Ant.project.properties.'junctions.build.classes' ) {
+    classpath ( refid : 'build.classpath' )
+  }
+  copy( todir: Ant.project.properties.'junctions.build.classes' ){
+    fileset( dir: Ant.project.properties.'junctions.src.resources' )
+  }
+}
+
+target ( 'compile-tests' : 'Compile all the tests.' ) {
+  depends ( compile )
+  groovyc ( srcdir : Ant.project.properties.'junctions.src.test' , destdir : Ant.project.properties.'junctions.build.tests') {
+    classpath ( refid : 'test.classpath' )
+  }
+}
+
+target ( test : 'Run all the tests in the build.' ) {
+  depends ( 'compile-tests' )
+  junit ( printsummary : 'yes' , haltonfailure : 'true' ) {
+    formatter ( type : 'plain' )
+    formatter ( type : 'xml' )
+    batchtest ( fork : 'yes' , todir : Ant.project.properties.'junctions.build.reports' ) {
+      fileset ( dir : Ant.project.properties.'junctions.build.tests' , includes : '**/*Test.class' )
+    }
+    classpath {
+      pathelement ( location : Ant.project.properties.'junctions.build.tests' )
+      pathelement ( location : Ant.project.properties.'junctions.build.classes' )
+      path ( refid : 'build.classpath' )
+    }
+  }
+}
+
+target ( run : 'Run the app' ) {
+  depends ( 'compile' )
+  java( classpathref: 'runtime.classpath', 
+        classname: Ant.project.properties.'junctions.app.main', 
+        fork: true )
+}
+
+target ( jar : 'Create a distribution of the project.' ) {
+  depends ( compile )
+  //  Have to use Ant.jar to disambiguate from the target called jar.
+  Ant.jar ( destfile : Ant.project.properties.'junctions.dist' + '/' + Ant.project.properties.'junctions.jar.dist' , basedir : Ant.project.properties.'junctions.build.classes' , excludes: '*Test.*') {
+    manifest {
+      attribute ( name : 'Built-By' , value : Ant.project.properties.'user/name' )
+      attribute ( name : 'Extension-Name' , value : 'SwingXBuilder' )
+      attribute ( name : 'Specification-Title' , value : 'SwingX Builder: building UIs with Groovy' )
+      attribute ( name : 'Specification-Vendor' , value : 'The Codehaus' )
+    }
+    zipfileset ( fullpath : 'META-INF/LICENSE.txt' , file : 'LICENSE.txt' )
+  }
+}
+
+target ( dist : 'Create a zip file containing a full distribution of the project.' ){
+ depends ( jar ) 
+  zip ( destfile : Ant.project.properties.'junctions.zip.dist' ) {
+    zipfileset ( dir : Ant.project.properties.'junctions.src.main' , prefix : 'src/' )
+    zipfileset ( dir : Ant.project.properties.'junctions.dist' , excludes: '*.zip')
+    zipfileset ( dir : Ant.project.properties.'junctions.docs' , prefix : 'docs/' )
+  }
+}
+
+setDefaultTarget ( compile )
