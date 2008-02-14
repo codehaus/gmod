@@ -8,22 +8,25 @@ cleanPattern << [ '**/*~' ,  '**/*.bak' ]
 cleanDirectory << [ Ant.project.properties.'junctions.dist' , Ant.project.properties.'junctions.build' ]
 
 Ant.path ( id : 'lib.groovy' ) { fileset ( dir : System.properties.'groovy.home' + '/lib' , includes : '**/*.jar' ) }
-Ant.path ( id : 'build.classpath' ) {
+Ant.path ( id : 'java.classpath' ) {
   fileset ( dir : Ant.project.properties.'junctions.lib' , includes : '**/*.jar' )
   fileset ( dir : System.properties.'java.home', includes : 'lib/tools.jar' )
   path ( refid :  'lib.groovy' )
 }
+Ant.path ( id : 'groovy.classpath' ) {
+  path ( refid :  'java.classpath' )
+  dirset ( dir : Ant.project.properties.'junctions.build.classes' )
+}
 Ant.path ( id : 'test.classpath' ) {
-  path ( refid :  'build.classpath' )
+  path ( refid :  'groovy.classpath' )
   dirset ( dir : Ant.project.properties.'junctions.build.classes' )
 }
 Ant.path ( id : 'runtime.classpath' ) {
-  path ( refid :  'build.classpath' )
+  path ( refid :  'groovy.classpath' )
   dirset ( dir : Ant.project.properties.'junctions.build.classes' )
 }
 
 Ant.taskdef ( name : 'groovyc' , classname : 'org.codehaus.groovy.ant.Groovyc' , classpathref : 'lib.groovy' )
-Ant.taskdef ( name : 'groovy' , classname : 'org.codehaus.groovy.ant.Groovy' , classpathref : 'lib.groovy' )
 
 target ( '-initialize' : '' ) {
   mkdir ( dir : Ant.project.properties.'junctions.build.classes' )
@@ -34,8 +37,11 @@ target ( '-initialize' : '' ) {
 
 target ( compile : 'Compile all classes.' ) {
   depends ( '-initialize' )
-  groovyc ( srcdir : Ant.project.properties.'junctions.src.main' , destDir : Ant.project.properties.'junctions.build.classes' ) {
-    classpath ( refid : 'build.classpath' )
+  javac ( srcdir : Ant.project.properties.'junctions.src.main'+'/java' , destDir : Ant.project.properties.'junctions.build.classes' ) {
+    classpath ( refid : 'java.classpath' )
+  }
+  groovyc ( srcdir : Ant.project.properties.'junctions.src.main'+'/groovy' , destDir : Ant.project.properties.'junctions.build.classes' ) {
+    classpath ( refid : 'groovy.classpath' )
   }
   copy( todir: Ant.project.properties.'junctions.build.classes' ){
     fileset( dir: Ant.project.properties.'junctions.src.resources' )
@@ -60,7 +66,7 @@ target ( test : 'Run all the tests in the build.' ) {
     classpath {
       pathelement ( location : Ant.project.properties.'junctions.build.tests' )
       pathelement ( location : Ant.project.properties.'junctions.build.classes' )
-      path ( refid : 'build.classpath' )
+      path ( refid : 'groovy.classpath' )
     }
   }
 }
@@ -69,7 +75,13 @@ target ( run : 'Run the app' ) {
   depends ( 'compile' )
   java( classpathref: 'runtime.classpath', 
         classname: Ant.project.properties.'junctions.app.main', 
-        fork: true )
+        fork: true ){
+    println Ant.project.properties.'http.proxy.enabled'
+    if(Ant.project.properties.'http.proxy.enabled' == 'true' ) {
+       jvmarg (value: "-Dhttp.proxyHost=${Ant.project.properties.'http.proxyHost'}")
+       jvmarg (value: "-Dhttp.proxyPort=${Ant.project.properties.'http.proxyPort'}")
+    }
+  }
 }
 
 target ( jar : 'Create a distribution of the project.' ) {
