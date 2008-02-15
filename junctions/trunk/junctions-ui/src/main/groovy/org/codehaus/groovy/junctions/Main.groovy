@@ -27,14 +27,19 @@ import org.kordamp.groovy.swing.jide.JideBuilder
 import org.codehaus.groovy.junctions.swingx.PostPane
 import javax.swing.BorderFactory as BF
 
-import com.sun.syndication.feed.synd.SyndFeed
-import com.sun.syndication.io.SyndFeedInput
-import com.sun.syndication.io.XmlReader
+//import com.sun.syndication.feed.synd.SyndFeed
+//import com.sun.syndication.io.SyndFeedInput
+//import com.sun.syndication.io.XmlReader
+
+import org.apache.commons.httpclient.*
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.UsernamePasswordCredentials
+import org.apache.commons.httpclient.methods.*
 
 class Main extends Binding {
    SwingXBuilder swing
    ObjectGraphBuilder nodeBuilder
-
+    HttpClient client
    public static void main(String[] args) {
       new Main().run()
    }
@@ -79,6 +84,7 @@ class Main extends Binding {
       jide.doLater {
          jide.build(JunctionsView2)
       }
+        client = new HttpClient()
    }
 
    private loadFeeds(){
@@ -118,36 +124,49 @@ class Main extends Binding {
 
       swing.doLater { waitDialog.visible = true }
       try{
-         processFeedUrl( feedUrl )
+            def url = "http://localhost:8080/Junctions/feed/create"
+            NameValuePair[] data = [
+                    new NameValuePair("url", feedUrl)
+                    ]
+            def post = new PostMethod(url)
+            post.setRequestBody(data)
+            client.executeMethod(post)
+            def result = post.getResponseBodyAsString().toString()
+            def records = new XmlSlurper().parseText(result)
+            println records
+            processFeedUrl( records )
       }
       finally {
          swing.doLater { waitDialog.visible = false }
       }
    }
 
-   private processFeedUrl( feedUrl ){
-      // TODO provide feedback
-      SyndFeedInput input = new SyndFeedInput()
-      SyndFeed feed = input.build(new XmlReader(feedUrl.toURL()))
-      // TODO check if subscription is new
+    private processFeedUrl(feed) {
+        // TODO provide feedback
+        //SyndFeedInput input = new SyndFeedInput()
+        //SyndFeed feed = input.build(new XmlReader(feedUrl.toURL()))
+        // TODO check if subscription is new
 
-      feedNode = nodeBuilder."${feed.title}"()
-      feedMap[(feed.title)] = feed
+        feedNode = nodeBuilder."${feed.title}"()
+//        feedMap[(title)] = feed
 
-      swing.doLater {
-         unclassifiedNode.add( feedNode )
-         def w = (frame.size.width*2/4) as int
+        swing.doLater {
+            unclassifiedNode.add(feedNode)
+            def w = (frame.size.width * 2 / 4) as int
 
-         // TODO cache image
+            // TODO cache image
          def postIcon = ViewUtils.icons.postIcon
          swing.postContainer.removeAll()
+         def data = "http://localhost:8080/Junctions/item/showFeed/${feed.@id.text()}".toURL().getText()
+         def entries = new XmlSlurper().parseText(data)
          swing.taskPaneContainer( swing.postContainer ){
-            feed.entries.each { entry ->
+            
+            entries.item.each { entry ->
                postPane( title: entry.title, expanded: false,
-                         publishedDate: entry.publishedDate,
-                         icon: imageIcon(image:postIcon) ){
+                         publishedDate: entry.publishedDate.text(),
+                         icon: imageIcon(image:postIcon)){
                   def sp = scrollPane {
-                     def content = entry.description?.value ?: entry.contents?.value[0]
+                     def content = entry.content
                      editorPane( contentType: "text/html", text: content,
                                  editable: false, border: BF.createEmptyBorder(),
                                  background: Color.LIGHT_GRAY )
@@ -159,63 +178,63 @@ class Main extends Binding {
             }
          }
 
-         frame.repaint()
-      }
-   }
+            frame.repaint()
+        }
+    }
 
-   def feedMap = [:]
+    def feedMap = [:]
 
-   void manageSubscriptions( EventObject evt = null ) {
+    void manageSubscriptions(EventObject evt = null) {
 
-   }
+    }
 
-   void refreshSubscriptions( EventObject evt = null ) {
+    void refreshSubscriptions(EventObject evt = null) {
 
-   }
+    }
 
-   void refreshSubscription( EventObject evt = null ) {
+    void refreshSubscription(EventObject evt = null) {
 
-   }
+    }
 
-   void nextPost( EventObject evt = null ) {
+    void nextPost(EventObject evt = null) {
 
-   }
+    }
 
-   void previousPost( EventObject evt = null ) {
+    void previousPost(EventObject evt = null) {
 
-   }
+    }
 
-   void markAllAsRead( EventObject evt = null ) {
+    void markAllAsRead(EventObject evt = null) {
 
-   }
+    }
 
-   void markAsFavorite( EventObject evt = null ) {
+    void markAsFavorite(EventObject evt = null) {
 
-   }
+    }
 
-   void subscriptionStatsFrom( EventObject evt = null, String serviceId ) {
+    void subscriptionStatsFrom(EventObject evt = null, String serviceId) {
 
-   }
+    }
 
-   void bookmarkTo( EventObject evt = null, String serviceId ) {
+    void bookmarkTo(EventObject evt = null, String serviceId) {
 
-   }
+    }
 
-   void showPreferences( EventObject evt = null ) {
+    void showPreferences(EventObject evt = null) {
 
-   }
+    }
 
-   // -------
+    // -------
 
-   def feedSelectionListener = { event ->
-      def path = event.path
-      if( path.pathCount == 3 ){
-         // clicked on a feed
-         def feedName = path.lastPathComponent
-         swing.refreshSubscriptionAction.enabled = true
-         swing.mainPanel.title = feedName
-      }else if( path.pathCount == 2 ){
-         // cliked on a folder
-      }
-   } as TreeSelectionListener
+    def feedSelectionListener = {event ->
+        def path = event.path
+        if (path.pathCount == 3) {
+            // clicked on a feed
+            def feedName = path.lastPathComponent
+            swing.refreshSubscriptionAction.enabled = true
+            swing.mainPanel.title = feedName
+        } else if (path.pathCount == 2) {
+            // cliked on a folder
+        }
+    } as TreeSelectionListener
 }

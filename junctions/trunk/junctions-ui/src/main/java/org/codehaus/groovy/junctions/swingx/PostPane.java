@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -62,10 +63,19 @@ public class PostPane extends JXTaskPane {
       this.expandedChangedAction = expandedChangedAction;
    }
 
-   public void setPublishedDate( Date publishedDate ) {
-      Date old = this.publishedDate;
-      this.publishedDate = publishedDate;
-      firePropertyChange( PUBLISHED_DATE_CHANGED_KEY, old, publishedDate );
+   public void setPublishedDate( Object publishedDate ) throws ParseException{
+   	Date old = this.publishedDate;
+   	Date newDate;
+  	if (publishedDate instanceof Date) {
+      this.publishedDate = (Date)publishedDate;
+      newDate = this.publishedDate;
+   	} else {
+   		//It's a String
+   		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+   		newDate = df.parse((String)publishedDate);
+   		this.publishedDate = newDate;
+   	}
+   	firePropertyChange ( PUBLISHED_DATE_CHANGED_KEY, old, newDate);
    }
 
    public String getUIClassID() {
