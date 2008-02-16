@@ -36,7 +36,7 @@ class ShadowFilterProvider extends PropertiesBasedFilterProvider {
    def shadowColor
 
    ShadowFilterProvider() {
-      super( "shadow" )
+      super( "dropShadow" )
       filter = new ShadowFilter()
    }
 

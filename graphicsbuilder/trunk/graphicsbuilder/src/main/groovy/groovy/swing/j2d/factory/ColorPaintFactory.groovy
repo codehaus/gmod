@@ -28,27 +28,46 @@ public class ColorPaintFactory extends AbstractGraphicsOperationFactory {
           Map properties ) throws InstantiationException, IllegalAccessException {
        ColorPaintGraphicsOperation go = new ColorPaintGraphicsOperation();
         if( value != null && value instanceof Color || value instanceof String ){
-            go.color = ColorCache.getInstance().getColor( value )
-            return go
-        }
-
-        def red = properties.remove( "red" )
-        def green = properties.remove( "green" )
-        def blue = properties.remove( "blue" )
-        def alpha = properties.remove( "alpha" )
-
-        red = red != null ? red : 0
-        green = green != null ? green : 0
-        blue = blue != null ? blue : 0
-        alpha = alpha != null ? alpha : 255
-
-        if( red > 1 || green > 1 || blue > 1 ){
-           go.color = new Color( red as int, green as int, blue as int, alpha as int )
-        }else{
-           if( alpha > 1 ) alpha = 1
-           go.color = new Color( red as float, green as float, blue as float, alpha as float )
+            // workaround because properties may be read-only
+            builder.context.color = ColorCache.getInstance().getColor( value )
         }
         return go
+    }
+
+    public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ) {
+       if( attributes.containsKey( "red" ) ||
+          attributes.containsKey( "green" ) ||
+          attributes.containsKey( "blue" ) ||
+          attributes.containsKey( "alpha") ){
+
+          def red = attributes.remove( "red" )
+          def green = attributes.remove( "green" )
+          def blue = attributes.remove( "blue" )
+          def alpha = attributes.remove( "alpha" )
+
+          red = red != null ? red : 0
+          green = green != null ? green : 0
+          blue = blue != null ? blue : 0
+          alpha = alpha != null ? alpha : 1
+
+          red = red > 1 ? red/255 : red
+          green = green > 1 ? green/255 : green
+          blue = blue > 1 ? blue/255 : blue
+          alpha = alpha > 1 ? alpha/255 : alpha
+
+          attributes.color = new Color( red as float, green as float, blue as float, alpha as float )
+       }
+
+       Object color = attributes.get( "color" )
+
+       if( color != null && color instanceof String ){
+          attributes.put( "color", ColorCache.getInstance().getColor( color ) )
+       }
+
+       color = attributes.get("color")
+       node.color = color == null ? builder.context.color : color
+
+       return false
     }
 
     public boolean isLeaf(){

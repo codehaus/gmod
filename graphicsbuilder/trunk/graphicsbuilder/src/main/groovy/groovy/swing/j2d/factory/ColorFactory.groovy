@@ -33,22 +33,35 @@ public class ColorFactory extends AbstractGraphicsOperationFactory {
             }
         }
 
-        def red = properties.remove( "red" )
-        def green = properties.remove( "green" )
-        def blue = properties.remove( "blue" )
-        def alpha = properties.remove( "alpha" )
+        properties.red = properties.remove("r")
+        properties.green = properties.remove("g")
+        properties.blue = properties.remove("b")
+        properties.alpha = properties.remove("a")
 
-        red = red != null ? red : 0
-        green = green != null ? green : 0
-        blue = blue != null ? blue : 0
-        alpha = alpha != null ? alpha : 255
+        if( properties.containsKey( "red" ) ||
+            properties.containsKey( "green" ) ||
+            properties.containsKey( "blue" ) ||
+            properties.containsKey( "alpha") ){
 
-        if( red > 1 || green > 1 || blue > 1 ){
-           return new Color( red as int, green as int, blue as int, alpha as int )
-        }else{
-           if( alpha > 1 ) alpha = 1
-           return new Color( red as float, green as float, blue as float, alpha as float )
+            def red = properties.remove( "red" )
+            def green = properties.remove( "green" )
+            def blue = properties.remove( "blue" )
+            def alpha = properties.remove( "alpha" )
+
+            red = red != null ? red : 0
+            green = green != null ? green : 0
+            blue = blue != null ? blue : 0
+            alpha = alpha != null ? alpha : 255
+
+            red = red > 1 ? red/255 : red
+            green = green > 1 ? green/255 : green
+            blue = blue > 1 ? blue/255 : blue
+            alpha = alpha > 1 ? alpha/255 : alpha
+
+            return new Color( red as float, green as float, blue as float, alpha as float )
         }
+
+        return Color.BLACK
     }
 
     public void setParent( FactoryBuilderSupport builder, Object parent, Object child ){

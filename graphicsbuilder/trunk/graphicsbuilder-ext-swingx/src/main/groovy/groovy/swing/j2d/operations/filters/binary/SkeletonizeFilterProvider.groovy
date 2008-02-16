@@ -25,7 +25,7 @@ import com.jhlabs.image.SkeletonFilter
  */
 class SkeletonizeFilterProvider extends AbstractBinaryFilterProvider {
    SkeletonizeFilterProvider() {
-      super( "life" )
+      super( "skeletonize" )
       filter = new SkeletonFilter()
    }
 }

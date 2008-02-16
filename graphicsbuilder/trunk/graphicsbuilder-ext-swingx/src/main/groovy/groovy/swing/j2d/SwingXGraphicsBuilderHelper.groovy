@@ -371,5 +371,40 @@ class SwingXGraphicsBuilderHelper {
       builder.repeatBehaviorReverse = RepeatBehavior.REVERSE
       builder.inifiniteDuration = -1
       builder.inifiteRepeatCount = -1
+
+      // shortcuts
+      builder.addShortcut( 'morph', 'start', 's' )
+      builder.addShortcut( 'morph', 'end', 'e' )
+      builder.addShortcut( 'morph', 'morph', 'm' )
+
+      ['erodeAlpha','boxBlur','gaussianBlur','glow','lensBlur','unsharp','variableBlur',
+       'circleDistort','curl','kaleidoscope','pinch','sphereDistort','twirl','water',
+       'flare','dropShadow','shine','sparkle','stamp','brushedMetal'].each { nodeName ->
+         builder.addShortcut( nodeName, 'radius', 'r' )
+      }
+
+      ['fastMotionBlur','fmb','circleDistort','kaleidoscope','pinch','sphereDistort',
+       'twirl','water','feedback','shatter'].each { nodeName ->
+         builder.addShortcut( nodeName, 'centreX', 'cx' )
+         builder.addShortcut( nodeName, 'centreY', 'cy' )
+      }
+
+      ['boxBlur','smartBlur','variableBlur'].each { nodeName ->
+         builder.addShortcut( nodeName, 'hRadius', 'hr' )
+         builder.addShortcut( nodeName, 'vRadius', 'vr' )
+      }
+
+      ['dropShadow','transparency'].each { nodeName ->
+         builder.addShortcut( nodeName, 'opacity', 'o' )
+      }
+
+      ['stamp','threshold'].each { nodeName ->
+         builder.addShortcut( nodeName, 'color1', 'c1' )
+         builder.addShortcut( nodeName, 'color2', 'c2' )
+      }
+
+      builder.addShortcut( 'curl', 'width', 'w' )
+      builder.addShortcut( 'curl', 'height', 'h' )
+      builder.addShortcut( 'scratch', 'width', 'w' )
    }
 }

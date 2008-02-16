@@ -32,5 +32,14 @@ class Jdk6GraphicsBuilderHelper {
             LinearGradientPaintGraphicsOperation )
       builder.registerGraphicsOperationBeanFactory( "radialGradient",
             RadialGradientPaintGraphicsOperation )
+
+      builder.addShortcut( 'stop', 'red', 'r' )
+      builder.addShortcut( 'stop', 'green', 'g' )
+      builder.addShortcut( 'stop', 'blue', 'b' )
+      builder.addShortcut( 'stop', 'alpha', 'a' )
+      builder.addShortcut( 'stop', 'offset', 's' )
+      builder.addShortcut( 'stop', 'color', 'c' )
+      builder.addShortcut( 'stop', 'opacity', 'o' )
+      builder.addShortcut( 'radialGradient', 'radius', 'r' )
    }
 }

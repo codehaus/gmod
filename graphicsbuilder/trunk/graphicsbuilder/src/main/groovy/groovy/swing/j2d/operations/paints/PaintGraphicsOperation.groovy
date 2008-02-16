@@ -54,18 +54,6 @@ final class PaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
        throw new MissingPropertyException( property, PaintGraphicsOperation )
     }
 
-    /*
-    public void addPropertyChangeListener( PropertyChangeListener listener ) {
-       super.addPropertyChangeListener( listener )
-       if( this.@paint ) this.@paint.addPropertyChangeListener( listener )
-    }
-
-    public void removePropertyChangeListener( PropertyChangeListener listener ) {
-       super.removePropertyChangeListener( listener )
-       if( this.@paint ) this.@paint.removePropertyChangeListener( listener )
-    }
-    */
-
     public void propertyChange( PropertyChangeEvent event ){
        if( event.source == paint ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )

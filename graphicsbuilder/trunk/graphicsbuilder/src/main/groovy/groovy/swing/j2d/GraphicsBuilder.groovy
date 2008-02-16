@@ -37,14 +37,14 @@ import groovy.swing.SwingBuilder
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class GraphicsBuilder extends FactoryBuilderSupport {
-    private boolean building = false
-    private GroovyShell shell
+    private Map shortcuts = [:]
 
     public GraphicsBuilder( boolean registerExtensions = true ) {
         GraphicsBuilderHelper.extendShapes()
         GraphicsBuilderHelper.extendColor()
         GraphicsBuilderHelper.extendBasicStroke()
         registerOperations()
+        registerShortcuts()
 
         if( registerExtensions ){
            def helpers = ["Jdk6GraphicsBuilderHelper",
@@ -79,6 +79,16 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         return go
     }
 
+    public void addShortcut(nodeName, propName, shortcut) {
+        if (shortcuts[nodeName] != null) {
+            shortcuts[nodeName].put(shortcut, propName)
+        }
+        else {
+            def a = [(shortcut.toString()): propName]
+            shortcuts.put(nodeName, a)
+        }
+    }
+
     private registerGraphicsOperationBeanFactory( String name, Class beanClass ){
         registerFactory( name, new GraphicsOperationBeanFactory(beanClass,false) )
     }
@@ -101,6 +111,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
         registerFactory( "image", new ImageFactory() )
         registerFactory( "color", new ColorFactory() )
+        registerFactory( "rgba", factories.color )
         registerFactory( "clip", new ClipFactory() )
         registerFactory( "antialias", new AntialiasFactory() )
         registerFactory( "\$swing", new SwingFactory() )
@@ -212,6 +223,74 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         variables['alphaSrcOver'] = AlphaComposite.SRC_OVER
         variables['alphaXor'] = AlphaComposite.XOR
     }
+
+    private void registerShortcuts(){
+        registerShortcutHandler()
+
+        ['colorPaint'].each { nodeName ->
+           addShortcut( nodeName, 'red', 'r' )
+           addShortcut( nodeName, 'green', 'g' )
+           addShortcut( nodeName, 'blue', 'b' )
+           addShortcut( nodeName, 'alpha', 'a' )
+        }
+
+        ['draw','arc','circle','ellipse','polygon','rect','text','donut',
+         'triangle','regularPolygon','rays','arrow','pin','cross','star',
+         'roundRect','group','path','line','cubicCurve','quadCurve','polyline'].each { nodeName ->
+           addShortcut( nodeName, 'borderColor', 'bc' )
+           addShortcut( nodeName, 'borderWidth', 'bw' )
+           addShortcut( nodeName, 'fill', 'f' )
+           addShortcut( nodeName, 'opacity', 'o' )
+        }
+        ['arc','arrow','roundRect','rect','triangle','texturePaint'].each { nodeName ->
+           addShortcut( nodeName, 'height', 'h' )
+           addShortcut( nodeName, 'width', 'w' )
+        }
+
+        addShortcut( 'circle', 'radius', 'r' )
+        addShortcut( 'ellipse', 'radiusx', 'rx' )
+        addShortcut( 'ellipse', 'radiusy', 'ry' )
+        addShortcut( 'image', 'opacity', 'o' )
+        addShortcut( 'rays', 'radius', 'r' )
+        addShortcut( 'rect', 'arcHeight', 'ah' )
+        addShortcut( 'rect', 'arcWidth', 'aw' )
+        addShortcut( 'regularPolygon', 'radius', 'r' )
+        addShortcut( 'pin', 'raidus', 'r' )
+        addShortcut( 'pin', 'height', 'h' )
+        addShortcut( 'renderingHint', 'key', 'k' )
+        addShortcut( 'renderingHint', 'value', 'v' )
+        addShortcut( 'basicStroke', 'opacity', 'o' )
+        addShortcut( 'basicStroke', 'width', 'w' )
+        addShortcut( 'cross', 'radius', 'r' )
+        addShortcut( 'cross', 'width', 'w' )
+
+        addShortcut( 'roundRect', 'topLeftHeight', 'tlh' )
+        addShortcut( 'roundRect', 'topLeftWidth', 'tlw' )
+        addShortcut( 'roundRect', 'topRightHeight', 'trh' )
+        addShortcut( 'roundRect', 'topRightWidth', 'trw' )
+        addShortcut( 'roundRect', 'bottomLeftHeight', 'blh' )
+        addShortcut( 'roundRect', 'bottomLeftWidth', 'blw' )
+        addShortcut( 'roundRect', 'bottomRightHeight', 'brh' )
+        addShortcut( 'roundRect', 'bottomRightWidth', 'brw' )
+
+        addShortcut( 'gradientPaint', 'color1', 'c1' )
+        addShortcut( 'gradientPaint', 'color2', 'c2' )
+    }
+
+    private void registerShortcutHandler() {
+       addAttributeDelegate {builder, node, attributes ->
+          def shortcutList = builder.shortcuts[builder.currentName]
+          if (shortcutList) {
+               shortcutList.each {entry ->
+                  if (attributes[entry.key] != null) {
+                       attributes.put(
+                            entry.getValue(),
+                            attributes.remove(entry.key))
+                   }
+               }
+           }
+       }
+   }
 
     private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
        def id = attributes.remove("id")

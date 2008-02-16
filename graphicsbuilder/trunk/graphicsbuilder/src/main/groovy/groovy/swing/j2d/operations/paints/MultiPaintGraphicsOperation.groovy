@@ -48,18 +48,6 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
        paint.removePropertyChangeListener( this )
    }
 
-   /*
-   public void addPropertyChangeListener( PropertyChangeListener listener ) {
-      super.addPropertyChangeListener( listener )
-      paints.each { p -> p.addPropertyChangeListener( listener ) }
-   }
-
-   public void removePropertyChangeListener( PropertyChangeListener listener ) {
-      super.removePropertyChangeListener( listener )
-      paints.each { p -> p.removePropertyChangeListener( listener ) }
-   }
-   */
-
    public void propertyChange( PropertyChangeEvent event ){
       if( paints.contains(event.source) ){
          firePropertyChange( new ExtPropertyChangeEvent(this,event) )
