@@ -38,6 +38,7 @@ class Main extends Binding {
    SwingXBuilder swing
    ObjectGraphBuilder nodeBuilder
     HttpClient client
+    def feedMap = [:]
    public static void main(String[] args) {
       new Main().run()
    }
@@ -122,21 +123,31 @@ class Main extends Binding {
 
       swing.doLater { waitDialog.visible = true }
       try{
-            def url = "http://localhost:8080/Junctions/feed/create"
-            NameValuePair[] data = [
-                    new NameValuePair("url", feedUrl)
-                    ]
-            def post = new PostMethod(url)
-            post.setRequestBody(data)
-            client.executeMethod(post)
-            def result = post.getResponseBodyAsString().toString()
-            def records = new XmlSlurper().parseText(result)
-            println records
+            records = httpPost("http://localhost:8080/Junctions/feed/create", 
             processFeedUrl( records )
       }
       finally {
          swing.doLater { waitDialog.visible = false }
       }
+   }
+   
+   def httpPost(url, data) {
+   	 //def url = "http://localhost:8080/Junctions/feed/create"
+            def postData = []
+            for (pair in data.keySet()) {
+            	def nameValuePair = new NameValuePair(pair,data[pair])
+            	postData += nameValuePair
+            }
+            try {
+            def post = new PostMethod(url)
+            post.setRequestBody(postData as NameValuePair[])
+            client.executeMethod(post)
+            def result = post.getResponseBodyAsString().toString()
+            def records = new XmlSlurper().parseText(result)
+            return records
+            } catch (Exception e) {
+            	e.printStackTrace()
+            }
    }
 
     private processFeedUrl(feed) {
@@ -146,43 +157,48 @@ class Main extends Binding {
         // TODO check if subscription is new
 
         feedNode = nodeBuilder."${feed.title}"()
-//        feedMap[(title)] = feed
 
         swing.doLater {
             unclassifiedNode.add(feedNode)
-            def w = (frame.size.width * 2 / 4) as int
-
-            // TODO cache image
-         def postIcon = ViewUtils.icons.postIcon
-         swing.postContainer.removeAll()
+            
+         
          def data = "http://localhost:8080/Junctions/item/showFeed/${feed.@id.text()}".toURL().getText()
          def entries = new XmlSlurper().parseText(data)
-         swing.taskPaneContainer( swing.postContainer ){
-            
-            entries.item.each { entry ->
-               postPane( title: entry.title, expanded: false,
-                         publishedDate: entry.publishedDate.text(),
-                         url: entry.url.text(),
-                         icon: imageIcon(image:postIcon)){
-                  def sp = scrollPane {
-                     def content = entry.content
-                     editorPane( contentType: "text/html", text: content,
-                                 editable: false, border: BF.createEmptyBorder(),
-                                 background: Color.LIGHT_GRAY )
-                  }
-                  def h = sp.preferredSize.height as int
-                  h = h < 100 ? 100 : h
-                  sp.preferredSize = new Dimension(w,h)
-               }
-            }
-         }
+         feedMap.put(feed.title, entries)
+         println feed.title
+         println feedMap[feed.title]
+         populatePostContainer(entries)
 
             frame.repaint()
         }
     }
 
-    def feedMap = [:]
-
+	void populatePostContainer(entries) {
+		def w = (frame.size.width * 2 / 4) as int
+		// TODO cache image
+        def postIcon = ViewUtils.icons.postIcon
+         
+		swing.postContainer.removeAll()
+		swing.taskPaneContainer( swing.postContainer ){
+				
+				entries.item.each { entry ->
+				   postPane( title: entry.title, expanded: false,
+							 publishedDate: entry.publishedDate.text(),
+							 url: entry.url.text(),
+							 icon: imageIcon(image:postIcon)){
+					  def sp = scrollPane {
+						 def content = entry.content
+						 editorPane( contentType: "text/html", text: content,
+									 editable: false, border: BF.createEmptyBorder(),
+									 background: Color.LIGHT_GRAY )
+					  }
+					  def h = sp.preferredSize.height as int
+					  h = h < 100 ? 100 : h
+					  sp.preferredSize = new Dimension(w,h)
+				   }
+				}
+			 }
+	}
     void manageSubscriptions(EventObject evt = null) {
 
     }
@@ -198,16 +214,11 @@ class Main extends Binding {
     		return;
 
     def feedTitle = node?.getUserObject()
-    def url = "http://localhost:8080/Junctions/feed/findFeedByTitle"
-            
-            def post = new PostMethod(url)
-            NameValuePair[] data = [
-                    new NameValuePair("title", feedTitle)
-                    ]
-            post.setRequestBody(data)
-            client.executeMethod(post)
-            def result = post.getResponseBodyAsString().toString()
-            def feedId = new XmlSlurper().parseText(result)
+    println feedTitle
+    	 feedId = httpPost("http://localhost:8080/Junctions/feed/findFeedByTitle",
+    		[title:feedTitle])
+
+            println feedId
             //
             // Retrieve items and update view
             //
@@ -267,6 +278,12 @@ class Main extends Binding {
             def feedName = path.lastPathComponent
             swing.refreshSubscriptionAction.enabled = true
             swing.mainPanel.title = feedName
+            println feedMap
+            println feedMap[feedName]
+            swing.doLater() {
+            	populatePostContainer(feedMap[feedName])
+            	frame.repaint()
+            }
         } else if (path.pathCount == 2) {
             // cliked on a folder
         }

@@ -22,7 +22,7 @@ public class PostPane extends JXTaskPane {
    private static final SimpleDateFormat HOUR_FORMAT = new SimpleDateFormat( "hh:mm a" );
 
    private static final long serialVersionUID = -4541811681843453907L;
-
+   private String url;
    // ensure at least the default ui is registered
    static{
       LookAndFeelAddons.contribute( new PostPaneAddon() );
@@ -41,6 +41,14 @@ public class PostPane extends JXTaskPane {
 
    public Date getPublishedDate() {
       return publishedDate;
+   }
+   
+   public String getUrl() {
+   	  return url;
+   }
+   
+   public void setUrl(String url) {
+   	  this.url = url;
    }
 
    public String getPublishedDateText() {

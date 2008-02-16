@@ -10,11 +10,12 @@ class Feed {
 	static hasMany = [tags : Tag]
 	static constraints = {
 		url(blank:false)
+		author(nullable:true)
 	}
 
 	String title = ''
 	String url
-	String author = ''
+	String author
 	
 
 	static parseItems(feed) {
@@ -30,7 +31,8 @@ class Feed {
             item.title = entry.getTitle()
             item.url = entry.getUri()
             item.publishedDate = entry.getPublishedDate()
-            item.content = (entry.getContents()[0]).getValue()
+            def content = (entry.getContents()[0])?.getValue() ?: entry.getDescription()?.getValue()
+            item.content = content
             item.author = entry.getAuthor()
             println item.validate()
             item.save()
