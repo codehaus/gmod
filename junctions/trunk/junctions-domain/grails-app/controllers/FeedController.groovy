@@ -22,6 +22,11 @@ class FeedController {
             render all as XML
         }
     }
+    
+    def findFeedByTitle = {
+    	def feed = Feed.findByTitle(params.title)
+    	render feed.id as XML
+    }
 
     def delete = {
         println "delete"

@@ -16,6 +16,14 @@ class ItemController {
             render items as XML
         }
     }
+    
+    def refreshFeed = {
+        if (params.id && Feed.exists(params.id)) {
+            Feed.parseItems(Feed.get(params.id))
+            def items = Item.findAllByFeed(Feed.get(params.id)) as Item[]
+            render items as XML
+        }
+    }
 
     def show = {
         if (params.id && Item.exists(params.id)) {
