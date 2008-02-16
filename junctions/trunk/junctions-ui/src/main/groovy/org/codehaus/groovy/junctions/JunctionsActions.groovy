@@ -44,7 +44,7 @@ action(id: 'refreshSubscriptionAction',
     accelerator: shortcut('R'),
     smallIcon: imageIcon( image:ViewUtils.loadImage("org/tango-project/tango-icon-theme/16x16/actions/view-refresh.png") ),
     shortDescription: 'Refresh subscription',
-    enabled: false
+    enabled: true
 )
 
 action(id: 'addSubscriptionAction',

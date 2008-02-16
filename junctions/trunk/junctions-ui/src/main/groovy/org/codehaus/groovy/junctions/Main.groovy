@@ -26,11 +26,9 @@ import javax.swing.event.TreeSelectionListener
 import org.kordamp.groovy.swing.jide.JideBuilder
 import org.codehaus.groovy.junctions.swingx.PostPane
 import javax.swing.BorderFactory as BF
+import del.icio.us.Delicious
 
-//import com.sun.syndication.feed.synd.SyndFeed
-//import com.sun.syndication.io.SyndFeedInput
-//import com.sun.syndication.io.XmlReader
-
+import java.awt.event.KeyListener
 import org.apache.commons.httpclient.*
 import org.apache.commons.httpclient.HttpClient
 import org.apache.commons.httpclient.UsernamePasswordCredentials
@@ -164,6 +162,7 @@ class Main extends Binding {
             entries.item.each { entry ->
                postPane( title: entry.title, expanded: false,
                          publishedDate: entry.publishedDate.text(),
+                         url: entry.url.text(),
                          icon: imageIcon(image:postIcon)){
                   def sp = scrollPane {
                      def content = entry.content
@@ -193,8 +192,30 @@ class Main extends Binding {
     }
 
     void refreshSubscription(EventObject evt = null) {
+		def node = (DefaultMutableTreeNode)swing.feedContainer.getLastSelectedPathComponent()
+		if (node == null)
+    //Nothing is selected.	
+    		return;
 
+    def feedTitle = node?.getUserObject()
+    def url = "http://localhost:8080/Junctions/feed/findFeedByTitle"
+            
+            def post = new PostMethod(url)
+            NameValuePair[] data = [
+                    new NameValuePair("title", feedTitle)
+                    ]
+            post.setRequestBody(data)
+            client.executeMethod(post)
+            def result = post.getResponseBodyAsString().toString()
+            def feedId = new XmlSlurper().parseText(result)
+            //
+            // Retrieve items and update view
+            //
+            
+    		// remove feed and re-add or just
+    		// delete all PostPanes, you decide
     }
+    
 
     void nextPost(EventObject evt = null) {
 
@@ -217,7 +238,20 @@ class Main extends Binding {
     }
 
     void bookmarkTo(EventObject evt = null, String serviceId) {
-
+		//def openPosts = [ ]
+		//for (component in swing.postContainer.getComponents()) {
+		//    component.isExpanded() ?: openPosts += component.getUrl()
+		//}
+		switch (serviceId) {
+			case 'deli.cio.us':
+				def delicious = new Delicious('junctions', 'groovy123')
+				delicious.addPost("url", "description")
+				break;
+			case 'digg':
+				//not sure if this is easily possible
+				//digg doesn't see to implement full rest api
+				break;
+		}
     }
 
     void showPreferences(EventObject evt = null) {
