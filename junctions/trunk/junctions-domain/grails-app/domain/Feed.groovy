@@ -32,7 +32,7 @@ class Feed {
                                  title: entry.title,
                                  author: entry.author,
                                  publishedDate: entry.publishedDate,
-                                 content: entry.contents[0].value ?: entry.description?.value
+                                 content: entry?.contents[0]?.value ?: entry.description?.value
                                )
                 item.save()                
             }

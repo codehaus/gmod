@@ -26,17 +26,14 @@ import javax.swing.BorderFactory as BF
 import javax.swing.JOptionPane
 import static org.jdesktop.swingx.JXTaskPane.EXPANDED_CHANGED_KEY
 
-import org.apache.commons.httpclient.*
-import org.apache.commons.httpclient.HttpClient
-import org.apache.commons.httpclient.methods.*
 import java.beans.PropertyChangeListener
 
 class Main extends Binding {
    SwingXBuilder swing
    ObjectGraphBuilder nodeBuilder
-   HttpClient httpClient
-   def feedMap = [:] as ObservableMap
+   HttpHelper httpHelper = new HttpHelper()
 
+   def feedMap = [:]
    def currentFeed
    def currentEntry
 
@@ -60,16 +57,6 @@ class Main extends Binding {
    private void init() {
       initNodeBuilder()
       initUI()
-
-      httpClient = new HttpClient()
-
-      /*
-      feedMap.addPropertyChangeListener({event->
-         if( !oldValue ){
-             // a new feed has been added to the map
-         }
-      } as PropertyChangeListener)
-      */
    }
 
    private void initNodeBuilder(){
@@ -110,20 +97,20 @@ class Main extends Binding {
 
    private loadData(){
       swing.doOutside {
-         def feeds = httpGet('feed/show')
-         def folders = httpGet('folder/show')
+         def feeds = serverGet('feed/show')
+         def folders = serverGet('folder/show')
 
          folders.folder.each { folder ->
              def folderNode = nodeBuilder."${folder.name}"()
              folder.feeds?.feed.@id.each { feedId ->
                 def feed = feeds.feed.find{ it.@id == feedId }
                 folderNode.add(nodeBuilder."${feed.title}"())
-                httpGet("item/showFeed?id=$feedId")
-                // update feed entries using another thread
-                swing.doOutside {
-                   feedMap[feed.title as String] =
-                       parseEntries(httpPost("feed/refresh",[id:feedId as String]))
-                }
+                serverGet("item/showFeed?id=$feedId")
+                feedMap[feed.title as String] = [
+                    id: feedId as String,
+                    url: feed.url as String,
+                    entries: parseEntries(serverPost("feed/refresh",[id:feedId as String]))
+                ]
              }
              swing.doLater { feedContainer.model.root.add( folderNode ) }
          }
@@ -150,13 +137,18 @@ class Main extends Binding {
       if( !feedUrl.startsWith("http://") ) feedUrl = "http://$feedUrl"
       swing.doLater { waitDialog.visible = true }
       try{
-            def response = httpPost("feed/add",[url:feedUrl])
+            def response = serverPost("feed/add",[url:feedUrl])
             if( response?.code.text() != "ERROR" ){
                currentFeed = response.title as String
-               feedMap[currentFeed] =
-                       parseEntries(httpPost("feed/refresh",[id:response.@id as String]))
-               swing.doLater { mainPanel.title = currentFeed }           
-               populatePostContainer( response.title as String )        
+               feedMap[currentFeed] = [
+                  id: response.@id as String,
+                  url: feedUrl,
+                  entries: parseEntries(serverPost("feed/refresh",[id:response.@id as String]))
+               ]
+               swing.doLater {
+                  mainPanel.title = currentFeed
+                  populatePostContainer( response.title as String )
+               }
             }else{
                 JOptionPane.showMessageDialog( frame, response.cause.text(),
                         "Add Subscription", JOptionPane.ERROR_MESSAGE )
@@ -167,29 +159,13 @@ class Main extends Binding {
       }
    }
    
-   private def httpPost(url, data, parse = true) {
-      def postData = []
-      for (pair in data.keySet()) {
-         def nameValuePair = new NameValuePair(pair,data[pair])
-         postData += nameValuePair
-      }
-      try {
-         def post = new PostMethod("${SERVER_END_POINT}/$url")
-         post.setRequestBody(postData as NameValuePair[])
-         httpClient.executeMethod(post)
-         def result = post.getResponseBodyAsString().toString()
-         if( parse ){
-            return  new XmlSlurper().parseText(result)
-         }
-      } catch (Exception e) {
-         e.printStackTrace()
-      }
-   }
+    private def serverPost(url, data, parse = true) {
+        return httpHelper.post("${SERVER_END_POINT}/$url", data, parse )
+    }
 
-   private def httpGet( url ){
-        def data = "${SERVER_END_POINT}/$url".toURL().text
-        return new XmlSlurper().parseText(data)
-   }
+    private def serverGet( url ){
+        return httpHelper.get("${SERVER_END_POINT}/$url")
+    }
 
     void manageSubscriptions(EventObject evt = null) {
 
@@ -200,25 +176,15 @@ class Main extends Binding {
     }
 
     void refreshSubscription(EventObject evt = null) {
-        /*
-        def node = (DefaultMutableTreeNode)swing.feedContainer.getLastSelectedPathComponent()
-		if (node == null)
-    //Nothing is selected.	
-    		return;
-
-    def feedTitle = node?.getUserObject()
-    println feedTitle
-    	 feedId = httpPost("http://localhost:8080/Junctions/feed/findFeedByTitle",
-    		[title:feedTitle])
-
-            println feedId
-            //
-            // Retrieve items and update view
-            //
-            
-    		// remove feed and re-add or just
-    		// delete all PostPanes, you decide
-    	*/
+        swing.doOutside {
+           if( currentFeed ){
+              feedMap[currentFeed].entries = parseEntries(serverPost("feed/refresh",
+                              [id:feedMap[currentFeed].id] ))
+              swing.doLater {
+                 populatePostContainer( currentFeed )
+              }
+           }
+        }
     }
 
     void nextPost(EventObject evt = null) {
@@ -258,10 +224,10 @@ class Main extends Binding {
             def feedName = path.lastPathComponent as String
             if( feedName == currentFeed ) return
             currentFeed = feedName
-            swing.refreshSubscriptionAction.enabled = true
-            swing.mainPanel.title = currentFeed
             swing.doLater() {
-            	populatePostContainer(currentFeed)
+                refreshSubscriptionAction.enabled = true
+                mainPanel.title = currentFeed
+                populatePostContainer(currentFeed)
             	frame.repaint()
             }
         } else if (path.pathCount == 2) {
@@ -270,9 +236,11 @@ class Main extends Binding {
     } as TreeSelectionListener
 
     private void populatePostContainer( feedName ) {
-		def w = (frame.size.width * 0.5) as int
+        // processing is done inside EDT
 
-        def entries = feedMap[feedName]
+        def w = (frame.size.width * 0.5) as int
+
+        def entries = feedMap[feedName].entries
 		swing.postContainer.removeAll()
 		currentEntry = null
 
@@ -294,11 +262,11 @@ class Main extends Binding {
               pp.addPropertyChangeListener( EXPANDED_CHANGED_KEY, {
                   currentEntry = url
                   if( !entry.read ){
-                      swing.doLater {
-                          httpPost("item/update",[id:entry.id,read:'true'],false)
-                          pp.icon = imageIcon(image:ViewUtils.icons.readEntryIcon)
-                          entry.read = true
+                      swing.doOutside {
+                          serverPost("item/update",[id:entry.id,read:'true'],false)
                       }
+                      pp.icon = imageIcon(image:ViewUtils.icons.readEntryIcon)
+                      entry.read = true
                   }
               } as PropertyChangeListener)
            }

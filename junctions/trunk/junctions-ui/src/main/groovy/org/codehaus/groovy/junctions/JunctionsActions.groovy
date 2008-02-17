@@ -34,7 +34,7 @@ action(id: 'refreshSubscriptionsAction',
     //accelerator: shortcut('R'),
     smallIcon: imageIcon( image:ViewUtils.loadImage("zeusboxstudio-feedicons2/reload_16.png") ),
     shortDescription: 'Refresh subscriptions',
-    enabled: false
+    //enabled: false
 )
 
 action(id: 'refreshSubscriptionAction',
@@ -63,7 +63,7 @@ action(id: 'manageSubscriptionsAction',
     accelerator: shortcut('M'),
     smallIcon: imageIcon(image:ViewUtils.loadImage("zeusboxstudio-feedicons2/info_16.png") ),
     shortDescription: 'Manage your subscriptions',
-    enabled: false
+    //enabled: false
 )
 
 action(id: 'nextSubscriptionAction',

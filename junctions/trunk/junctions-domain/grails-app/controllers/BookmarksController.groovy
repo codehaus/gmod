@@ -7,16 +7,24 @@ class BookmarksController {
           try{
              this."${params.serviceId}BookmarksService".bookmark( item )
              render(contentType: "text/xml") {
-                 response( code: 'OK' )
+                 response {
+                     code( 'OK' ) 
+                 }
              }
           }catch( Exception e ){
              render(contentType: "text/xml") {
-                 response( code: 'ERROR', cause: e.message )
+                 response {
+                     code( 'ERROR' )
+                     cause( e.message )
+                  }
              } 
           }
        }else{
            render(contentType: "text/xml") {
-                 response( code: 'ERROR', cause: "No such post ${itemId}" )
+                 response {
+                     code( 'ERROR' )
+                     cause( "No such post ${itemId}" )
+                 }
            }
        }
     }
