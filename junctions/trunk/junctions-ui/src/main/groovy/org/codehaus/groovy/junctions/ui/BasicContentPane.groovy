@@ -69,6 +69,6 @@ size.width = (frame.size.width*3/4)
 mainPanel.preferredSize = size
 
 def root = new DefaultMutableTreeNode( "Subscriptions" )
-root.add( new DefaultMutableTreeNode("unclassified") )
+//root.add( new DefaultMutableTreeNode("unclassified") )
 feedContainer.model = new DefaultTreeModel( root )
 feedContainer.addTreeSelectionListener( controller.feedSelectionListener )

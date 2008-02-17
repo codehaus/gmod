@@ -4,7 +4,7 @@ import com.sun.syndication.io.SyndFeedInput
 import com.sun.syndication.io.XmlReader
 
 class Feed {
-	static hasMany = [tags : Tag]
+	static hasMany = [tags : Tag, items: Item]
 	static constraints = {
 		url(blank:false)
 		author(nullable:true)
@@ -17,6 +17,24 @@ class Feed {
 	Folder folder
 
 	String toString() { title }
+
+    def refreshFeed() {
+        SyndFeedInput input = new SyndFeedInput()
+        SyndFeed feedSource = input.build(new XmlReader(url.toURL()))
+        feedSource.entries.each { entry ->
+            def item = Item.findByTitle( entry.title )
+            if( !item ){
+                item = new Item( feed: this,
+                                 url: entry.uri,
+                                 title: entry.title,
+                                 author: entry.author,
+                                 publishedDate: entry.publishedDate,
+                                 content: entry.contents[0].value ?: entry.description?.value
+                               )
+                item.save()                
+            }
+        }
+    }
 
 	static parseItems(feed) {
         SyndFeedInput input = new SyndFeedInput()

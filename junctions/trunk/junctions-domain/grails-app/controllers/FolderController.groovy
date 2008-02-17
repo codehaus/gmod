@@ -1,3 +1,5 @@
+import grails.converters.*
+
 class FolderController {
     def scaffold = Folder
 
@@ -12,7 +14,13 @@ class FolderController {
     }
 
     def show = {
-        [ folder : Folder.get( params.id ) ]
+        if (params.id && Folder.exists(params.id)) {
+            def folder = Folder.get(params.id)
+            render folder as XML
+        } else {
+            def all = Folder.list() as Folder[]
+            render all as XML
+        }
     }
 
     def delete = {
@@ -59,9 +67,10 @@ class FolderController {
     }
 
     def create = {
-      def folder = new Folder()
-      folder.properties = params
-      return ['folder':folder]
+        def folder = new Folder()
+        folder.properties = params
+        folder.save()
+        render folder as XML
     }
 
     def save = {

@@ -64,6 +64,7 @@ class FeedController {
     def create = {
         def feed = new Feed()
         feed.properties = params
+        feed.folder = Folder.findByName('unclassified')
         feed.save()
         feed.parseItems(feed)
         println feed.errors
@@ -88,4 +89,24 @@ class FeedController {
         }
     }
 
+    def refresh = {
+        def feed = params.id ? Feed.get(params.id) :
+                      params.title ? Feed.findByTitle(params.title) : null
+
+        if( !feed ){
+           render(contentType: "text/xml") {
+              response( code: 'ERROR', cause: "No such feed: $params" ) 
+           }
+        }else{
+            try{
+               feed.refreshFeed()
+               def items = Item.findAllByFeed(feed) as Item[]
+               render items as XML
+            }catch( Exception e ){
+                render(contentType: "text/xml") {
+                   response( code: 'ERROR', cause: "Error while refreshing feed\n${feed.title}" ) 
+                }
+            }
+        }
+    }
 }

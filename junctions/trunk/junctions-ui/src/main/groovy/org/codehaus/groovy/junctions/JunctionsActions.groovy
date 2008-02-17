@@ -152,7 +152,7 @@ action(id: 'dzoneStatsAction',
 
 action(id: 'deliciousBookmarkAction',
     name: 'del.icio.us',
-    closure: { evt -> controller.bookmarkTo(evt,'del.icio.us') },
+    closure: { evt -> controller.bookmarkTo(evt,'delicious') },
     smallIcon: imageIcon(resource:"icons/delicious-icon.gif", class:this),
     shortDescription: 'Bookmark to del.icio.us',
     enabled: false

@@ -16,42 +16,61 @@
 
 package org.codehaus.groovy.junctions
 
-import javax.swing.SwingUtilities
 import groovy.swing.SwingXBuilder
 import java.awt.Color
 import java.awt.Dimension
-import javax.swing.tree.DefaultTreeModel
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.event.TreeSelectionListener
 import org.kordamp.groovy.swing.jide.JideBuilder
 import org.codehaus.groovy.junctions.swingx.PostPane
 import javax.swing.BorderFactory as BF
-import del.icio.us.Delicious
 
-import java.awt.event.KeyListener
 import org.apache.commons.httpclient.*
 import org.apache.commons.httpclient.HttpClient
-import org.apache.commons.httpclient.UsernamePasswordCredentials
 import org.apache.commons.httpclient.methods.*
+import java.beans.PropertyChangeListener
 
 class Main extends Binding {
    SwingXBuilder swing
    ObjectGraphBuilder nodeBuilder
-    HttpClient client
-    def feedMap = [:]
+   HttpClient httpClient
+   def feedMap = [:] as ObservableMap
+
+   private static final SERVER_END_POINT = "http://localhost:8080/junctions-domain"
+
    public static void main(String[] args) {
       new Main().run()
    }
 
    Main() {
-      buildApp()
+      init()
    }
 
    public void run() {
-      loadFeeds()
+      //swing.doLater { waitDialog.visible = true }
+      loadData()
+      swing.doLater {
+          //waitDialog.visible = false
+          frame.repaint()
+      }
    }
 
-   private void buildApp() {
+   private void init() {
+      initNodeBuilder()
+      initUI()
+
+      httpClient = new HttpClient()
+
+      /*
+      feedMap.addPropertyChangeListener({event->
+         if( !oldValue ){
+             // a new feed has been added to the map
+         }
+      } as PropertyChangeListener)
+      */
+   }
+
+   private void initNodeBuilder(){
       nodeBuilder = new ObjectGraphBuilder()
       nodeBuilder.classNameResolver = { name ->
          "javax.swing.tree.DefaultMutableTreeNode"
@@ -64,18 +83,20 @@ class Main extends Binding {
       nodeBuilder.childPropertySetter = { parent, child, parentName, childName ->
          parent.add( child )
       }
+   }
 
+   private void initUI(){
       swing = new SwingXBuilder()
       swing.registerBeanFactory( "postPane", PostPane )
       swing.registerLayouts()
       swing.lookAndFeel('system')
       swing.controller = this
-      // create the actions
+
       swing.doLater {
+         // create the actions 
          build(JunctionsActions)
          // create the view
          build(JunctionsView)
-         unclassifiedNode = swing.feedContainer.model.root.lastChild
       }
 
       def jide = new JideBuilder()
@@ -83,25 +104,27 @@ class Main extends Binding {
       jide.doLater {
          jide.build(JunctionsView2)
       }
-        client = new HttpClient()
    }
 
-   private loadFeeds(){
-      /*
+   private loadData(){
       swing.doOutside {
-         def root = seedFeeds()
+         def feeds = httpGet('feed/show')
+         def folders = httpGet('folder/show')
 
-         swing.doLater {
-            swing.feedContainer.model = new DefaultTreeModel(root)
-            swing.taskPaneContainer( swing.postContainer ){
-               (1..5).each {
-                  taskPane( title: "Post $it", expanded: false,
-                    icon: imageIcon(image: Main.loadImage("zeusboxstudio-feedicons2/RSS_file_16.png")) )
-               }
-            }
+         folders.folder.each { folder ->
+             def folderNode = nodeBuilder."${folder.name}"()
+             folder.feeds?.feed.@id.each { feedId ->
+                def feed = feeds.feed.find{ it.@id == feedId }
+                folderNode.add(nodeBuilder."${feed.title}"())
+                httpGet("item/showFeed?id=$feedId")
+                // update feed entries using another thread
+                swing.doOutside {
+                   feedMap[feed.title as String] = httpPost("feed/refresh",[id:feedId as String])
+                }
+             }
+             swing.doLater { feedContainer.model.root.add( folderNode ) }
          }
       }
-      */
    }
 
    // --------------
@@ -123,7 +146,7 @@ class Main extends Binding {
 
       swing.doLater { waitDialog.visible = true }
       try{
-            records = httpPost("http://localhost:8080/Junctions/feed/create", 
+            //records = httpPost("http://localhost:8080/Junctions/feed/create",
             processFeedUrl( records )
       }
       finally {
@@ -131,26 +154,30 @@ class Main extends Binding {
       }
    }
    
-   def httpPost(url, data) {
-   	 //def url = "http://localhost:8080/Junctions/feed/create"
-            def postData = []
-            for (pair in data.keySet()) {
-            	def nameValuePair = new NameValuePair(pair,data[pair])
-            	postData += nameValuePair
-            }
-            try {
-            def post = new PostMethod(url)
-            post.setRequestBody(postData as NameValuePair[])
-            client.executeMethod(post)
-            def result = post.getResponseBodyAsString().toString()
-            def records = new XmlSlurper().parseText(result)
-            return records
-            } catch (Exception e) {
-            	e.printStackTrace()
-            }
+   private def httpPost(url, data) {
+      def postData = []
+      for (pair in data.keySet()) {
+         def nameValuePair = new NameValuePair(pair,data[pair])
+         postData += nameValuePair
+      }
+      try {
+         def post = new PostMethod("${SERVER_END_POINT}/$url")
+         post.setRequestBody(postData as NameValuePair[])
+         httpClient.executeMethod(post)
+         def result = post.getResponseBodyAsString().toString()
+         return  new XmlSlurper().parseText(result)
+      } catch (Exception e) {
+         e.printStackTrace()
+      }
+   }
+
+   private def httpGet( url ){
+        def data = "${SERVER_END_POINT}/$url".toURL().text
+        return new XmlSlurper().parseText(data)
    }
 
     private processFeedUrl(feed) {
+        /*
         // TODO provide feedback
         //SyndFeedInput input = new SyndFeedInput()
         //SyndFeed feed = input.build(new XmlReader(feedUrl.toURL()))
@@ -171,34 +198,9 @@ class Main extends Binding {
 
             frame.repaint()
         }
+        */
     }
 
-	void populatePostContainer(entries) {
-		def w = (frame.size.width * 2 / 4) as int
-		// TODO cache image
-        def postIcon = ViewUtils.icons.postIcon
-         
-		swing.postContainer.removeAll()
-		swing.taskPaneContainer( swing.postContainer ){
-				
-				entries.item.each { entry ->
-				   postPane( title: entry.title, expanded: false,
-							 publishedDate: entry.publishedDate.text(),
-							 url: entry.url.text(),
-							 icon: imageIcon(image:postIcon)){
-					  def sp = scrollPane {
-						 def content = entry.content
-						 editorPane( contentType: "text/html", text: content,
-									 editable: false, border: BF.createEmptyBorder(),
-									 background: Color.LIGHT_GRAY )
-					  }
-					  def h = sp.preferredSize.height as int
-					  h = h < 100 ? 100 : h
-					  sp.preferredSize = new Dimension(w,h)
-				   }
-				}
-			 }
-	}
     void manageSubscriptions(EventObject evt = null) {
 
     }
@@ -208,7 +210,8 @@ class Main extends Binding {
     }
 
     void refreshSubscription(EventObject evt = null) {
-		def node = (DefaultMutableTreeNode)swing.feedContainer.getLastSelectedPathComponent()
+        /*
+        def node = (DefaultMutableTreeNode)swing.feedContainer.getLastSelectedPathComponent()
 		if (node == null)
     //Nothing is selected.	
     		return;
@@ -225,8 +228,8 @@ class Main extends Binding {
             
     		// remove feed and re-add or just
     		// delete all PostPanes, you decide
+    	*/
     }
-    
 
     void nextPost(EventObject evt = null) {
 
@@ -249,20 +252,7 @@ class Main extends Binding {
     }
 
     void bookmarkTo(EventObject evt = null, String serviceId) {
-		//def openPosts = [ ]
-		//for (component in swing.postContainer.getComponents()) {
-		//    component.isExpanded() ?: openPosts += component.getUrl()
-		//}
-		switch (serviceId) {
-			case 'deli.cio.us':
-				def delicious = new Delicious('junctions', 'groovy123')
-				delicious.addPost("url", "description")
-				break;
-			case 'digg':
-				//not sure if this is easily possible
-				//digg doesn't see to implement full rest api
-				break;
-		}
+
     }
 
     void showPreferences(EventObject evt = null) {
@@ -275,17 +265,41 @@ class Main extends Binding {
         def path = event.path
         if (path.pathCount == 3) {
             // clicked on a feed
-            def feedName = path.lastPathComponent
+            def feedName = path.lastPathComponent as String
             swing.refreshSubscriptionAction.enabled = true
             swing.mainPanel.title = feedName
-            println feedMap
-            println feedMap[feedName]
             swing.doLater() {
-            	populatePostContainer(feedMap[feedName])
+            	populatePostContainer(feedName)
             	frame.repaint()
             }
         } else if (path.pathCount == 2) {
             // cliked on a folder
         }
     } as TreeSelectionListener
+
+    private void populatePostContainer( feedName ) {
+		def w = (frame.size.width * 0.5 ) as int
+		// TODO cache image
+        def postIcon = ViewUtils.icons.postIcon
+
+        def entries = feedMap[feedName]
+		swing.postContainer.removeAll()
+		swing.taskPaneContainer( swing.postContainer ){			
+		   entries.item.each { entry ->
+              postPane( title: entry.title, expanded: false,
+                        publishedDate: entry.publishedDate.text(),
+                        url: entry.url.text(),
+                        icon: imageIcon(image:postIcon)){
+                 def sp = scrollPane {
+				    editorPane( contentType: "text/html", text: entry.content,
+					            editable: false, border: BF.createEmptyBorder(),
+					            background: Color.LIGHT_GRAY.brighter().brighter() )
+                 }
+                 def h = sp.preferredSize.height as int
+                 h = h < 100 ? 100 : h
+                 sp.preferredSize = new Dimension(w,h)
+              }
+           }
+        }
+	}
 }
