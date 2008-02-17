@@ -172,7 +172,28 @@ class Main extends Binding {
     }
 
     void refreshSubscriptions(EventObject evt = null) {
-
+       def answer = JOptionPane.showConfirmDialog(frame,
+            "You are about to refresh all your subscriptions,\n"+
+            "this may take sometime time.\n\n"+
+            "Do you want to continue?",
+            "Refresh Subscriptions",
+            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE)
+       switch( answer ){
+          case JOptionPane.CLOSED_OPTION:
+          case JOptionPane.NO_OPTION:
+             break
+          case JOptionPane.YES_OPTION:
+             swing.doOutside {
+                 feedMap.each { key, feed ->
+                     feedMap[key].entries = parseEntries(serverPost("feed/refresh",
+                              [id:feedMap[key].id] ))
+                     if( key == currentFeed ){
+                         swing.doLater { populatePostContainer( currentFeed ) }
+                     }
+                 }
+             }
+             break
+       }
     }
 
     void refreshSubscription(EventObject evt = null) {
