@@ -43,7 +43,10 @@ dialog( title: 'Add Subscription', id: 'addSubscriptionDialog',
       label( "e.g., groovyblogs.org" )
    }
    buttonPanel( constraints: BL.SOUTH ) {
-      button( 'Cancel', actionPerformed: { event -> addSubscriptionDialog.dispose() } )
+      button( 'Cancel', actionPerformed: { event ->
+          feedUrl.text = ""
+          addSubscriptionDialog.dispose()
+      } )
       button( 'Add', actionPerformed: { event ->
          def url = feedUrl.text
          if( !url ) return

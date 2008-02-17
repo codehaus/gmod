@@ -95,7 +95,10 @@ class FeedController {
 
         if( !feed ){
            render(contentType: "text/xml") {
-              response( code: 'ERROR', cause: "No such feed: $params" ) 
+              response {
+                  code( 'ERROR' )
+                  cause( "No such feed: ${params.id?:params.title}" )
+              }
            }
         }else{
             try{
@@ -104,9 +107,27 @@ class FeedController {
                render items as XML
             }catch( Exception e ){
                 render(contentType: "text/xml") {
-                   response( code: 'ERROR', cause: "Error while refreshing feed\n${feed.title}" ) 
+                   response{
+                       code( 'ERROR' )
+                       cause( "Error while refreshing feed\n${feed.title}" )
+                   }
                 }
             }
+        }
+    }
+
+    def add = {
+        def feed = Feed.findByUrl(params.url)
+        if( feed ){
+           render(contentType: "text/xml") {
+              response{
+                  code( 'ERROR' )
+                  cause( "Feed already exists" )
+              }    
+           }
+        }else{
+            feed = Feed.addFeed(params.url)
+            render feed as XML
         }
     }
 }

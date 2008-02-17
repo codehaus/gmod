@@ -6,7 +6,7 @@ import com.sun.syndication.io.XmlReader
 class Feed {
 	static hasMany = [tags : Tag, items: Item]
 	static constraints = {
-		url(blank:false)
+		url(blank:false,unique:true)
 		author(nullable:true)
 		folder(blank:false)
 	}
@@ -18,14 +18,17 @@ class Feed {
 
 	String toString() { title }
 
-    def refreshFeed() {
-        SyndFeedInput input = new SyndFeedInput()
-        SyndFeed feedSource = input.build(new XmlReader(url.toURL()))
+    def refreshFeed( SyndFeed feedSource ) {
+        if( !feedSource ){
+           SyndFeedInput input = new SyndFeedInput()
+           feedSource = input.build(new XmlReader(url.toURL()))
+        }
+        
         feedSource.entries.each { entry ->
             def item = Item.findByTitle( entry.title )
             if( !item ){
                 item = new Item( feed: this,
-                                 url: entry.uri,
+                                 url: entry.link,
                                  title: entry.title,
                                  author: entry.author,
                                  publishedDate: entry.publishedDate,
@@ -36,24 +39,20 @@ class Feed {
         }
     }
 
-	static parseItems(feed) {
+    static addFeed( url ){
         SyndFeedInput input = new SyndFeedInput()
-        SyndFeed feedSource = input.build(new XmlReader(new URL(feed.url)))
-        def entries = feedSource.getEntries()
-        feed.title = feedSource.getTitle()
-        feed.author = feedSource.getAuthor()
-        
-        for (entry in entries) {
-            def item = new Item()
-            item.feed = feed
-            item.title = entry.getTitle()
-            item.url = entry.getUri()
-            item.publishedDate = entry.getPublishedDate()
-            def content = (entry.getContents()[0])?.getValue() ?: entry.getDescription()?.getValue()
-            item.content = content
-            item.author = entry.getAuthor()
-            println item.validate()
-            item.save()
-        }
+        SyndFeed feedSource = input.build(new XmlReader(url.toURL()))
+
+        def feed = new Feed( folder: Folder.findByName("unclassified"),
+                             url: url,
+                             title: feedSource.title,
+                             author: feedSource.author
+                           )
+        // save it
+        feed.save()
+        // save entries
+        feed.refreshFeed( feedSource )       
+
+        return feed                   
     }
 }

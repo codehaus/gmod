@@ -19,11 +19,12 @@ package org.codehaus.groovy.junctions
 import groovy.swing.SwingXBuilder
 import java.awt.Color
 import java.awt.Dimension
-import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.event.TreeSelectionListener
 import org.kordamp.groovy.swing.jide.JideBuilder
 import org.codehaus.groovy.junctions.swingx.PostPane
 import javax.swing.BorderFactory as BF
+import javax.swing.JOptionPane
+import static org.jdesktop.swingx.JXTaskPane.EXPANDED_CHANGED_KEY
 
 import org.apache.commons.httpclient.*
 import org.apache.commons.httpclient.HttpClient
@@ -36,6 +37,9 @@ class Main extends Binding {
    HttpClient httpClient
    def feedMap = [:] as ObservableMap
 
+   def currentFeed
+   def currentEntry
+
    private static final SERVER_END_POINT = "http://localhost:8080/junctions-domain"
 
    public static void main(String[] args) {
@@ -47,10 +51,8 @@ class Main extends Binding {
    }
 
    public void run() {
-      //swing.doLater { waitDialog.visible = true }
       loadData()
       swing.doLater {
-          //waitDialog.visible = false
           frame.repaint()
       }
    }
@@ -119,7 +121,8 @@ class Main extends Binding {
                 httpGet("item/showFeed?id=$feedId")
                 // update feed entries using another thread
                 swing.doOutside {
-                   feedMap[feed.title as String] = httpPost("feed/refresh",[id:feedId as String])
+                   feedMap[feed.title as String] =
+                       parseEntries(httpPost("feed/refresh",[id:feedId as String]))
                 }
              }
              swing.doLater { feedContainer.model.root.add( folderNode ) }
@@ -142,19 +145,29 @@ class Main extends Binding {
    }
 
    void addSubscription( feedUrl ){
-      if( !feedUrl.startsWith("http://") ) feedUrl = "http://$feedUrl"
+      // processing is done outside EDT
 
+      if( !feedUrl.startsWith("http://") ) feedUrl = "http://$feedUrl"
       swing.doLater { waitDialog.visible = true }
       try{
-            //records = httpPost("http://localhost:8080/Junctions/feed/create",
-            processFeedUrl( records )
+            def response = httpPost("feed/add",[url:feedUrl])
+            if( response?.code.text() != "ERROR" ){
+               currentFeed = response.title as String
+               feedMap[currentFeed] =
+                       parseEntries(httpPost("feed/refresh",[id:response.@id as String]))
+               swing.doLater { mainPanel.title = currentFeed }           
+               populatePostContainer( response.title as String )        
+            }else{
+                JOptionPane.showMessageDialog( frame, response.cause.text(),
+                        "Add Subscription", JOptionPane.ERROR_MESSAGE )
+            }
       }
       finally {
          swing.doLater { waitDialog.visible = false }
       }
    }
    
-   private def httpPost(url, data) {
+   private def httpPost(url, data, parse = true) {
       def postData = []
       for (pair in data.keySet()) {
          def nameValuePair = new NameValuePair(pair,data[pair])
@@ -165,7 +178,9 @@ class Main extends Binding {
          post.setRequestBody(postData as NameValuePair[])
          httpClient.executeMethod(post)
          def result = post.getResponseBodyAsString().toString()
-         return  new XmlSlurper().parseText(result)
+         if( parse ){
+            return  new XmlSlurper().parseText(result)
+         }
       } catch (Exception e) {
          e.printStackTrace()
       }
@@ -175,31 +190,6 @@ class Main extends Binding {
         def data = "${SERVER_END_POINT}/$url".toURL().text
         return new XmlSlurper().parseText(data)
    }
-
-    private processFeedUrl(feed) {
-        /*
-        // TODO provide feedback
-        //SyndFeedInput input = new SyndFeedInput()
-        //SyndFeed feed = input.build(new XmlReader(feedUrl.toURL()))
-        // TODO check if subscription is new
-
-        feedNode = nodeBuilder."${feed.title}"()
-
-        swing.doLater {
-            unclassifiedNode.add(feedNode)
-            
-         
-         def data = "http://localhost:8080/Junctions/item/showFeed/${feed.@id.text()}".toURL().getText()
-         def entries = new XmlSlurper().parseText(data)
-         feedMap.put(feed.title, entries)
-         println feed.title
-         println feedMap[feed.title]
-         populatePostContainer(entries)
-
-            frame.repaint()
-        }
-        */
-    }
 
     void manageSubscriptions(EventObject evt = null) {
 
@@ -266,10 +256,12 @@ class Main extends Binding {
         if (path.pathCount == 3) {
             // clicked on a feed
             def feedName = path.lastPathComponent as String
+            if( feedName == currentFeed ) return
+            currentFeed = feedName
             swing.refreshSubscriptionAction.enabled = true
-            swing.mainPanel.title = feedName
+            swing.mainPanel.title = currentFeed
             swing.doLater() {
-            	populatePostContainer(feedName)
+            	populatePostContainer(currentFeed)
             	frame.repaint()
             }
         } else if (path.pathCount == 2) {
@@ -278,28 +270,54 @@ class Main extends Binding {
     } as TreeSelectionListener
 
     private void populatePostContainer( feedName ) {
-		def w = (frame.size.width * 0.5 ) as int
-		// TODO cache image
-        def postIcon = ViewUtils.icons.postIcon
+		def w = (frame.size.width * 0.5) as int
 
         def entries = feedMap[feedName]
 		swing.postContainer.removeAll()
-		swing.taskPaneContainer( swing.postContainer ){			
-		   entries.item.each { entry ->
-              postPane( title: entry.title, expanded: false,
-                        publishedDate: entry.publishedDate.text(),
-                        url: entry.url.text(),
-                        icon: imageIcon(image:postIcon)){
+		currentEntry = null
+
+		swing.taskPaneContainer( swing.postContainer ){
+           entries.each { url, entry ->
+              def pp = postPane( title: entry.title, expanded: false,
+                        publishedDate: entry.publishedDate,
+                        url: entry.url,
+                        icon: imageIcon(image: entry.read ? ViewUtils.icons.readEntryIcon : ViewUtils.icons.unreadEntryIcon)){
                  def sp = scrollPane {
 				    editorPane( contentType: "text/html", text: entry.content,
 					            editable: false, border: BF.createEmptyBorder(),
-					            background: Color.LIGHT_GRAY.brighter().brighter() )
+					            background: Color.LIGHT_GRAY )
                  }
                  def h = sp.preferredSize.height as int
                  h = h < 100 ? 100 : h
                  sp.preferredSize = new Dimension(w,h)
               }
+              pp.addPropertyChangeListener( EXPANDED_CHANGED_KEY, {
+                  currentEntry = url
+                  if( !entry.read ){
+                      swing.doLater {
+                          httpPost("item/update",[id:entry.id,read:'true'],false)
+                          pp.icon = imageIcon(image:ViewUtils.icons.readEntryIcon)
+                          entry.read = true
+                      }
+                  }
+              } as PropertyChangeListener)
            }
         }
 	}
+
+	private def parseEntries( items ){
+        def entries = [:] as LinkedHashMap
+		items?.item.each { item ->
+		   entries[item.url as String] = [
+              id: item.@id as String,
+              title: item.title as String,
+              author: item.author as String,
+              content: item.content as String,
+              publishedDate: item.publishedDate as String,
+              read: item.read.text().toBoolean(),
+              // tags
+           ]
+        }
+        return entries
+    }
 }
