@@ -3,4 +3,5 @@ class Tag {
 	static hasMany = [feeds: Feed]
 	String description
 
+    String toString(){ description }
 }

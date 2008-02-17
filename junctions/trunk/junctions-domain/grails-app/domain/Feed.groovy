@@ -1,8 +1,5 @@
 import java.net.URL
-import java.io.InputStreamReader
 import com.sun.syndication.feed.synd.SyndFeed
-import com.sun.syndication.feed.synd.SyndEntry
-import com.sun.syndication.feed.synd.SyndContent
 import com.sun.syndication.io.SyndFeedInput
 import com.sun.syndication.io.XmlReader
 
@@ -11,15 +8,18 @@ class Feed {
 	static constraints = {
 		url(blank:false)
 		author(nullable:true)
+		folder(blank:false)
 	}
 
 	String title = ''
 	String url
 	String author
-	
+	Folder folder
+
+	String toString() { title }
 
 	static parseItems(feed) {
-         SyndFeedInput input = new SyndFeedInput()
+        SyndFeedInput input = new SyndFeedInput()
         SyndFeed feedSource = input.build(new XmlReader(new URL(feed.url)))
         def entries = feedSource.getEntries()
         feed.title = feedSource.getTitle()

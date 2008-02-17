@@ -10,4 +10,6 @@ class Item {
 	String content
 	String author
 	Date publishedDate
+
+	String toString() { title }
 }
