@@ -170,5 +170,6 @@ action(id: 'preferencesAction',
         name: 'Preferences',
         closure: controller.&showPreferences,
         smallIcon: imageIcon(image: ViewUtils.loadImage("org/tango-project/tango-icon-theme/16x16/actions/document-properties.png")),
-        shortDescription: 'Preferences'
+        shortDescription: 'Preferences',
+        enabled: false
         )

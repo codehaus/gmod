@@ -35,8 +35,8 @@ menuBar {
         separator()
         menu(text: 'Stats from...', id: 'statsMenu',
                 icon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/activity_window_16.png"))) {
-            menuItem(diggStatsAction)
-            menuItem(dzoneStatsAction)
+            //menuItem(diggStatsAction)
+            //menuItem(dzoneStatsAction)
             menuItem(cosmosStatsAction)
         }
     }

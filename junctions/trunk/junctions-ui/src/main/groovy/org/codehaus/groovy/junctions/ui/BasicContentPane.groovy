@@ -40,7 +40,9 @@ splitPane(id: 'splitPane', resizeWeight: 0.50F,
                 tree(id: 'feedContainer',
                         closedIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/folder_16.png")),
                         openIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/folder_rss_16.png")),
-                        leafIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_16.png"))
+                        leafIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_16.png")),
+                        mousePressed: {e -> if (e.isPopupTrigger()) subscriptionPopup.show(e.source, e.x, e.y)},
+                        mouseReleased: {e -> if (e.isPopupTrigger()) subscriptionPopup.show(e.source, e.x, e.y)},
                         )
             }
             sp.preferredSize = new Dimension(200, sp.preferredSize.height as int)

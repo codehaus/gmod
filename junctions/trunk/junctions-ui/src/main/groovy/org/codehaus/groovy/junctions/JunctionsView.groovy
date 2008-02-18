@@ -64,12 +64,26 @@ dialog(id: 'waitDialog', owner: frame, modal: true,
     busyLabel(busy: true, horizontalAlignment: CENTER, verticalAlignment: CENTER)
 }
 
+popupMenu(id: 'subscriptionPopup') {
+    menuItem(markAllAsReadAction)
+    separator()
+    menuItem(refreshSubscriptionAction)
+    separator()
+    menu(text: 'Stats from...', id: 'statsMenu',
+            icon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/activity_window_16.png"))) {
+        //menuItem(diggStatsAction)
+        //menuItem(dzoneStatsAction)
+        menuItem(cosmosStatsAction)
+    }
+}
+
 // add the window close handler
 frame.windowClosing = controller.&exit
 
 // link in references to the controller
 controller.frame = frame
 controller.waitDialog = waitDialog
+controller.subscriptionPopup = subscriptionPopup
 
 // don't send any return value from the view, all items should be referenced via the bindings
 return null

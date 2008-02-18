@@ -29,5 +29,6 @@ class ViewUtils {
     static {
         icons.unreadEntryIcon = ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_file_16.png")
         icons.readEntryIcon = ViewUtils.loadImage("zeusboxstudio-feedicons2/mark_as_read_16.png")
+        icons.delicious = ViewUtils.loadImage("icons/delicious-icon.gif")
     }
 }

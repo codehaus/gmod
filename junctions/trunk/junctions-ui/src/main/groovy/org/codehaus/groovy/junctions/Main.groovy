@@ -22,7 +22,9 @@ import java.awt.Dimension
 import javax.swing.event.TreeSelectionListener
 import org.kordamp.groovy.swing.jide.JideBuilder
 import org.codehaus.groovy.junctions.swingx.PostPane
+import java.awt.BorderLayout as BL
 import javax.swing.BorderFactory as BF
+import javax.swing.SwingConstants as SC
 import javax.swing.JOptionPane
 import static org.jdesktop.swingx.JXTaskPane.EXPANDED_CHANGED_KEY
 
@@ -106,7 +108,7 @@ class Main extends Binding {
     }
 
     private loadData() {
-        swing.doLater { waitDialog.visible = true }
+        swing.doLater {waitDialog.visible = true}
         loadFeeds()
         loadBookmarks()
     }
@@ -132,7 +134,7 @@ class Main extends Binding {
                                 ]
                     }
                 }
-                if( folderName == "unclassified" ) unclassifiedNode = folderNode
+                if (folderName == "unclassified") unclassifiedNode = folderNode
                 swing.feedContainer.model.root.add(folderNode)
             }
             swing.doLater {
@@ -215,8 +217,8 @@ class Main extends Binding {
                         ]
                 swing.doLater {
                     def feedNode = nodeBuilder."$currentFeed"()
-                    swing.feedContainer.model.insertNodeInto( feedNode, unclassifiedNode, unclassifiedNode.childCount )
-                    swing.feedContainer.expandPath( new TreePath(unclassifiedNode.getPath() as Object[]) )
+                    swing.feedContainer.model.insertNodeInto(feedNode, unclassifiedNode, unclassifiedNode.childCount)
+                    swing.feedContainer.expandPath(new TreePath(unclassifiedNode.getPath() as Object[]))
                     mainPanel.title = currentFeed
                     populatePostContainer(response.title as String)
                     frame.repaint()
@@ -319,6 +321,12 @@ class Main extends Binding {
                 def response = serverPost("item/bookmark", [id: currentEntry.id, service: serviceId])
                 if (response?.code.text() != "ERROR") {
                     currentEntry.bookmarks << serviceId
+                    swing.doLater {
+                        panel(currentEntry.bookmarkPanel) {
+                            label(icon: imageIcon(image: ViewUtils.icons[serviceId]))
+                        }
+                        frame.repaint()
+                    }
                     showMessage("Bookmark To", "Successfuly bookmarked\n" +
                             "'${currentEntry.title}'\n" +
                             "to $serviceId")
@@ -373,44 +381,106 @@ class Main extends Binding {
         swing.postContainer.removeAll()
         currentEntry = null
 
-        swing.taskPaneContainer(swing.postContainer) {
-            entries.each {url, entry ->
-                def pp = postPane(title: entry.title, expanded: false,
-                        publishedDate: entry.publishedDate,
-                        url: entry.url,
-                        icon: imageIcon(image: entry.read ? ViewUtils.icons.readEntryIcon : ViewUtils.icons.unreadEntryIcon)) {
-                    def sp = scrollPane {
-                        editorPane(contentType: "text/html", text: entry.content,
-                                editable: false, border: BF.createEmptyBorder(),
-                                background: Color.LIGHT_GRAY)
-                    }
-                    def h = sp.preferredSize.height as int
-                    h = h < 100 ? 100 : h
-                    sp.preferredSize = new Dimension(w, h)
-                }
-                entry.pane = pp
-                pp.addPropertyChangeListener(EXPANDED_CHANGED_KEY, {event ->
-                    // do nothing if collpasing
-                    if (!event.newValue) return
-
-                    // pane is expanding
-                    if (event.newValue) {
-                        if (currentEntryPane != event.source) {
-                            // need to hide previous entryPane if any
-                            def tmpPane = currentEntryPane
-                            currentEntryPane = event.source
-                            swing.doOutside {
-                                sleep(240) // min wait time
-                                tmpPane?.expanded = false
-                            }
-                        }
-                    }
-                    currentEntry = entry
-                    swing.doOutside {markEntryAsRead(entry)}
-                } as PropertyChangeListener)
-            }
+        entries.each {url, entry ->
+            def pane = makeEntryPane(entry, w)
+            registerClickListener(pane, entry)
+            swing.postContainer.add(pane)
         }
     }
+
+    def makeEntryPane(entry, w) {
+        def bookmarkButton = jide.jideSplitButton('Bookmarks', customize: {m ->
+            m.removeAll()
+            m.add(swing.deliciousBookmarkAction)
+        })
+        swing.postPane(title: entry.title, expanded: false,
+                publishedDate: entry.publishedDate,
+                url: entry.url,
+                icon: swing.imageIcon(image: entry.read ? ViewUtils.icons.readEntryIcon : ViewUtils.icons.unreadEntryIcon)) {
+            borderLayout(hgap: 0, vgap: 0)
+            def sp = scrollPane(constraints: BL.CENTER, opaque: false) {
+                editorPane(contentType: "text/html", text: entry.content,
+                        editable: false, border: BF.createEmptyBorder(),
+                        background: Color.LIGHT_GRAY.brighter(), constraints: BL.CENTER)
+
+            }
+            entry.bookmarkPanel = panel(constraints: BL.SOUTH, opaque: false) {
+                widget(bookmarkButton, horizontalAlignment: SC.LEFT)
+                entry.bookmarks.each {v ->
+                    label(icon: imageIcon(image: ViewUtils.icons[v]))
+                }
+            }
+            def h = sp.preferredSize.height as int
+            h = h < 100 ? 100 : h
+            sp.preferredSize = new Dimension(w, h)
+        }
+    }
+
+    def registerClickListener(pane, entry) {
+        entry.pane = pane
+        pane.addPropertyChangeListener(EXPANDED_CHANGED_KEY, {event ->
+            // do nothing if collpasing
+            if (!event.newValue) return
+
+            // pane is expanding
+            if (event.newValue && currentEntryPane != event.source) {
+                // need to hide previous entryPane if any
+                def tmpPane = currentEntryPane
+                currentEntryPane = event.source
+                swing.doOutside {
+                    sleep(240) // min wait time
+                    tmpPane?.expanded = false
+                }
+            }
+            currentEntry = entry
+            swing.doOutside {markEntryAsRead(entry)}
+        } as PropertyChangeListener)
+    }
+
+    /*
+    swing.taskPaneContainer(swing.postContainer) {
+        entries.each {url, entry ->
+            def pp = postPane(title: entry.title, expanded: false,
+                    publishedDate: entry.publishedDate,
+                    url: entry.url,
+                    icon: imageIcon(image: entry.read ? ViewUtils.icons.readEntryIcon : ViewUtils.icons.unreadEntryIcon)) {
+                def sp = scrollPane {
+                    panel {
+                        borderLayout()
+                        editorPane(contentType: "text/html", text: entry.content,
+                                editable: false, border: BF.createEmptyBorder(),
+                                background: Color.LIGHT_GRAY.brighter(), constraints: BL.CENTER)
+                        panel(constraints: BL.SOUTH) {
+                            widget(bookmarkButton)
+                        }
+                    }
+                }
+                def h = sp.preferredSize.height as int
+                h = h < 100 ? 100 : h
+                sp.preferredSize = new Dimension(w, h)
+            }
+            entry.pane = pp
+            pp.addPropertyChangeListener(EXPANDED_CHANGED_KEY, {event ->
+                // do nothing if collpasing
+                if (!event.newValue) return
+
+                // pane is expanding
+                if (event.newValue && currentEntryPane != event.source) {
+                    // need to hide previous entryPane if any
+                    def tmpPane = currentEntryPane
+                    currentEntryPane = event.source
+                    swing.doOutside {
+                        sleep(240) // min wait time
+                        tmpPane?.expanded = false
+                    }
+                }
+                currentEntry = entry
+                swing.doOutside {markEntryAsRead(entry)}
+            } as PropertyChangeListener)
+        }
+    }
+    */
+
 
     private def parseEntries(items) {
         def entries = [:] as LinkedHashMap
