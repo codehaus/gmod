@@ -1,10 +1,8 @@
-class Folder {
-
+class Bookmark {
     static constraints = {
-        name(unique: true)
+        name(nullable: false, unique: true)
     }
 
-    static hasMany = [feeds: Feed]
     String name
 
     String toString() {name}

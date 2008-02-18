@@ -1,7 +1,7 @@
 class Tag {
-	static belongsTo = [Feed]
-	static hasMany = [feeds: Feed]
-	String description
+    //static belongsTo = [Feed]
+    //static hasMany = [feeds: Feed]
+    String description
 
-    String toString(){ description }
+    String toString() {description}
 }

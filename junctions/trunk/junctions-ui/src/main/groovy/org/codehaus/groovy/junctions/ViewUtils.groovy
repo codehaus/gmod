@@ -19,15 +19,15 @@ package org.codehaus.groovy.junctions
 import javax.imageio.ImageIO
 
 class ViewUtils {
-   static loadImage = { String filename ->
-      URL imageUrl = Thread.currentThread().getContextClassLoader().getResource( filename )
-      return ImageIO.read( imageUrl )
-   }
+    static loadImage = {String filename ->
+        URL imageUrl = Thread.currentThread().getContextClassLoader().getResource(filename)
+        return ImageIO.read(imageUrl)
+    }
 
-   static icons = [:]
+    static icons = [:]
 
-   static {
-      icons.unreadEntryIcon = ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_file_16.png")
-      icons.readEntryIcon = ViewUtils.loadImage("zeusboxstudio-feedicons2/mark_as_read_16.png")
-   }
+    static {
+        icons.unreadEntryIcon = ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_file_16.png")
+        icons.readEntryIcon = ViewUtils.loadImage("zeusboxstudio-feedicons2/mark_as_read_16.png")
+    }
 }

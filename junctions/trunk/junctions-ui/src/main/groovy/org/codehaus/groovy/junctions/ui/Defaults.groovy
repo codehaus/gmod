@@ -20,29 +20,29 @@ import java.awt.Color
 import javax.swing.text.StyleConstants
 import javax.swing.text.StyleContext
 
-menuBarClass     = org.codehaus.groovy.junctions.ui.BasicMenuBar
+menuBarClass = org.codehaus.groovy.junctions.ui.BasicMenuBar
 contentPaneClass = org.codehaus.groovy.junctions.ui.BasicContentPane
-statusBarClass   = org.codehaus.groovy.junctions.ui.BasicStatusBar
+statusBarClass = org.codehaus.groovy.junctions.ui.BasicStatusBar
 
 styles = [
-    // output window styles
-    regular: [
-            (StyleConstants.FontFamily): 'Monospaced',
-        ],
-    prompt: [
-            (StyleConstants.Foreground): new Color(0, 128, 0),
-        ],
-    command: [
-            (StyleConstants.Foreground): Color.BLUE,
-        ],
-    output: [:],
-    result: [
-            (StyleConstants.Foreground): Color.BLUE,
-            (StyleConstants.Background): Color.YELLOW,
-        ],
+        // output window styles
+        regular: [
+                (StyleConstants.FontFamily): 'Monospaced',
+                ],
+        prompt: [
+                (StyleConstants.Foreground): new Color(0, 128, 0),
+                ],
+        command: [
+                (StyleConstants.Foreground): Color.BLUE,
+                ],
+        output: [:],
+        result: [
+                (StyleConstants.Foreground): Color.BLUE,
+                (StyleConstants.Background): Color.YELLOW,
+                ],
 
-    // syntax highlighting styles
-    (StyleContext.DEFAULT_STYLE) : [
-            (StyleConstants.FontFamily): 'Monospaced',
-        ],
-]
+        // syntax highlighting styles
+        (StyleContext.DEFAULT_STYLE): [
+                (StyleConstants.FontFamily): 'Monospaced',
+                ],
+        ]

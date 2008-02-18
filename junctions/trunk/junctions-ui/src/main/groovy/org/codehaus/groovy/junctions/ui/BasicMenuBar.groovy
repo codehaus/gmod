@@ -19,47 +19,47 @@ package org.codehaus.groovy.junctions.ui
 import org.codehaus.groovy.junctions.ViewUtils
 
 menuBar {
-   menu(text: 'File', mnemonic: 'F') {
-      menuItem(exitAction)
-   }
+    menu(text: 'File', mnemonic: 'F') {
+        menuItem(exitAction)
+    }
 
-   menu(text: 'Subscriptions', mnemonic: 'S') {
-      menuItem(addSubscriptionAction)
-      separator()
-      menuItem(refreshSubscriptionsAction)
-      menuItem(manageSubscriptionsAction)
-      separator()
-      //menuItem(previousSubscriptionAction)
-      //menuItem(nextSubscriptionAction)
-      menuItem(refreshSubscriptionAction)
-      separator()
-      menu(text: 'Stats from...', id: 'statsMenu',
-         icon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/activity_window_16.png")) ) {
-         menuItem( diggStatsAction )
-         menuItem( dzoneStatsAction )
-         menuItem( cosmosStatsAction )
-      }
-   }
+    menu(text: 'Subscriptions', mnemonic: 'S') {
+        menuItem(addSubscriptionAction)
+        separator()
+        menuItem(refreshSubscriptionsAction)
+        menuItem(manageSubscriptionsAction)
+        separator()
+        //menuItem(previousSubscriptionAction)
+        //menuItem(nextSubscriptionAction)
+        menuItem(refreshSubscriptionAction)
+        separator()
+        menu(text: 'Stats from...', id: 'statsMenu',
+                icon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/activity_window_16.png"))) {
+            menuItem(diggStatsAction)
+            menuItem(dzoneStatsAction)
+            menuItem(cosmosStatsAction)
+        }
+    }
 
-   menu(text: 'Posts', mnemonic: 'P' ) {
-      menuItem(previousPostAction)
-      menuItem(nextPostAction)
-      separator()
-      menuItem(markAsFavoriteAction)
-      separator()
-      menuItem(markAllAsReadAction)
-      menu(text: 'Send to...', id: 'bookmarksMenu',
-         icon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/flag-16.png")) ) {
-         menuItem(deliciousBookmarkAction)
-         menuItem(diggBookmarkAction)
-      }
-   }
+    menu(text: 'Posts', mnemonic: 'P') {
+        menuItem(previousPostAction)
+        menuItem(nextPostAction)
+        separator()
+        menuItem(markAsFavoriteAction)
+        separator()
+        menuItem(markAllAsReadAction)
+        menu(text: 'Send to...', id: 'bookmarksMenu',
+                icon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/flag-16.png"))) {
+            menuItem(deliciousBookmarkAction)
+            menuItem(diggBookmarkAction)
+        }
+    }
 
-   menu(text: 'Tools', mnemonic: 'T' ){
-      menuItem(preferencesAction)
-   }
+    menu(text: 'Tools', mnemonic: 'T') {
+        menuItem(preferencesAction)
+    }
 
-   menu(text: 'Help', mnemonic: 'H') {
-      menuItem(aboutAction)
-   }
+    menu(text: 'Help', mnemonic: 'H') {
+        menuItem(aboutAction)
+    }
 }

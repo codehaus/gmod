@@ -26,49 +26,48 @@ import javax.swing.ScrollPaneConstants as SPC
 import static javax.swing.JSplitPane.HORIZONTAL_SPLIT
 
 splitPane(id: 'splitPane', resizeWeight: 0.50F,
-      orientation: HORIZONTAL_SPLIT ){
-   titledPanel( title: 'Subscriptions', constraints: BL.WEST, id: 'subscriptionsPanel' ){
-      panel {
-         borderLayout()
-         panel( constraints: BL.NORTH ) {
-            gridLayout( cols: 1, rows: 1 )
-            button( classicSwing: true, action: addSubscriptionAction )
-         }
-         sp = scrollPane( constraints: BL.CENTER,
-                     verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS,
-                     componentOrientation: CO.RIGHT_TO_LEFT ){
-            tree( id: 'feedContainer',
-               closedIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/folder_16.png")),
-               openIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/folder_rss_16.png")),
-               leafIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_16.png"))
-            )
-         }
-         sp.preferredSize = new Dimension(200,sp.preferredSize.height as int)
-         panel( constraints: BL.SOUTH ) {
-            gridLayout( cols: 1, rows: 2 )
-            button( classicSwing: true, action: refreshSubscriptionsAction )
-            button( classicSwing: true, action: manageSubscriptionsAction )
-         }
-      }
-   }
-   titledPanel( title: '...', constraints: BL.CENTER, id: 'mainPanel' ){
-      scrollPane( verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS,
-            border: BF.createEmptyBorder() ){
-         taskPaneContainer( id: 'postContainer', border: BF.createEmptyBorder() ){
-            verticalLayout(gap:2)
-         }
-      }
-   }
+        orientation: HORIZONTAL_SPLIT) {
+    titledPanel(title: 'Subscriptions', constraints: BL.WEST, id: 'subscriptionsPanel') {
+        panel {
+            borderLayout()
+            panel(constraints: BL.NORTH) {
+                gridLayout(cols: 1, rows: 1)
+                button(classicSwing: true, action: addSubscriptionAction)
+            }
+            sp = scrollPane(constraints: BL.CENTER,
+                    verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS,
+                    componentOrientation: CO.RIGHT_TO_LEFT) {
+                tree(id: 'feedContainer',
+                        closedIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/folder_16.png")),
+                        openIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/folder_rss_16.png")),
+                        leafIcon: imageIcon(image: ViewUtils.loadImage("zeusboxstudio-feedicons2/RSS_16.png"))
+                        )
+            }
+            sp.preferredSize = new Dimension(200, sp.preferredSize.height as int)
+            panel(constraints: BL.SOUTH) {
+                gridLayout(cols: 1, rows: 2)
+                button(classicSwing: true, action: refreshSubscriptionsAction)
+                button(classicSwing: true, action: manageSubscriptionsAction)
+            }
+        }
+    }
+    titledPanel(title: 'Click on a Subscription or add a new one', constraints: BL.CENTER, id: 'mainPanel') {
+        scrollPane(verticalScrollBarPolicy: SPC.VERTICAL_SCROLLBAR_ALWAYS,
+                border: BF.createEmptyBorder()) {
+            taskPaneContainer(id: 'postContainer', border: BF.createEmptyBorder()) {
+                verticalLayout(gap: 2)
+            }
+        }
+    }
 }
 
 def size = subscriptionsPanel.preferredSize
-size.width = (frame.size.width*1/4)
+size.width = (frame.size.width * 1 / 4)
 subscriptionsPanel.preferredSize = size
 size = mainPanel.preferredSize
-size.width = (frame.size.width*3/4)
+size.width = (frame.size.width * 3 / 4)
 mainPanel.preferredSize = size
 
-def root = new DefaultMutableTreeNode( "Subscriptions" )
-//root.add( new DefaultMutableTreeNode("unclassified") )
-feedContainer.model = new DefaultTreeModel( root )
-feedContainer.addTreeSelectionListener( controller.feedSelectionListener )
+def root = new DefaultMutableTreeNode("Subscriptions")
+feedContainer.model = new DefaultTreeModel(root)
+feedContainer.addTreeSelectionListener(controller.feedSelectionListener)

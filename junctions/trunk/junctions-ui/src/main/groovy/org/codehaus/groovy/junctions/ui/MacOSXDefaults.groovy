@@ -27,27 +27,27 @@ System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Junctions
 
 // redo output styles
 styles = [
-    // output window styles
-    regular: [
-            (StyleConstants.FontFamily): "Monaco",
-        ],
-    prompt: [
-            (StyleConstants.Foreground): Color.LIGHT_GRAY,
-        ],
-    command: [
-            (StyleConstants.Foreground): Color.GRAY,
-        ],
-    output: [:],
-    result: [
-            (StyleConstants.Foreground): Color.WHITE,
-            (StyleConstants.Background): Color.BLACK,
-        ],
+        // output window styles
+        regular: [
+                (StyleConstants.FontFamily): "Monaco",
+                ],
+        prompt: [
+                (StyleConstants.Foreground): Color.LIGHT_GRAY,
+                ],
+        command: [
+                (StyleConstants.Foreground): Color.GRAY,
+                ],
+        output: [:],
+        result: [
+                (StyleConstants.Foreground): Color.WHITE,
+                (StyleConstants.Background): Color.BLACK,
+                ],
 
-    // syntax highlighting styles
-    (GroovyFilter.COMMENT): [
-            (StyleConstants.Foreground): Color.LIGHT_GRAY.darker().darker(),
-            (StyleConstants.Italic) : true,
-        ],
-]
+        // syntax highlighting styles
+        (GroovyFilter.COMMENT): [
+                (StyleConstants.Foreground): Color.LIGHT_GRAY.darker().darker(),
+                (StyleConstants.Italic): true,
+                ],
+        ]
 
 menuBarClass = MacOSXMenuBar

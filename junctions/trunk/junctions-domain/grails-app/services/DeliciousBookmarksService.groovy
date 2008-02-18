@@ -17,8 +17,13 @@ class DeliciousBookmarksService {
     def bookmark( Item item ) {
         if( item ){
            connect() 
-           // use the first 100 chars available from content as description
-           deliciousService.addPost( item.url, item.content[0..(item.content.size()>100?100:-1)] )
+           deliciousService.addPost( item.url,
+                                     item.title,
+                                     // TODO should be smarter than this
+                                     // what about html tags ?
+                                     item.content.size() > 500 ? item.content[0..500] : item.content,
+                                     item.feed.folder.name, // TODO replace with tags
+                                     new Date() )
         }
     }
 }
