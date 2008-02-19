@@ -36,7 +36,6 @@ public class GradientStopFactory extends AbstractFactory {
    }
 
    public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ) {
-      println attributes
       if( attributes.containsKey( "red" ) ||
          attributes.containsKey( "green" ) ||
          attributes.containsKey( "blue" ) ||
@@ -64,8 +63,6 @@ public class GradientStopFactory extends AbstractFactory {
       if( color != null && color instanceof String ){
          attributes.put( "color", ColorCache.getInstance().getColor( color ) )
       }
-
-      println attributes
 
       return true
    }

@@ -33,10 +33,10 @@ public class ColorFactory extends AbstractGraphicsOperationFactory {
             }
         }
 
-        properties.red = properties.remove("r")
-        properties.green = properties.remove("g")
-        properties.blue = properties.remove("b")
-        properties.alpha = properties.remove("a")
+        if( properties.red == null ) properties.red = properties.remove("r")
+        if( properties.green == null ) properties.green = properties.remove("g")
+        if( properties.blue == null ) properties.blue = properties.remove("b")
+        if( properties.alpha == null ) properties.alpha = properties.remove("a")
 
         if( properties.containsKey( "red" ) ||
             properties.containsKey( "green" ) ||
