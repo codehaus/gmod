@@ -90,4 +90,12 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     protected void executeOperation( GraphicsContext context ) {
         // empty
     }
+    
+    protected void executeBeforeAll( GraphicsContext context ) {
+
+    }
+
+    protected void executeAfterAll( GraphicsContext context ) {
+
+    }
 }

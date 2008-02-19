@@ -52,6 +52,11 @@ class GraphicsBuilderHelper {
        def colorMethods = Color.metaClass.methods
        if( !colorMethods.name.find{ it == "derive" } ){
           Color.metaClass.derive = { Map props ->
+             if( props.red == null ) props.red = props.remove("r")
+             if( props.green == null ) props.green = props.remove("g")
+             if( props.blue == null ) props.blue = props.remove("b")
+             if( props.alpha == null ) props.alpha = props.remove("a")
+          
              def red = props.red != null ? props.red: delegate.red
              def green = props.green != null ? props.green: delegate.green
              def blue = props.blue != null ? props.blue: delegate.blue
@@ -73,6 +78,7 @@ class GraphicsBuilderHelper {
        def strokeMethods = BasicStroke.metaClass.methods
        if( !strokeMethods.name.find{ it == "derive" } ){
           BasicStroke.metaClass.derive << { Map props ->
+             if( props.width == null ) props.width = props.remove("w")
              def width = props.width != null ? props.width : delegate.lineWidth
              def cap = props.cap != null ? props.cap : delegate.endCap
              def join = props.join != null ? props.join : delegate.lineJoin

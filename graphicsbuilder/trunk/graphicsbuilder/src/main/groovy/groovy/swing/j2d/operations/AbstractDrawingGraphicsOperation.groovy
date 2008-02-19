@@ -126,7 +126,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       def o = getOpacity( context )
+       // def o = getOpacity( context )
 
        //if( operations || o != null ){
           gcopy = context.g
@@ -239,7 +239,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     protected void applyFill( GraphicsContext context, Shape shape ) {
         context.g.fill( shape )
     }
-
 
     protected void draw( GraphicsContext context, Shape shape ) {
        def previousColor = null
@@ -403,23 +402,27 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected def getOpacity( GraphicsContext context ){
+       /*
        def o = opacity
-       if( context.groupContext?.opacity ){
+       if( context.groupContext?.opacity != null ){
           o = context.groupContext?.opacity
+          // group already applied opacity settings      
+          return null      
        }
        if( opacity != null ){
           o = opacity
        }
-       return o
+       */
+       return opacity
     }
 
     protected void applyOpacity( GraphicsContext context ){
        def o = getOpacity( context )
        if( o != null ){
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }else{
+       }/*else{
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }
+       }*/
     }
 
     private void applyPaint( GraphicsContext context, Shape shape, paint ){

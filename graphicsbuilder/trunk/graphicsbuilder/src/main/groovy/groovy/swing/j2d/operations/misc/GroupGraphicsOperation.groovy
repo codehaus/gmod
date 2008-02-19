@@ -89,24 +89,14 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        previousGroupContext = [:]
        previousGroupContext.putAll(context.groupContext)
 
-       def o = opacity
-       if( context.groupContext.opacity ){
-          o = context.groupContext.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }
-
+       // def o = getOpacity( context )
+       
        //if( operations || o != null ){
           gcopy = context.g
           context.g = context.g.create()
-          if( o != null ){
-             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-          }else{
-             context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-          }
+          applyOpacity( context )
        //}
-
+       
        if( borderColor != null ) context.groupContext.borderColor = borderColor
        if( borderWidth != null ) context.groupContext.borderWidth = borderWidth
        if( opacity != null ) context.groupContext.opacity = opacity
@@ -141,5 +131,25 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
           }
        }
        go.execute( context )
+    }
+    
+    protected def getOpacity( GraphicsContext context ){
+       /*def o = opacity
+       if( context.groupContext?.opacity ){
+          o = context.groupContext?.opacity
+       }
+       if( opacity != null ){
+          o = opacity
+       }*/
+       return opacity
+    }
+
+    protected void applyOpacity( GraphicsContext context ){
+       def o = getOpacity( context )
+       if( o != null ){
+          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+       }/*else{
+          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
+       }*/
     }
 }
