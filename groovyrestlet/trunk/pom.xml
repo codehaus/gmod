@@ -160,13 +160,7 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>  
-        <!-- CGlib-nodep -->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>2.1_3</version>
-        </dependency>
+        </dependency>         
         <!--  Apache commons -->
         <dependency>
             <groupId>commons-lang</groupId>
