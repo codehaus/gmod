@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.RestletFactory;
 import org.restlet.Context;
 import org.restlet.Guard;
 import org.restlet.Restlet;
@@ -107,6 +106,16 @@ public class RestletFactoryTest extends AbstractFactoryTest {
             public Object call(final Object[] args) {
                 ((Response) args[1]).setEntity("helo", MediaType.TEXT_ALL);
                 return null;
+            }
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see groovy.lang.Closure#getParameterTypes()
+             */
+            @Override
+            public Class[] getParameterTypes() {
+                return new Class[] { Request.class, Response.class };
             }
         });
         final Restlet restlet = (Restlet) fixture.newInstance(mockBuilder,

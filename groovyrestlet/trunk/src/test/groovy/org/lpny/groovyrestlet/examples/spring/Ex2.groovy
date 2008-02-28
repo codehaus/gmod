@@ -3,7 +3,7 @@ package org.lpny.gr.examples.spring
 def comp = builder.component(){
     application(uri:""){
         router{
-            resource(uri:"/orders", ofClass:"org.lpny.gr.example.spring.OrdersResource")
+            resource(uri:"/orders", ofClass:"org.lpny.groovyrestlet.example.spring.OrdersResource")
         }
     }
 }

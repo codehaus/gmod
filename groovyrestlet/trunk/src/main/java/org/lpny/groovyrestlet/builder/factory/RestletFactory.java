@@ -6,14 +6,7 @@ package org.lpny.groovyrestlet.builder.factory;
 import groovy.lang.Closure;
 import groovy.util.FactoryBuilderSupport;
 
-import java.lang.reflect.Method;
 import java.util.Map;
-
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.CallbackFilter;
-import net.sf.cglib.proxy.Dispatcher;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.InvocationHandler;
 
 import org.restlet.Component;
 import org.restlet.Guard;
@@ -78,58 +71,26 @@ public class RestletFactory extends AbstractFactory {
     protected Object newInstanceInner(final FactoryBuilderSupport builder,
             final Object name, final Object value, final Map attributes)
             throws InstantiationException, IllegalAccessException {
-        return new Restlet(FactoryUtils.getParentRestletContext(builder));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected Object postNewInstance(final Object instance,
-            final FactoryBuilderSupport builder, final Object name,
-            final Object value, final Map attributes)
-            throws InstantiationException, IllegalAccessException {
         final Closure handler = (Closure) builder.getContext().get(HANDLE);
         if (handler == null) {
-            return instance;
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("To enhance {}", instance);
-        }
-        final Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(Restlet.class);
-        enhancer.setCallbackFilter(new CallbackFilter() {
-            public int accept(final Method method) {
-                try {
-                    if (method.equals(Restlet.class.getMethod("handle",
-                            Request.class, Response.class))) {
-                        return 1;
-                    }
-                } catch (final Exception e) {
-                    throw new RuntimeException(e);
-                }
-                return 0;
-            }
-        });
-        enhancer.setCallbacks(new Callback[] { new Dispatcher() {
+            return new Restlet(FactoryUtils.getParentRestletContext(builder));
+        } else {
+            return new Restlet(FactoryUtils.getParentRestletContext(builder)) {
 
-            public Object loadObject() throws Exception {
-                return instance;
-            }
-        }, new InvocationHandler() {
-            public Object invoke(final Object proxy, final Method method,
-                    final Object[] args) throws Throwable {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Invoke Method {} on Proxy {}", new Object[] {
-                            method, proxy });
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see org.restlet.Restlet#handle(org.restlet.data.Request,
+                 *      org.restlet.data.Response)
+                 */
+                @Override
+                public void handle(final Request request,
+                        final Response response) {
+                    handler.call(FactoryUtils.packArgs(this, handler, request,
+                            response));
                 }
-                return handler.call(args);
-            }
-        } });
-
-        final Object newIns = enhancer.create();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Enhanced: {}", newIns);
+            };
         }
-        return newIns;
     }
 
     @Override
