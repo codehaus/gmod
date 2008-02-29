@@ -9,6 +9,7 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.Map;
 
 import org.restlet.Filter;
+import org.restlet.Restlet;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 
@@ -20,8 +21,9 @@ import org.restlet.data.Response;
  * @since 0.1
  */
 public class FilterFactory extends RestletFactory {
-    protected static final String AFTER = "after";
+    protected static final String AFTER  = "after";
     protected static final String BEFORE = "before";
+
     protected static final String HANDLE = "handle";
 
     public FilterFactory() {
@@ -72,5 +74,22 @@ public class FilterFactory extends RestletFactory {
             }
 
         };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.lpny.groovyrestlet.builder.factory.AbstractFactory#setChildInner(groovy.util.FactoryBuilderSupport,
+     *      java.lang.Object, java.lang.Object)
+     */
+    @Override
+    protected Object setChildInner(final FactoryBuilderSupport builder,
+            final Object parent, final Object child) {
+        if (child != null) {
+            if (child instanceof Restlet) {
+                ((Filter) parent).setNext((Restlet) child);
+            }
+        }
+        return null;
     }
 }

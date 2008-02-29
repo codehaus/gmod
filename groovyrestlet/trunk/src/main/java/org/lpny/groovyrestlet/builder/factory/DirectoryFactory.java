@@ -30,6 +30,16 @@ public class DirectoryFactory extends RestletFactory {
         super("directory");
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see groovy.util.AbstractFactory#isLeaf()
+     */
+    @Override
+    public boolean isLeaf() {
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected Object newInstanceInner(final FactoryBuilderSupport builder,

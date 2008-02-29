@@ -14,11 +14,6 @@ import org.slf4j.LoggerFactory;
 /**
  * ComponentFactory to create {@link Component}. <br/>
  * 
- * 
- * 
- * 
- * 
- * 
  * @author keke
  * @reversion $Revision$
  * @version
