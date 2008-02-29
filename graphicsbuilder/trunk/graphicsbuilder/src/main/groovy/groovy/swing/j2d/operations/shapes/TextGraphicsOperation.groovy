@@ -31,7 +31,15 @@ import groovy.swing.j2d.operations.misc.FontGraphicsOperation
  */
 public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
     static required = ['text','x','y']
-    static optional = super.optional + ['spacing']
+    static optional = super.optional + ['spacing','halign','valign']
+
+    public static final int LEFT = 0
+    public static final int CENTER = 1
+    public static final int RIGHT = 2
+    public static final int TOP = 0
+    public static final int MIDDLE = 1
+    public static final int BASELINE = 2
+    public static final int BOTTOM = 3
 
     private Shape outline
 
@@ -39,6 +47,8 @@ public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
     def x = 0
     def y = 0
     def spacing = 0
+    def halign = 'left'
+    def valign = 'bottom'
 
     TextGraphicsOperation() {
         super( "text" )
@@ -69,22 +79,105 @@ public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
            }
         }
 
-        def frc = g.getFontRenderContext()
-        def fm = g.fontMetrics
-
         def t = text.split(/\n/)
-        def layout = new TextLayout( t[0], g.font, frc )
-        def dy = fm.ascent*2 - fm.height
-        outline = new Area(layout.getOutline( AffineTransform.getTranslateInstance( x, y + dy ) ))
-
-        if( t.size() > 1 ){
-           t[1..-1].inject(y+fm.ascent) { ny, txt ->
-              layout = new TextLayout( txt, g.font, frc )
-              def py = ny + spacing + dy
-              def s = new Area(layout.getOutline(AffineTransform.getTranslateInstance(x,py)))
-              outline.add( s )
-              return ny + spacing + fm.ascent
-           }
+        if( t.size() == 1 ){
+           // single row text
+           calculateSingleRowOutline( context )
+        }else{
+           // multiple row text
+           calculateMultipleRowOutline( context, t )
         }
+    }
+
+    private void calculateSingleRowOutline( GraphicsContext context ) {
+       def g = context.g
+       def frc = g.getFontRenderContext()
+       def fm = g.fontMetrics
+
+       def layout = new TextLayout( text, g.font, frc )
+
+       def dx = 0
+       def dy = 0
+       def sb = fm.getStringBounds(text,g)
+
+       switch( getHalignValue() ){
+          case LEFT: dx = x; break;
+          case CENTER: dx = x - sb.width/2; break;
+          case RIGHT: dx = x - sb.width; break;
+       }
+
+       switch( getValignValue() ){
+          case BOTTOM: dy = y + fm.ascent*2 - fm.height; break;
+          case MIDDLE: dy = y + fm.height - fm.ascent; break;
+          case TOP: dy = y - fm.height + fm.ascent; break;
+          case BASELINE: dy = y; break;
+       }
+
+       outline = layout.getOutline( AffineTransform.getTranslateInstance( dx, dy ) )
+    }
+
+    private void calculateMultipleRowOutline( GraphicsContext context, rows ) {
+       def g = context.g
+       def frc = g.getFontRenderContext()
+       def fm = g.fontMetrics
+
+       def layout = new TextLayout( rows[0], g.font, frc )
+       def dy = fm.ascent*2 - fm.height
+       outline = new Area(layout.getOutline( AffineTransform.getTranslateInstance( x, y + dy ) ))
+
+       if( rows.size() > 1 ){
+          rows[1..-1].inject(y+fm.ascent) { ny, txt ->
+             layout = new TextLayout( txt, g.font, frc )
+             def py = ny + spacing + dy
+             def s = new Area(layout.getOutline(AffineTransform.getTranslateInstance(x,py)))
+             outline.add( s )
+             return ny + spacing + fm.ascent
+          }
+       }
+
+       def dx = 0
+       def sb = outline.bounds2D
+
+       switch( getHalignValue() ){
+          case LEFT: dx = 0; break;
+          case CENTER: dx = 0 - sb.width/2; break;
+          case RIGHT: dx = 0 - sb.width; break;
+       }
+
+       switch( getValignValue() ){
+          case BOTTOM: dy = 0; break;
+          case BASELINE:
+          case MIDDLE: dy = 0 - sb.height/2; break;
+          case TOP: dy = 0 - sb.height; break;
+       }
+
+       outline = AffineTransform.getTranslateInstance(dx,dy).createTransformedShape(outline)
+    }
+
+    private def getHalignValue(){
+       if( !halign ) return LEFT
+       if( halign instanceof Number ){
+          return halign.intValue()
+       }
+       switch( halign ){
+          case "left": return LEFT
+          case "center": return CENTER
+          case "right": return RIGHT
+       }
+       return LEFT
+    }
+
+    private def getValignValue(){
+       if( !valign ) return BOTTOM
+       if( valign instanceof Number ){
+          return halign.intValue()
+       }
+       switch( valign ){
+          case "top": return TOP
+          case "middle": return MIDDLE
+          case "baseline": return BASELINE
+          case "bottom": return BOTTOM
+       }
+       return BOTTOM
     }
 }

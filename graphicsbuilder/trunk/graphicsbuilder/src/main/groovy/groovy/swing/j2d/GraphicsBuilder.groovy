@@ -269,6 +269,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         addShortcut( 'cross', 'radius', 'r' )
         addShortcut( 'cross', 'width', 'w' )
         addShortcut( 'text', 'text', 't' )
+        addShortcut( 'text', 'halign', 'ha' )
+        addShortcut( 'text', 'valign', 'va' )
 
         addShortcut( 'roundRect', 'topLeftHeight', 'tlh' )
         addShortcut( 'roundRect', 'topLeftWidth', 'tlw' )
