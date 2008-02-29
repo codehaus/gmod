@@ -8,7 +8,6 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.RedirectorFactory;
 import org.restlet.Redirector;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -27,6 +26,7 @@ public class RedirectorFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new RedirectorFactory();
+        assert fixture.getName().equals("redirector");
     }
 
     public void testNewInstance() throws InstantiationException,

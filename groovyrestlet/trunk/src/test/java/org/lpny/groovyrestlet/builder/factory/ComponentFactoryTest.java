@@ -5,7 +5,6 @@ package org.lpny.groovyrestlet.builder.factory;
 
 import java.util.HashMap;
 
-import org.lpny.groovyrestlet.builder.factory.ComponentFactory;
 import org.restlet.Component;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -23,6 +22,7 @@ public class ComponentFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new ComponentFactory();
+        assert fixture.getName().equals("component");
     }
 
     @Test(groups = { "unittest" })

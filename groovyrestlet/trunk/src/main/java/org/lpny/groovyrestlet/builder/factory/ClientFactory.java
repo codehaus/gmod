@@ -44,7 +44,7 @@ public class ClientFactory extends RestletFactory {
      * 
      */
     public ClientFactory() {
-        super();
+        super("client");
     }
 
     @SuppressWarnings("unchecked")
@@ -54,7 +54,8 @@ public class ClientFactory extends RestletFactory {
             throws InstantiationException, IllegalAccessException {
         final List<Protocol> protocols = FactoryUtils.extractProtocols(value,
                 attributes);
-        return new Client(FactoryUtils.getParentRestletContext(builder), protocols);
+        return new Client(FactoryUtils.getParentRestletContext(builder),
+                protocols);
     }
 
 }

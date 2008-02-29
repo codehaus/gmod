@@ -29,15 +29,19 @@ import org.restlet.data.ChallengeScheme;
  */
 public class GuardFactory extends RestletFactory {
     private static final ChallengeScheme NONE_SCHEME = ChallengeScheme
-                                                             .valueOf("None");
+            .valueOf("None");
     /**
      * <b>Attribute</b>: Guard Realm
      */
-    protected static final String        REALM       = "realm";
+    protected static final String REALM = "realm";
     /**
      * <b>Attribute:</b> Guard challengeSchema
      */
-    protected static final String        SCHEME      = "scheme";
+    protected static final String SCHEME = "scheme";
+
+    public GuardFactory() {
+        super("guard");
+    }
 
     /*
      * (non-Javadoc)

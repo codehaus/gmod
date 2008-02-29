@@ -8,7 +8,6 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.GuardFactory;
 import org.restlet.Guard;
 import org.restlet.data.ChallengeScheme;
 import org.testng.annotations.BeforeTest;
@@ -28,6 +27,7 @@ public class GuardFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new GuardFactory();
+        assert fixture.getName().equals("guard");
     }
 
     public void testNewInstance() throws InstantiationException,

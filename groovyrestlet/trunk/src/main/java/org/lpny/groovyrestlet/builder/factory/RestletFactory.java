@@ -50,13 +50,18 @@ import org.slf4j.LoggerFactory;
  */
 public class RestletFactory extends AbstractFactory {
 
-    private static final Logger   LOG    = LoggerFactory
-                                                 .getLogger(RestletFactory.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(RestletFactory.class);
 
     protected static final String HANDLE = "handle";
 
     public RestletFactory() {
-        super();
+        this("restlet");
+
+    }
+
+    protected RestletFactory(final String name) {
+        super(name);
         addFilter(HANDLE);
     }
 

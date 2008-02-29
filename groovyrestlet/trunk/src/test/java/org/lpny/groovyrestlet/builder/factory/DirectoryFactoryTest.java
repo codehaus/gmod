@@ -8,7 +8,6 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.DirectoryFactory;
 import org.restlet.Directory;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -27,6 +26,7 @@ public class DirectoryFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new DirectoryFactory();
+        assert fixture.getName().equals("directory");
     }
 
     public void testNewInstance() throws InstantiationException,

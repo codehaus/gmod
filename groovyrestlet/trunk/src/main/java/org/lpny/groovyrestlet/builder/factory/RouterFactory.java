@@ -19,7 +19,7 @@ import org.restlet.Router;
 public class RouterFactory extends RestletFactory {
 
     public RouterFactory() {
-        super();
+        super("router");
     }
 
     @SuppressWarnings("unchecked")

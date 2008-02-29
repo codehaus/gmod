@@ -7,7 +7,6 @@ import groovy.util.FactoryBuilderSupport;
 
 import java.util.HashMap;
 
-import org.lpny.groovyrestlet.builder.factory.ApplicationFactory;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.testng.annotations.BeforeTest;
@@ -27,6 +26,7 @@ public class ApplicationFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new ApplicationFactory();
+        assert fixture.getName().equals("application");
     }
 
     @Test(groups = { "unittest" })

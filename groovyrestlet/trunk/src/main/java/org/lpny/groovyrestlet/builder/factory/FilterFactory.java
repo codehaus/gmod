@@ -13,14 +13,20 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 
 /**
- * @author keke
+ * @author keke <keke@codehaus.org>
+ * 
  * @reversion $Revision$
  * @version 0.1
  * @since 0.1
  */
 public class FilterFactory extends RestletFactory {
-    protected static final String AFTER  = "after";
+    protected static final String AFTER = "after";
     protected static final String BEFORE = "before";
+    protected static final String HANDLE = "handle";
+
+    public FilterFactory() {
+        super("filter");
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -29,6 +35,7 @@ public class FilterFactory extends RestletFactory {
             throws InstantiationException, IllegalAccessException {
         final Closure before = (Closure) attributes.remove(BEFORE);
         final Closure after = (Closure) attributes.remove(AFTER);
+        final Closure handle = (Closure) attributes.remove(HANDLE);
         return new Filter(FactoryUtils.getParentRestletContext(builder)) {
 
             @Override
@@ -50,6 +57,17 @@ public class FilterFactory extends RestletFactory {
                             response));
                 } else {
                     super.beforeHandle(request, response);
+                }
+            }
+
+            @Override
+            protected void doHandle(final Request request,
+                    final Response response) {
+                if (handle != null) {
+                    handle.call(FactoryUtils.packArgs(this, handle, request,
+                            response));
+                } else {
+                    super.doHandle(request, response);
                 }
             }
 

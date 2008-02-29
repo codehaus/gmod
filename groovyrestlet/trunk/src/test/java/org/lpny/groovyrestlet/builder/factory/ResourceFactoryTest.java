@@ -9,8 +9,6 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.ResourceFactory;
-import org.lpny.groovyrestlet.builder.factory.SpringFinder;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.Representation;
@@ -33,6 +31,7 @@ public class ResourceFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new ResourceFactory();
+        assert fixture.getName().equals("resource");
     }
 
     @Test(groups = { "unittest" })

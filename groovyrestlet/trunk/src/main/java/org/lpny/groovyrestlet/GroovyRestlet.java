@@ -91,6 +91,8 @@ public class GroovyRestlet implements ApplicationContextAware {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("To build from {}", scriptURI);
             }
+            // Initialize builder if it has not beed done.
+            getBuilder().init();
             shell.getContext().setVariable("springContext", springContext);
             getBuilder().setVariable("springContext", springContext);
             shell.getContext().setVariable("builder", builder);

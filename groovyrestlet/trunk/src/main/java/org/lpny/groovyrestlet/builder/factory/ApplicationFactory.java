@@ -24,7 +24,7 @@ public class ApplicationFactory extends RestletFactory {
             .getLogger(ApplicationFactory.class);
 
     public ApplicationFactory() {
-        super();
+        super("application");
     }
 
     /*

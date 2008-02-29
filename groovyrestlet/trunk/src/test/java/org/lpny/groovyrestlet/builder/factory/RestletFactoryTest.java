@@ -33,6 +33,7 @@ public class RestletFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new RestletFactory();
+        assert fixture.getName().equals("restlet");
     }
 
     @Test(groups = { "unittest" })

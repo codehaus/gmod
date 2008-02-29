@@ -27,7 +27,7 @@ public class DirectoryFactory extends RestletFactory {
     protected static final String ROOT = "root";
 
     public DirectoryFactory() {
-        super();
+        super("directory");
     }
 
     @SuppressWarnings("unchecked")
@@ -45,8 +45,8 @@ public class DirectoryFactory extends RestletFactory {
             }
         }
         Validate.notNull(root, "Root should not be null");
-        return new Directory(FactoryUtils.getParentRestletContext(builder), new File(root).toURI()
-                .toString());
+        return new Directory(FactoryUtils.getParentRestletContext(builder),
+                new File(root).toURI().toString());
     }
 
 }

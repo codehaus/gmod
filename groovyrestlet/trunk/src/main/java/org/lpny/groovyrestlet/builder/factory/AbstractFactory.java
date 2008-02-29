@@ -23,23 +23,33 @@ import org.springframework.context.ApplicationContext;
  * @since 0.1.0
  */
 public abstract class AbstractFactory extends groovy.util.AbstractFactory {
-    private static final Logger   LOG            = LoggerFactory
-                                                         .getLogger(AbstractFactory.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(AbstractFactory.class);
 
-    protected static final String AUTO_ATTACH    = "autoAttach";
-    protected static final String CONS_ARG       = "consArgs";
-    protected static final String OF_BEAN        = "ofBean";
-    protected static final String OF_CLASS       = "ofClass";
-    protected static final String POST_ATTACH    = "postAttach";
+    protected static final String AUTO_ATTACH = "autoAttach";
+    protected static final String CONS_ARG = "consArgs";
+    protected static final String OF_BEAN = "ofBean";
+    protected static final String OF_CLASS = "ofClass";
+    protected static final String POST_ATTACH = "postAttach";
     protected static final String SPRING_CONTEXT = "springContext";
-    protected static final String URI            = "uri";
+    protected static final String URI = "uri";
 
     private final List<String> filters = new ArrayList<String>();
+    protected String name;
 
     public AbstractFactory() {
+        this(null);
+    }
+
+    public AbstractFactory(final String name) {
         super();
+        this.name = name;
         addFilter(OF_BEAN).addFilter(OF_CLASS).addFilter(URI).addFilter(
                 CONS_ARG).addFilter(AUTO_ATTACH).addFilter(POST_ATTACH);
+    }
+
+    public String getName() {
+        return name;
     }
 
     /*

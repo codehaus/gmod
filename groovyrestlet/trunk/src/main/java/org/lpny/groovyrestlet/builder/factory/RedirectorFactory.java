@@ -20,7 +20,7 @@ import org.restlet.Redirector;
 public class RedirectorFactory extends RestletFactory {
 
     public RedirectorFactory() {
-        super();
+        super("redirector");
     }
 
     @SuppressWarnings("unchecked")

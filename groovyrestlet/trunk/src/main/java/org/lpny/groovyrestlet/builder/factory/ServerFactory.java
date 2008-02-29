@@ -45,7 +45,7 @@ public class ServerFactory extends RestletFactory {
      * 
      */
     public ServerFactory() {
-        super();
+        super("server");
     }
 
     @SuppressWarnings("unchecked")
@@ -57,8 +57,8 @@ public class ServerFactory extends RestletFactory {
                 attributes);
         final String address = (String) attributes.remove(ADDRESS);
         final Integer port = (Integer) attributes.remove(PORT);
-        return new Server(FactoryUtils.getParentRestletContext(builder), protocols, address, port,
-                null);
+        return new Server(FactoryUtils.getParentRestletContext(builder),
+                protocols, address, port, null);
     }
 
     @Override

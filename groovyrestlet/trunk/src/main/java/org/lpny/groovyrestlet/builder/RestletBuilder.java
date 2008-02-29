@@ -5,6 +5,9 @@ package org.lpny.groovyrestlet.builder;
 
 import groovy.util.FactoryBuilderSupport;
 
+import java.util.List;
+
+import org.lpny.groovyrestlet.builder.factory.AbstractFactory;
 import org.lpny.groovyrestlet.builder.factory.ApplicationFactory;
 import org.lpny.groovyrestlet.builder.factory.ClientFactory;
 import org.lpny.groovyrestlet.builder.factory.ComponentFactory;
@@ -29,23 +32,48 @@ import org.slf4j.LoggerFactory;
  */
 public class RestletBuilder extends FactoryBuilderSupport {
     private static final Logger LOG = LoggerFactory
-                                            .getLogger(RestletBuilder.class);
+            .getLogger(RestletBuilder.class);
+    private boolean initialized = false;
 
     public RestletBuilder() {
         super();
-        registerFactories();
+    }
+
+    public void init() {
+        if (!initialized) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No factory was registered, register all defaults");
+            }
+            registerFactories();
+            initialized = true;
+        }
+    }
+
+    /**
+     * 
+     * @param factories
+     */
+    public void setFactories(final List<AbstractFactory> factories) {
+        for (final AbstractFactory factory : factories) {
+            registerFactory(factory.getName(), factory);
+        }
+        initialized = true;
     }
 
     private void registerFactories() {
-        registerFactory("component", new ComponentFactory());
-        registerFactory("application", new ApplicationFactory());
-        registerFactory("restlet", new RestletFactory());
-        registerFactory("resource", new ResourceFactory());
-        registerFactory("router", new RouterFactory());
-        registerFactory("directory", new DirectoryFactory());
-        registerFactory("client", new ClientFactory());
-        registerFactory("server", new ServerFactory());
-        registerFactory("guard", new GuardFactory());
-        registerFactory("redirector", new RedirectorFactory());
+        registerFactory(new ComponentFactory());
+        registerFactory(new ApplicationFactory());
+        registerFactory(new RestletFactory());
+        registerFactory(new ResourceFactory());
+        registerFactory(new RouterFactory());
+        registerFactory(new DirectoryFactory());
+        registerFactory(new ClientFactory());
+        registerFactory(new ServerFactory());
+        registerFactory(new GuardFactory());
+        registerFactory(new RedirectorFactory());
+    }
+
+    private void registerFactory(final AbstractFactory factory) {
+        registerFactory(factory.getName(), factory);
     }
 }

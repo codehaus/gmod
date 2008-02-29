@@ -8,7 +8,6 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.RouterFactory;
 import org.restlet.Router;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -27,6 +26,7 @@ public class RouterFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new RouterFactory();
+        assert fixture.getName().equals("router");
     }
 
     public void testNewInstance() throws InstantiationException,

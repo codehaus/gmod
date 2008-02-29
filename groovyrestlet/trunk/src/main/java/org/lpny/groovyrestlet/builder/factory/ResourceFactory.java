@@ -34,22 +34,22 @@ import org.springframework.context.ApplicationContext;
  * @see Router
  */
 public class ResourceFactory extends AbstractFactory {
-    private static final Logger   LOG       = LoggerFactory
-                                                    .getLogger(ResourceFactory.class);
-    protected static final String ACCEPT    = "accept";
-    protected static final String HEAD      = "head";
-    protected static final String INIT      = "init";
-    protected static final String OPTIONS   = "options";
-    protected static final String REMOVE    = "remove";
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ResourceFactory.class);
+    protected static final String ACCEPT = "accept";
+    protected static final String HEAD = "head";
+    protected static final String INIT = "init";
+    protected static final String OPTIONS = "options";
+    protected static final String REMOVE = "remove";
     protected static final String REPRESENT = "represent";
 
-    protected static final String STORE     = "store";
+    protected static final String STORE = "store";
 
     /**
      * Constructor.
      */
     public ResourceFactory() {
-        super();
+        super("resource");
         addFilter(REMOVE).addFilter(REPRESENT).addFilter(OPTIONS).addFilter(
                 ACCEPT).addFilter(STORE).addFilter(HEAD).addFilter(INIT);
     }

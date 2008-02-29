@@ -6,7 +6,6 @@ package org.lpny.groovyrestlet.builder.factory;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lpny.groovyrestlet.builder.factory.ServerFactory;
 import org.restlet.Server;
 import org.restlet.data.Protocol;
 import org.testng.annotations.BeforeTest;
@@ -26,6 +25,7 @@ public class ServerFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new ServerFactory();
+        assert fixture.getName().equals("server");
     }
 
     @Test(groups = { "unittest" })

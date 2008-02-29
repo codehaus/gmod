@@ -27,7 +27,7 @@ public class ComponentFactory extends RestletFactory {
     static final Logger LOG = LoggerFactory.getLogger(ComponentFactory.class);
 
     public ComponentFactory() {
-        super();
+        super("component");
     }
 
     @SuppressWarnings("unchecked")

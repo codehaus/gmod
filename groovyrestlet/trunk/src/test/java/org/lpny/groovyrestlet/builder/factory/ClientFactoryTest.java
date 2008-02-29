@@ -8,7 +8,6 @@ import groovy.util.FactoryBuilderSupport;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.lpny.groovyrestlet.builder.factory.ClientFactory;
 import org.restlet.Client;
 import org.restlet.data.Protocol;
 import org.testng.annotations.BeforeTest;
@@ -29,6 +28,7 @@ public class ClientFactoryTest extends AbstractFactoryTest {
     @Test(groups = { "unittest" })
     public void construct() {
         fixture = new ClientFactory();
+        assert fixture.getName().equals("client");
     }
 
     public void testNewInstance() throws InstantiationException,
