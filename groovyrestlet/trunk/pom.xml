@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.codehaus.groovy-contrib</groupId>
     <artifactId>groovy-restlet</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <description>Groovy Restlet</description>
     <name>GroovyRestlet</name>
     <properties>
