@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.codehaus.groovy-contrib</groupId>
     <artifactId>groovy-restlet</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <description>Groovy Restlet</description>
     <name>GroovyRestlet</name>
     <properties>
-        <restlet.version>1.1-SNAPSHOT</restlet.version>
+        <restlet.version>1.1-M2</restlet.version>
         <spring.version>2.5.1</spring.version>
         <slf4j.version>1.4.3</slf4j.version>
     </properties>

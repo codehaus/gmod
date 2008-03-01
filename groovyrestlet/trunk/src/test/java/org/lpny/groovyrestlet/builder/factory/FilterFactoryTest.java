@@ -23,46 +23,46 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "unittest" })
 public class FilterFactoryTest extends AbstractFactoryTest {
-    private FilterFactory fixture;
+	private FilterFactory	fixture;
 
-    @BeforeTest(groups = { "unittest" })
-    @Test(groups = { "unittest" })
-    public void construct() {
-        fixture = new FilterFactory();
-        assert fixture.getName().equals("filter");
-    }
+	@BeforeTest(groups = { "unittest" })
+	@Test(groups = { "unittest" })
+	public void construct() {
+		fixture = new FilterFactory();
+		assert fixture.getName().equals("filter");
+	}
 
-    public void testNewInstance() throws InstantiationException,
-            IllegalAccessException {
-        final FactoryBuilderSupport builder = createMockBuilder();
-        final Map attributes = new HashMap();
-        final Filter filter = (Filter) fixture.newInstance(builder, "filter",
-                null, attributes);
-        assert filter != null;
-    }
+	public void testNewInstance() throws InstantiationException,
+	        IllegalAccessException {
+		final FactoryBuilderSupport builder = createMockBuilder();
+		final Map attributes = new HashMap();
+		final Filter filter = (Filter) fixture.newInstance(builder, "filter",
+		        null, attributes);
+		assert filter != null;
+	}
 
-    public void testNewInstanceWithClosure() throws InstantiationException,
-            IllegalAccessException {
-        final FactoryBuilderSupport builder = createMockBuilder();
-        final Map attributes = new HashMap();
-        final AtomicBoolean beforeCalled = new AtomicBoolean(false);
-        attributes.put("before", new Closure(this) {
+	public void testNewInstanceWithClosure() throws InstantiationException,
+	        IllegalAccessException {
+		final FactoryBuilderSupport builder = createMockBuilder();
+		final Map attributes = new HashMap();
+		final AtomicBoolean beforeCalled = new AtomicBoolean(false);
+		attributes.put("before", new Closure(this) {
 
-            @Override
-            public Object call(final Object[] args) {
-                beforeCalled.set(true);
-                return null;
-            }
+			@Override
+			public Object call(final Object[] args) {
+				beforeCalled.set(true);
+				return Filter.CONTINUE;
+			}
 
-            @Override
-            public Class[] getParameterTypes() {
-                return new Class[] { Request.class, Response.class };
-            }
-        });
-        final Filter filter = (Filter) fixture.newInstance(builder, "filter",
-                null, attributes);
-        assert filter != null;
-        filter.handle(new Request());
-        assert beforeCalled.get();
-    }
+			@Override
+			public Class[] getParameterTypes() {
+				return new Class[] { Request.class, Response.class };
+			}
+		});
+		final Filter filter = (Filter) fixture.newInstance(builder, "filter",
+		        null, attributes);
+		assert filter != null;
+		filter.handle(new Request());
+		assert beforeCalled.get();
+	}
 }
