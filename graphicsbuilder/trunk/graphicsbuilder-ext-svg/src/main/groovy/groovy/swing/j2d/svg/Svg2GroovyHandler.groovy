@@ -46,7 +46,7 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
    private void registerFactories(){
       factories.svg = [
          start: { attrs ->
-            out.println("group( borderColor: false ) {")
+            out.println("group( borderColor: 'black' ) {")
             out.incrementIndent()
             def width = attrs.getValue("width")
             def height = attrs.getValue("height")
@@ -221,7 +221,11 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
                "id": this.&idAttributeHandler,
                "fill": this.&fillAttributeHandler,
                "color": this.&borderColorAttributeHandler,
+               "text-anchor": this.&textAnchorAttributeHandler,
             ],["x","y","opacity"])
+            if( textNode.attrs.getIndex("fill") == -1 ){
+                out.print(", fill: yes ")
+            }
             out.println(") {")
             handleStroke( textNode.attrs )
             handleTransformations( textNode.attrs )
@@ -335,6 +339,15 @@ public class Svg2GroovyHandler extends GfxSAXHandler {
 
    private String borderWidthAttributeHandler( String property, value ){
       return " borderWidth: ${normalize(value)},"
+   }
+
+   private String textAnchorAttributeHandler( String property, value ){
+      def v = "center"
+      switch( value ){
+         case "start": v = "left"; break;
+         case "end": v = "right"; break;
+      }
+      return " valign: 'baseline', halign: '$v',"
    }
 
    private String normalize( number ){

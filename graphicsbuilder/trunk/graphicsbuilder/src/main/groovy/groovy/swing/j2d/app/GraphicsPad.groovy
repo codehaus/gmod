@@ -42,6 +42,7 @@ class GraphicsPad extends Binding implements CaretListener {
 
     private def swing
     private def gb
+    private def gr
     private def runThread = null
 
     private boolean dirty
@@ -73,7 +74,8 @@ class GraphicsPad extends Binding implements CaretListener {
 
     GraphicsPad(){
        buildUI()
-       gb = new GraphicsBuilder()
+       gr = new GraphicsRenderer()
+       gb = gr.gb
     }
 
     public void run(){
@@ -153,6 +155,68 @@ class GraphicsPad extends Binding implements CaretListener {
             return false
         }
     }
+
+    void showSaveAsImageDialog(EventObject evt = null) {
+       if( !inputArea.text ) return
+       saveAsImageDialog.pack()
+       int x = frame.x + (frame.width - runWaitDialog.width) / 2
+       int y = frame.y + (frame.height - runWaitDialog.height) / 2
+       saveAsImageDialog.setLocation(x, y)
+       saveAsImageDialog.show()
+    }
+
+    void cancelSaveAsImage(EventObject evt = null) {
+       swing.imageWidth.text = ""
+       swing.imageHeight.text = ""
+       swing.imageFile.text = ""
+       swing.saveAsImageDialog.dispose()
+    }
+
+    void okSaveAsImage(EventObject evt = null) {
+       def iw = swing.imageWidth.text
+       def ih = swing.imageHeight.text
+       def ifn = swing.imageFile.text
+
+       if( !iw ){
+          showAlert("Save as Image","Please type a valid width")
+          return
+       }
+       if( !ih ){
+          showAlert("Save as Image","Please type a valid height")
+          return
+       }
+       if( !ifn ){
+          showAlert("Save as Image","Please select a file")
+          return
+       }
+
+       cancelSaveAsImage(evt)
+       swing.doOutside {
+          def binding = [source:inputArea.text]
+          def template = templateEngine.createTemplate(simple_script_source).make(binding)
+          def script = template.toString()
+          def go = gb.group( [bc:'black'], new GroovyShell().evaluate(script) )
+          if( go.operations.size() ){
+             gr.renderToFile( ifn, iw.toInteger(), ih.toInteger(), go )
+             showMessage("Save as Image", "Succesfully saved image to\n$ifn")
+          }
+       }
+    }
+
+    def showAlert(title, message) {
+       swing.doLater {
+           JOptionPane.showMessageDialog(frame, message,
+                   title, JOptionPane.WARNING_MESSAGE)
+       }
+    }
+
+    def showMessage(title, message) {
+       swing.doLater {
+           JOptionPane.showMessageDialog(frame, message,
+                   title, JOptionPane.INFORMATION_MESSAGE)
+       }
+    }
+
 
     boolean fileExport(EventObject evt = null) {
         scriptFile = selectFilename("Export")

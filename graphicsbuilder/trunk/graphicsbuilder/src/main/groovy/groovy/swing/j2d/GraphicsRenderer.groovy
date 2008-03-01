@@ -306,12 +306,21 @@ final class GraphicsRenderer {
      */
     public File renderToFile( String filename, BufferedImage dst, Rectangle clip, GraphicsOperation go ){
        def fileSeparator = "/" /*System.getProperty("file.separator")*/
-       def dirs = filename[0..(filename.lastIndexOf(fileSeparator)-1)]
-       def fname = filename[(filename.lastIndexOf(fileSeparator)+1)..-1]
-       def extension = fname[(fname.lastIndexOf(".")+1)..-1]
-       File parent = new File(dirs)
-       parent.mkdirs()
-       File file = new File(parent,fname)
+       def file = null
+       def extension = "png"
+
+       if( filename.lastIndexOf(fileSeparator) != -1 ){
+          def dirs = filename[0..(filename.lastIndexOf(fileSeparator)-1)]
+          def fname = filename[(filename.lastIndexOf(fileSeparator)+1)..-1]
+          extension = fname[(fname.lastIndexOf(".")+1)..-1]
+          File parent = new File(dirs)
+          parent.mkdirs()
+          file = new File(parent,fname)
+       }else{
+          file = new File(filename)
+          extension = filename[(filename.lastIndexOf(".")+1)..-1]
+       }
+
        ImageIO.write( render( dst, clip, go ), extension, file )
        return file
     }
@@ -323,7 +332,7 @@ final class GraphicsRenderer {
        }else{
           for( gd in ge.getScreenDevices() ){
              GraphicsConfiguration[] gc = gd.configurations
-             return gc[0].createCompatibleImage( width as int, height as int, Transparency.BITMASK as int )
+             return gc[0].createCompatibleImage( width as int, height as int, Transparency.TRANSLUCENT as int )
           }
        }
        throw new IllegalStateException("Couldn't create BufferedImage")

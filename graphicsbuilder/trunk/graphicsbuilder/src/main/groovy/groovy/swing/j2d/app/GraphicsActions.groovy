@@ -56,9 +56,17 @@ action(id: 'saveAction',
 )
 
 action(id: 'saveAsAction',
-   name: 'Save As...',
+   name: 'Save as...',
    closure: controller.&fileSaveAs,
    mnemonic: 'A',
+)
+
+action(id: 'saveAsImageAction',
+   name: 'Save as Image...',
+   closure: controller.&showSaveAsImageDialog,
+   mnemonic: 'I',
+   accelerator: shortcut('I'),
+   shortDescription: 'Save as Image'
 )
 
 action(id: 'exportAction',

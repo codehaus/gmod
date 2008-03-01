@@ -23,6 +23,7 @@ menuBar {
        separator()
        menuItem(saveAction)
        menuItem(saveAsAction)
+       menuItem(saveAsImageAction)
        menuItem(exportAction)
        separator()
        menuItem(exitAction)

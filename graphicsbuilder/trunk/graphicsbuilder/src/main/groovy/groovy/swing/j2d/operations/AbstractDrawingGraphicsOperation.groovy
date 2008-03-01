@@ -199,7 +199,18 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
                 applyPaint( context, shape, pp )
              }else{
                 // use current settings on context
+                def previousColor = null
+                def bc = getBorderColor( context )
+                if( bc ){
+                   previousColor = g.color
+                   if( bc instanceof String ){
+                       g.color = ColorCache.getInstance().getColor( bc )
+                   }else if( bc instanceof Color ){
+                       g.color = bc
+                   }
+                }
                 applyFill( context, shape )
+                if( previousColor ) g.color = previousColor
              }
           }
        }else{
@@ -406,8 +417,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def o = opacity
        if( context.groupContext?.opacity != null ){
           o = context.groupContext?.opacity
-          // group already applied opacity settings      
-          return null      
+          // group already applied opacity settings
+          return null
        }
        if( opacity != null ){
           o = opacity

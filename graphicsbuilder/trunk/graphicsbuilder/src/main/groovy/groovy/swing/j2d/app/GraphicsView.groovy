@@ -61,6 +61,36 @@ frame( title: "GraphicsPad", size: [1024,800],
              )
           }
        }
+
+   dialog(title: 'Save as Image', id: 'saveAsImageDialog', modal: true ) {
+       panel {
+          borderLayout()
+          panel( constraints: BorderLayout.CENTER ){
+             vbox {
+                hbox {
+                   label( 'File:' )
+                   textField( id: 'imageFile', columns: 40 )
+                   button( 'Browse...', actionPerformed: {e->
+                      def filename = controller.selectFilename()
+                      if( filename ) imageFile.text = filename
+                   })
+                }
+                vstrut()
+                hbox {
+                   label( 'Width:' )
+                   textField( id: 'imageWidth', columns: 10 )
+                   hstrut()
+                   label( 'Height:' )
+                   textField( id: 'imageHeight', columns: 10 )
+                }
+             }
+          }
+          panel( constraints: BorderLayout.SOUTH ) {
+             button( 'Cancel', actionPerformed: controller.&cancelSaveAsImage )
+             button( 'Ok', actionPerformed: controller.&okSaveAsImage )
+          }
+       }
+   }
 }
 
 // add the window close handler
@@ -73,6 +103,7 @@ controller.status = status
 controller.view = view
 controller.frame = graphicsFrame
 controller.runWaitDialog = runWaitDialog
+controller.saveAsImageDialog = saveAsImageDialog
 controller.rowNumAndColNum = rowNumAndColNum
 controller.toolbar = toolbar
 controller.error = error

@@ -62,6 +62,7 @@ menuBar {
        separator()
        menuItem(saveAction)
        menuItem(saveAsAction)
+       menuItem(saveAsImageAction)
        menuItem(exportAction)
    }
 
