@@ -22,6 +22,7 @@ import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.TransformationGroup
 import groovy.swing.j2d.operations.AbstractNestingGraphicsOperation
+import groovy.swing.j2d.operations.ViewBox
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
@@ -37,6 +38,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     private def gcopy
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
+    ViewBox viewBox
 
     // properties
     def borderColor
@@ -46,6 +48,20 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     public GroupGraphicsOperation() {
         super( "group" )
+    }
+
+    public void setViewBox( ViewBox viewBox ){
+       if( viewBox ) {
+          if( this.viewBox ){
+             this.viewBox.removePropertyChangeListener( this )
+          }
+          this.viewBox = viewBox
+          this.viewBox.addPropertyChangeListener( this )
+       }
+    }
+
+    public ViewBox getViewBox() {
+       viewBox
     }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
@@ -78,7 +94,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     public void propertyChange( PropertyChangeEvent event ){
        if( event.source == transformationGroup ||
-           event.source == globalTransformationGroup ){
+           event.source == globalTransformationGroup ||
+           event.source == viewBox ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -90,13 +107,16 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        previousGroupContext.putAll(context.groupContext)
 
        // def o = getOpacity( context )
-       
+
        //if( operations || o != null ){
           gcopy = context.g
           context.g = context.g.create()
+          if( viewBox ){
+             context.g.setClip( viewBox.rectangle )
+          }
           applyOpacity( context )
        //}
-       
+
        if( borderColor != null ) context.groupContext.borderColor = borderColor
        if( borderWidth != null ) context.groupContext.borderWidth = borderWidth
        if( opacity != null ) context.groupContext.opacity = opacity
@@ -132,7 +152,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        }
        go.execute( context )
     }
-    
+
     protected def getOpacity( GraphicsContext context ){
        /*def o = opacity
        if( context.groupContext?.opacity ){

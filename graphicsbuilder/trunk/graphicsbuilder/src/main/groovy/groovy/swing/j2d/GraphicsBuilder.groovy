@@ -117,6 +117,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "antialias", new AntialiasFactory() )
         registerFactory( "\$swing", new SwingFactory() )
         registerFactory( "alphaComposite", new AlphaCompositeFactory() )
+        registerFactory( "viewBox", new ViewBoxFactory() )
 
         //
         // shapes
@@ -247,7 +248,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            addShortcut( nodeName, 'fill', 'f' )
            addShortcut( nodeName, 'opacity', 'o' )
         }
-        ['arc','arrow','roundRect','rect','triangle','texturePaint','balloon'].each { nodeName ->
+        ['arc','arrow','roundRect','rect','triangle','texturePaint','balloon','viewBox'].each { nodeName ->
            addShortcut( nodeName, 'height', 'h' )
            addShortcut( nodeName, 'width', 'w' )
         }
