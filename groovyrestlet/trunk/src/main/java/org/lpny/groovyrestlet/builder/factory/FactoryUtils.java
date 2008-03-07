@@ -25,8 +25,56 @@ import org.springframework.context.ApplicationContext;
  * @revision $Revision$
  */
 public class FactoryUtils {
+    @SuppressWarnings("unchecked")
+    protected static Object createFromSpringContext(
+            final ApplicationContext springContext, final Map context)
+            throws InstantiationException, IllegalAccessException {
+        if (context.containsKey(AbstractFactory.OF_BEAN)) {
+            if (springContext == null) {
+                throw new RuntimeException(
+                        "No Spring Context was specified, \"ofBean\" is not supported! ");
+            }
+            final String beanName = (String) context
+                    .get(AbstractFactory.OF_BEAN);
+            if (SpringFinder.LOG.isDebugEnabled()) {
+                SpringFinder.LOG.debug("To create instance by beanName {}",
+                        beanName);
+            }
+            return springContext.getBean(beanName);
+        }
+        // if user defines ofClass attribute, factory will first try to
+        // check
+        // whether user specifies springContext, if so factory will try
+        // to
+        // create bean using spring autowire bean factory
+        // otherwise will use class.newInstance
+        if (context.containsKey(AbstractFactory.OF_CLASS)) {
+            final Object ofClazz = context.get(AbstractFactory.OF_CLASS);
+            Class<?> beanClass;
+            if (ofClazz.getClass().equals(String.class)) {
+                try {
+                    beanClass = Class.forName((String) ofClazz);
+                } catch (final ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if (ofClazz.getClass().equals(Class.class)) {
+                beanClass = (Class<?>) ofClazz;
+            } else {
+                throw new IllegalArgumentException("Illegal ofClass type "
+                        + ofClazz);
+            }
+
+            return springContext == null ? FactoryUtils
+                    .createInstance(beanClass, (Object[]) context
+                            .get(AbstractFactory.CONS_ARG)) : springContext
+                    .getAutowireCapableBeanFactory().createBean(beanClass,
+                            AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
+                            false);
+        }
+        return null;
+    }
+
     /**
-     * 
      * @param value
      * @param attributes
      * @return
@@ -56,8 +104,10 @@ public class FactoryUtils {
     protected static Context getParentRestletContext(
             final FactoryBuilderSupport builder) {
         Context context = null;
-        if (builder.getParentNode() instanceof Restlet) {
-            context = ((Restlet) builder.getParentNode()).getContext();
+        // final Object parentNode = builder.getParentNode();
+        final Object parentNode = builder.getCurrent();
+        if (parentNode instanceof Restlet) {
+            context = ((Restlet) parentNode).getContext();
         }
         return context;
     }
@@ -65,58 +115,26 @@ public class FactoryUtils {
     @SuppressWarnings("unchecked")
     protected static boolean isAutoAttachEnabled(final Map context) {
         if (context.containsKey(AbstractFactory.AUTO_ATTACH)
-                && !((Boolean) context.get(AbstractFactory.AUTO_ATTACH)).booleanValue()) {
+                && !((Boolean) context.get(AbstractFactory.AUTO_ATTACH))
+                        .booleanValue()) {
             return false;
         }
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    protected static Object createFromSpringContext(
-            final ApplicationContext springContext, final Map context)
-            throws InstantiationException, IllegalAccessException {
-        if (context.containsKey(AbstractFactory.OF_BEAN)) {
-            if (springContext == null) {
-                throw new RuntimeException(
-                        "No Spring Context was specified, \"ofBean\" is not supported! ");
-            }
-            final String beanName = (String) context
-                    .get(AbstractFactory.OF_BEAN);
-            if (SpringFinder.LOG.isDebugEnabled()) {
-                SpringFinder.LOG.debug("To create instance by beanName {}", beanName);
-            }
-            return springContext.getBean(beanName);
+    protected static Object[] packArgs(final Object self,
+            final Closure closure, Object... args) {
+        if (args == null) {
+            args = new Object[0];
         }
-        // if user defines ofClass attribute, factory will first try to
-        // check
-        // whether user specifies springContext, if so factory will try
-        // to
-        // create bean using spring autowire bean factory
-        // otherwise will use class.newInstance
-        if (context.containsKey(AbstractFactory.OF_CLASS)) {
-            final Object ofClazz = context.get(AbstractFactory.OF_CLASS);
-            Class<?> beanClass;
-            if (ofClazz.getClass().equals(String.class)) {
-                try {
-                    beanClass = Class.forName((String) ofClazz);
-                } catch (final ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            } else if (ofClazz.getClass().equals(Class.class)) {
-                beanClass = (Class<?>) ofClazz;
-            } else {
-                throw new IllegalArgumentException("Illegal ofClass type "
-                        + ofClazz);
-            }
-    
-            return springContext == null ? FactoryUtils.createInstance(beanClass,
-                    (Object[]) context.get(AbstractFactory.CONS_ARG))
-                    : springContext.getAutowireCapableBeanFactory().createBean(
-                            beanClass,
-                            AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
-                            false);
+        if (args.length == closure.getParameterTypes().length) {
+            return args;
+        } else {
+            final List<Object> newArgs = new ArrayList<Object>(Arrays
+                    .asList(args));
+            newArgs.add(self);
+            return newArgs.toArray();
         }
-        return null;
     }
 
     static Object createInstance(final Class<?> beanClass, final Object[] args)
@@ -137,22 +155,7 @@ public class FactoryUtils {
         } else {
             return beanClass.newInstance();
         }
-    
-    }
 
-    protected static Object[] packArgs(final Object self,
-            final Closure closure, Object... args) {
-        if (args == null) {
-            args = new Object[0];
-        }
-        if (args.length == closure.getParameterTypes().length) {
-            return args;
-        } else {
-            final List<Object> newArgs = new ArrayList<Object>(Arrays
-                    .asList(args));
-            newArgs.add(self);
-            return newArgs.toArray();
-        }
     }
 
 }
