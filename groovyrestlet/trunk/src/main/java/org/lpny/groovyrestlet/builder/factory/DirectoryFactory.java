@@ -5,11 +5,11 @@ package org.lpny.groovyrestlet.builder.factory;
 
 import groovy.util.FactoryBuilderSupport;
 
-import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.restlet.Directory;
+import org.restlet.data.Reference;
 
 /**
  * Shortcut to create {@link Directory}
@@ -56,7 +56,7 @@ public class DirectoryFactory extends RestletFactory {
         }
         Validate.notNull(root, "Root should not be null");
         return new Directory(FactoryUtils.getParentRestletContext(builder),
-                new File(root).toURI().toString());
+                new Reference(root));
     }
 
 }
