@@ -29,7 +29,7 @@ import org.apache.batik.ext.awt.geom.ExtendedGeneralPath
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
-    protected static optional = super.optional + ['winding','close']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['winding','close']
 
     private List pathOperations = []
     private ExtendedGeneralPath path
