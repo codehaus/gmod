@@ -27,8 +27,8 @@ import static java.lang.Math.*
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['x','y','width']
-    public static optional = super.optional + ['height','rightAngleAt','angle','rotateAtCenter']
+    public static required = AbstractShapeGraphicsOperation.required + ['x','y','width']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['height','rightAngleAt','angle','rotateAtCenter']
 
     private Triangle triangle
 

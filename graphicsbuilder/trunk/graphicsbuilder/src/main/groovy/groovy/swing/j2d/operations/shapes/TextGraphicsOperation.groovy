@@ -31,7 +31,7 @@ import groovy.swing.j2d.operations.misc.FontGraphicsOperation
  */
 public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
     static required = ['text','x','y']
-    static optional = super.optional + ['spacing','halign','valign']
+    static optional = AbstractShapeGraphicsOperation.optional + ['spacing','halign','valign']
 
     public static final int LEFT = 0
     public static final int CENTER = 1

@@ -28,8 +28,8 @@ import static java.lang.Math.*
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class BalloonGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['x','y','width','height','arc','tabWidth']
-    public static optional = super.optional + ['tabHeight','tabLocation','tabDisplacement','anglePosition']
+    public static required = AbstractShapeGraphicsOperation.required + ['x','y','width','height','arc','tabWidth']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['tabHeight','tabLocation','tabDisplacement','anglePosition']
 
     private Balloon balloon
 

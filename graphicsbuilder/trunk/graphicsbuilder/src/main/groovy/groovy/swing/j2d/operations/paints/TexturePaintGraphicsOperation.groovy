@@ -33,7 +33,8 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
-    public static optional = super.optional + ['x','y','width','height','image','classpath','url','file','absolute']
+    public static optional = AbstractPaintingGraphicsOperation.optional + 
+                               ['x','y','width','height','image','classpath','url','file','absolute']
 
     private Paint paint
     protected Image imageObj
@@ -76,10 +77,10 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
                 }else{
                    iobj = image.getImageObj(context)
                 }
-             }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
+             }/*else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
                 image.addPropertyChangeListener( this )
                 iobj = image.asImage(context)
-             }
+             }*/
           }else{
              iobj = getImageObj(context)
           }

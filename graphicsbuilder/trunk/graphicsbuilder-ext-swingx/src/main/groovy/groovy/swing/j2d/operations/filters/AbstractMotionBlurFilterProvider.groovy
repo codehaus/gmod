@@ -21,7 +21,7 @@ import groovy.swing.j2d.GraphicsContext
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractMotionBlurFilterProvider extends PropertiesBasedFilterProvider {
-   public static optional = super.optional + ['distance','angle','zoom','centreX','centreY','rotation']
+   public static optional = PropertiesBasedFilterProvider.optional + ['distance','angle','zoom','centreX','centreY','rotation']
 
    def distance
    def angle

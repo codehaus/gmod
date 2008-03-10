@@ -32,7 +32,7 @@ import groovy.swing.j2d.operations.filters.transitions.*
 import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
 import com.jhlabs.image.LightFilter.*
-import composite.BlendComposite
+import org.jdesktop.swingx.graphics.BlendComposite
 import org.jdesktop.animation.timing.Animator.*
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -329,7 +329,6 @@ class SwingXGraphicsBuilderHelper {
       builder.invertInCircle = PolarFilter.INVERT_IN_CIRCLE
 
       // blendComposite
-      builder.blendNormal = BlendComposite.BlendingMode.NORMAL
       builder.blendAverage = BlendComposite.BlendingMode.AVERAGE
       builder.blendMultiply = BlendComposite.BlendingMode.MULTIPLY
       builder.blendScreen = BlendComposite.BlendingMode.SCREEN

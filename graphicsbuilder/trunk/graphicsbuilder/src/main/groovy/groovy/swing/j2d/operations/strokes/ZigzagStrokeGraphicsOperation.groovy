@@ -25,7 +25,7 @@ import com.jhlabs.awt.ZigzagStroke
  */
 public class ZigzagStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation implements ComposableStroke {
     public static required = ['stroke']
-	public static optional = super.optional + ['amplitude','wavelength']
+	public static optional = AbstractStrokeGraphicsOperation.optional + ['amplitude','wavelength']
 
 	def stroke
 	def amplitude = 10

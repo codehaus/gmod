@@ -15,7 +15,7 @@
 
 package groovy.swing.j2d.factory
 
-import composite.BlendComposite
+import org.jdesktop.swingx.graphics.BlendComposite
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -40,12 +40,11 @@ class BlendCompositeFactory extends AbstractGraphicsOperationFactory {
          def composite = null
          if( mode instanceof BlendComposite.BlendingMode ){
             composite = BlendComposite.getInstance(mode)
-            if( alpha != null ) composite.setAlpha( alpha as float )
          }else if( mode instanceof String ){
             def m = mode.toUpperCase().replaceAll(" ","_")
             composite = BlendComposite.getInstance(BlendComposite.BlendingMode."$m")
-            if( alpha != null ) composite.setAlpha( alpha as float )
          }
+         if( alpha != null ) composite = composite.derive( alpha as float )
 
          if( !composite ) throw new IllegalArgumentException("Invalif value for blendComposite")
          return composite

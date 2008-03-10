@@ -44,6 +44,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     private Image imageObj
     protected Image locallyTransformedImage
     protected Image globallyTransformedImage
+    
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
     FilterGroup filterGroup
@@ -66,8 +67,6 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
            event.source == globalTransformationGroup ||
            event.source == image ||
            event.source == filterGroup ){
-          //localPropertyChange( event )
-          //firePropertyChange( event )
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -105,7 +104,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
 
     public void execute( GraphicsContext context ){
        def img = null
-       if( !filterGroup || filterGroup.isEmpty() ){
+       if( !filterGroup || filterGroup.empty ){
           executeOperation( context )
        }else{
           executeWithFilters( context )
@@ -168,9 +167,9 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        context.g = context.g.create()
        if( o != null ){
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }else{
+       }/*else{
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }
+       }*/
 
        context.g.drawImage( getGloballyTransformedImage(context), x, y, null )
 
@@ -195,9 +194,9 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        context.g = context.g.create()
        if( o != null ){
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }else{
+       }/*else{
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }
+       }*/
 
        context.g.drawImage( filteredImage, dx, dy, null )
 
@@ -250,10 +249,10 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
              this.@imageObj= image.getLocallyTransformedImage(context)
           }else if( image instanceof Image || image instanceof BufferedImage ){
              this.@imageObj = image
-          }else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
+          }/*else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
              image.addPropertyChangeListener( this )
              this.@imageObj = image.asImage(context)
-          }else {
+          }*/else {
              throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")
           }
        }else if( classpath ){

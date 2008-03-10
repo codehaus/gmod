@@ -39,7 +39,7 @@ import java.beans.PropertyChangeEvent
 class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation implements
      MultipleGradientPaintProvider, Transformable {
    public static required = ['cx','cy','fx','fy','radius']
-   public static optional = super.optional + ['cycle','absolute','linkTo']
+   public static optional = AbstractPaintingGraphicsOperation.optional + ['cycle','absolute','linkTo']
 
    private def stops = []
    TransformationGroup transformationGroup

@@ -25,7 +25,7 @@ import groovy.swing.j2d.GraphicsContext
  */
 final class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = ['x','y','width','height']
-    public static optional = super.optional + ['arcWidth','arcHeight']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['arcWidth','arcHeight']
 
     def x = 0
     def y = 0

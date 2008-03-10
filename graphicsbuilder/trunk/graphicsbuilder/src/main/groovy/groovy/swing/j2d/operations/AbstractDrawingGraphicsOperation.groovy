@@ -18,12 +18,16 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.operations.Filterable
+import groovy.swing.j2d.operations.FilterProvider
+import groovy.swing.j2d.operations.FilterGroup
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Paint
+import java.awt.Rectangle
 import java.awt.Shape
 import java.awt.Transparency
 import java.awt.geom.AffineTransform
@@ -33,16 +37,20 @@ import java.beans.PropertyChangeEvent
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable {
+abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Filterable {
     public static required = []
-    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','composite']
+    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','composite','asImage']
 
+    private def gcopy
+    private def strokeBounds
+    private def shapeBounds
     private BufferedImage image
     protected Shape locallyTransformedShape
     protected Shape globallyTransformedShape
-    private def gcopy
+
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
+    FilterGroup filterGroup
 
     // properties
     def borderColor
@@ -59,6 +67,10 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     public abstract Shape getShape( GraphicsContext context )
+    
+    public BufferedImage getImage() {
+    	return image
+    }
 
     public Shape getLocallyTransformedShape( GraphicsContext context ){
        if( !this.@locallyTransformedShape ){
@@ -102,9 +114,14 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        globalTransformationGroup
     }
 
+    public FilterGroup getFilterGroup() {
+       filterGroup
+    }
+    
     public void propertyChange( PropertyChangeEvent event ){
        if( event.source == transformationGroup ||
-           event.source == globalTransformationGroup  ){
+           event.source == globalTransformationGroup || 
+           event.source == filterGroup ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -118,28 +135,87 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        image = null
     }
 
+    /*
     public BufferedImage asImage( GraphicsContext context ) {
        if( !image ){
           image = calculateImage(context)
        }
        image
     }
+    */
 
     protected void executeBeforeAll( GraphicsContext context ) {
-       // def o = getOpacity( context )
-
-       //if( operations || o != null ){
-          gcopy = context.g
-          context.g = context.g.create()
-          applyOpacity( context )
-       //}
+       gcopy = context.g
+       
+       Shape shape = getGloballyTransformedShape(context)
+       // honor the clip
+       if( !withinClipBounds( context, shape ) ) {
+           return
+       }
+          
+       if( asImage || hasFilterGroup() || composite ){
+           def stroke = getStroke(context)
+           Shape strokedShape = stroke.createStrokedShape(shape)
+           strokeBounds = strokedShape.bounds
+           shapeBounds = shape.bounds
+           
+           int filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+           int swidth = strokeBounds.width + (filterOffset*2)
+           int sheight = strokeBounds.height + (filterOffset*2)
+             
+           /*
+           shape = AffineTransform.getTranslateInstance(
+              (shapeBounds.x * -1) + filterOffset,
+              (shapeBounds.x * -1) + filterOffset
+           ).createTransformedShape(shape)
+           */
+    	   
+    	   image = gcopy.deviceConfiguration.createCompatibleImage(
+    	              swidth, sheight, Transparency.BITMASK )
+    	              
+    	   def imageBounds = new Rectangle(0,0,swidth,sheight)
+    	             	              
+    	   def gi = image.createGraphics()
+    	   gi.color = context.g.color
+    	   gi.background = context.g.background
+    	   gi.translate( filterOffset - strokeBounds.x, filterOffset - strokeBounds.y )
+    	   gi.clip = strokeBounds
+    	   context.g = gi
+       }else{
+    	   context.g = context.g.create()
+       }
+       
+       //applyOpacity( context )
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       //if( operations ){
-          context.g.dispose()
-          context.g = gcopy
-       //}
+    	boolean drawImage = false
+    	def previousComposite = null
+    	
+        if( hasFilterGroup() ){
+      	   image = filterGroup.apply( image, strokeBounds )
+      	   drawImage = true
+        }
+    	if( composite ){
+    		previousComposite = gcopy.composite
+    		gcopy.composite = composite
+    		drawImage = true
+    	}    	
+    	
+        if( !asImage && drawImage ){
+           int filterOffset = hasFilterGroup() ? filterGroup.offset : 0	
+     	   gcopy.drawImage( image, 
+     			            (strokeBounds.x - filterOffset) as int, 
+     			            (strokeBounds.y - filterOffset) as int, 
+     			            null )	   
+        }
+        
+        if( composite ){
+        	gcopy.composite = previousComposite
+        }
+        
+        context.g.dispose()
+        context.g = gcopy
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
@@ -167,10 +243,12 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            return
        }
 
+       /*
        // honor the clip
        if( !withinClipBounds( context, shape ) ) {
            return
        }
+       */
 
        if( f ){
           if( f instanceof Color ){
@@ -267,10 +345,12 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            return
        }
 
+       /*
        // honor the clip
        if( !withinClipBounds( context, shape ) ) {
            return
        }
+       */
 
        // apply color & stroke
        if( bc ){
@@ -311,11 +391,11 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected boolean withinClipBounds( GraphicsContext context, Shape shape ) {
-       return shape.intersects( context.g.clipBounds )
+       return context.g.clipBounds ? shape.intersects( context.g.clipBounds ) : false
     }
 
     protected void calculateLocallyTransformedShape( GraphicsContext context ) {
-       if( transformationGroup && !transformationGroup.isEmpty() ){
+       if( transformationGroup && !transformationGroup.empty){
           this.@locallyTransformedShape = transformationGroup.apply( getShape(context) )
        }else{
           this.@locallyTransformedShape = getShape(context)
@@ -323,13 +403,14 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void calculateGloballyTransformedShape( GraphicsContext context ) {
-       if( globalTransformationGroup && !globalTransformationGroup.isEmpty() ){
+       if( globalTransformationGroup && !globalTransformationGroup.empty ){
           this.@globallyTransformedShape = globalTransformationGroup.apply( getLocallyTransformedShape(context) )
        }else{
           this.@globallyTransformedShape = getLocallyTransformedShape(context)
        }
     }
 
+    /*
     protected def calculateImage( GraphicsContext context ) {
        Shape shape = getLocallyTransformedShape(context)
        def bounds = shape.bounds
@@ -341,12 +422,10 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        def contextCopy = context.copy()
        graphics.setClip( shape.bounds )
        graphics.renderingHints = context.g.renderingHints
-       /*
-       graphics.color = context.g.color
-       if( borderColor != null && !(borderColor instanceof Boolean) ){
-          graphics.color = ColorCache.getInstance().getColor(borderColor)
-       }
-       */
+       //graphics.color = context.g.color
+       //if( borderColor != null && !(borderColor instanceof Boolean) ){
+       //   graphics.color = ColorCache.getInstance().getColor(borderColor)
+       //}
 
        contextCopy.g = graphics
        applyOpacity( contextCopy )
@@ -361,6 +440,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
 
        return image
     }
+    */
 
     protected def getFill( GraphicsContext context ){
        def f = fill
@@ -445,5 +525,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }else if( paint instanceof MultiPaintProvider ){
           paint.apply( context, shape )
        }
+    }
+    
+    private boolean hasFilterGroup(){
+    	return filterGroup && !filterGroup.empty
     }
 }

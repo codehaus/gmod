@@ -25,7 +25,7 @@ import java.awt.Shape
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class AbstractOutlineGraphicsOperation extends AbstractDrawingGraphicsOperation implements OutlineProvider {
-    public static optional = super.optional - ['fill']
+    public static optional = AbstractDrawingGraphicsOperation.optional - ['fill']
 
     public AbstractOutlineGraphicsOperation( String name ) {
         super( name )

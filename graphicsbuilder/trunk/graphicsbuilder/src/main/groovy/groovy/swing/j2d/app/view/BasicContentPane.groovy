@@ -60,7 +60,7 @@ splitPane(id: 'splitPane', resizeWeight: 0.50F,
 }
 
 view.addGraphicsErrorListener({ evt ->
-   displayError( evt.cause.localizedMessage )
+   controller.displayError( evt.cause.localizedMessage )
 } as GraphicsErrorListener )
 
 Toolkit toolkit = Toolkit.getDefaultToolkit()

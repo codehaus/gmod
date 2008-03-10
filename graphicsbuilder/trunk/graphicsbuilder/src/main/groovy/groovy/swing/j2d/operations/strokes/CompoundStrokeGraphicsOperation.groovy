@@ -24,7 +24,7 @@ import com.jhlabs.awt.CompoundStroke
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class CompoundStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation implements ComposableStroke {
-	public static optional = super.optional + ['stroke1','stroke2','operation']
+	public static optional = AbstractStrokeGraphicsOperation.optional + ['stroke1','stroke2','operation']
 
 	def stroke1
 	def stroke2
