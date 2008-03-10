@@ -36,12 +36,13 @@ import java.beans.PropertyChangeEvent
  */
 class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGraphicsOperation implements
      MultipleGradientPaintProvider, Transformable {
-   public static optional = super.optional + ['linkTo']
+   public static optional = AbstractPaintingGraphicsOperation.optional + ['linkTo']
+   
    protected static DEFAULT_CYCLE_VALUE = 'nocycle'
 
    private def stops = []
+   
    TransformationGroup transformationGroup
-
    def linkTo
 
    LinearGradientPaintGraphicsOperation() {

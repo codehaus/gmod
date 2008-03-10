@@ -23,21 +23,30 @@ import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.TransformationGroup
 import groovy.swing.j2d.operations.AbstractNestingGraphicsOperation
 import groovy.swing.j2d.operations.ViewBox
+import groovy.swing.j2d.operations.Filterable
+import groovy.swing.j2d.operations.FilterProvider
+import groovy.swing.j2d.operations.FilterGroup
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
+import java.awt.Rectangle
+import java.awt.Transparency
+import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping {
-    public static optional = ['borderColor','borderWidth','fill','opacity']
+class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping, Filterable {
+    public static optional = ['borderColor','borderWidth','fill','opacity','asImage','composite']
 
     private def previousGroupContext
     private def gcopy
+    private BufferedImage image
+    
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
+    FilterGroup filterGroup
     ViewBox viewBox
 
     // properties
@@ -45,6 +54,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     def borderWidth
     def fill
     def opacity
+    def asImage
+    def composite
 
     public GroupGraphicsOperation() {
         super( "group" )
@@ -62,6 +73,10 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     public ViewBox getViewBox() {
        viewBox
+    }
+    
+    public BufferedImage getImage() {
+    	return image
     }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
@@ -92,30 +107,67 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        globalTransformationGroup
     }
 
+    public void setFilterGroup( FilterGroup filterGroup ){
+       if( filterGroup ) {
+          if( this.filterGroup ){
+             this.filterGroup.removePropertyChangeListener( this )
+          }
+          this.filterGroup = filterGroup
+          this.filterGroup.addPropertyChangeListener( this )
+       }
+    }
+ 
+    public FilterGroup getFilterGroup() {
+       filterGroup
+    }
+    
     public void propertyChange( PropertyChangeEvent event ){
        if( event.source == transformationGroup ||
            event.source == globalTransformationGroup ||
+           event.source == filterGroup ||
            event.source == viewBox ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
        }
     }
+    
+    protected void localPropertyChange( PropertyChangeEvent event ) {
+        super.localPropertyChange( event )
+        image = null
+     }
 
     protected void executeBeforeAll( GraphicsContext context ) {
        previousGroupContext = [:]
        previousGroupContext.putAll(context.groupContext)
-
-       // def o = getOpacity( context )
-
-       //if( operations || o != null ){
-          gcopy = context.g
-          context.g = context.g.create()
-          if( viewBox ){
-             context.g.setClip( viewBox.rectangle )
-          }
-          applyOpacity( context )
-       //}
+       
+       gcopy = context.g
+       
+       if( asImage || hasFilterGroup() || composite ){
+    	   def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+    	   def bounds = getBounds(context)
+    	   bounds.width += filterOffset * 2
+    	   bounds.height += filterOffset * 2
+    	   
+    	   image = gcopy.deviceConfiguration.createCompatibleImage(
+    	              bounds.width as int, 
+    	              bounds.height as int, 
+    	              Transparency.BITMASK )
+    	              
+    	   def gi = image.createGraphics()
+    	   gi.color = context.g.color
+    	   gi.background = context.g.background
+    	   gi.translate( filterOffset - bounds.x, filterOffset - bounds.y )
+    	   gi.clip = bounds 
+    	   context.g = gi
+       }else{
+    	   context.g = context.g.create()
+           if( viewBox ){
+              context.g.setClip( viewBox.rectangle )
+           }
+       }
+       
+       //applyOpacity( context )
 
        if( borderColor != null ) context.groupContext.borderColor = borderColor
        if( borderWidth != null ) context.groupContext.borderWidth = borderWidth
@@ -124,10 +176,21 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       //if( operations ){
-          context.g.dispose()
-          context.g = gcopy
-       //}
+       def bounds = context.g.clipBounds
+	   def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+       if( hasFilterGroup() ){
+     	   image = filterGroup.apply( image, bounds )   
+       }
+       if( !asImage || composite ){
+    	   
+    	   gcopy.drawImage( image, 
+    			            (bounds.x - filterOffset) as int, 
+    			            (bounds.y - filterOffset) as int, 
+    			            null )	   
+       }
+       
+       context.g.dispose()
+       context.g = gcopy
        context.groupContext = previousGroupContext
     }
 
@@ -171,5 +234,22 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        }/*else{
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
        }*/
+    }
+    
+    private boolean hasFilterGroup(){
+    	return filterGroup && !filterGroup.empty
+    }
+    
+    private Rectangle getBounds( GraphicsContext context ) {
+ 	   def bounds = [0,0,0,0] as Rectangle
+	   if( viewBox ){
+		   bounds = new Rectangle(viewBox.getRectangle())
+	   }else if( context.g.clipBounds ){
+		   bounds = new Rectangle(context.g.clipBounds)
+	   }else{
+		   bounds.width = context.target?.bounds?.width
+	       bounds.height = context.target?.bounds?.height		   
+	   }
+ 	   return bounds
     }
 }

@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.MultiRoundRectangle
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class MultiRoundRectangleGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['x','y','width','height']
-    public static optional = super.optional + ['topLeftWidth','topLeftHeight',
+    public static required = AbstractShapeGraphicsOperation.required + ['x','y','width','height']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['topLeftWidth','topLeftHeight',
                                                'topRightWidth','topRightHeight',
                                                'bottomLeftWidth','bottomLeftHeight',
                                                'bottomRightWidth','bottomRightHeight']

@@ -28,7 +28,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
-   public static optional = super.optional + ['winding','close']
+   public static optional = AbstractShapeGraphicsOperation.optional + ['winding','close']
 
    private List pathOperations = []
    private GeneralPath path

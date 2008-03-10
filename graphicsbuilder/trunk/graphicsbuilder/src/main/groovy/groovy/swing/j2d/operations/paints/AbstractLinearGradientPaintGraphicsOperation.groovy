@@ -31,7 +31,8 @@ import static java.lang.Math.abs
  */
 abstract class AbstractLinearGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
     public static required = ['x1','y1','x2','y2']
-    public static optional = super.optional + ['cycle','stretch','fit']
+    public static optional = AbstractPaintingGraphicsOperation.optional + ['cycle','stretch','fit']
+    
     protected static DEFAULT_CYCLE_VALUE = false
 
     def x1 = 0

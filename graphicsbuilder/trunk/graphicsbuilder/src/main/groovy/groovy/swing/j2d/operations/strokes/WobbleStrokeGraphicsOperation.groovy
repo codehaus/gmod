@@ -22,7 +22,7 @@ import com.jhlabs.awt.WobbleStroke
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class WobbleStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation {
-    public static required = super.optional + ['detail','amplitude']
+    public static required = AbstractStrokeGraphicsOperation.optional + ['detail','amplitude']
 
 	def detail = 2
 	def amplitude = 2

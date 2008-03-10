@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.Star
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['cx','cy','or','ir']
-    public static optional = super.optional + ['angle','count']
+    public static required = AbstractShapeGraphicsOperation.required + ['cx','cy','or','ir']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['angle','count']
 
     private Star star
 

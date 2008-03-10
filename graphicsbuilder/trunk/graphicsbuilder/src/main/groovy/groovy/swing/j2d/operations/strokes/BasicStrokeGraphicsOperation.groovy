@@ -27,7 +27,7 @@ import java.awt.Stroke
  */
 public class BasicStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation {
 	public static required = ['width']
-	public static optional = super.optional + ['cap','join','miterlimit','dash','dashphase','color','opacity']
+	public static optional = AbstractStrokeGraphicsOperation.optional + ['cap','join','miterlimit','dash','dashphase','color','opacity']
 
 	def width = 1
 	def cap

@@ -25,7 +25,7 @@ import com.jhlabs.image.LightFilter.*
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractLightFilterProvider extends PropertiesBasedFilterProvider {
-   public static optional = super.optional + ['bumpHeight','bumpSoftness','bumpShape',
+   public static optional = PropertiesBasedFilterProvider.optional + ['bumpHeight','bumpSoftness','bumpShape',
                                               'viewDistance','material','colorSource','bumpSource',
                                               'bumpFunction','environmentMap','diffuseColor']
 

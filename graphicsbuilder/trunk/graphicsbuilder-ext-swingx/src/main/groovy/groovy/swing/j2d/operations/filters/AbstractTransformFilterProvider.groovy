@@ -26,7 +26,7 @@ import com.jhlabs.image.TransformFilter
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractTransformFilterProvider extends PropertiesBasedFilterProvider {
-   public static optional = super.optional + ['edgeAction','interpolation']
+   public static optional = PropertiesBasedFilterProvider.optional + ['edgeAction','interpolation']
 
    def edgeAction
    def interpolation

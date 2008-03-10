@@ -28,7 +28,7 @@ import com.jhlabs.awt.ShapeStroke
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class ShapeStrokeGraphicsOperation extends AbstractStrokeGraphicsOperation {
-	public static optional = super.optional + ['shapes','advance']
+	public static optional = AbstractStrokeGraphicsOperation.optional + ['shapes','advance']
 
 	def shapes = []
 	def advance = 10

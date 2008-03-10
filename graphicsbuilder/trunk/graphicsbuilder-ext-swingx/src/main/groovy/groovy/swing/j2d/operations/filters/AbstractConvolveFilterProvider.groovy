@@ -25,7 +25,7 @@ import com.jhlabs.image.ConvolveFilter
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractConvolveFilterProvider extends PropertiesBasedFilterProvider {
-   public static optional = super.optional + ['edgeAction','useAlpha','premultiplyAlpha']
+   public static optional = PropertiesBasedFilterProvider.optional + ['edgeAction','useAlpha','premultiplyAlpha']
 
    def edgeAction
    def useAlpha

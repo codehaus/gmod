@@ -26,7 +26,7 @@ import com.jhlabs.math.BinaryFunction
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractBinaryFilterProvider extends PropertiesBasedFilterProvider implements ColormapAware {
-   public static optional = super.optional + ['newColor','blackFunction','iterations','colormap']
+   public static optional = PropertiesBasedFilterProvider.optional + ['newColor','blackFunction','iterations','colormap']
 
    def newColor
    def blackFunction

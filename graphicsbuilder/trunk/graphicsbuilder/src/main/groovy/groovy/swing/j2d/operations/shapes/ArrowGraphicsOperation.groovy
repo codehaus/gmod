@@ -24,8 +24,8 @@ import groovy.swing.j2d.geom.Arrow
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
-    public static required = super.required + ['x','y','width','height']
-    public static optional = super.optional + ['depth','rise','angle']
+    public static required = AbstractShapeGraphicsOperation.required + ['x','y','width','height']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['depth','rise','angle']
 
     private Arrow arrow
 
