@@ -53,7 +53,7 @@
       <dependency>
          <groupId>batik</groupId>
          <artifactId>batik-awt-util</artifactId>
-         <version>1.6-1</version>
+         <version>1.7</version>
       </dependency>
    </dependencies>
 
