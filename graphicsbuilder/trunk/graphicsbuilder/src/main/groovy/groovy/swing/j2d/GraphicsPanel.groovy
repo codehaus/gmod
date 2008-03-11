@@ -41,7 +41,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      private GraphicsContext context = new GraphicsContext()
      private boolean displayed
      private List errorListeners = []
-     private ShapeProvider lastShape
+     private GraphicsOperation lastTarget
 
      GraphicsPanel(){
          super( null )
@@ -100,11 +100,11 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
 
      public void paintComponent( Graphics g ){
          context.g = g
-         context.target = this
+         context.component = this
          if( graphicsOperation ){
              g.clearRect( 0, 0, size.width as int, size.height as int )
              try{
-                 context.shapes = []
+                 context.eventTargets = []
                  context.groupContext = [:]
                  graphicsOperation.execute( context )
              }catch( Exception e ){
@@ -145,11 +145,11 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      /* ===== MouseListener ===== */
 
      public void mouseEntered( MouseEvent e ){
-        lastShape = null
+         lastTarget = null
      }
 
      public void mouseExited( MouseEvent e ){
-         lastShape = null
+         lastTarget = null
      }
 
      public void mousePressed( MouseEvent e ){
@@ -167,19 +167,19 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      /* ===== MouseMotionListener ===== */
 
      public void mouseMoved( MouseEvent e ){
-         if( !context.shapes ) return
-         def shape = getSourceShape(e)
-         if( shape ){
-             def inputEvent = new GraphicsInputEvent( this, e, shape )
-             if( shape != lastShape ){
-                if( lastShape ) lastShape.mouseExited( new GraphicsInputEvent( this, e, lastShape ) )
-                lastShape = shape
-                shape.mouseEntered( inputEvent )
+         if( !context.eventTargets ) return
+         def target = getTarget(e)
+         if( target ){
+             def inputEvent = new GraphicsInputEvent( this, e, target )
+             if( target != lastTarget ){
+                if( lastTarget ) lastTarget.mouseExited( new GraphicsInputEvent( this, e, target ) )
+                lastTarget = target
+                target.mouseEntered( inputEvent )
              }
-             shape.mouseMoved( inputEvent )
-         }else if( lastShape ){
-            lastShape.mouseExited( new GraphicsInputEvent( this, e, lastShape ) )
-            lastShape = null
+             target.mouseMoved( inputEvent )
+         }else if( lastTarget ){
+            lastTarget.mouseExited( new GraphicsInputEvent( this, e, lastTarget ) )
+            lastTarget = null
          }
      }
 
@@ -207,76 +207,25 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
 
      }
 
-     /* ===== ===== */
-
-     /*
-     public void sendToFront( ShapeProvider sp ){
-        sendTo( sp, 'front' )
-     }
-     public void sendToBack( ShapeProvider sp ){
-        sendTo( sp, 'back' )
-     }
-     public void pushUp( ShapeProvider sp ){
-        sendTo( sp, 'up' )
-     }
-     public void pushDown( ShapeProvider sp ){
-        sendTo( sp, 'down' )
-     }
-     */
-
      /* ===== PRIVATE ===== */
 
      private void fireMouseEvent( MouseEvent e, String mouseEventMethod ){
-         if( !context.shapes ) return
-         def shape = getSourceShape(e)
-         if( shape ){
-            def inputEvent = new GraphicsInputEvent( this, e, shape )
-            shape."$mouseEventMethod"( inputEvent )
+         if( !context.eventTargets ) return
+         def target = getTarget(e)
+         if( target ){
+            def inputEvent = new GraphicsInputEvent( this, e, target )
+            target."$mouseEventMethod"( inputEvent )
          }
      }
 
-     private def getSourceShape( MouseEvent e ){
-         def shapes = context.shapes
-         for( shape in shapes.reverse() ){
-             if( shape instanceof ShapeProvider ){
-                 def s = shape.getGloballyTransformedShape(context)
-                 if( s.contains(e.point) ){
-                    return shape
-                 }
+     private def getTarget( MouseEvent e ){
+         def eventTargets = context.eventTargets
+         for( target in eventTargets.reverse() ){
+             def bp = target.getBoundingShape(context)
+             if( bp && bp.contains(e.point) ){
+                 return target
              }
          }
          return null
      }
-
-     private void sendTo( ShapeProvider sp, String where ){
-        if( sp.asShape ) return
-        def shapes = context.shapes
-        int from = shapes.indexOf(sp)
-        if( from == -1 ) return
-        if( "front".equalsIgnoreCase(where) ){
-           if( shapes.size() - 1 != from ){
-              shapes.remove(sp)
-              shapes << sp
-           }
-        }else if( "back".equalsIgnoreCase(where) ){
-           if( from != 0 ){
-              shapes.remove(sp)
-              context.shapes = [sp] + shapes
-           }
-        }else if( "up".equalsIgnoreCase(where) ){
-           def to = from + 1
-           if( to < shapes.size() ){
-              def tmp = shapes[to]
-              shapes[to] = sp
-              shapes[from] = tmp
-           }
-        }else if( "down".equalsIgnoreCase(where) ){
-           def to = from - 1
-           if( to > -1 ){
-              def tmp = shapes[to]
-              shapes[to] = sp
-              shapes[from] = tmp
-           }
-        }
-     }
- }
+}

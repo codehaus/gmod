@@ -18,11 +18,14 @@ package groovy.swing.j2d.operations.misc
 import java.awt.AlphaComposite
 import java.awt.Image
 import java.awt.Rectangle
+import java.awt.Shape
 import java.awt.Transparency
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.event.GraphicsInputEvent
+import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.Filterable
 import groovy.swing.j2d.operations.FilterProvider
 import groovy.swing.j2d.operations.FilterGroup
@@ -36,18 +39,31 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transformable, Filterable {
+class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
     public static required = ['x','y']
     public static optional = ['image','classpath','url','file','asImage','opacity']
 
     private BufferedImage filteredImage
     private Image imageObj
+    private Rectangle boundingShape
     protected Image locallyTransformedImage
     protected Image globallyTransformedImage
     
     TransformationGroup transformationGroup
     TransformationGroup globalTransformationGroup
     FilterGroup filterGroup
+
+    Closure keyPressed
+    Closure keyReleased
+    Closure keyTyped
+    Closure mouseClicked
+    Closure mouseDragged
+    Closure mouseEntered
+    Closure mouseExited
+    Closure mouseMoved
+    Closure mousePressed
+    Closure mouseReleased
+    Closure mouseWheelMoved
 
     def image
     def file
@@ -77,6 +93,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        super.localPropertyChange( event )
        filteredImage = null
        imageObj = null
+       boundingShape = null
        locallyTransformedImage = null
        globallyTransformedImage = null
     }
@@ -86,6 +103,10 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
           loadImage( context )
        }
        return this.@imageObj
+    }
+
+    public Shape getBoundingShape( GraphicsContext context ) {
+       boundingShape
     }
 
     public Image getLocallyTransformedImage( GraphicsContext context ){
@@ -103,12 +124,13 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     }
 
     public void execute( GraphicsContext context ){
-       def img = null
        if( !filterGroup || filterGroup.empty ){
           executeOperation( context )
        }else{
           executeWithFilters( context )
        }
+
+       addAsEventTarget(context)
     }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
@@ -153,15 +175,66 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        filterGroup
     }
 
+    public void keyPressed( GraphicsInputEvent e ) {
+       if( keyPressed ) this.@keyPressed(e)
+    }
+
+    public void keyReleased( GraphicsInputEvent e ) {
+       if( keyReleased ) this.@keyReleased(e)
+    }
+
+    public void keyTyped( GraphicsInputEvent e ) {
+       if( keyTyped ) this.@keyTyped(e)
+    }
+
+    public void mouseClicked( GraphicsInputEvent e ) {
+       if( mouseClicked ) this.@mouseClicked(e)
+    }
+
+    public void mouseDragged( GraphicsInputEvent e ) {
+       if( mouseDragged ) this.@mouseDragged(e)
+    }
+
+    public void mouseEntered( GraphicsInputEvent e ) {
+       if( mouseEntered ) this.@mouseEntered(e)
+    }
+
+    public void mouseExited( GraphicsInputEvent e ) {
+       if( mouseExited ) this.@mouseExited(e)
+    }
+
+    public void mouseMoved( GraphicsInputEvent e ) {
+       if( mouseMoved ) this.@mouseMoved(e)
+    }
+
+    public void mousePressed( GraphicsInputEvent e ) {
+       if( mousePressed ) this.@mousePressed(e)
+    }
+
+    public void mouseReleased( GraphicsInputEvent e ) {
+       if( mouseReleased ) this.@mouseReleased(e)
+    }
+
+    public void mouseWheelMoved( GraphicsInputEvent e ) {
+       if( mouseWheelMoved ) this.@mouseWheelMoved(e)
+    }
+
     private void executeOperation( GraphicsContext context ){
+       def gi = getGloballyTransformedImage(context)
+       boundingShape = new Rectangle(x,y,gi.width,gi.height)
+
        if( asImage ) return
+
        def o = opacity
+
+       /*
        if( context.groupContext.opacity ){
           o = context.groupContext.opacity
        }
        if( opacity != null ){
           o = opacity
        }
+       */
 
        def g = context.g
        context.g = context.g.create()
@@ -181,14 +254,19 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        def dy = y - filterGroup.offset
        calculateFilteredImage( context )
 
+       boundingShape = new Rectangle(dx,dy,filteredImage.width,filteredImage.height)
+
        if( asImage ) return
        def o = opacity
+       
+       /*
        if( context.groupContext.opacity ){
           o = context.groupContext.opacity
        }
        if( opacity != null ){
           o = opacity
        }
+       */
 
        def g = context.g
        context.g = context.g.create()
@@ -265,5 +343,15 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        }else{
           throw new IllegalArgumentException("Must define one of [image,classpath,url,file]")
        }
+    }
+
+    private void addAsEventTarget( GraphicsContext context ){
+        if( !asImage && (keyPressed ||
+            keyReleased || keyTyped || mouseClicked ||
+            mouseDragged || mouseEntered || mouseExited ||
+            mouseMoved || mousePressed || mouseReleased ||
+            mouseWheelMoved) ){
+           context.eventTargets << this
+        }
     }
 }

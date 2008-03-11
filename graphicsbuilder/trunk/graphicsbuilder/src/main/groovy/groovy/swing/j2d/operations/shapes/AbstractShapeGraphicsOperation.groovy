@@ -16,8 +16,6 @@
 package groovy.swing.j2d.operations.shapes
 
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.event.GraphicsInputEvent
-import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.AbstractDrawingGraphicsOperation
 
@@ -28,65 +26,10 @@ import java.awt.geom.Area
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGraphicsOperation implements
-   ShapeProvider, GraphicsInputListener {
-    Closure keyPressed
-    Closure keyReleased
-    Closure keyTyped
-    Closure mouseClicked
-    Closure mouseDragged
-    Closure mouseEntered
-    Closure mouseExited
-    Closure mouseMoved
-    Closure mousePressed
-    Closure mouseReleased
-    Closure mouseWheelMoved
+   ShapeProvider {
 
     public AbstractShapeGraphicsOperation( String name ) {
         super( name )
-    }
-
-    public void keyPressed( GraphicsInputEvent e ) {
-       if( keyPressed ) this.@keyPressed(e)
-    }
-
-    public void keyReleased( GraphicsInputEvent e ) {
-       if( keyReleased ) this.@keyReleased(e)
-    }
-
-    public void keyTyped( GraphicsInputEvent e ) {
-       if( keyTyped ) this.@keyTyped(e)
-    }
-
-    public void mouseClicked( GraphicsInputEvent e ) {
-       if( mouseClicked ) this.@mouseClicked(e)
-    }
-
-    public void mouseDragged( GraphicsInputEvent e ) {
-       if( mouseDragged ) this.@mouseDragged(e)
-    }
-
-    public void mouseEntered( GraphicsInputEvent e ) {
-       if( mouseEntered ) this.@mouseEntered(e)
-    }
-
-    public void mouseExited( GraphicsInputEvent e ) {
-       if( mouseExited ) this.@mouseExited(e)
-    }
-
-    public void mouseMoved( GraphicsInputEvent e ) {
-       if( mouseMoved ) this.@mouseMoved(e)
-    }
-
-    public void mousePressed( GraphicsInputEvent e ) {
-       if( mousePressed ) this.@mousePressed(e)
-    }
-
-    public void mouseReleased( GraphicsInputEvent e ) {
-       if( mouseReleased ) this.@mouseReleased(e)
-    }
-
-    public void mouseWheelMoved( GraphicsInputEvent e ) {
-       if( mouseWheelMoved ) this.@mouseWheelMoved(e)
     }
 
     /* ===== OPERATOR OVERLOADING ===== */
@@ -125,14 +68,5 @@ public abstract class AbstractShapeGraphicsOperation extends AbstractDrawingGrap
        def area = new Area(getLocallyTransformedShape(null))
        area.exclusiveOr( new Area(shape) )
        return area
-    }
-
-    /* ===== PROTECTED ===== */
-
-    protected void executeAfterAll( GraphicsContext context ) {
-       if( !asShape ){
-           context.shapes << this
-       }
-       super.executeAfterAll(context)
     }
 }

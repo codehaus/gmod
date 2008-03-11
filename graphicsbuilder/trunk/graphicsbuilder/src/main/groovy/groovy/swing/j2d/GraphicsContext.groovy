@@ -23,15 +23,15 @@ import java.awt.Graphics2D
  */
 public class GraphicsContext {
    Graphics2D g
-   Component target
-   List shapes = []
+   Component component
+   List eventTargets = []
    Map groupContext = [:]
 
    GraphicsContext copy() {
       GraphicsContext copy = new GraphicsContext()
       copy.g = g
-      copy.target = target
-      copy.shapes.addAll( shapes )
+      copy.component = component
+      copy.eventTargets.addAll( eventTargets )
       copy.groupContext.putAll( groupContext )
       return copy
    }
