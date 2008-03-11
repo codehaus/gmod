@@ -39,6 +39,6 @@ public class ViewBoxFactory extends AbstractGraphicsOperationFactory {
     }
 
     public boolean isLeaf(){
-        return true
+        return false
     }
 }

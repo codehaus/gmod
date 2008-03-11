@@ -38,17 +38,17 @@ class SwingGraphicsOperation extends AbstractGraphicsOperation {
         if( !container ) return
         boolean updated = false
         Component[] components = container.components
-        if( context.target instanceof Container ){
+        if( context.component instanceof Container ){
            components.each { component ->
-              if( !context.target.isAncestorOf(component) ){
-                  context.target.add( component )
+              if( !context.component.isAncestorOf(component) ){
+                  context.component.add( component )
                   updated = true
               }
            }
         }
         if( updated ){
-           context.target.invalidate()
-           context.target.validate()
+           context.component.invalidate()
+           context.component.validate()
         }
     }
 }

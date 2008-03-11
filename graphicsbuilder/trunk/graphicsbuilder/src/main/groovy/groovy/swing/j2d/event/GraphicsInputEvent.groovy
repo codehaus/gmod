@@ -23,19 +23,19 @@ import groovy.swing.j2d.GraphicsOperation
  */
 public class GraphicsInputEvent extends EventObject {
     private EventObject event
-    private GraphicsOperation sourceShape
+    private GraphicsOperation target
 
-    public GraphicsInputEvent( Object source, EventObject event, GraphicsOperation sourceShape ) {
+    public GraphicsInputEvent( Object source, EventObject event, GraphicsOperation target ) {
         super( source )
         this.event = event
-        this.sourceShape = sourceShape
+        this.target = target
     }
 
     public EventObject getEvent() {
         return event
     }
 
-    public GraphicsOperation getSourceShape() {
-        return sourceShape
+    public GraphicsOperation getTarget() {
+        return target
     }
 }

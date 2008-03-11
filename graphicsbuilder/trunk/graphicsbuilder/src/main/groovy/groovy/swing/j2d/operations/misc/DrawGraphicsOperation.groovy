@@ -27,9 +27,10 @@ import groovy.swing.j2d.operations.shapes.AbstractShapeGraphicsOperation
  */
 public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
     public static required = ['shape']
-    public static optional = AbstractShapeGraphicsOperation.optional - ['asShape']
+    public static optional = AbstractShapeGraphicsOperation.optional - ['asShape','keepTrans']
 
     def shape
+    def keepTrans
 
     public DrawGraphicsOperation() {
         super( "draw" )
@@ -47,7 +48,7 @@ public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
 
         // translate to world origin
         def bounds = s.bounds
-        if( bounds.x != 0 || bounds.y != 0 ){
+        if( bounds.x != 0 || bounds.y != 0 && !keepTrans ){
            s = AffineTransform.getTranslateInstance( bounds.x*(-1), bounds.y*(-1)).createTransformedShape(s)
         }
         return s

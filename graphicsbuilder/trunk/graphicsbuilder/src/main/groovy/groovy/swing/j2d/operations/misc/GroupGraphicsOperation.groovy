@@ -17,6 +17,8 @@ package groovy.swing.j2d.operations.misc
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.event.GraphicsInputEvent
+import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.Grouping
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.Transformable
@@ -30,6 +32,7 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
 import java.awt.Rectangle
+import java.awt.Shape
 import java.awt.Transparency
 import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
@@ -37,7 +40,7 @@ import java.beans.PropertyChangeEvent
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping, Filterable {
+class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping, Filterable, GraphicsInputListener {
     public static optional = ['borderColor','borderWidth','fill','opacity','asImage','composite']
 
     private def previousGroupContext
@@ -48,6 +51,18 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     TransformationGroup globalTransformationGroup
     FilterGroup filterGroup
     ViewBox viewBox
+
+    Closure keyPressed
+    Closure keyReleased
+    Closure keyTyped
+    Closure mouseClicked
+    Closure mouseDragged
+    Closure mouseEntered
+    Closure mouseExited
+    Closure mouseMoved
+    Closure mousePressed
+    Closure mouseReleased
+    Closure mouseWheelMoved
 
     // properties
     def borderColor
@@ -76,7 +91,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
     
     public BufferedImage getImage() {
-    	return image
+       return image
     }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
@@ -120,6 +135,50 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     public FilterGroup getFilterGroup() {
        filterGroup
     }
+
+    public void keyPressed( GraphicsInputEvent e ) {
+       if( keyPressed ) this.@keyPressed(e)
+    }
+
+    public void keyReleased( GraphicsInputEvent e ) {
+       if( keyReleased ) this.@keyReleased(e)
+    }
+
+    public void keyTyped( GraphicsInputEvent e ) {
+       if( keyTyped ) this.@keyTyped(e)
+    }
+
+    public void mouseClicked( GraphicsInputEvent e ) {
+       if( mouseClicked ) this.@mouseClicked(e)
+    }
+
+    public void mouseDragged( GraphicsInputEvent e ) {
+       if( mouseDragged ) this.@mouseDragged(e)
+    }
+
+    public void mouseEntered( GraphicsInputEvent e ) {
+       if( mouseEntered ) this.@mouseEntered(e)
+    }
+
+    public void mouseExited( GraphicsInputEvent e ) {
+       if( mouseExited ) this.@mouseExited(e)
+    }
+
+    public void mouseMoved( GraphicsInputEvent e ) {
+       if( mouseMoved ) this.@mouseMoved(e)
+    }
+
+    public void mousePressed( GraphicsInputEvent e ) {
+       if( mousePressed ) this.@mousePressed(e)
+    }
+
+    public void mouseReleased( GraphicsInputEvent e ) {
+       if( mouseReleased ) this.@mouseReleased(e)
+    }
+
+    public void mouseWheelMoved( GraphicsInputEvent e ) {
+       if( mouseWheelMoved ) this.@mouseWheelMoved(e)
+    }
     
     public void propertyChange( PropertyChangeEvent event ){
        if( event.source == transformationGroup ||
@@ -143,31 +202,32 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        
        gcopy = context.g
        
+       def boundingShape = getBoundingShape(context)
        if( asImage || hasFilterGroup() || composite ){
-    	   def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
-    	   def bounds = getBounds(context)
-    	   bounds.width += filterOffset * 2
-    	   bounds.height += filterOffset * 2
-    	   
-    	   image = gcopy.deviceConfiguration.createCompatibleImage(
-    	              bounds.width as int, 
-    	              bounds.height as int, 
-    	              Transparency.BITMASK )
-    	              
-    	   def gi = image.createGraphics()
-    	   gi.color = context.g.color
-    	   gi.background = context.g.background
-    	   gi.translate( filterOffset - bounds.x, filterOffset - bounds.y )
-    	   gi.clip = bounds 
-    	   context.g = gi
+          def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+           def bounds = boundingShape.bounds
+          bounds.width += filterOffset * 2
+          bounds.height += filterOffset * 2
+          
+          image = gcopy.deviceConfiguration.createCompatibleImage(
+                     bounds.width as int, 
+                     bounds.height as int, 
+                     Transparency.BITMASK )
+                     
+          def gi = image.createGraphics()
+          gi.color = context.g.color
+          gi.background = context.g.background
+          gi.translate( filterOffset - bounds.x, filterOffset - bounds.y )
+          gi.clip = bounds 
+          context.g = gi
        }else{
-    	   context.g = context.g.create()
-           if( viewBox ){
-              context.g.setClip( viewBox.rectangle )
-           }
+          context.g = context.g.create()
+          if( viewBox ){
+             context.g.setClip( boundingShape )
+          }
        }
-       
-       //applyOpacity( context )
+
+       applyOpacity( context )
 
        if( borderColor != null ) context.groupContext.borderColor = borderColor
        if( borderWidth != null ) context.groupContext.borderWidth = borderWidth
@@ -177,21 +237,22 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     protected void executeAfterAll( GraphicsContext context ) {
        def bounds = context.g.clipBounds
-	   def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+       def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
        if( hasFilterGroup() ){
-     	   image = filterGroup.apply( image, bounds )   
+           image = filterGroup.apply( image, bounds )   
        }
        if( !asImage || composite ){
-    	   
-    	   gcopy.drawImage( image, 
-    			            (bounds.x - filterOffset) as int, 
-    			            (bounds.y - filterOffset) as int, 
-    			            null )	   
+          gcopy.drawImage( image, 
+                           (bounds.x - filterOffset) as int, 
+                           (bounds.y - filterOffset) as int, 
+                           null )      
        }
        
        context.g.dispose()
        context.g = gcopy
        context.groupContext = previousGroupContext
+
+       addAsEventTarget(context)
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
@@ -237,19 +298,33 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
     
     private boolean hasFilterGroup(){
-    	return filterGroup && !filterGroup.empty
+       return filterGroup && !filterGroup.empty
     }
     
-    private Rectangle getBounds( GraphicsContext context ) {
- 	   def bounds = [0,0,0,0] as Rectangle
-	   if( viewBox ){
-		   bounds = new Rectangle(viewBox.getRectangle())
-	   }else if( context.g.clipBounds ){
-		   bounds = new Rectangle(context.g.clipBounds)
-	   }else{
-		   bounds.width = context.target?.bounds?.width
-	       bounds.height = context.target?.bounds?.height		   
-	   }
- 	   return bounds
+    public Shape getBoundingShape( GraphicsContext context ) {
+        def bounds = [0,0,0,0] as Rectangle
+        if( viewBox ){
+            bounds = viewBox.getLocallyTransformedShape(context)
+            if( !viewBox.pinned ){
+               if( transformationGroup ) bounds = transformationGroup.apply(bounds)
+               if( globalTransformationGroup ) bounds = globalTransformationGroup.apply(bounds)
+            }
+        }else if( context.g.clipBounds ){
+            bounds = new Rectangle(context.g.clipBounds)
+        }else{
+            bounds.width = context.component?.bounds?.width
+            bounds.height = context.component?.bounds?.height         
+        }
+        return bounds
+    }
+
+    private void addAsEventTarget( GraphicsContext context ){
+        if( viewBox && (keyPressed ||
+            keyReleased || keyTyped || mouseClicked ||
+            mouseDragged || mouseEntered || mouseExited ||
+            mouseMoved || mousePressed || mouseReleased ||
+            mouseWheelMoved) ){
+           context.eventTargets << this
+        }
     }
 }

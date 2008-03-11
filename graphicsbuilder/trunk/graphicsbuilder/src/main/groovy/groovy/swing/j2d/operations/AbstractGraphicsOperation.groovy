@@ -33,8 +33,8 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractGraphicsOperation extends ObservableSupport implements GraphicsOperation {
     private String name
-    public static required = []
-    public static optional = []
+    //public static required = []
+    //public static optional = []
 
     /**
      * Creates a new GraphicsOperation with a name.
