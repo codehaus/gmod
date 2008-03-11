@@ -91,7 +91,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
     
     public BufferedImage getImage() {
-       return image
+       image
     }
 
     public void setTransformationGroup( TransformationGroup transformationGroup ){
