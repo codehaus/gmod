@@ -205,14 +205,12 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        def boundingShape = getBoundingShape(context)
        if( asImage || hasFilterGroup() || composite ){
           def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
-           def bounds = boundingShape.bounds
-          bounds.width += filterOffset * 2
-          bounds.height += filterOffset * 2
+          def bounds = boundingShape.bounds
+          int swidth = bounds.width + (filterOffset * 2)
+          int sheight = bounds.height + (filterOffset * 2)
           
           image = gcopy.deviceConfiguration.createCompatibleImage(
-                     bounds.width as int, 
-                     bounds.height as int, 
-                     Transparency.BITMASK )
+                     swidth, sheight, Transparency.BITMASK )
                      
           def gi = image.createGraphics()
           gi.color = context.g.color
