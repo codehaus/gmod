@@ -57,6 +57,10 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     public List getOperations() {
        operations
     }
+    
+    public List getOps() {
+    	Collections.unmodifiableList(operations)
+    }
 
     public void propertyChange( PropertyChangeEvent event ){
        if( operations.contains(event.source) ){
