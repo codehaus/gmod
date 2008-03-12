@@ -39,7 +39,7 @@ abstract class AbstractStrokeGraphicsOperation extends AbstractGraphicsOperation
         super( name )
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
        if( asStroke ) return
        context.g.stroke = getStroke()
     }

@@ -32,7 +32,7 @@ public class RenderingHintGraphicsOperation extends AbstractGraphicsOperation {
         super( "renderingHint" )
     }
 
-    public void execute( GraphicsContext context ){
+    protected void doExecute( GraphicsContext context ){
         context.g.setRenderingHint( convertKey(), convertValue() )
     }
 

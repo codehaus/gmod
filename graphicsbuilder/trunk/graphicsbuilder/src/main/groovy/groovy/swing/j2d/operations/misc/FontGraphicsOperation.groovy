@@ -30,7 +30,7 @@ class FontGraphicsOperation extends AbstractGraphicsOperation {
         super( "font" )
     }
 
-    public void execute( GraphicsContext context ){
+    protected void doExecute( GraphicsContext context ){
         if( !font ) return
         context.g.setFont( font )
     }

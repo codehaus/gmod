@@ -53,7 +53,7 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
         super( "texturePaint" )
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
        if( asPaint ) return
        context.g.paint = getPaint( context, null )
     }

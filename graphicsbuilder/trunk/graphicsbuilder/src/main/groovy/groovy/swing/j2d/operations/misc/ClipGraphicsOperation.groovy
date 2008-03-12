@@ -90,7 +90,7 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transfo
        super.setProperty( property, value )
     }
 
-    public void execute( GraphicsContext context ){
+    protected void doExecute( GraphicsContext context ){
         if( !shape ) return
         def s = shape
         if( shape instanceof ShapeProvider ){

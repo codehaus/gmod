@@ -33,7 +33,7 @@ public class StrokeGraphicsOperation extends AbstractGraphicsOperation {
         super( "stroke" )
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
         if( !stroke ) return null
         def s = stroke instanceof StrokeProvider ? stroke.stroke : stroke
         context.g.stroke = s

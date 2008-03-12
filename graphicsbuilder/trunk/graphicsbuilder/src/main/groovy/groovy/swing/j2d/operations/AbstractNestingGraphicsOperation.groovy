@@ -31,7 +31,7 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
         super( name )
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
        executeBeforeAll( context )
        if( operations ){
           if( !executeBeforeNestedOperations( context ) ) return

@@ -56,8 +56,8 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
       }
    }
 
-   public void execute( GraphicsContext context ) {
-      // EMPTY
+   protected void doExecute( GraphicsContext context ) {
+      // empty
    }
 
    public void apply( GraphicsContext context, Shape shape ){

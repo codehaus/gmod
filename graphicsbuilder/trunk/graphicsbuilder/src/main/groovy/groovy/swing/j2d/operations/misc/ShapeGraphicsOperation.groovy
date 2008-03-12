@@ -73,7 +73,7 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
        throw new MissingPropertyException( property, ShapeGraphicsOperation )
     }
 
-    public void execute( GraphicsContext context ){
+    protected void doExecute( GraphicsContext context ){
         // empty
     }
 
