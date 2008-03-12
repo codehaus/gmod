@@ -26,22 +26,24 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractFilterProvider extends ObservableSupport implements FilterProvider {
-    private String name
+    private String nodeName
     //public static required = []
     //public static optional = []
+    
+    String name
 
-    AbstractFilterProvider( String name ) {
+    AbstractFilterProvider( String nodeName ) {
         super()
-        this.name = name
+        this.nodeName = nodeName
         addPropertyChangeListener( this )
     }
 
-    public String getName() {
-        return name
+    public String getNodeName() {
+        return nodeName
     }
 
     public String toString() {
-        return name
+        return name ? "${nodeName[name]}" : nodeName
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
