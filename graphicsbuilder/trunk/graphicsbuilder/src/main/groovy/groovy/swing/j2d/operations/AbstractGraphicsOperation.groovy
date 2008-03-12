@@ -32,32 +32,29 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractGraphicsOperation extends ObservableSupport implements GraphicsOperation {
-    private String name
+    private String nodeName
     private boolean executing
     
+    // non-observable
     Closure beforeRender
     Closure afterRender
+    String name
 
     //public static required = []
     //public static optional = []
 
-    /**
-     * Creates a new GraphicsOperation with a name.
-     *
-     * @param name the name of the operation
-     */
-    AbstractGraphicsOperation( String name ) {
+    AbstractGraphicsOperation( String nodeName ) {
         super()
-        this.name = name
+        this.nodeName = nodeName
         addPropertyChangeListener( this )
     }
 
-    public String getName() {
-        return name
+    public String getNodeName() {
+        return nodeName  
     }
 
     public String toString() {
-        return name
+        return name ? "${nodeName[name]}" : nodeName
     }
 
     public final void execute( GraphicsContext context ) {
