@@ -42,7 +42,7 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
     public static required = []
-    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','composite','asImage']
+    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','composite','asImage','passThrough']
 
     private def gcopy
     private def strokeBounds
@@ -76,6 +76,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     def asImage
     def opacity
     def composite
+    def passThrough
 
     AbstractDrawingGraphicsOperation( String name ) {
         super( name )

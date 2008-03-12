@@ -41,7 +41,7 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
  */
 class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
     public static required = ['x','y']
-    public static optional = ['image','classpath','url','file','asImage','opacity']
+    public static optional = ['image','classpath','url','file','asImage','opacity','passThrough']
 
     private BufferedImage filteredImage
     private Image imageObj
@@ -73,6 +73,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     def y = 0
     def asImage = false
     def opacity
+    def passThrough
 
     ImageGraphicsOperation() {
         super( "image" )
