@@ -85,6 +85,7 @@
             <artifactId>graphicsbuilder</artifactId>
             <version>${graphicsbuilder-version}</version>
          </dependency>
+	 <!--
          <dependency>
             <groupId>org.codehaus.mojo.groovy.runtime</groupId>
             <artifactId>groovy-runtime-1.5</artifactId>
@@ -96,6 +97,7 @@
                </exclusion>
             </exclusions>
          </dependency>
+	 -->
       </dependencies>
    </dependencyManagement>
 
@@ -130,6 +132,7 @@
                   </goals>
                </execution>
             </executions>
+	    <!--
             <dependencies>
                <dependency>
                    <groupId>org.codehaus.mojo.groovy.runtime</groupId>
@@ -145,6 +148,7 @@
             <configuration>
                <providerSelection>1.5</providerSelection>
             </configuration>
+	    -->
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>

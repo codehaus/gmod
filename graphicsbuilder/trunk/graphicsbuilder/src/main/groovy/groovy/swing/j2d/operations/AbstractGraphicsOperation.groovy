@@ -35,8 +35,8 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     private String name
     private boolean executing
     
-    Closure onBefore
-    Closure onAfter
+    Closure beforeRender
+    Closure afterRender
 
     //public static required = []
     //public static optional = []
@@ -63,7 +63,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     public final void execute( GraphicsContext context ) {
         try {
            executing = true
-           if( onBefore ) onBefore( context, this )
+           if( beforeRender ) beforeRender( context, this )
         }
         finally {
            executing = false
@@ -73,7 +73,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
 
         try {
            executing = true
-           if( onAfter ) onAfter( context, this )
+           if( afterRender ) afterRender( context, this )
         }
         finally {
            executing = false
