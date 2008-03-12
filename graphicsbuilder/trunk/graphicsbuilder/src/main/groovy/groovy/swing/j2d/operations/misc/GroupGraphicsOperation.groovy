@@ -41,7 +41,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping, Filterable, GraphicsInputListener {
-    public static optional = ['borderColor','borderWidth','fill','opacity','asImage','composite']
+    public static optional = ['borderColor','borderWidth','fill','opacity','asImage','composite','passThrough']
 
     private def previousGroupContext
     private def gcopy
@@ -71,6 +71,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     def opacity
     def asImage
     def composite
+    def passThrough
 
     public GroupGraphicsOperation() {
         super( "group" )
