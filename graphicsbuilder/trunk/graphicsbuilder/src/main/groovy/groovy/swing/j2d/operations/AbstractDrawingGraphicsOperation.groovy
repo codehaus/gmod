@@ -151,15 +151,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        this.@image = null
     }
 
-    /*
-    public BufferedImage asImage( GraphicsContext context ) {
-       if( !image ){
-          image = calculateImage(context)
-       }
-       image
-    }
-    */
-
     public void keyPressed( GraphicsInputEvent e ) {
        if( keyPressed ) this.@keyPressed(e)
     }

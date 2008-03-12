@@ -29,8 +29,8 @@
    <version>${graphicsbuilder-version}</version>
    <name>GraphicsBuilder</name>
 
-   <url />
-   <description></description>
+   <url>http://groovy.codehaus.org/GraphicsBuilder</url>
+   <description>A Groovy builder for Java2D</description>
    <inceptionYear>2007</inceptionYear>
 
    <licenses>
@@ -85,6 +85,17 @@
             <artifactId>graphicsbuilder</artifactId>
             <version>${graphicsbuilder-version}</version>
          </dependency>
+         <dependency>
+            <groupId>org.codehaus.mojo.groovy.runtime</groupId>
+            <artifactId>groovy-runtime-1.5</artifactId>
+            <version>${groovy-maven-plugin-version}</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.codehaus.groovy</groupId>
+                  <artifactId>groovy-all-minimal</artifactId>
+               </exclusion>
+            </exclusions>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 
@@ -119,6 +130,21 @@
                   </goals>
                </execution>
             </executions>
+            <dependencies>
+               <dependency>
+                   <groupId>org.codehaus.mojo.groovy.runtime</groupId>
+                   <artifactId>groovy-runtime-1.5</artifactId>
+                   <version>${groovy-maven-plugin-version}</version>
+                </dependency>
+                <dependency>
+                   <groupId>org.codehaus.groovy</groupId>
+                   <artifactId>groovy-all-minimal</artifactId>
+                   <version>${groovy-version}</version>
+                </dependency>
+            </dependencies>
+            <configuration>
+               <providerSelection>1.5</providerSelection>
+            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -152,7 +178,8 @@
 
    <properties>
       <graphicsbuilder-version>0.5-SNAPSHOT</graphicsbuilder-version>
-      <groovy-version>1.5.2</groovy-version>
+      <groovy-version>1.5.4</groovy-version>
+      <groovy-maven-plugin-version>1.0-beta-3</groovy-maven-plugin-version>
    </properties>
 
 </project>

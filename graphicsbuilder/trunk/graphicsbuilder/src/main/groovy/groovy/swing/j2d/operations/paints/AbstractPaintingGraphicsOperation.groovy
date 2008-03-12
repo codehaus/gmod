@@ -49,7 +49,7 @@ abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperati
        return copy
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
         if( !asPaint ) {
            context.g.paint = getPaint(context, context.g.clipBounds)
         }

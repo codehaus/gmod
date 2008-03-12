@@ -93,7 +93,7 @@ final class BorderPaintGraphicsOperation extends AbstractGraphicsOperation imple
        return paint.getPaint( context, bounds )
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
         // empty
     }
 }

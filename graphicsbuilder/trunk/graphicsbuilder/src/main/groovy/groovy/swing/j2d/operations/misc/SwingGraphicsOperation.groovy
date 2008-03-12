@@ -34,7 +34,7 @@ class SwingGraphicsOperation extends AbstractGraphicsOperation {
         this.container = container
     }
 
-    public void execute( GraphicsContext context ){
+    protected void doExecute( GraphicsContext context ){
         if( !container ) return
         boolean updated = false
         Component[] components = container.components

@@ -247,6 +247,10 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            addShortcut( nodeName, 'borderWidth', 'bw' )
            addShortcut( nodeName, 'fill', 'f' )
            addShortcut( nodeName, 'opacity', 'o' )
+           addShortcut( nodeName, 'composite', 'c' )
+           addShortcut( nodeName, 'asShape', 's' )
+           addShortcut( nodeName, 'asImage', 'i' )
+           addShortcut( nodeName, 'passThrough', 'pt' )
         }
         ['arc','arrow','roundRect','rect','triangle','texturePaint','balloon','viewBox'].each { nodeName ->
            addShortcut( nodeName, 'height', 'h' )
@@ -257,6 +261,9 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         addShortcut( 'ellipse', 'radiusx', 'rx' )
         addShortcut( 'ellipse', 'radiusy', 'ry' )
         addShortcut( 'image', 'opacity', 'o' )
+        addShortcut( 'image', 'composite', 'c' )
+        addShortcut( 'image', 'asImage', 'i' )
+        addShortcut( 'image', 'passThrough', 'pt' )
         addShortcut( 'rays', 'radius', 'r' )
         addShortcut( 'rect', 'arcHeight', 'ah' )
         addShortcut( 'rect', 'arcWidth', 'aw' )

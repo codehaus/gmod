@@ -24,13 +24,12 @@ import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.event.GraphicsInputEvent
 import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.Filterable
 import groovy.swing.j2d.operations.FilterProvider
 import groovy.swing.j2d.operations.FilterGroup
-import groovy.swing.j2d.operations.OutlineProvider
-import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.TransformationGroup
 import groovy.swing.j2d.operations.AbstractGraphicsOperation
@@ -41,7 +40,7 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
  */
 class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
     public static required = ['x','y']
-    public static optional = ['image','classpath','url','file','asImage','opacity','passThrough']
+    public static optional = ['image','classpath','url','file','asImage','opacity','composite','passThrough']
 
     private BufferedImage filteredImage
     private Image imageObj
@@ -73,6 +72,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     def y = 0
     def asImage = false
     def opacity
+    def composite
     def passThrough
 
     ImageGraphicsOperation() {
@@ -124,7 +124,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        return globallyTransformedImage
     }
 
-    public void execute( GraphicsContext context ){
+    protected void doExecute( GraphicsContext context ){
        if( !filterGroup || filterGroup.empty ){
           executeOperation( context )
        }else{
@@ -328,10 +328,11 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
              this.@imageObj= image.getLocallyTransformedImage(context)
           }else if( image instanceof Image || image instanceof BufferedImage ){
              this.@imageObj = image
-          }/*else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
+          }else if( image instanceof GraphicsOperation && image.image ){
              image.addPropertyChangeListener( this )
-             this.@imageObj = image.asImage(context)
-          }*/else {
+             this.@imageObj = image.image
+             boundingShape = image.getBoundingShape(context)
+          }else {
              throw new IllegalArgumentException("image.image is not a java.awt.Image nor a java.awt.image.BufferedImage")
           }
        }else if( classpath ){

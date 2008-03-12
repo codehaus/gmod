@@ -42,7 +42,7 @@ public class BasicStrokeGraphicsOperation extends AbstractStrokeGraphicsOperatio
         super( "basicStroke" )
     }
 
-    public void execute( GraphicsContext context ) {
+    protected void doExecute( GraphicsContext context ) {
         if( asStroke ) return
         def c = ColorCache.getInstance().getColor(color)
         if( opacity != null ){

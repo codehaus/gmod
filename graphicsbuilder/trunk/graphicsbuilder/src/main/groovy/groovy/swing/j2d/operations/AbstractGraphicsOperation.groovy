@@ -33,6 +33,11 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractGraphicsOperation extends ObservableSupport implements GraphicsOperation {
     private String name
+    private boolean executing
+    
+    Closure onBefore
+    Closure onAfter
+
     //public static required = []
     //public static optional = []
 
@@ -55,8 +60,24 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
         return name
     }
 
-    public void execute( GraphicsContext context ) {
-        // empty
+    public final void execute( GraphicsContext context ) {
+        try {
+           executing = true
+           if( onBefore ) onBefore( context, this )
+        }
+        finally {
+           executing = false
+        }
+        
+        doExecute( context )
+
+        try {
+           executing = true
+           if( onAfter ) onAfter( context, this )
+        }
+        finally {
+           executing = false
+        }
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
@@ -68,10 +89,12 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     void setProperty( String property, Object value ) {
         def oldValue = getProperty( property )
         super.setProperty( property, value )
-        if( isParameter(property) && compare(oldValue,value) ){
+        if( !executing && isParameter(property) && compare(oldValue,value) ){
            firePropertyChange( property, oldValue, value )
         }
     }
+
+    protected abstract void doExecute( GraphicsContext context )
 
     protected void localPropertyChange( PropertyChangeEvent event ) {
 
