@@ -41,6 +41,10 @@ class ExtPathGraphicsOperation extends AbstractShapeGraphicsOperation {
       super( "path" )
     }
 
+    public List paths() {
+ 	   Collections.unmodifiableList(pathOperations)
+    }
+    
    public void addPathOperation( ExtPathOperation operation ) {
       if( !operation ) return
       pathOperations << operation

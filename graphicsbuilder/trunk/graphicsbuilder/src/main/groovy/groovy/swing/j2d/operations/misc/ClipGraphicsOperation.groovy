@@ -32,8 +32,8 @@ import java.beans.PropertyChangeEvent
 class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transformable {
     public static required = ['shape']
 
-    TransformationGroup transformationGroup
-    TransformationGroup globalTransformationGroup
+    TransformationGroup transformations
+    TransformationGroup globalTransformations
 
     def shape
 
@@ -41,37 +41,41 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transfo
         super( "clip" )
     }
 
-    public void setTransformationGroup( TransformationGroup transformationGroup ){
-       if( transformationGroup ) {
-          if( this.transformationGroup ){
-             this.transformationGroup.removePropertyChangeListener( this )
+    public void setTransformations( TransformationGroup transformations ){
+       if( transformations ) {
+          if( this.transformations ){
+             this.transformations.removePropertyChangeListener( this )
           }
-          this.transformationGroup = transformationGroup
-          this.transformationGroup.addPropertyChangeListener( this )
+          this.transformations = transformations
+          this.transformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getTransformationGroup() {
-       transformationGroup
+    public TransformationGroup getTransformations() {
+       transformations
+    }
+    
+    public TransformationGroup getTxs() {
+       transformations
     }
 
-    public void setGlobalTransformationGroup( TransformationGroup globalTransformationGroup ){
-       if( globalTransformationGroup ) {
-          if( this.globalTransformationGroup ){
-             this.globalTransformationGroup.removePropertyChangeListener( this )
+    public void setGlobalTransformations( TransformationGroup globalTransformations ){
+       if( globalTransformations ) {
+          if( this.globalTransformations ){
+             this.globalTransformations.removePropertyChangeListener( this )
           }
-          this.globalTransformationGroup = globalTransformationGroup
-          this.globalTransformationGroup.addPropertyChangeListener( this )
+          this.globalTransformations = globalTransformations
+          this.globalTransformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getGlobalTransformationGroup() {
-       globalTransformationGroup
+    public TransformationGroup getGlobalTransformations() {
+       globalTransformations
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformationGroup ||
-           event.source == globalTransformationGroup ){
+       if( event.source == transformations ||
+           event.source == globalTransformations ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -96,12 +100,12 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transfo
         if( shape instanceof ShapeProvider ){
            s = shape.getLocallyTransformedShape(context)
         }
-        if( transformationGroup && !transformationGroup.isEmpty() ){
-           s = transformationGroup.apply( s )
+        if( transformations && !transformations.isEmpty() ){
+           s = transformations.apply( s )
         }
 
-        if( globalTransformationGroup && !globalTransformationGroup.isEmpty() ){
-           s = globalTransformationGroup.apply( s )
+        if( globalTransformations && !globalTransformations.isEmpty() ){
+           s = globalTransformations.apply( s )
         }
 
         context.g.clip = s

@@ -38,6 +38,14 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     public List getTransformations(){
        return Collections.unmodifiableList(transformations)
     }
+    
+    public Transformation getAt( int index ){
+    	return transformations[index]
+    }
+
+    public Transformation getAt( String name ) {
+    	return transformations.find { it?.name == name }
+    }
 
     public void addTransformation( Transformation transformation ) {
         if( !transformation ) return
@@ -130,6 +138,10 @@ public class TransformationGroup extends ObservableSupport implements Transforma
        }else{
           return image
        }
+    }
+    
+    public String toString() {
+    	"transformations$transformations"
     }
 
     private BufferedImage createTransformedImage( transform, src, interpolation, context ) {

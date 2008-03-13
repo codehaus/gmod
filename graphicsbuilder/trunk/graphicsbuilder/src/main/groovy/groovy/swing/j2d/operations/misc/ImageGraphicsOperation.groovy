@@ -48,9 +48,9 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     protected Image locallyTransformedImage
     protected Image globallyTransformedImage
     
-    TransformationGroup transformationGroup
-    TransformationGroup globalTransformationGroup
-    FilterGroup filterGroup
+    TransformationGroup transformations
+    TransformationGroup globalTransformations
+    FilterGroup filters
 
     Closure keyPressed
     Closure keyReleased
@@ -80,10 +80,10 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformationGroup ||
-           event.source == globalTransformationGroup ||
+       if( event.source == transformations ||
+           event.source == globalTransformations ||
            event.source == image ||
-           event.source == filterGroup ){
+           event.source == filters ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -125,7 +125,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     }
 
     protected void doExecute( GraphicsContext context ){
-       if( !filterGroup || filterGroup.empty ){
+       if( !filters || filters.empty ){
           executeOperation( context )
        }else{
           executeWithFilters( context )
@@ -134,46 +134,50 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        addAsEventTarget(context)
     }
 
-    public void setTransformationGroup( TransformationGroup transformationGroup ){
-       if( transformationGroup ) {
-          if( this.transformationGroup ){
-             this.transformationGroup.removePropertyChangeListener( this )
+    public void setTransformations( TransformationGroup transformations ){
+       if( transformations ) {
+          if( this.transformations ){
+             this.transformations.removePropertyChangeListener( this )
           }
-          this.transformationGroup = transformationGroup
-          this.transformationGroup.addPropertyChangeListener( this )
+          this.transformations = transformations
+          this.transformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getTransformationGroup() {
-       transformationGroup
+    public TransformationGroup getTransformations() {
+       transformations
     }
+    
+    public TransformationGroup getTxs() {
+       transformations
+    }    
 
-    public void setGlobalTransformationGroup( TransformationGroup globalTransformationGroup ){
-       if( globalTransformationGroup ) {
-          if( this.globalTransformationGroup ){
-             this.globalTransformationGroup.removePropertyChangeListener( this )
+    public void setGlobalTransformations( TransformationGroup globalTransformations ){
+       if( globalTransformations ) {
+          if( this.globalTransformations ){
+             this.globalTransformations.removePropertyChangeListener( this )
           }
-          this.globalTransformationGroup = globalTransformationGroup
-          this.globalTransformationGroup.addPropertyChangeListener( this )
+          this.globalTransformations = globalTransformations
+          this.globalTransformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getGlobalTransformationGroup() {
-       globalTransformationGroup
+    public TransformationGroup getGlobalTransformations() {
+       globalTransformations
     }
 
-    public void setFilterGroup( FilterGroup filterGroup ){
-       if( filterGroup ) {
-          if( this.filterGroup ){
-             this.filterGroup.removePropertyChangeListener( this )
+    public void setFilters( FilterGroup filters ){
+       if( filters ) {
+          if( this.filters ){
+             this.filters.removePropertyChangeListener( this )
           }
-          this.filterGroup = filterGroup
-          this.filterGroup.addPropertyChangeListener( this )
+          this.filters = filters
+          this.filters.addPropertyChangeListener( this )
        }
     }
 
-    public FilterGroup getFilterGroup() {
-       filterGroup
+    public FilterGroup getFilters() {
+       filters
     }
 
     public void keyPressed( GraphicsInputEvent e ) {
@@ -251,8 +255,8 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     }
 
     private void executeWithFilters( GraphicsContext context ){
-       def dx = x - filterGroup.offset
-       def dy = y - filterGroup.offset
+       def dx = x - filters.offset
+       def dy = y - filters.offset
        calculateFilteredImage( context )
 
        boundingShape = new Rectangle(dx,dy,filteredImage.width,filteredImage.height)
@@ -286,8 +290,8 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        def input = getGloballyTransformedImage(context)
        def bounds = new Rectangle( x as int,
                                    y as int,
-                                   (input.width+(filterGroup.offset*2)) as int,
-                                   (input.height+(filterGroup.offset*2)) as int )
+                                   (input.width+(filters.offset*2)) as int,
+                                   (input.height+(filters.offset*2)) as int )
        def clip = new Rectangle( 0i, 0i, input.width as int, input.height as int )
 
        BufferedImage src = context.g.deviceConfiguration.createCompatibleImage(
@@ -298,23 +302,23 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        graphics.setClip( 0i, 0i, bounds.width as int, bounds.height as int )
        graphics.renderingHints.putAll( context.g.renderingHints )
        contextCopy.g = graphics
-       graphics.drawImage( input, filterGroup.offset as int, filterGroup.offset as int, null )
+       graphics.drawImage( input, filters.offset as int, filters.offset as int, null )
 
        // apply filters
-       filteredImage = filterGroup.apply( src, clip )
+       filteredImage = filters.apply( src, clip )
     }
 
     private void calculateLocallyTransformedImage( GraphicsContext context ) {
-       if( transformationGroup && !transformationGroup.isEmpty() ){
-          this.@locallyTransformedImage = transformationGroup.apply( getImageObj(context), context )
+       if( transformations && !transformations.isEmpty() ){
+          this.@locallyTransformedImage = transformations.apply( getImageObj(context), context )
        }else{
           this.@locallyTransformedImage = getImageObj(context)
        }
     }
 
     private void calculateGloballyTransformedImage( GraphicsContext context ) {
-       if( globalTransformationGroup && !globalTransformationGroup.isEmpty() ){
-          this.@globallyTransformedImage = globalTransformationGroup.apply(
+       if( globalTransformations && !globalTransformations.isEmpty() ){
+          this.@globallyTransformedImage = globalTransformations.apply(
                 getLocallyTransformedImage(context), context )
        }else{
           this.@globallyTransformedImage = getLocallyTransformedImage(context)

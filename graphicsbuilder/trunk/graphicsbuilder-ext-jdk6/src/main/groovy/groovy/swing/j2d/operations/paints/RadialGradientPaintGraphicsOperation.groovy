@@ -42,7 +42,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
    public static optional = AbstractPaintingGraphicsOperation.optional + ['cycle','absolute','linkTo']
 
    private def stops = []
-   TransformationGroup transformationGroup
+   TransformationGroup transformations
 
    // properties
    def cx
@@ -90,12 +90,12 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       stops.each { stop ->
          copy.addStop( stop.copy() )
       }
-      if( transformationGroup ){
-         transformationGroup.transformations.each { t ->
-            copy.transformationGroup = new TransformationGroup()
+      if( transformations ){
+         transformations.transformations.each { t ->
+            copy.transformations = new TransformationGroup()
             def transformation = t.copy()
             transformation.removePropertyChangeListener(this)
-            copy.transformationGroup.addTransformation( transformation )
+            copy.transformations.addTransformation( transformation )
          }
       }
       return copy
@@ -131,19 +131,23 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
       }
    }
 
-   public void setTransformationGroup( TransformationGroup transformationGroup ){
-      if( transformationGroup ) {
-         if( this.transformationGroup ){
-            this.transformationGroup.removePropertyChangeListener( this )
+   public void setTransformations( TransformationGroup transformations ){
+      if( transformations ) {
+         if( this.transformations ){
+            this.transformations.removePropertyChangeListener( this )
          }
-         this.transformationGroup = transformationGroup
-         this.transformationGroup.addPropertyChangeListener( this )
+         this.transformations = transformations
+         this.transformations.addPropertyChangeListener( this )
       }
    }
 
-   public TransformationGroup getTransformationGroup() {
-      transformationGroup
+   public TransformationGroup getTransformations() {
+      transformations
    }
+   
+   public TransformationGroup getTxs() {
+      transformations
+   }  
 
    private RadialGradientPaint makePaint( cx, cy, fx, fy ){
       stops = stops.sort { a, b -> a.offset <=> b.offset }
@@ -159,7 +163,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
          }
       }
 
-      if( transformationGroup && !transformationGroup.isEmpty() ){
+      if( transformations && !transformations.isEmpty() ){
          return new RadialGradientPaint( new Point2D.Float(cx as float,cy as float),
                                          radius as float,
                                          new Point2D.Float(fx as float,fy as float),
@@ -167,7 +171,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
                                          colors,
                                          getCycleMethod(),
                                          ColorSpaceType.SRGB,
-                                         transformationGroup.getConcatenatedTransform() )
+                                         transformations.getConcatenatedTransform() )
       }else{
          return new RadialGradientPaint( cx as float,
                                          cy as float,

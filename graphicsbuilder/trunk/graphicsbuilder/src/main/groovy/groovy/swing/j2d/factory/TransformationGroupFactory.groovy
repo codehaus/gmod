@@ -32,6 +32,6 @@ public class TransformationGroupFactory extends AbstractGraphicsOperationFactory
        if( !(parent instanceof Transformable) ){
           throw new IllegalArgumentException("$parent does not support transformations")
        }
-       parent.transformationGroup = child
+       parent.transformations = child
     }
 }

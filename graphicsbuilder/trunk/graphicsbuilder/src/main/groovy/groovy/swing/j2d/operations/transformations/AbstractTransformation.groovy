@@ -25,17 +25,18 @@ public abstract class AbstractTransformation extends ObservableSupport implement
     public static required = []
     public static optional = ['interpolation']
 
-    private String name
+    private String nodeName
 
     def interpolation
+    String name
 
-    public AbstractTransformation( String name ) {
+    public AbstractTransformation( String nodeName ) {
         super()
-        this.name = name
+        this.nodeName = nodeName
     }
 
-    public String getName() {
-        return name
+    public String getNodeName() {
+        return nodeName
     }
 
     public Transformation copy() {
@@ -59,5 +60,9 @@ public abstract class AbstractTransformation extends ObservableSupport implement
         def oldValue = getProperty( property )
         super.setProperty( property, value )
         firePropertyChange( property, oldValue, value )
+    }
+    
+    public String toString() {
+        return name ? "${nodeName}[${name}]": nodeName
     }
 }

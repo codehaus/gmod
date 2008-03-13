@@ -40,6 +40,10 @@ class PathGraphicsOperation extends AbstractShapeGraphicsOperation  {
       super( "path" )
    }
 
+   public List paths() {
+	   Collections.unmodifiableList(pathOperations)
+   }
+   
    public void addPathOperation( PathOperation operation ) {
       if( !operation ) return
       pathOperations << operation

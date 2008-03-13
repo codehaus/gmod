@@ -25,12 +25,13 @@ public class GradientStop extends ObservableSupport {
     Color color
     def offset
     def opacity
+    String name
 
     public GradientStop copy() {
-       new GradientStop( offset: offset, color: color, opacity: opacity )
+       new GradientStop( offset: offset, color: color, opacity: opacity, name: name )
     }
 
     public String toString(){
-       return "stop[offset: $offset, color: $color, opacity: $opacity]"
+       return "stop[offset: $offset, color: $color, opacity: $opacity, name: $name]"
     }
 }

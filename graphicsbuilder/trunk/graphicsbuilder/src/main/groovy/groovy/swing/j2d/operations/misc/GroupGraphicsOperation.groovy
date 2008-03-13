@@ -47,9 +47,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     private def gcopy
     private BufferedImage image
     
-    TransformationGroup transformationGroup
-    TransformationGroup globalTransformationGroup
-    FilterGroup filterGroup
+    TransformationGroup transformations
+    TransformationGroup globalTransformations
+    FilterGroup filters
     ViewBox viewBox
 
     Closure keyPressed
@@ -95,46 +95,50 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        image
     }
 
-    public void setTransformationGroup( TransformationGroup transformationGroup ){
-       if( transformationGroup ) {
-          if( this.transformationGroup ){
-             this.transformationGroup.removePropertyChangeListener( this )
+    public void setTransformations( TransformationGroup transformations ){
+       if( transformations ) {
+          if( this.transformations ){
+             this.transformations.removePropertyChangeListener( this )
           }
-          this.transformationGroup = transformationGroup
-          this.transformationGroup.addPropertyChangeListener( this )
+          this.transformations = transformations
+          this.transformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getTransformationGroup() {
-       transformationGroup
+    public TransformationGroup getTransformations() {
+       transformations
+    }
+    
+    public TransformationGroup getTxs() {
+       transformations
     }
 
-    public void setGlobalTransformationGroup( TransformationGroup globalTransformationGroup ){
-       if( globalTransformationGroup ) {
-          if( this.globalTransformationGroup ){
-             this.globalTransformationGroup.removePropertyChangeListener( this )
+    public void setGlobalTransformations( TransformationGroup globalTransformations ){
+       if( globalTransformations ) {
+          if( this.globalTransformations ){
+             this.globalTransformations.removePropertyChangeListener( this )
           }
-          this.globalTransformationGroup = globalTransformationGroup
-          this.globalTransformationGroup.addPropertyChangeListener( this )
+          this.globalTransformations = globalTransformations
+          this.globalTransformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getGlobalTransformationGroup() {
-       globalTransformationGroup
+    public TransformationGroup getGlobalTransformations() {
+       globalTransformations
     }
 
-    public void setFilterGroup( FilterGroup filterGroup ){
-       if( filterGroup ) {
-          if( this.filterGroup ){
-             this.filterGroup.removePropertyChangeListener( this )
+    public void setFilters( FilterGroup filters ){
+       if( filters ) {
+          if( this.filters ){
+             this.filters.removePropertyChangeListener( this )
           }
-          this.filterGroup = filterGroup
-          this.filterGroup.addPropertyChangeListener( this )
+          this.filters = filters
+          this.filters.addPropertyChangeListener( this )
        }
     }
  
-    public FilterGroup getFilterGroup() {
-       filterGroup
+    public FilterGroup getFilters() {
+       filters
     }
 
     public void keyPressed( GraphicsInputEvent e ) {
@@ -182,9 +186,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
     
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformationGroup ||
-           event.source == globalTransformationGroup ||
-           event.source == filterGroup ||
+       if( event.source == transformations ||
+           event.source == globalTransformations ||
+           event.source == filters ||
            event.source == viewBox ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
@@ -204,8 +208,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        gcopy = context.g
        
        def boundingShape = getBoundingShape(context)
-       if( asImage || hasFilterGroup() || composite ){
-          def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+       if( asImage || hasfilters() || composite ){
+          def filterOffset = hasfilters() ? filters.offset : 0
           def bounds = boundingShape.bounds
           int swidth = bounds.width + (filterOffset * 2)
           int sheight = bounds.height + (filterOffset * 2)
@@ -236,9 +240,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     protected void executeAfterAll( GraphicsContext context ) {
        def bounds = context.g.clipBounds
-       def filterOffset = hasFilterGroup() ? filterGroup.offset : 0
-       if( hasFilterGroup() ){
-           image = filterGroup.apply( image, bounds )   
+       def filterOffset = hasfilters() ? filters.offset : 0
+       if( hasfilters() ){
+           image = filters.apply( image, bounds )   
        }
        if( !asImage || composite ){
           gcopy.drawImage( image, 
@@ -256,21 +260,21 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
        if( go instanceof Transformable /*&& !(go instanceof PaintProvider)*/ ){
-          if( transformationGroup ){
-             def gtg = go.globalTransformationGroup
+          if( transformations ){
+             def gtg = go.globalTransformations
              if( !gtg ){
                 gtg = new TransformationGroup()
-                go.globalTransformationGroup = gtg
+                go.globalTransformations = gtg
              }
-             gtg.addTransformation( transformationGroup )
+             gtg.addTransformation( transformations )
           }
-          if( globalTransformationGroup ){
-             def gtg = go.globalTransformationGroup
+          if( globalTransformations ){
+             def gtg = go.globalTransformations
              if( !gtg ){
                 gtg = new TransformationGroup()
-                go.globalTransformationGroup = gtg
+                go.globalTransformations = gtg
              }
-             gtg.addTransformation( globalTransformationGroup )
+             gtg.addTransformation( globalTransformations )
           }
        }
        go.execute( context )
@@ -296,8 +300,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        }*/
     }
     
-    private boolean hasFilterGroup(){
-       return filterGroup && !filterGroup.empty
+    private boolean hasfilters(){
+       return filters && !filters.empty
     }
     
     public Shape getBoundingShape( GraphicsContext context ) {
@@ -305,8 +309,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
         if( viewBox ){
             bounds = viewBox.getLocallyTransformedShape(context)
             if( !viewBox.pinned ){
-               if( transformationGroup ) bounds = transformationGroup.apply(bounds)
-               if( globalTransformationGroup ) bounds = globalTransformationGroup.apply(bounds)
+               if( transformations ) bounds = transformations.apply(bounds)
+               if( globalTransformations ) bounds = globalTransformations.apply(bounds)
             }
         }else if( context.g.clipBounds ){
             bounds = new Rectangle(context.g.clipBounds)

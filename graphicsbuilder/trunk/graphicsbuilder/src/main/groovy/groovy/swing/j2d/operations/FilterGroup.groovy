@@ -33,6 +33,14 @@ public class FilterGroup extends ObservableSupport {
     public List getFilters(){
        return Collections.unmodifiableList(filters)
     }
+    
+    public FilterProvider getAt( int index ) {
+    	return filters[index]
+    }
+
+    public FilterProvider getAt( String name ) {
+    	return filters.find { it?.name == name }
+    }
 
     public void addFilter( FilterProvider filter ) {
         if( !filter ) return
@@ -64,5 +72,9 @@ public class FilterGroup extends ObservableSupport {
           }
        }
        return dst
+    }
+    
+    public String toString() {
+    	"filters$filters"
     }
 }
