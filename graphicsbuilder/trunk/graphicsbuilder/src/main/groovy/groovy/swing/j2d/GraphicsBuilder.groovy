@@ -257,6 +257,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
            addShortcut( nodeName, 'width', 'w' )
         }
 
+        addShortcut( 'draw', 'keepTrans', 'kt' )
         addShortcut( 'circle', 'radius', 'r' )
         addShortcut( 'ellipse', 'radiusx', 'rx' )
         addShortcut( 'ellipse', 'radiusy', 'ry' )

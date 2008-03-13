@@ -30,25 +30,29 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
     public static required = ['shape']
 
     def shape
-    TransformationGroup transformationGroup
+    TransformationGroup transformations
 
     ShapeGraphicsOperation() {
         super( "shape" )
     }
 
-    public void setTransformationGroup( TransformationGroup transformationGroup ){
-       if( transformationGroup ) {
-          if( this.transformationGroup ){
-             this.transformationGroup.removePropertyChangeListener( this )
+    public void setTransformations( TransformationGroup transformations ){
+       if( transformations ) {
+          if( this.transformations ){
+             this.transformations.removePropertyChangeListener( this )
           }
-          this.transformationGroup = transformationGroup
-          this.transformationGroup.addPropertyChangeListener( this )
+          this.transformations = transformations
+          this.transformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getTransformationGroup() {
-       transformationGroup
+    public TransformationGroup getTransformations() {
+       transformations
     }
+    
+    public TransformationGroup getTxs() {
+       transformations
+    }      
 
     void setProperty( String property, Object value ) {
        if( property == "shape" ){
@@ -91,8 +95,8 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
        if( shape instanceof ShapeProvider ){
           // TODO apply local
           def s = shape.getLocallyTransformedShape(context)
-          if( transformationGroup && !transformationGroup.isEmpty() ){
-             s = transformationGroup.apply(s)
+          if( transformations && !transformations.isEmpty() ){
+             s = transformations.apply(s)
           }
           return s
        }else if( shape instanceof Shape ){

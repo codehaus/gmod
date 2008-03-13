@@ -54,7 +54,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     }
 
     public String toString() {
-        return name ? "${nodeName[name]}" : nodeName
+        return name ? "${nodeName}[${name}]" : nodeName
     }
 
     public final void execute( GraphicsContext context ) {

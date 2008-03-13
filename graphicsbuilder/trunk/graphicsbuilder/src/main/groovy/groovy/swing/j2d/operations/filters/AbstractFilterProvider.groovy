@@ -43,7 +43,7 @@ abstract class AbstractFilterProvider extends ObservableSupport implements Filte
     }
 
     public String toString() {
-        return name ? "${nodeName[name]}" : nodeName
+        return name ? "${nodeName}[${name}]": nodeName
     }
 
     public void propertyChange( PropertyChangeEvent event ) {

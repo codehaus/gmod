@@ -24,15 +24,16 @@ public abstract class AbstractPathOperation extends ObservableSupport implements
     public static required = []
     public static optional = []
 
-    private String name
+    private String nodeName
+    String name
 
-    public AbstractPathOperation( String name ) {
+    public AbstractPathOperation( String nodeName ) {
         super()
-        this.name = name
+        this.nodeName = nodeName
     }
 
-    public String getName() {
-        return name
+    public String getNodeName() {
+        return nodeName
     }
 
     void setProperty( String property, Object value ) {
@@ -41,5 +42,9 @@ public abstract class AbstractPathOperation extends ObservableSupport implements
        if( value != oldValue ){
           firePropertyChange( property, oldValue, value )
        }
+    }
+    
+    public String toString() {
+       return name ? "${nodeName}[${name}]": nodeName
     }
 }

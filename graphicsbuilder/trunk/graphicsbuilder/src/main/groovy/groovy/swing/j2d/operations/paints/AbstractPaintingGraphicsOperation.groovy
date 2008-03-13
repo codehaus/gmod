@@ -28,8 +28,8 @@ abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperati
     // properties
     def asPaint
 
-    AbstractPaintingGraphicsOperation( String name ) {
-        super( name )
+    AbstractPaintingGraphicsOperation( String nodeName ) {
+        super( nodeName )
     }
 
     public PaintProvider asCopy() {

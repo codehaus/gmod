@@ -42,7 +42,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
 
    private def stops = []
    
-   TransformationGroup transformationGroup
+   TransformationGroup transformations
    def linkTo
 
    LinearGradientPaintGraphicsOperation() {
@@ -81,12 +81,12 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
       stops.each { stop ->
          copy.addStop( stop.copy() )
       }
-      if( transformationGroup ){
-         transformationGroup.transformations.each { t ->
-            copy.transformationGroup = new TransformationGroup()
+      if( transformations ){
+         transformations.transformations.each { t ->
+            copy.transformations = new TransformationGroup()
             def transformation = t.copy()
             transformation.removePropertyChangeListener(this)
-            copy.transformationGroup.addTransformation( transformation )
+            copy.transformations.addTransformation( transformation )
          }
       }
       return copy
@@ -101,19 +101,23 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
       super.setProperty( property, value )
    }
 
-   public void setTransformationGroup( TransformationGroup transformationGroup ){
-      if( transformationGroup ) {
-         if( this.transformationGroup ){
-            this.transformationGroup.removePropertyChangeListener( this )
+   public void setTransformations( TransformationGroup transformations ){
+      if( transformations ) {
+         if( this.transformations ){
+            this.transformations.removePropertyChangeListener( this )
          }
-         this.transformationGroup = transformationGroup
-         this.transformationGroup.addPropertyChangeListener( this )
+         this.transformations = transformations
+         this.transformations.addPropertyChangeListener( this )
       }
    }
 
-   public TransformationGroup getTransformationGroup() {
-      transformationGroup
+   public TransformationGroup getTransformations() {
+      transformations
    }
+   
+   public TransformationGroup getTxs() {
+      transformations
+   }  
 
    protected Paint makePaint( x1, y1, x2, y2 ){
       stops = stops.sort { a, b -> a.offset <=> b.offset }
@@ -129,14 +133,14 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
          }
       }
 
-      if( transformationGroup && !transformationGroup.isEmpty() ){
+      if( transformations && !transformations.isEmpty() ){
          return new LinearGradientPaint( new Point2D.Double(x1,y1),
                                          new Point2D.Double(x2,y2),
                                          fractions,
                                          colors,
                                          getCycleMethod(),
                                          ColorSpaceType.SRGB,
-                                         transformationGroup.getConcatenatedTransform() )
+                                         transformations.getConcatenatedTransform() )
       }else{
          return new LinearGradientPaint( new Point2D.Double(x1,y1),
                                          new Point2D.Double(x2,y2),

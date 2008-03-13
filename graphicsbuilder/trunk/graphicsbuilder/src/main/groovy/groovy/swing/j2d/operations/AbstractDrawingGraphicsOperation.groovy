@@ -51,9 +51,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     protected Shape locallyTransformedShape
     protected Shape globallyTransformedShape
 
-    TransformationGroup transformationGroup
-    TransformationGroup globalTransformationGroup
-    FilterGroup filterGroup
+    TransformationGroup transformations
+    TransformationGroup globalTransformations
+    FilterGroup filters
 
     Closure keyPressed
     Closure keyReleased
@@ -102,42 +102,56 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        return this.@globallyTransformedShape
     }
 
-    public void setTransformationGroup( TransformationGroup transformationGroup ){
-       if( transformationGroup ) {
-          if( this.transformationGroup ){
-             this.transformationGroup.removePropertyChangeListener( this )
+    public void setTransformations( TransformationGroup transformations ){
+       if( transformations ) {
+          if( this.transformations ){
+             this.transformations.removePropertyChangeListener( this )
           }
-          this.transformationGroup = transformationGroup
-          this.transformationGroup.addPropertyChangeListener( this )
+          this.transformations = transformations
+          this.transformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getTransformationGroup() {
-       transformationGroup
+    public TransformationGroup getTransformations() {
+       transformations
     }
+    
+    public TransformationGroup getTxs() {
+       transformations
+    }  
 
-    public void setGlobalTransformationGroup( TransformationGroup globalTransformationGroup ){
-       if( globalTransformationGroup ) {
-          if( this.globalTransformationGroup ){
-             this.globalTransformationGroup.removePropertyChangeListener( this )
+    public void setGlobalTransformations( TransformationGroup globalTransformations ){
+       if( globalTransformations ) {
+          if( this.globalTransformations ){
+             this.globalTransformations.removePropertyChangeListener( this )
           }
-          this.globalTransformationGroup = globalTransformationGroup
-          this.globalTransformationGroup.addPropertyChangeListener( this )
+          this.globalTransformations = globalTransformations
+          this.globalTransformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getGlobalTransformationGroup() {
-       globalTransformationGroup
+    public TransformationGroup getGlobalTransformations() {
+       globalTransformations
+    }
+    
+    public void setFilters( FilterGroup filters ){
+       if( filters ) {
+          if( this.filters ){
+             this.filters.removePropertyChangeListener( this )
+          }
+          this.filters = filters
+          this.filters.addPropertyChangeListener( this )
+       }
     }
 
-    public FilterGroup getFilterGroup() {
-       filterGroup
+    public FilterGroup getFilters() {
+       filters
     }
     
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformationGroup ||
-           event.source == globalTransformationGroup || 
-           event.source == filterGroup ){
+       if( event.source == transformations ||
+           event.source == globalTransformations || 
+           event.source == filters ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -209,12 +223,12 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           
        applyOpacity( context )
 
-       if( asImage || hasFilterGroup() || composite ){
+       if( asImage || hasfilters() || composite ){
            Shape boundingShape = getBoundingShape(context)
            strokeBounds = boundingShape.bounds
            shapeBounds = getGloballyTransformedShape(context).bounds
            
-           int filterOffset = hasFilterGroup() ? filterGroup.offset : 0
+           int filterOffset = hasfilters() ? filters.offset : 0
            int swidth = strokeBounds.width + (filterOffset*2)
            int sheight = strokeBounds.height + (filterOffset*2)
              
@@ -240,8 +254,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     	boolean drawImage = false
     	def previousComposite = null
     	
-        if( hasFilterGroup() ){
-      	   image = filterGroup.apply( image, strokeBounds )
+        if( hasfilters() ){
+      	   image = filters.apply( image, strokeBounds )
       	   drawImage = true
         }
     	if( composite ){
@@ -251,7 +265,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     	}    	
     	
         if( !asImage && drawImage ){
-           int filterOffset = hasFilterGroup() ? filterGroup.offset : 0	
+           int filterOffset = hasfilters() ? filters.offset : 0	
      	   gcopy.drawImage( image, 
      		            (strokeBounds.x - filterOffset) as int, 
      		            (strokeBounds.y - filterOffset) as int, 
@@ -430,16 +444,16 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     }
 
     protected void calculateLocallyTransformedShape( GraphicsContext context ) {
-       if( transformationGroup && !transformationGroup.empty){
-          this.@locallyTransformedShape = transformationGroup.apply( getShape(context) )
+       if( transformations && !transformations.empty){
+          this.@locallyTransformedShape = transformations.apply( getShape(context) )
        }else{
           this.@locallyTransformedShape = getShape(context)
        }
     }
 
     protected void calculateGloballyTransformedShape( GraphicsContext context ) {
-       if( globalTransformationGroup && !globalTransformationGroup.empty ){
-          this.@globallyTransformedShape = globalTransformationGroup.apply( getLocallyTransformedShape(context) )
+       if( globalTransformations && !globalTransformations.empty ){
+          this.@globallyTransformedShape = globalTransformations.apply( getLocallyTransformedShape(context) )
        }else{
           this.@globallyTransformedShape = getLocallyTransformedShape(context)
        }
@@ -562,8 +576,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
     }
     
-    private boolean hasFilterGroup(){
-    	return filterGroup && !filterGroup.empty
+    private boolean hasfilters(){
+    	return filters && !filters.empty
     }
 
     private boolean shouldSkip( GraphicsContext context ){

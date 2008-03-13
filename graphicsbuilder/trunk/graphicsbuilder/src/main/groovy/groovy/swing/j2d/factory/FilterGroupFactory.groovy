@@ -32,6 +32,6 @@ public class FilterGroupFactory extends AbstractGraphicsOperationFactory {
        if( !(parent instanceof Filterable) ){
           throw new IllegalArgumentException("$parent does not support filters")
        }
-       parent.filterGroup = child
+       parent.filters = child
     }
 }

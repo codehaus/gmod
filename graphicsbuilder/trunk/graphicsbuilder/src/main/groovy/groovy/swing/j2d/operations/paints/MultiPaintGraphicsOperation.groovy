@@ -30,16 +30,16 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implements MultiPaintProvider {
-    private List paints = []
+   private List paints = []
 
-    public MultiPaintGraphicsOperation() {
-        super( "multiPaint" )
-    }
+   public MultiPaintGraphicsOperation() {
+       super( "multiPaint" )
+   }
 
-    public void addPaint( PaintProvider paint ) {
-       if( !paint ) return
-       paints << paint
-       paint.addPropertyChangeListener( this )
+   public void addPaint( PaintProvider paint ) {
+      if( !paint ) return
+      paints << paint
+      paint.addPropertyChangeListener( this )
    }
 
    public void removePaint( PaintProvider paint ) {
@@ -67,5 +67,9 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
          context.g.fill( shape )
       }
       context.g.paint = p
+   }
+   
+   public List getPaints(){
+      Collections.unmodifiableCollection(paints)
    }
 }

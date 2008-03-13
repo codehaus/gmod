@@ -28,7 +28,7 @@ import java.beans.PropertyChangeEvent
 public class ViewBox extends ObservableSupport implements Transformable {
     protected Shape locallyTransformedShape
 
-    TransformationGroup transformationGroup
+    TransformationGroup transformations
 
     def x = 0
     def y = 0
@@ -41,19 +41,23 @@ public class ViewBox extends ObservableSupport implements Transformable {
        shape = new Rectangle2D.Double(0,0,10,10)
     }
 
-    public void setTransformationGroup( TransformationGroup transformationGroup ){
-       if( transformationGroup ) {
-          if( this.transformationGroup ){
-             this.transformationGroup.removePropertyChangeListener( this )
+    public void setTransformations( TransformationGroup transformations ){
+       if( transformations ) {
+          if( this.transformations ){
+             this.transformations.removePropertyChangeListener( this )
           }
-          this.transformationGroup = transformationGroup
-          this.transformationGroup.addPropertyChangeListener( this )
+          this.transformations = transformations
+          this.transformations.addPropertyChangeListener( this )
        }
     }
 
-    public TransformationGroup getTransformationGroup() {
-       transformationGroup
+    public TransformationGroup getTransformations() {
+       transformations
     }
+    
+    public TransformationGroup getTxs() {
+       transformations
+    }  
 
     public Shape getShape( GraphicsContext context ){
        return shape
@@ -67,7 +71,7 @@ public class ViewBox extends ObservableSupport implements Transformable {
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformationGroup ){
+       if( event.source == transformations ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -96,8 +100,8 @@ public class ViewBox extends ObservableSupport implements Transformable {
    }
 
     protected void calculateLocallyTransformedShape( GraphicsContext context ) {
-       if( transformationGroup && !transformationGroup.empty){
-          this.@locallyTransformedShape = transformationGroup.apply( getShape(context) )
+       if( transformations && !transformations.empty){
+          this.@locallyTransformedShape = transformations.apply( getShape(context) )
        }else{
           this.@locallyTransformedShape = getShape(context)
        }
