@@ -24,16 +24,17 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperation {
-    private List operations = []
+    private OperationGroup operationGroup = new OperationGroup()
     private def g
 
     AbstractNestingGraphicsOperation( String name ) {
         super( name )
+        operationGroup.addPropertyChangeListener(this)
     }
 
     protected void doExecute( GraphicsContext context ) {
        executeBeforeAll( context )
-       if( operations ){
+       if( !operationGroup.empty ){
           if( !executeBeforeNestedOperations( context ) ) return
           operations.each { o -> executeNestedOperation(context,o) }
           if( !executeAfterNestedOperations( context ) ) return
@@ -43,27 +44,29 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     }
 
     public void addOperation( GraphicsOperation operation ) {
-        if( !operation ) return
-        operations << operation
-        operation.addPropertyChangeListener( this )
+        //if( !operation ) return
+        //operations << operation
+        //operation.addPropertyChangeListener( this )
+        operationGroup.addOperation( operation )
     }
 
     public void removeOperation( GraphicsOperation operation ) {
-        if( !operation ) return
-        operations.remove( operation )
-        operation.removePropertyChangeListener( this )
+        //if( !operation ) return
+        //operations.remove( operation )
+        //operation.removePropertyChangeListener( this )
+        operationGroup.removeOperation( operation )
     }
 
     public List getOperations() {
-       operations
+        operationGroup.operations
     }
     
-    public List getOps() {
-    	Collections.unmodifiableList(operations)
+    public OperationGroup getOps() {
+        operationGroup
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( operations.contains(event.source) ){
+       if( /*operations.contains(event.source)*/ event.source == operationGroup ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )

@@ -72,4 +72,12 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
    public List getPaints(){
       Collections.unmodifiableCollection(paints)
    }
+   
+   public PaintProvider getAt( int index ) {
+  	  return paints[index]
+   }
+
+   public PaintProvider getAt( String name ) {
+  	  return paints.find { it?.name == name }
+   }
 }
