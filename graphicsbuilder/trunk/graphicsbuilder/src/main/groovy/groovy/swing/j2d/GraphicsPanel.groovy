@@ -41,7 +41,7 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      private GraphicsContext context = new GraphicsContext()
      private boolean displayed
      private List errorListeners = []
-     private GraphicsOperation lastTarget
+     private List lastTargets = []
 
      GraphicsPanel(){
          super( null )
@@ -145,11 +145,11 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
      /* ===== MouseListener ===== */
 
      public void mouseEntered( MouseEvent e ){
-         lastTarget = null
+         lastTargets.clear()
      }
 
      public void mouseExited( MouseEvent e ){
-         lastTarget = null
+         lastTargets.clear()
      }
 
      public void mousePressed( MouseEvent e ){
@@ -168,18 +168,34 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
 
      public void mouseMoved( MouseEvent e ){
          if( !context.eventTargets ) return
-         def target = getTarget(e)
-         if( target ){
-             def inputEvent = new GraphicsInputEvent( this, e, target )
-             if( target != lastTarget ){
-                if( lastTarget ) lastTarget.mouseExited( new GraphicsInputEvent( this, e, target ) )
-                lastTarget = target
-                target.mouseEntered( inputEvent )
-             }
-             target.mouseMoved( inputEvent )
-         }else if( lastTarget ){
-            lastTarget.mouseExited( new GraphicsInputEvent( this, e, lastTarget ) )
-            lastTarget = null
+         def targets = getTargets(e)
+         if( targets ){
+            def oldTargets = []
+            def visitedTargets = []
+            lastTargets.each { target ->
+               if( !targets.contains(target) ){ 
+                  oldTargets << target
+               }else{
+                  visitedTargets << target
+               }
+            }
+            def newTargets = targets - visitedTargets
+            oldTargets.each { t -> t.mouseExited( new GraphicsInputEvent( this, e, t ) ) }
+            newTargets.each { t -> t.mouseEntered( new GraphicsInputEvent( this, e, t ) ) }
+            targets.each { t -> t.mouseMoved( new GraphicsInputEvent( this, e, t ) ) }
+            lastTargets = targets
+                /*
+                def inputEvent = new GraphicsInputEvent( this, e, target )
+                if( target != lastTarget ){
+                   if( lastTarget ) lastTarget.mouseExited( new GraphicsInputEvent( this, e, target ) )
+                   lastTarget = target
+                   target.mouseEntered( inputEvent )
+                }
+                target.mouseMoved( inputEvent )
+                */
+         }else if( lastTargets ){
+            lastTargets.each { it.mouseExited( new GraphicsInputEvent( this, e, it ) ) }
+            lastTargets.clear()
          }
      }
 
@@ -211,21 +227,22 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
 
      private void fireMouseEvent( MouseEvent e, String mouseEventMethod ){
          if( !context.eventTargets ) return
-         def target = getTarget(e)
-         if( target ){
+         getTargets(e).each { target ->
             def inputEvent = new GraphicsInputEvent( this, e, target )
             target."$mouseEventMethod"( inputEvent )
          }
      }
 
-     private def getTarget( MouseEvent e ){
+     private def getTargets( MouseEvent e ){
+         def targets = []
          def eventTargets = context.eventTargets
          for( target in eventTargets.reverse() ){
              def bp = target.getBoundingShape(context)
              if( bp && bp.contains(e.point) ){
-                 return target
+                 targets << target
+                 if( !target.passThrough ) break
              }
          }
-         return null
+         return targets
      }
 }
