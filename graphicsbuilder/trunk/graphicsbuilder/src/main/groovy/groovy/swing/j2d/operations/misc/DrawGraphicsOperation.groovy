@@ -46,9 +46,11 @@ public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
            throw new IllegalArgumentException("draw.shape must be one of [java.awt.Shape,OutlineProvider,ShapeProvider]")
         }
 
+        if( keepTrans ) return s
+        
         // translate to world origin
         def bounds = s.bounds
-        if( bounds.x != 0 || bounds.y != 0 && !keepTrans ){
+        if( bounds.x != 0 || bounds.y != 0 ){
            s = AffineTransform.getTranslateInstance( bounds.x*(-1), bounds.y*(-1)).createTransformedShape(s)
         }
         return s
