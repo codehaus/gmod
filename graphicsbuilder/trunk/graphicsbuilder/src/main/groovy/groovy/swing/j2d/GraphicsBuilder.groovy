@@ -242,7 +242,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
 
         ['draw','arc','circle','ellipse','polygon','rect','text','donut',
          'triangle','regularPolygon','rays','arrow','pin','cross','star', 'balloon',
-         'roundRect','group','path','line','cubicCurve','quadCurve','polyline'].each { nodeName ->
+         'roundRect','group','path','line','cubicCurve','quadCurve','polyline',
+         'add','subtract','intersect','xor'].each { nodeName ->
            addShortcut( nodeName, 'borderColor', 'bc' )
            addShortcut( nodeName, 'borderWidth', 'bw' )
            addShortcut( nodeName, 'fill', 'f' )

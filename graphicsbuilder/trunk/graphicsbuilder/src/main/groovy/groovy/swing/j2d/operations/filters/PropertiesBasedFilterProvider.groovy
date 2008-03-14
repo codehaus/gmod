@@ -27,7 +27,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class PropertiesBasedFilterProvider extends AbstractFilterProvider {
-   public static optional = ['clip']
+   public static optional = AbstractFilterProvider.optional + ['clip']
 
    protected def filter
    def clip

@@ -28,9 +28,10 @@ import java.beans.PropertyChangeEvent
 abstract class AbstractFilterProvider extends ObservableSupport implements FilterProvider {
     private String nodeName
     //public static required = []
-    //public static optional = []
+    public static optional = ['enabled']
     
     String name
+    def enabled = true
 
     AbstractFilterProvider( String nodeName ) {
         super()

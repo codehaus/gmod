@@ -44,16 +44,29 @@ public class OperationGroup extends ObservableSupport {
         if( !operation ) return
         operations << operation
         operation.addPropertyChangeListener( this )
+        firePropertyChange( "size", operations.size()-1, operations.size() )
     }
 
     public void removeOperation( GraphicsOperation operation ) {
         if( !operation ) return
         operation.removePropertyChangeListener( this )
         operations.remove( operation )
+        firePropertyChange( "size", operations.size()+1, operations.size() )
     }
 
     public boolean isEmpty() {
        return operations.isEmpty()
+    }
+    
+    public void clear() {
+       if( operations.isEmpty() ) return
+       int actualSize = operations.size()
+       operations.clear()
+       firePropertyChange( "size", actualSize, 0 )
+    }
+    
+    public int getSize() {
+       return operations.size()
     }
 
     public void propertyChange( PropertyChangeEvent event ) {

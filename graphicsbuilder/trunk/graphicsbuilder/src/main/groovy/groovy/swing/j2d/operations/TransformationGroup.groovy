@@ -30,9 +30,6 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class TransformationGroup extends ObservableSupport implements Transformation {
-    private static final String OLDVALUE = "_OLD_VALUE_"
-    private static final String NEWVALUE = "_NEW_VALUE_"
-
     private List transformations = []
 
     public List getTransformations(){
@@ -55,21 +52,33 @@ public class TransformationGroup extends ObservableSupport implements Transforma
         }
         transformations << transformation
         transformation.addPropertyChangeListener( this )
+        firePropertyChange( "size", transformations.size()-1, transformations.size() )
     }
 
     public void removeTransformation( Transformation transformation ) {
         if( !transformation ) return
         transformation.removePropertyChangeListener( this )
         transformations.remove( transformation )
+        firePropertyChange( "size", transformations.size()+1, transformations.size() )
     }
 
     public boolean isEmpty() {
        return transformations.isEmpty()
     }
 
+    public void clear() {
+       if( transformations.isEmpty() ) return
+       int actualSize = transformations.size()
+       transformations.clear()
+       firePropertyChange( "size", actualSize, 0 )
+    }
+    
+    public int getSize() {
+       return transformations.size()
+    }
+    
     public void propertyChange( PropertyChangeEvent event ) {
        firePropertyChange( new ExtPropertyChangeEvent(this,event) )
-       //firePropertyChange( "transform", OLDVALUE, NEWVALUE )
     }
 
     public AffineTransform getTransform() {
