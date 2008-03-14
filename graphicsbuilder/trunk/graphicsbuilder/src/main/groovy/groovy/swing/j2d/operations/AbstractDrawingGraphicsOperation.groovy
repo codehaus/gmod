@@ -48,6 +48,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     private def strokeBounds
     private def shapeBounds
     private BufferedImage image
+    private def bounds
     protected Shape locallyTransformedShape
     protected Shape globallyTransformedShape
 
@@ -163,6 +164,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        this.@locallyTransformedShape = null
        this.@globallyTransformedShape = null
        this.@image = null
+       this.@bounds = null
     }
 
     public void keyPressed( GraphicsInputEvent e ) {
@@ -215,8 +217,13 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        shape.add(new Area(stroke.createStrokedShape(shape)))
        return shape
     }
+    
+    public Rectangle getBounds() {
+       bounds
+    }
 
     protected void executeBeforeAll( GraphicsContext context ) {
+       bounds = new Rectangle(getBoundingShape(context).bounds)
        if( shouldSkip(context) ) return
 
        gcopy = context.g

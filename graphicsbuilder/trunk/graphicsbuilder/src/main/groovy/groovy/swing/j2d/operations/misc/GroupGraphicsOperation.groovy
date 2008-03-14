@@ -46,6 +46,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     private def previousGroupContext
     private def gcopy
     private BufferedImage image
+    private Rectangle bounds
     
     TransformationGroup transformations
     TransformationGroup globalTransformations
@@ -93,6 +94,14 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     
     public BufferedImage getImage() {
        image
+    }
+    
+    public Rectangle getBounds() {
+       bounds
+    }
+    
+    public boolean hasCenter() {
+       false
     }
 
     public void setTransformations( TransformationGroup transformations ){
@@ -199,6 +208,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     protected void localPropertyChange( PropertyChangeEvent event ) {
         super.localPropertyChange( event )
         image = null
+        bounds = null
      }
 
     protected void executeBeforeAll( GraphicsContext context ) {
@@ -239,15 +249,15 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       def bounds = context.g.clipBounds
+       def cbounds = context.g.clipBounds
        def filterOffset = hasfilters() ? filters.offset : 0
        if( hasfilters() ){
-           image = filters.apply( image, bounds )   
+           image = filters.apply( image, cbounds )   
        }
        if( !asImage || composite ){
           gcopy.drawImage( image, 
-                           (bounds.x - filterOffset) as int, 
-                           (bounds.y - filterOffset) as int, 
+                           (cbounds.x - filterOffset) as int, 
+                           (cbounds.y - filterOffset) as int, 
                            null )      
        }
        
@@ -256,6 +266,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        context.groupContext = previousGroupContext
 
        addAsEventTarget(context)
+       
+       bounds = new Rectangle(getBoundingShape(context).bounds)
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {

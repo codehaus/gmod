@@ -40,12 +40,14 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
       if( !paint ) return
       paints << paint
       paint.addPropertyChangeListener( this )
+      firePropertyChange( "size", paints.size()-1, paints.size() )
    }
 
    public void removePaint( PaintProvider paint ) {
        if( !paint ) return
        paints.remove( paint )
        paint.removePropertyChangeListener( this )
+       firePropertyChange( "size", paints.size()+1, paints.size() )
    }
 
    public void propertyChange( PropertyChangeEvent event ){
@@ -71,6 +73,21 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
    
    public List getPaints(){
       Collections.unmodifiableCollection(paints)
+   }
+   
+   public boolean isEmpty() {
+      return paints.isEmpty()
+   }
+   
+   public void clear() {
+      if( paints.isEmpty() ) return
+      int actualSize = paints.size()
+      paints.clear()
+      firePropertyChange( "size", actualSize, 0 )
+   }
+   
+   public int getSize() {
+      return paints.size()
    }
    
    public PaintProvider getAt( int index ) {

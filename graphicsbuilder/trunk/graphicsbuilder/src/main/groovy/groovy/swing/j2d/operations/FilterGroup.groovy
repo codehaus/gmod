@@ -46,16 +46,29 @@ public class FilterGroup extends ObservableSupport {
         if( !filter ) return
         filters << filter
         filter.addPropertyChangeListener( this )
+        firePropertyChange( "size", filters.size()-1, filters.size() )
     }
 
     public void removeFilter( FilterProvider filter ) {
         if( !filter ) return
         filter.removePropertyChangeListener( this )
         filters.remove( filter )
+        firePropertyChange( "size", filters.size()+1, filters.size() )
     }
 
     public boolean isEmpty() {
        return filters.isEmpty()
+    }
+    
+    public void clear() {
+       if( filters.isEmpty() ) return
+       int actualSize = filters.size()
+       filters.clear()
+       firePropertyChange( "size", actualSize, 0 )
+    }
+    
+    public int getSize() {
+       return filters.size()
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
@@ -65,13 +78,15 @@ public class FilterGroup extends ObservableSupport {
     public BufferedImage apply( BufferedImage image, Shape clip ) {
        BufferedImage dst = null
        filters.each { filter ->
-          if( !dst ){
-             dst = filter.filter( image, null, clip )
-          }else{
-             dst = filter.filter( dst, dst, clip )
+          if( filter.enabled ){
+             if( !dst ){
+                dst = filter.filter( image, null, clip )
+             }else{
+                dst = filter.filter( dst, dst, clip )
+             }
           }
        }
-       return dst
+       return dst ?: image
     }
     
     public String toString() {

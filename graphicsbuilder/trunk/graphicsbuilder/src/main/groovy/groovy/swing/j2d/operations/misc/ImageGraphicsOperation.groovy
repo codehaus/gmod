@@ -92,6 +92,7 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
 
     protected void localPropertyChange( PropertyChangeEvent event ){
        super.localPropertyChange( event )
+       boundingShape = null
        filteredImage = null
        imageObj = null
        boundingShape = null
@@ -108,6 +109,10 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
 
     public Shape getBoundingShape( GraphicsContext context ) {
        boundingShape
+    }
+    
+    public Rectangle getBounds(){
+       return boundingShape
     }
 
     public Image getLocallyTransformedImage( GraphicsContext context ){
