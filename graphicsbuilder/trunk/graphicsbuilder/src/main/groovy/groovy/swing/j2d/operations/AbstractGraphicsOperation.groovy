@@ -35,6 +35,8 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     private String nodeName
     private boolean executing
     
+    private Map props = [:]
+    
     // non-observable
     Closure beforeRender
     Closure afterRender
@@ -55,6 +57,10 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
 
     public String toString() {
         return name ? "${nodeName}[${name}]" : nodeName
+    }
+    
+    public final Map getProps() {
+        props  
     }
 
     public final void execute( GraphicsContext context ) {

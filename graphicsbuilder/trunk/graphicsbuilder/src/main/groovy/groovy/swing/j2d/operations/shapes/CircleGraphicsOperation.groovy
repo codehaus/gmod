@@ -39,4 +39,8 @@ public class CircleGraphicsOperation extends AbstractShapeGraphicsOperation {
                                     (radius * 2) as double,
                                     (radius * 2) as double )
     }
+    
+    public boolean hasCenter() {
+       true
+    }
 }

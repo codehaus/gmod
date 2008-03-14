@@ -55,6 +55,14 @@ public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
         }
         return s
     }
+    
+    public boolean hasCenter() {
+       shape instanceof ShapeProvider || shape instanceof OutlineProvider ? shape.hasCenter() : false
+    }
+    
+    public boolean hasXY() {
+       shape instanceof ShapeProvider || shape instanceof OutlineProvider ? shape.hasXY() : false
+    }
 
     protected void fill( GraphicsContext context, Shape shape ) {
         if( this.shape instanceof OutlineProvider ) return

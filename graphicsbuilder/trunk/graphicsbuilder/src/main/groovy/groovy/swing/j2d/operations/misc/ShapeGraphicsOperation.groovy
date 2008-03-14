@@ -34,6 +34,7 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
 
     ShapeGraphicsOperation() {
         super( "shape" )
+        setTransformations( new TransformationGroup() )
     }
 
     public void setTransformations( TransformationGroup transformations ){

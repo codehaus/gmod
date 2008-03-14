@@ -39,6 +39,8 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transfo
 
     ClipGraphicsOperation() {
         super( "clip" )
+        setTransformations( new TransformationGroup() )
+        setGlobalTransformations( new TransformationGroup() )
     }
 
     public void setTransformations( TransformationGroup transformations ){

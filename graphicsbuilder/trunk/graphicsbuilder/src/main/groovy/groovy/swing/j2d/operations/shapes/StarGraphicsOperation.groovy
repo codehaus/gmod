@@ -52,6 +52,10 @@ public class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
        return star
     }
 
+    public boolean hasCenter() {
+       true
+    }
+    
     private void calculateStar() {
        star = new Star( cx as double,
                         cy as double,

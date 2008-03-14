@@ -17,20 +17,14 @@ package groovy.swing.j2d.operations.misc
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.event.GraphicsInputEvent
-import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.Grouping
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.TransformationGroup
 import groovy.swing.j2d.operations.AbstractNestingGraphicsOperation
 import groovy.swing.j2d.operations.ViewBox
-import groovy.swing.j2d.operations.Filterable
-import groovy.swing.j2d.operations.FilterProvider
-import groovy.swing.j2d.operations.FilterGroup
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
-import java.awt.AlphaComposite
 import java.awt.Rectangle
 import java.awt.Shape
 import java.awt.Transparency
@@ -40,39 +34,13 @@ import java.beans.PropertyChangeEvent
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Grouping, Filterable, GraphicsInputListener {
-    public static optional = ['borderColor','borderWidth','fill','opacity','asImage','composite','passThrough']
-
+class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Grouping {
     private def previousGroupContext
     private def gcopy
     private BufferedImage image
     private Rectangle bounds
     
-    TransformationGroup transformations
-    TransformationGroup globalTransformations
-    FilterGroup filters
     ViewBox viewBox
-
-    Closure keyPressed
-    Closure keyReleased
-    Closure keyTyped
-    Closure mouseClicked
-    Closure mouseDragged
-    Closure mouseEntered
-    Closure mouseExited
-    Closure mouseMoved
-    Closure mousePressed
-    Closure mouseReleased
-    Closure mouseWheelMoved
-
-    // properties
-    def borderColor
-    def borderWidth
-    def fill
-    def opacity
-    def asImage
-    def composite
-    def passThrough
 
     public GroupGraphicsOperation() {
         super( "group" )
@@ -103,102 +71,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     public boolean hasCenter() {
        false
     }
-
-    public void setTransformations( TransformationGroup transformations ){
-       if( transformations ) {
-          if( this.transformations ){
-             this.transformations.removePropertyChangeListener( this )
-          }
-          this.transformations = transformations
-          this.transformations.addPropertyChangeListener( this )
-       }
-    }
-
-    public TransformationGroup getTransformations() {
-       transformations
-    }
-    
-    public TransformationGroup getTxs() {
-       transformations
-    }
-
-    public void setGlobalTransformations( TransformationGroup globalTransformations ){
-       if( globalTransformations ) {
-          if( this.globalTransformations ){
-             this.globalTransformations.removePropertyChangeListener( this )
-          }
-          this.globalTransformations = globalTransformations
-          this.globalTransformations.addPropertyChangeListener( this )
-       }
-    }
-
-    public TransformationGroup getGlobalTransformations() {
-       globalTransformations
-    }
-
-    public void setFilters( FilterGroup filters ){
-       if( filters ) {
-          if( this.filters ){
-             this.filters.removePropertyChangeListener( this )
-          }
-          this.filters = filters
-          this.filters.addPropertyChangeListener( this )
-       }
-    }
- 
-    public FilterGroup getFilters() {
-       filters
-    }
-
-    public void keyPressed( GraphicsInputEvent e ) {
-       if( keyPressed ) this.@keyPressed(e)
-    }
-
-    public void keyReleased( GraphicsInputEvent e ) {
-       if( keyReleased ) this.@keyReleased(e)
-    }
-
-    public void keyTyped( GraphicsInputEvent e ) {
-       if( keyTyped ) this.@keyTyped(e)
-    }
-
-    public void mouseClicked( GraphicsInputEvent e ) {
-       if( mouseClicked ) this.@mouseClicked(e)
-    }
-
-    public void mouseDragged( GraphicsInputEvent e ) {
-       if( mouseDragged ) this.@mouseDragged(e)
-    }
-
-    public void mouseEntered( GraphicsInputEvent e ) {
-       if( mouseEntered ) this.@mouseEntered(e)
-    }
-
-    public void mouseExited( GraphicsInputEvent e ) {
-       if( mouseExited ) this.@mouseExited(e)
-    }
-
-    public void mouseMoved( GraphicsInputEvent e ) {
-       if( mouseMoved ) this.@mouseMoved(e)
-    }
-
-    public void mousePressed( GraphicsInputEvent e ) {
-       if( mousePressed ) this.@mousePressed(e)
-    }
-
-    public void mouseReleased( GraphicsInputEvent e ) {
-       if( mouseReleased ) this.@mouseReleased(e)
-    }
-
-    public void mouseWheelMoved( GraphicsInputEvent e ) {
-       if( mouseWheelMoved ) this.@mouseWheelMoved(e)
-    }
     
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformations ||
-           event.source == globalTransformations ||
-           event.source == filters ||
-           event.source == viewBox ){
+       if( event.source == viewBox ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -291,31 +166,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        }
        go.execute( context )
     }
-
-    protected def getOpacity( GraphicsContext context ){
-       /*def o = opacity
-       if( context.groupContext?.opacity ){
-          o = context.groupContext?.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }*/
-       return opacity
-    }
-
-    protected void applyOpacity( GraphicsContext context ){
-       def o = getOpacity( context )
-       if( o != null ){
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }/*else{
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }*/
-    }
-    
-    private boolean hasfilters(){
-       return filters && !filters.empty
-    }
-    
+      
     public Shape getBoundingShape( GraphicsContext context ) {
         def bounds = [0,0,0,0] as Rectangle
         if( viewBox ){
@@ -333,13 +184,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
         return bounds
     }
 
-    private void addAsEventTarget( GraphicsContext context ){
-        if( viewBox && (keyPressed ||
-            keyReleased || keyTyped || mouseClicked ||
-            mouseDragged || mouseEntered || mouseExited ||
-            mouseMoved || mousePressed || mouseReleased ||
-            mouseWheelMoved) ){
-           context.eventTargets << this
+    protected void addAsEventTarget( GraphicsContext context ){
+        if( viewBox ){
+           super.addAsEventTarget(context)
         }
     }
 }

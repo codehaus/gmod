@@ -48,6 +48,10 @@ final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
       shape
    }
 
+   public boolean hasCenter() {
+      true
+   }
+   
    protected void localPropertyChange( PropertyChangeEvent event ){
       super.localPropertyChange( event )
       shape = null

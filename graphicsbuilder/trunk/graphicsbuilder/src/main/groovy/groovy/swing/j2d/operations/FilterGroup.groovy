@@ -35,40 +35,40 @@ public class FilterGroup extends ObservableSupport {
     }
     
     public FilterProvider getAt( int index ) {
-    	return filters[index]
+    	return this.@filters[index]
     }
 
     public FilterProvider getAt( String name ) {
-    	return filters.find { it?.name == name }
+    	return this.@filters.find { it?.name == name }
     }
 
     public void addFilter( FilterProvider filter ) {
         if( !filter ) return
-        filters << filter
+        this.@filters << filter
         filter.addPropertyChangeListener( this )
-        firePropertyChange( "size", filters.size()-1, filters.size() )
+        firePropertyChange( "size", this.@filters.size()-1, this.@filters.size() )
     }
 
     public void removeFilter( FilterProvider filter ) {
         if( !filter ) return
         filter.removePropertyChangeListener( this )
-        filters.remove( filter )
-        firePropertyChange( "size", filters.size()+1, filters.size() )
+        this.@filters.remove( filter )
+        firePropertyChange( "size", this.@filters.size()+1, this.@filters.size() )
     }
 
     public boolean isEmpty() {
-       return filters.isEmpty()
+       return this.@filters.isEmpty()
     }
     
     public void clear() {
-       if( filters.isEmpty() ) return
-       int actualSize = filters.size()
-       filters.clear()
+       if( this.@filters.isEmpty() ) return
+       int actualSize = this.@filters.size()
+       this.@filters.clear()
        firePropertyChange( "size", actualSize, 0 )
     }
     
     public int getSize() {
-       return filters.size()
+       return this.@filters.size()
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
@@ -77,7 +77,7 @@ public class FilterGroup extends ObservableSupport {
 
     public BufferedImage apply( BufferedImage image, Shape clip ) {
        BufferedImage dst = null
-       filters.each { filter ->
+       this.@filters.each { filter ->
           if( filter.enabled ){
              if( !dst ){
                 dst = filter.filter( image, null, clip )
@@ -91,5 +91,12 @@ public class FilterGroup extends ObservableSupport {
     
     public String toString() {
     	"filters$filters"
+    }
+    
+    /* ===== OPERATOR OVERLOADING ===== */
+
+    public FilterGroup leftShift( FilterProvider filter ) {
+       addFilter( filter )
+       this
     }
 }

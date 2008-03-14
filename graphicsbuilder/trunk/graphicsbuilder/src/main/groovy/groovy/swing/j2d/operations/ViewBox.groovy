@@ -39,6 +39,7 @@ public class ViewBox extends ObservableSupport implements Transformable {
 
     ViewBox(){
        shape = new Rectangle2D.Double(0,0,10,10)
+       setTransformations( new TransformationGroup() )
     }
 
     public void setTransformations( TransformationGroup transformations ){

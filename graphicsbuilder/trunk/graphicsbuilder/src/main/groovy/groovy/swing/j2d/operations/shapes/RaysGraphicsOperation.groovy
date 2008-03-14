@@ -53,6 +53,10 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
        shape
     }
 
+    public boolean hasCenter() {
+       true
+    }
+    
     private void calculateRays() {
        shape = new Rays( cx as double,
                           cy as double,

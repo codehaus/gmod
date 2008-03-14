@@ -60,6 +60,10 @@ public class MultiRoundRectangleGraphicsOperation extends AbstractShapeGraphicsO
        }
        roundRect
     }
+    
+    public boolean hasXY() {
+       true
+    }
 
     private void calculateRoundRect() {
        def tlw = topLeftWidth != null ? topLeftWidth :

@@ -33,48 +33,48 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     private List transformations = []
 
     public List getTransformations(){
-       return Collections.unmodifiableList(transformations)
+       return Collections.unmodifiableList(this.@transformations)
     }
     
     public Transformation getAt( int index ){
-    	return transformations[index]
+    	return this.@transformations[index]
     }
 
     public Transformation getAt( String name ) {
-    	return transformations.find { it?.name == name }
+    	return this.@transformations.find { it?.name == name }
     }
 
     public void addTransformation( Transformation transformation ) {
         if( !transformation ) return
         // make sure transformationGroups are added only once
         if( transformation instanceof TransformationGroup ){
-           if( transformations.find{ it == transformation} ) return
+           if( this.@transformations.find{ it == transformation} ) return
         }
-        transformations << transformation
+        this.@transformations << transformation
         transformation.addPropertyChangeListener( this )
-        firePropertyChange( "size", transformations.size()-1, transformations.size() )
+        firePropertyChange( "size", this.@transformations.size()-1, this.@transformations.size() )
     }
 
     public void removeTransformation( Transformation transformation ) {
         if( !transformation ) return
         transformation.removePropertyChangeListener( this )
-        transformations.remove( transformation )
-        firePropertyChange( "size", transformations.size()+1, transformations.size() )
+        this.@transformations.remove( transformation )
+        firePropertyChange( "size", this.@transformations.size()+1, this.@transformations.size() )
     }
 
     public boolean isEmpty() {
-       return transformations.isEmpty()
+       return this.@transformations.isEmpty()
     }
 
     public void clear() {
-       if( transformations.isEmpty() ) return
-       int actualSize = transformations.size()
-       transformations.clear()
+       if( this.@transformations.isEmpty() ) return
+       int actualSize = this.@transformations.size()
+       this.@transformations.clear()
        firePropertyChange( "size", actualSize, 0 )
     }
     
     public int getSize() {
-       return transformations.size()
+       return this.@transformations.size()
     }
     
     public void propertyChange( PropertyChangeEvent event ) {
@@ -87,7 +87,7 @@ public class TransformationGroup extends ObservableSupport implements Transforma
 
     public AffineTransform getConcatenatedTransform() {
        def transform = new AffineTransform()
-       transformations.each { transformation ->
+       this.@transformations.each { transformation ->
           def t = transformation.transform
           if( t && !t.isIdentity() ){
              transform.concatenate( t )
@@ -99,7 +99,7 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     public Shape apply( Shape shape ) {
        if( isEmpty() ) return shape
        def transform = new AffineTransform()
-       transformations.each { transformation ->
+       this.@transformations.each { transformation ->
           def t = transformation.transform
           if( transformation instanceof TransformationGroup ){
              shape = transformation.apply( shape )
@@ -125,7 +125,7 @@ public class TransformationGroup extends ObservableSupport implements Transforma
        if( isEmpty() ) return image
        def transform = new AffineTransform()
        def interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR
-       transformations.each { transformation ->
+       this.@transformations.each { transformation ->
           def t = transformation.transform
           if( transformation instanceof TransformationGroup ){
              image = transformation.apply( image, context )
@@ -153,6 +153,13 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     	"transformations$transformations"
     }
 
+    /* ===== OPERATOR OVERLOADING ===== */
+
+    public TransformationGroup leftShift( Transformation transformation ) {
+       addTransformation( transformation )
+       this
+    }
+    
     private BufferedImage createTransformedImage( transform, src, interpolation, context ) {
        AffineTransformOp at = new AffineTransformOp( transform, interpolation )
        BufferedImage dst = at.createCompatibleDestImage(src, src.colorModel)

@@ -52,6 +52,10 @@ public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
        }
        arrow
     }
+    
+    public boolean hasXY() {
+       true
+    }
 
     private void calculateArrow() {
        def r = rise != null ? rise : 0.5

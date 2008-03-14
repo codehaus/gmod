@@ -51,6 +51,10 @@ public class RoundPinGraphicsOperation extends AbstractShapeGraphicsOperation {
        pin
     }
 
+    public boolean hasCenter() {
+       true
+    }
+    
     private void calculateRoundPin() {
        def h = height != null ? height : radius * 2
        def a = angle != null ? angle : 0

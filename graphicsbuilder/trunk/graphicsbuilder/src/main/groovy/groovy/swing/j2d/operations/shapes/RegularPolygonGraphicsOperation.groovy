@@ -51,6 +51,10 @@ public class RegularPolygonGraphicsOperation extends AbstractShapeGraphicsOperat
        return polygon
     }
 
+    public boolean hasCenter() {
+       true
+    }
+    
     private void calculatePolygon() {
        polygon = new RegularPolygon( cx as double,
                                      cy as double,

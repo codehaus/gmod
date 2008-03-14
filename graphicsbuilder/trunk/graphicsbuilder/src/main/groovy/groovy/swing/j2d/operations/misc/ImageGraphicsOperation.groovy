@@ -15,7 +15,6 @@
 
 package groovy.swing.j2d.operations.misc
 
-import java.awt.AlphaComposite
 import java.awt.Image
 import java.awt.Rectangle
 import java.awt.Shape
@@ -25,44 +24,21 @@ import javax.imageio.ImageIO
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.event.GraphicsInputEvent
-import groovy.swing.j2d.event.GraphicsInputListener
-import groovy.swing.j2d.operations.Filterable
-import groovy.swing.j2d.operations.FilterProvider
-import groovy.swing.j2d.operations.FilterGroup
-import groovy.swing.j2d.operations.Transformable
-import groovy.swing.j2d.operations.TransformationGroup
-import groovy.swing.j2d.operations.AbstractGraphicsOperation
+import groovy.swing.j2d.operations.AbstractDisplayableGraphicsOperation
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
+class ImageGraphicsOperation extends AbstractDisplayableGraphicsOperation {
     public static required = ['x','y']
-    public static optional = ['image','classpath','url','file','asImage','opacity','composite','passThrough']
+    public static optional = AbstractDisplayableGraphicsOperation.optional + ['image','classpath','url','file']
 
     private BufferedImage filteredImage
     private Image imageObj
     private Rectangle boundingShape
     protected Image locallyTransformedImage
     protected Image globallyTransformedImage
-    
-    TransformationGroup transformations
-    TransformationGroup globalTransformations
-    FilterGroup filters
-
-    Closure keyPressed
-    Closure keyReleased
-    Closure keyTyped
-    Closure mouseClicked
-    Closure mouseDragged
-    Closure mouseEntered
-    Closure mouseExited
-    Closure mouseMoved
-    Closure mousePressed
-    Closure mouseReleased
-    Closure mouseWheelMoved
 
     def image
     def file
@@ -70,20 +46,13 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     def classpath
     def x = 0
     def y = 0
-    def asImage = false
-    def opacity
-    def composite
-    def passThrough
 
     ImageGraphicsOperation() {
         super( "image" )
     }
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformations ||
-           event.source == globalTransformations ||
-           event.source == image ||
-           event.source == filters ){
+       if( event.source == image ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -114,6 +83,10 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
     public Rectangle getBounds(){
        return boundingShape
     }
+    
+    public boolean hasXY() {
+       true
+    }
 
     public Image getLocallyTransformedImage( GraphicsContext context ){
        if( !locallyTransformedImage ){
@@ -139,120 +112,15 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        addAsEventTarget(context)
     }
 
-    public void setTransformations( TransformationGroup transformations ){
-       if( transformations ) {
-          if( this.transformations ){
-             this.transformations.removePropertyChangeListener( this )
-          }
-          this.transformations = transformations
-          this.transformations.addPropertyChangeListener( this )
-       }
-    }
-
-    public TransformationGroup getTransformations() {
-       transformations
-    }
-    
-    public TransformationGroup getTxs() {
-       transformations
-    }    
-
-    public void setGlobalTransformations( TransformationGroup globalTransformations ){
-       if( globalTransformations ) {
-          if( this.globalTransformations ){
-             this.globalTransformations.removePropertyChangeListener( this )
-          }
-          this.globalTransformations = globalTransformations
-          this.globalTransformations.addPropertyChangeListener( this )
-       }
-    }
-
-    public TransformationGroup getGlobalTransformations() {
-       globalTransformations
-    }
-
-    public void setFilters( FilterGroup filters ){
-       if( filters ) {
-          if( this.filters ){
-             this.filters.removePropertyChangeListener( this )
-          }
-          this.filters = filters
-          this.filters.addPropertyChangeListener( this )
-       }
-    }
-
-    public FilterGroup getFilters() {
-       filters
-    }
-
-    public void keyPressed( GraphicsInputEvent e ) {
-       if( keyPressed ) this.@keyPressed(e)
-    }
-
-    public void keyReleased( GraphicsInputEvent e ) {
-       if( keyReleased ) this.@keyReleased(e)
-    }
-
-    public void keyTyped( GraphicsInputEvent e ) {
-       if( keyTyped ) this.@keyTyped(e)
-    }
-
-    public void mouseClicked( GraphicsInputEvent e ) {
-       if( mouseClicked ) this.@mouseClicked(e)
-    }
-
-    public void mouseDragged( GraphicsInputEvent e ) {
-       if( mouseDragged ) this.@mouseDragged(e)
-    }
-
-    public void mouseEntered( GraphicsInputEvent e ) {
-       if( mouseEntered ) this.@mouseEntered(e)
-    }
-
-    public void mouseExited( GraphicsInputEvent e ) {
-       if( mouseExited ) this.@mouseExited(e)
-    }
-
-    public void mouseMoved( GraphicsInputEvent e ) {
-       if( mouseMoved ) this.@mouseMoved(e)
-    }
-
-    public void mousePressed( GraphicsInputEvent e ) {
-       if( mousePressed ) this.@mousePressed(e)
-    }
-
-    public void mouseReleased( GraphicsInputEvent e ) {
-       if( mouseReleased ) this.@mouseReleased(e)
-    }
-
-    public void mouseWheelMoved( GraphicsInputEvent e ) {
-       if( mouseWheelMoved ) this.@mouseWheelMoved(e)
-    }
-
     private void executeOperation( GraphicsContext context ){
        def gi = getGloballyTransformedImage(context)
        boundingShape = new Rectangle(x,y,gi.width,gi.height)
 
        if( asImage ) return
 
-       def o = opacity
-
-       /*
-       if( context.groupContext.opacity ){
-          o = context.groupContext.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }
-       */
-
        def g = context.g
        context.g = context.g.create()
-       if( o != null ){
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }/*else{
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }*/
+       applyOpacity(context)
 
        context.g.drawImage( getGloballyTransformedImage(context), x, y, null )
 
@@ -266,25 +134,11 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
 
        boundingShape = new Rectangle(dx,dy,filteredImage.width,filteredImage.height)
 
-       if( asImage ) return
-       def o = opacity
-       
-       /*
-       if( context.groupContext.opacity ){
-          o = context.groupContext.opacity
-       }
-       if( opacity != null ){
-          o = opacity
-       }
-       */
+       if( asImage ) return 
 
        def g = context.g
        context.g = context.g.create()
-       if( o != null ){
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }/*else{
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }*/
+       applyOpacity(context)
 
        context.g.drawImage( filteredImage, dx, dy, null )
 
@@ -356,13 +210,9 @@ class ImageGraphicsOperation extends AbstractGraphicsOperation implements Transf
        }
     }
 
-    private void addAsEventTarget( GraphicsContext context ){
-        if( !asImage && (keyPressed ||
-            keyReleased || keyTyped || mouseClicked ||
-            mouseDragged || mouseEntered || mouseExited ||
-            mouseMoved || mousePressed || mouseReleased ||
-            mouseWheelMoved) ){
-           context.eventTargets << this
+    protected void addAsEventTarget( GraphicsContext context ){
+        if( !asImage ){
+           super.addAsEventTarget(context)
         }
     }
 }

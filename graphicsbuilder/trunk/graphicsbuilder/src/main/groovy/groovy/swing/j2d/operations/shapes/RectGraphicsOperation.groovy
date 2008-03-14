@@ -52,4 +52,8 @@ final class RectGraphicsOperation extends AbstractShapeGraphicsOperation {
                                        width as double,
                                        height as double )
     }
+    
+    public boolean hasXY() {
+       true
+    }
 }

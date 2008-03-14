@@ -52,6 +52,10 @@ public class CrossGraphicsOperation extends AbstractShapeGraphicsOperation {
        cross
     }
 
+    public boolean hasCenter() {
+       true
+    }
+    
     private void calculateCross() {
        def w = width != null ? width : radius * 3 / 5
        def a = angle != null ? angle : 0

@@ -40,4 +40,8 @@ public class EllipseGraphicsOperation extends AbstractShapeGraphicsOperation {
                                     (radiusx * 2) as double,
                                     (radiusy * 2) as double )
     }
+    
+    public boolean hasCenter() {
+       true
+    }
 }

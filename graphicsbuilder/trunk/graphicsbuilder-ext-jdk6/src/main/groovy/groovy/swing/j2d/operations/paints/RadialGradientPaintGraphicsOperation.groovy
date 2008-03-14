@@ -56,6 +56,7 @@ class RadialGradientPaintGraphicsOperation extends AbstractPaintingGraphicsOpera
 
    RadialGradientPaintGraphicsOperation() {
       super( "radialGradient" )
+      setTransformations( new TransformationGroup() )
    }
 
    public List getStops(){
