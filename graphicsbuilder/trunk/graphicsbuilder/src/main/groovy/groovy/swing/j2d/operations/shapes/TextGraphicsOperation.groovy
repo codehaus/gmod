@@ -61,6 +61,10 @@ public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
         outline
     }
 
+    public boolean hasXY() {
+       true
+    }
+    
     protected void localPropertyChange( PropertyChangeEvent event ) {
        super.localPropertyChange( event )
        outline = null

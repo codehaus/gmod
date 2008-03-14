@@ -60,6 +60,10 @@ final class BalloonGraphicsOperation extends AbstractShapeGraphicsOperation {
        balloon
     }
 
+    public boolean hasXY() {
+       true
+    }
+    
     private void calculateBalloon() {
        def tl = getTabLocation()
        def ap = getAnglePosition()

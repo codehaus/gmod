@@ -47,6 +47,7 @@ class LinearGradientPaintGraphicsOperation extends AbstractLinearGradientPaintGr
 
    LinearGradientPaintGraphicsOperation() {
       super( "linearGradient" )
+      setTransformations( new TransformationGroup() )
    }
 
    public List getStops(){

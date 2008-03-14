@@ -38,16 +38,16 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
 
    public void addPaint( PaintProvider paint ) {
       if( !paint ) return
-      paints << paint
+      this.@paints << paint
       paint.addPropertyChangeListener( this )
-      firePropertyChange( "size", paints.size()-1, paints.size() )
+      firePropertyChange( "size", this.@paints.size()-1, this.@paints.size() )
    }
 
    public void removePaint( PaintProvider paint ) {
        if( !paint ) return
-       paints.remove( paint )
+       this.@paints.remove( paint )
        paint.removePropertyChangeListener( this )
-       firePropertyChange( "size", paints.size()+1, paints.size() )
+       firePropertyChange( "size", this.@paints.size()+1, this.@paints.size() )
    }
 
    public void propertyChange( PropertyChangeEvent event ){
@@ -64,7 +64,7 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
 
    public void apply( GraphicsContext context, Shape shape ){
       def  p = context.g.paint
-      paints.each { paint ->
+      this.@paints.each { paint ->
          context.g.paint = paint.getPaint(context, shape.bounds2D)
          context.g.fill( shape )
       }
@@ -76,25 +76,25 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
    }
    
    public boolean isEmpty() {
-      return paints.isEmpty()
+      return this.@paints.isEmpty()
    }
    
    public void clear() {
-      if( paints.isEmpty() ) return
-      int actualSize = paints.size()
-      paints.clear()
+      if( this.@paints.isEmpty() ) return
+      int actualSize = this.@paints.size()
+      this.@paints.clear()
       firePropertyChange( "size", actualSize, 0 )
    }
    
    public int getSize() {
-      return paints.size()
+      return this.@paints.size()
    }
    
    public PaintProvider getAt( int index ) {
-  	  return paints[index]
+  	  return this.@paints[index]
    }
 
    public PaintProvider getAt( String name ) {
-  	  return paints.find { it?.name == name }
+  	  return this.@paints.find { it?.name == name }
    }
 }

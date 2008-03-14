@@ -53,6 +53,10 @@ public class GlyphGraphicsOperation extends AbstractShapeGraphicsOperation {
        outline = null
     }
 
+    public boolean hasCenter() {
+       true
+    }
+    
     private void calculateOutline( GraphicsContext context ) {
         def g = context.g
         if( operations ){

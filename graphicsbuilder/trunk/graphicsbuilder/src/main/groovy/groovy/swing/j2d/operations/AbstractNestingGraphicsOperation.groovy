@@ -18,21 +18,28 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
+import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperation {
-    private OperationGroup operationGroup = new OperationGroup()
-    private def g
+abstract class AbstractNestingGraphicsOperation extends AbstractDisplayableGraphicsOperation {
+    public static optional = AbstractDisplayableGraphicsOperation.optional + ['borderColor','borderWidth','fill']
+    
+    protected def gcopy
+    protected OperationGroup operationGroup = new OperationGroup()
+    
+    def borderColor
+    def borderWidth
+    def fill
 
     AbstractNestingGraphicsOperation( String name ) {
         super( name )
         operationGroup.addPropertyChangeListener(this)
     }
 
-    protected void doExecute( GraphicsContext context ) {
+    protected final void doExecute( GraphicsContext context ) {
        executeBeforeAll( context )
        if( !operationGroup.empty ){
           if( !executeBeforeNestedOperations( context ) ) return
@@ -44,16 +51,10 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     }
 
     public void addOperation( GraphicsOperation operation ) {
-        //if( !operation ) return
-        //operations << operation
-        //operation.addPropertyChangeListener( this )
         operationGroup.addOperation( operation )
     }
 
     public void removeOperation( GraphicsOperation operation ) {
-        //if( !operation ) return
-        //operations.remove( operation )
-        //operation.removePropertyChangeListener( this )
         operationGroup.removeOperation( operation )
     }
 
@@ -64,9 +65,11 @@ abstract class AbstractNestingGraphicsOperation extends AbstractGraphicsOperatio
     public OperationGroup getOps() {
         operationGroup
     }
+    
+    public abstract BufferedImage getImage()
 
     public void propertyChange( PropertyChangeEvent event ){
-       if( /*operations.contains(event.source)*/ event.source == operationGroup ){
+       if( event.source == operationGroup ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )

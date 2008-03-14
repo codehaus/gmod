@@ -56,6 +56,10 @@ final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
        triangle
     }
 
+    public boolean hasXY() {
+       true
+    }
+    
     private void calculateTriangle() {
        if( rightAngleAt ){
           calculateRightTriangle()

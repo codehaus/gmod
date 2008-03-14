@@ -48,6 +48,10 @@ public class ArcGraphicsOperation extends AbstractShapeGraphicsOperation {
                                  getCloseValue() )
     }
 
+    public boolean hasXY() {
+       true
+    }
+    
     private def getCloseValue() {
         if( !close ){
             return Arc2D.OPEN

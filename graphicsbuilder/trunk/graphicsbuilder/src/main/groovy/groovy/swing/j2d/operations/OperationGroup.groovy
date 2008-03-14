@@ -33,40 +33,40 @@ public class OperationGroup extends ObservableSupport {
     }
     
     public GraphicsOperation getAt( int index ) {
-    	return operations[index]
+    	return this.@operations[index]
     }
 
     public GraphicsOperation getAt( String name ) {
-    	return operations.find { it?.name == name }
+    	return this.@operations.find { it?.name == name }
     }
 
     public void addOperation( GraphicsOperation operation ) {
         if( !operation ) return
-        operations << operation
+        this.@operations << operation
         operation.addPropertyChangeListener( this )
-        firePropertyChange( "size", operations.size()-1, operations.size() )
+        firePropertyChange( "size", this.@operations.size()-1, this.@operations.size() )
     }
 
     public void removeOperation( GraphicsOperation operation ) {
         if( !operation ) return
         operation.removePropertyChangeListener( this )
-        operations.remove( operation )
-        firePropertyChange( "size", operations.size()+1, operations.size() )
+        this.@operations.remove( operation )
+        firePropertyChange( "size", this.@operations.size()+1, this.@operations.size() )
     }
 
     public boolean isEmpty() {
-       return operations.isEmpty()
+       return this.@operations.isEmpty()
     }
     
     public void clear() {
-       if( operations.isEmpty() ) return
-       int actualSize = operations.size()
-       operations.clear()
+       if( this.@operations.isEmpty() ) return
+       int actualSize = this.@operations.size()
+       this.@operations.clear()
        firePropertyChange( "size", actualSize, 0 )
     }
     
     public int getSize() {
-       return operations.size()
+       return this.@operations.size()
     }
 
     public void propertyChange( PropertyChangeEvent event ) {
@@ -75,5 +75,12 @@ public class OperationGroup extends ObservableSupport {
     
     public String toString() {
     	"ops$operations"
+    }
+    
+    /* ===== OPERATOR OVERLOADING ===== */
+
+    public OperationGroup leftShift( GraphicsOperation operation ) {
+       addOperation( operation )
+       this
     }
 }

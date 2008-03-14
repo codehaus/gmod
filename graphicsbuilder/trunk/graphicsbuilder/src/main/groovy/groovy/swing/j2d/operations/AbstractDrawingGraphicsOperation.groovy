@@ -18,14 +18,8 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
-import groovy.swing.j2d.event.GraphicsInputEvent
-import groovy.swing.j2d.event.GraphicsInputListener
-import groovy.swing.j2d.operations.Filterable
-import groovy.swing.j2d.operations.FilterProvider
-import groovy.swing.j2d.operations.FilterGroup
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
-import java.awt.AlphaComposite
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Paint
@@ -40,11 +34,10 @@ import java.beans.PropertyChangeEvent
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
+abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsOperation {
     public static required = []
-    public static optional = ['borderColor','borderPaint','borderWidth','fill','asShape','opacity','composite','asImage','passThrough']
+    public static optional = AbstractNestingGraphicsOperation.optional + ['borderPaint','asShape']
 
-    private def gcopy
     private def strokeBounds
     private def shapeBounds
     private BufferedImage image
@@ -52,32 +45,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     protected Shape locallyTransformedShape
     protected Shape globallyTransformedShape
 
-    TransformationGroup transformations
-    TransformationGroup globalTransformations
-    FilterGroup filters
-
-    Closure keyPressed
-    Closure keyReleased
-    Closure keyTyped
-    Closure mouseClicked
-    Closure mouseDragged
-    Closure mouseEntered
-    Closure mouseExited
-    Closure mouseMoved
-    Closure mousePressed
-    Closure mouseReleased
-    Closure mouseWheelMoved
-
     // properties
-    def borderColor
-    def borderPaint
-    def borderWidth
-    def fill
     def asShape
-    def asImage
-    def opacity
-    def composite
-    def passThrough
+    def borderPaint
 
     AbstractDrawingGraphicsOperation( String name ) {
         super( name )
@@ -102,57 +72,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
        return this.@globallyTransformedShape
     }
-
-    public void setTransformations( TransformationGroup transformations ){
-       if( transformations ) {
-          if( this.transformations ){
-             this.transformations.removePropertyChangeListener( this )
-          }
-          this.transformations = transformations
-          this.transformations.addPropertyChangeListener( this )
-       }
-    }
-
-    public TransformationGroup getTransformations() {
-       transformations
-    }
-    
-    public TransformationGroup getTxs() {
-       transformations
-    }  
-
-    public void setGlobalTransformations( TransformationGroup globalTransformations ){
-       if( globalTransformations ) {
-          if( this.globalTransformations ){
-             this.globalTransformations.removePropertyChangeListener( this )
-          }
-          this.globalTransformations = globalTransformations
-          this.globalTransformations.addPropertyChangeListener( this )
-       }
-    }
-
-    public TransformationGroup getGlobalTransformations() {
-       globalTransformations
-    }
-    
-    public void setFilters( FilterGroup filters ){
-       if( filters ) {
-          if( this.filters ){
-             this.filters.removePropertyChangeListener( this )
-          }
-          this.filters = filters
-          this.filters.addPropertyChangeListener( this )
-       }
-    }
-
-    public FilterGroup getFilters() {
-       filters
-    }
     
     public void propertyChange( PropertyChangeEvent event ){
-       if( event.source == transformations ||
-           event.source == globalTransformations || 
-           event.source == filters ){
+       if( event.source == filters ){
           firePropertyChange( new ExtPropertyChangeEvent(this,event) )
        }else{
           super.propertyChange( event )
@@ -165,50 +87,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        this.@globallyTransformedShape = null
        this.@image = null
        this.@bounds = null
-    }
-
-    public void keyPressed( GraphicsInputEvent e ) {
-       if( keyPressed ) this.@keyPressed(e)
-    }
-
-    public void keyReleased( GraphicsInputEvent e ) {
-       if( keyReleased ) this.@keyReleased(e)
-    }
-
-    public void keyTyped( GraphicsInputEvent e ) {
-       if( keyTyped ) this.@keyTyped(e)
-    }
-
-    public void mouseClicked( GraphicsInputEvent e ) {
-       if( mouseClicked ) this.@mouseClicked(e)
-    }
-
-    public void mouseDragged( GraphicsInputEvent e ) {
-       if( mouseDragged ) this.@mouseDragged(e)
-    }
-
-    public void mouseEntered( GraphicsInputEvent e ) {
-       if( mouseEntered ) this.@mouseEntered(e)
-    }
-
-    public void mouseExited( GraphicsInputEvent e ) {
-       if( mouseExited ) this.@mouseExited(e)
-    }
-
-    public void mouseMoved( GraphicsInputEvent e ) {
-       if( mouseMoved ) this.@mouseMoved(e)
-    }
-
-    public void mousePressed( GraphicsInputEvent e ) {
-       if( mousePressed ) this.@mousePressed(e)
-    }
-
-    public void mouseReleased( GraphicsInputEvent e ) {
-       if( mouseReleased ) this.@mouseReleased(e)
-    }
-
-    public void mouseWheelMoved( GraphicsInputEvent e ) {
-       if( mouseWheelMoved ) this.@mouseWheelMoved(e)
     }
 
     public Shape getBoundingShape( GraphicsContext context ) {
@@ -548,30 +426,12 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }
     }
 
-    protected def getOpacity( GraphicsContext context ){
-       /*
-       def o = opacity
-       if( context.groupContext?.opacity != null ){
-          o = context.groupContext?.opacity
-          // group already applied opacity settings
-          return null
+    protected void addAsEventTarget( GraphicsContext context ){
+       if( !asShape && !asImage ){
+          super.addAsEventTarget(context)
        }
-       if( opacity != null ){
-          o = opacity
-       }
-       */
-       return opacity
     }
-
-    protected void applyOpacity( GraphicsContext context ){
-       def o = getOpacity( context )
-       if( o != null ){
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
-       }/*else{
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)
-       }*/
-    }
-
+    
     private void applyPaint( GraphicsContext context, Shape shape, paint ){
        if( paint instanceof PaintProvider ){
           Paint oldpaint = context.g.getPaint()
@@ -582,10 +442,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
           paint.apply( context, shape )
        }
     }
-    
-    private boolean hasfilters(){
-    	return filters && !filters.empty
-    }
 
     private boolean shouldSkip( GraphicsContext context ){
        Shape shape = getGloballyTransformedShape(context)
@@ -594,15 +450,5 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            return true
        }
        return false
-    }
-
-    private void addAsEventTarget( GraphicsContext context ){
-        if( !asShape && !asImage && (keyPressed ||
-            keyReleased || keyTyped || mouseClicked ||
-            mouseDragged || mouseEntered || mouseExited ||
-            mouseMoved || mousePressed || mouseReleased ||
-            mouseWheelMoved) ){
-           context.eventTargets << this
-        }
     }
 }
