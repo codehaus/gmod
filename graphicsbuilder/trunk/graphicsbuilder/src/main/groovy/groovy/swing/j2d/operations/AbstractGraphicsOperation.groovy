@@ -35,7 +35,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     private String nodeName
     private boolean executing
     
-    private Map props = [:]
+    private Map props = new ObservableMap()
     
     // non-observable
     Closure beforeRender
