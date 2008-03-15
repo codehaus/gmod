@@ -36,7 +36,6 @@ import java.beans.PropertyChangeEvent
  */
 class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Grouping {
     private def previousGroupContext
-    private def gcopy
     private BufferedImage image
     private Rectangle bounds
     
@@ -124,16 +123,33 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     }
 
     protected void executeAfterAll( GraphicsContext context ) {
-       def cbounds = context.g.clipBounds
-       def filterOffset = hasfilters() ? filters.offset : 0
+       boolean drawImage = false
+       def previousComposite = null
+    	
+       if( hasfilters() ){
+           image = filters.apply( image, strokeBounds )
+           drawImage = true
+       }
+       if( composite ){
+           previousComposite = gcopy.composite
+           gcopy.composite = composite
+           drawImage = true
+       }   	
+    	
+       def cbounds = context.g.clipBounds       
        if( hasfilters() ){
            image = filters.apply( image, cbounds )   
        }
-       if( !asImage || composite ){
+       if( !asImage || drawImage ){
+          def filterOffset = hasfilters() ? filters.offset : 0 
           gcopy.drawImage( image, 
                            (cbounds.x - filterOffset) as int, 
                            (cbounds.y - filterOffset) as int, 
                            null )      
+       }
+       
+       if( composite ){
+           gcopy.composite = previousComposite
        }
        
        context.g.dispose()

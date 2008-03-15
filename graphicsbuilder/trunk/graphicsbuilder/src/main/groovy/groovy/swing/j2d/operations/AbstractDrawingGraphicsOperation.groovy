@@ -105,8 +105,6 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        if( shouldSkip(context) ) return
 
        gcopy = context.g
-          
-       applyOpacity( context )
 
        if( asImage || hasfilters() || composite ){
            Shape boundingShape = getBoundingShape(context)
@@ -131,6 +129,8 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
        }else{
     	   context.g = context.g.create()
        }
+       
+       applyOpacity( context )
     }
 
     protected void executeAfterAll( GraphicsContext context ) {

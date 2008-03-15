@@ -184,7 +184,7 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
 
     protected void applyOpacity( GraphicsContext context ){
        if( opacity != null ){
-          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, o as float)
+          context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity as float)
        }
     }
     

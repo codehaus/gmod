@@ -27,7 +27,7 @@ import java.beans.PropertyChangeEvent
  */
 abstract class AbstractFilterProvider extends ObservableSupport implements FilterProvider {
     private String nodeName
-    private Map props = ObservableMap()
+    private Map props = new ObservableMap()
     
     //public static required = []
     public static optional = ['enabled']
