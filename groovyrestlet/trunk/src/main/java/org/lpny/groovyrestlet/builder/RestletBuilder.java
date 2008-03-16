@@ -12,6 +12,7 @@ import org.lpny.groovyrestlet.builder.factory.ApplicationFactory;
 import org.lpny.groovyrestlet.builder.factory.ClientFactory;
 import org.lpny.groovyrestlet.builder.factory.ComponentFactory;
 import org.lpny.groovyrestlet.builder.factory.DirectoryFactory;
+import org.lpny.groovyrestlet.builder.factory.FilterFactory;
 import org.lpny.groovyrestlet.builder.factory.GuardFactory;
 import org.lpny.groovyrestlet.builder.factory.RedirectorFactory;
 import org.lpny.groovyrestlet.builder.factory.ResourceFactory;
@@ -31,49 +32,50 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://groovy.codehaus.org/GroovyMarkup">Groovy Markup</a>
  */
 public class RestletBuilder extends FactoryBuilderSupport {
-    private static final Logger LOG = LoggerFactory
-            .getLogger(RestletBuilder.class);
-    private boolean initialized = false;
+	private static final Logger	LOG	        = LoggerFactory
+	                                                .getLogger(RestletBuilder.class);
+	private boolean	            initialized	= false;
 
-    public RestletBuilder() {
-        super();
-    }
+	public RestletBuilder() {
+		super();
+	}
 
-    public void init() {
-        if (!initialized) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No factory was registered, register all defaults");
-            }
-            registerFactories();
-            initialized = true;
-        }
-    }
+	public void init() {
+		if (!initialized) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("No factory was registered, register all defaults");
+			}
+			registerFactories();
+			initialized = true;
+		}
+	}
 
-    /**
-     * 
-     * @param factories
-     */
-    public void setFactories(final List<AbstractFactory> factories) {
-        for (final AbstractFactory factory : factories) {
-            registerFactory(factory.getName(), factory);
-        }
-        initialized = true;
-    }
+	/**
+	 * 
+	 * @param factories
+	 */
+	public void setFactories(final List<AbstractFactory> factories) {
+		for (final AbstractFactory factory : factories) {
+			registerFactory(factory.getName(), factory);
+		}
+		initialized = true;
+	}
 
-    private void registerFactories() {
-        registerFactory(new ComponentFactory());
-        registerFactory(new ApplicationFactory());
-        registerFactory(new RestletFactory());
-        registerFactory(new ResourceFactory());
-        registerFactory(new RouterFactory());
-        registerFactory(new DirectoryFactory());
-        registerFactory(new ClientFactory());
-        registerFactory(new ServerFactory());
-        registerFactory(new GuardFactory());
-        registerFactory(new RedirectorFactory());
-    }
+	private void registerFactories() {
+		registerFactory(new ComponentFactory());
+		registerFactory(new ApplicationFactory());
+		registerFactory(new RestletFactory());
+		registerFactory(new ResourceFactory());
+		registerFactory(new RouterFactory());
+		registerFactory(new DirectoryFactory());
+		registerFactory(new ClientFactory());
+		registerFactory(new ServerFactory());
+		registerFactory(new GuardFactory());
+		registerFactory(new RedirectorFactory());
+		registerFactory(new FilterFactory());
+	}
 
-    private void registerFactory(final AbstractFactory factory) {
-        registerFactory(factory.getName(), factory);
-    }
+	private void registerFactory(final AbstractFactory factory) {
+		registerFactory(factory.getName(), factory);
+	}
 }
