@@ -13,39 +13,47 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.stylize
+package groovy.swing.j2d.operations.filters.swingx
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.ShadowFilter
+import java.awt.Shape
+import java.awt.image.BufferedImage
+
+import org.jdesktop.swingx.graphics.GraphicsUtilities
+import org.jdesktop.swingx.graphics.ShadowRenderer
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ShadowFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['angle','distance','radius','opacity','addMargins','shadowOnly','shadowColor']
+class DropShadowFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['opacity','size','color']
 
-   def angle
-   def distance
-   def radius
    def opacity
-   def addMargins
-   def shadowOnly
-   def shadowColor
+   def size
+   def color
 
-   ShadowFilterProvider() {
-      super( "shadow" )
-      filter = new ShadowFilter()
+   DropShadowFilterProvider() {
+      super( "dropShadow" )
+      filter = new ShadowRenderer()
    }
-
+   
+   public BufferedImage filter( BufferedImage src, BufferedImage dst, Shape clip ){
+	   def shadowImage = filter.createShadow( dst ?: src )
+	   def composedImage = GraphicsUtilities.createCompatibleImage(shadowImage)
+	   def g = composedImage.createGraphics()
+	   g.drawImage( shadowImage, 0, 0, null )
+	   g.drawImage( dst ?: src, 0, 0, null )
+	   g.dispose()
+	   return composedImage
+   }
+   
    protected def convertValue( property, value ){
       switch( property ){
-         case "shadowColor":
+         case "color":
             return FilterUtils.getColor(value)
-         case "angle":
-            return FilterUtils.getAngle(value)
          default:
             return super.convertValue(property,value)
       }

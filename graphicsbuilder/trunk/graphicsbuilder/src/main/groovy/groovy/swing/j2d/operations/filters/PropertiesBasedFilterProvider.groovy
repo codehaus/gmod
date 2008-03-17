@@ -57,6 +57,9 @@ abstract class PropertiesBasedFilterProvider extends AbstractFilterProvider {
       }else{
          return filter.filter( src, dst )
       }
+      /* 
+      return filter.filter( src, dst )
+      */
    }
 
    protected void setFilterProperty( name, value ){

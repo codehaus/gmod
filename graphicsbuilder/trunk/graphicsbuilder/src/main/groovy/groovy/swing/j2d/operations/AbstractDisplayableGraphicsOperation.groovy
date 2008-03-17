@@ -188,8 +188,8 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
        }
     }
     
-    protected boolean hasfilters(){
-    	return filters && !filters.empty
+    protected boolean hasFilters(){
+    	return filters && filters.enabled && !filters.empty
     }
 
     protected void addAsEventTarget( GraphicsContext context ){

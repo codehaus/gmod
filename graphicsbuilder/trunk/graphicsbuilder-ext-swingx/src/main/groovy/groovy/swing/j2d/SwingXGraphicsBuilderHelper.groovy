@@ -26,6 +26,7 @@ import groovy.swing.j2d.operations.filters.keying.*
 import groovy.swing.j2d.operations.filters.lights.*
 import groovy.swing.j2d.operations.filters.render.*
 import groovy.swing.j2d.operations.filters.stylize.*
+import groovy.swing.j2d.operations.filters.swingx.*
 import groovy.swing.j2d.operations.filters.texture.*
 import groovy.swing.j2d.operations.filters.transform.*
 import groovy.swing.j2d.operations.filters.transitions.*
@@ -162,7 +163,6 @@ class SwingXGraphicsBuilderHelper {
       // stylize
       builder.registerFactory( "contour", new FilterFactory(ContourFilterProvider) )
       builder.registerFactory( "dissolve", new FilterFactory(DissolveFilterProvider) )
-      builder.registerFactory( "dropShadow", new FilterFactory(ShadowFilterProvider) )
       builder.registerFactory( "crystallize", new FilterFactory(CrystallizeFilterProvider) )
       builder.registerFactory( "emboss", new FilterFactory(EmbossFilterProvider) )
       builder.registerFactory( "flare", new FilterFactory(FlareFilterProvider) )
@@ -176,10 +176,19 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "pointillize", new FilterFactory(PointillizeFilterProvider) )
       builder.registerFactory( "shapeBurst", new FilterFactory(ShapeBurstFilterProvider,false) )
       builder.registerFactory( "shade", new FilterFactory(ShadeFilterProvider) )
+      builder.registerFactory( "shadow", new FilterFactory(ShadowFilterProvider) )
       builder.registerFactory( "shine", new FilterFactory(ShineFilterProvider) )
       builder.registerFactory( "stamp", new FilterFactory(StampFilterProvider) )
       builder.registerFactory( "threshold", new FilterFactory(ThresholdFilterProvider) )
 
+      // swingx
+      builder.registerFactory( "colorTint", new FilterFactory(ColorTintFilterProvider) )
+      builder.registerFactory( "dropShadow", new FilterFactory(DropShadowFilterProvider) )
+      builder.registerFactory( "fastBlur", new FilterFactory(FastBlurFilterProvider) )
+      builder.registerFactory( "reflection", new FilterFactory(ReflectionFilterProvider) )
+      builder.registerFactory( "sgaussianBlur", new FilterFactory(SgaussianBlurFilterProvider) )
+      builder.registerFactory( "stackBlur", new FilterFactory(StackBlurFilterProvider) )
+      
       // texture
       builder.registerFactory( "brushedMetal", new FilterFactory(BrushedMetalFilterProvider) )
       builder.registerFactory( "cellular", new FilterFactory(CellularFilterProvider,false) )

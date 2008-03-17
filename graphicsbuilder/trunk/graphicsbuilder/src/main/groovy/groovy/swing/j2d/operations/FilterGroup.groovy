@@ -28,7 +28,9 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
  */
 public class FilterGroup extends ObservableSupport {
     private List filters = []
+    
     int offset = 10
+    def enabled = true
 
     public List getFilters(){
        return Collections.unmodifiableList(filters)
@@ -46,25 +48,32 @@ public class FilterGroup extends ObservableSupport {
         if( !filter ) return
         this.@filters << filter
         filter.addPropertyChangeListener( this )
-        firePropertyChange( "size", this.@filters.size()-1, this.@filters.size() )
+        if( enabled ) firePropertyChange( "size", this.@filters.size()-1, this.@filters.size() )
     }
 
     public void removeFilter( FilterProvider filter ) {
         if( !filter ) return
         filter.removePropertyChangeListener( this )
         this.@filters.remove( filter )
-        firePropertyChange( "size", this.@filters.size()+1, this.@filters.size() )
+        if( enabled ) firePropertyChange( "size", this.@filters.size()+1, this.@filters.size() )
     }
 
     public boolean isEmpty() {
        return this.@filters.isEmpty()
     }
     
+    public void setEnabled( boolean enabled ){
+    	if( this.@enabled != enabled ){
+    		this.@enabled = enabled
+    		firePropertyChange( "enabled", !enabled, enabled )
+    	}
+    }
+    
     public void clear() {
        if( this.@filters.isEmpty() ) return
        int actualSize = this.@filters.size()
        this.@filters.clear()
-       firePropertyChange( "size", actualSize, 0 )
+       if( enabled ) firePropertyChange( "size", actualSize, 0 )
     }
     
     public int getSize() {

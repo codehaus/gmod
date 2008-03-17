@@ -24,6 +24,7 @@ import groovy.swing.j2d.operations.AbstractGraphicsOperation
 import java.awt.BasicStroke
 import java.awt.Paint
 import java.awt.Stroke
+import java.awt.Shape
 import java.beans.PropertyChangeEvent
 
 /**
@@ -51,6 +52,10 @@ abstract class AbstractStrokeGraphicsOperation extends AbstractGraphicsOperation
        return stroke
     }
 
+    public Shape createStrokedShape( Shape shape ){
+    	createStroke().createStrokedShape(shape)
+    }
+    
     protected void localPropertyChange( PropertyChangeEvent event ){
        super.localPropertyChange( event )
        stroke = null

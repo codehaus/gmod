@@ -23,11 +23,12 @@ import groovy.swing.j2d.impl.ObservableSupport
  */
 public abstract class AbstractTransformation extends ObservableSupport implements Transformation {
     public static required = []
-    public static optional = ['interpolation']
+    public static optional = ['interpolation','enabled']
 
     private String nodeName
 
     def interpolation
+    def enabled = true
     String name
 
     public AbstractTransformation( String nodeName ) {

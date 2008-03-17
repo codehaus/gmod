@@ -19,6 +19,7 @@ import groovy.swing.j2d.operations.Grouping
 import groovy.swing.j2d.operations.misc.FontGraphicsOperation
 import groovy.swing.j2d.operations.shapes.GlyphGraphicsOperation
 import groovy.swing.j2d.operations.shapes.TextGraphicsOperation
+import groovy.swing.j2d.operations.strokes.TextStrokeGraphicsOperation
 
 import java.awt.Font
 
@@ -49,8 +50,10 @@ public class FontFactory extends AbstractGraphicsOperationFactory {
        if( parent instanceof Grouping || parent instanceof TextGraphicsOperation ||
            parent instanceof GlyphGraphicsOperation ) {
           parent.addOperation( child )
-       }else{
-          throw new IllegalArgumentException("font() can only be nested in [group,text,glyph]")
+       }else if( parent instanceof TextStrokeGraphicsOperation ){
+    	  parent.font = child 
+       }else{   
+          throw new IllegalArgumentException("font() can only be nested in [group,text,textStroke]")
        }
     }
 

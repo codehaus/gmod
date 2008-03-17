@@ -51,7 +51,7 @@ public class BasicStrokeGraphicsOperation extends AbstractStrokeGraphicsOperatio
         context.g.color = c
         context.g.stroke = getStroke()
     }
-
+    
     protected Stroke createStroke() {
         def w = width
         def c = cap

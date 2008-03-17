@@ -61,8 +61,8 @@
       <module>graphicsbuilder-ext-swingx</module>
       <module>graphicsbuilder-ext-svg</module>
       <module>graphicsbuilder-ext-jdk6</module>
-      <module>graphicsbuilder-doc</module>
 <!--
+      <module>graphicsbuilder-doc</module>
       <module>graphicsbuilder-demo</module>
 -->
    </modules>
@@ -181,7 +181,7 @@
    </reporting>
 
    <properties>
-      <graphicsbuilder-version>0.5-SNAPSHOT</graphicsbuilder-version>
+      <graphicsbuilder-version>0.5.1</graphicsbuilder-version>
       <groovy-version>1.5.4</groovy-version>
       <groovy-maven-plugin-version>1.0-beta-3</groovy-maven-plugin-version>
    </properties>
