@@ -106,12 +106,12 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
 
        gcopy = context.g
 
-       if( asImage || hasfilters() || composite ){
+       if( asImage || hasFilters() || composite ){
            Shape boundingShape = getBoundingShape(context)
            strokeBounds = boundingShape.bounds
            shapeBounds = getGloballyTransformedShape(context).bounds
            
-           int filterOffset = hasfilters() ? filters.offset : 0
+           int filterOffset = hasFilters() ? filters.offset : 0
            int swidth = strokeBounds.width + (filterOffset*2)
            int sheight = strokeBounds.height + (filterOffset*2)
              
@@ -139,7 +139,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     	boolean drawImage = false
     	def previousComposite = null
     	
-        if( hasfilters() ){
+        if( hasFilters() ){
       	   image = filters.apply( image, strokeBounds )
       	   drawImage = true
         }
@@ -150,7 +150,7 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
     	}    	
     	
         if( !asImage && drawImage ){
-           int filterOffset = hasfilters() ? filters.offset : 0	
+           int filterOffset = hasFilters() ? filters.offset : 0	
      	   gcopy.drawImage( image, 
      		            (strokeBounds.x - filterOffset) as int, 
      		            (strokeBounds.y - filterOffset) as int, 

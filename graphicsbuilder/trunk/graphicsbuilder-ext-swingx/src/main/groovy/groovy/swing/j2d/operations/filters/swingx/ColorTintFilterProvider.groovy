@@ -13,41 +13,37 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations.filters.stylize
+package groovy.swing.j2d.operations.filters.swingx
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
-import com.jhlabs.image.ShadowFilter
+import java.awt.Color
+import java.awt.Shape
+import java.awt.image.BufferedImage
+
+import org.jdesktop.swingx.image.ColorTintFilter
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ShadowFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['angle','distance','radius','opacity','addMargins','shadowOnly','shadowColor']
+class ColorTintFilterProvider extends PropertiesBasedFilterProvider {
+   public static required = ['mixColor','mixValue']
 
-   def angle
-   def distance
-   def radius
-   def opacity
-   def addMargins
-   def shadowOnly
-   def shadowColor
+   def mixColor = Color.BLACK
+   def mixValue = 0
 
-   ShadowFilterProvider() {
-      super( "shadow" )
-      filter = new ShadowFilter()
+   ColorTintFilterProvider() {
+      super( "stackBlur" )
+      filter = new ColorTintFilter( Color.BLACK, 0 )
    }
-
-   protected def convertValue( property, value ){
-      switch( property ){
-         case "shadowColor":
-            return FilterUtils.getColor(value)
-         case "angle":
-            return FilterUtils.getAngle(value)
-         default:
-            return super.convertValue(property,value)
-      }
+   
+   public BufferedImage filter( BufferedImage src, BufferedImage dst, Shape clip ){
+	   filter.filter( src, dst )
+   }
+   
+   protected void setFilterProperty( name, value ){
+       filter = new ColorTintFilter( FilterUtils.getColor(mixColor), mixValue as float )
    }
 }

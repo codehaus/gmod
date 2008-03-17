@@ -103,7 +103,7 @@ class ImageGraphicsOperation extends AbstractDisplayableGraphicsOperation {
     }
 
     protected void doExecute( GraphicsContext context ){
-       if( !filters || filters.empty ){
+       if( !hasFilters() ){
           executeOperation( context )
        }else{
           executeWithFilters( context )

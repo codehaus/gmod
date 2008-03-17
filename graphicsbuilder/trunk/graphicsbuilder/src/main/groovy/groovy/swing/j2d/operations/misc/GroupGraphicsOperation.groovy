@@ -92,8 +92,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        gcopy = context.g
        
        def boundingShape = getBoundingShape(context)
-       if( asImage || hasfilters() || composite ){
-          def filterOffset = hasfilters() ? filters.offset : 0
+       if( asImage || hasFilters() || composite ){
+          def filterOffset = hasFilters() ? filters.offset : 0
           def bounds = boundingShape.bounds
           int swidth = bounds.width + (filterOffset * 2)
           int sheight = bounds.height + (filterOffset * 2)
@@ -126,8 +126,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        boolean drawImage = false
        def previousComposite = null
     	
-       if( hasfilters() ){
-           image = filters.apply( image, strokeBounds )
+       def cbounds = context.g.clipBounds       
+       if( hasFilters() ){
+           image = filters.apply( image, cbounds )
            drawImage = true
        }
        if( composite ){
@@ -136,12 +137,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
            drawImage = true
        }   	
     	
-       def cbounds = context.g.clipBounds       
-       if( hasfilters() ){
-           image = filters.apply( image, cbounds )   
-       }
        if( !asImage || drawImage ){
-          def filterOffset = hasfilters() ? filters.offset : 0 
+          def filterOffset = hasFilters() ? filters.offset : 0 
           gcopy.drawImage( image, 
                            (cbounds.x - filterOffset) as int, 
                            (cbounds.y - filterOffset) as int, 

@@ -31,6 +31,8 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
  */
 public class TransformationGroup extends ObservableSupport implements Transformation {
     private List transformations = []
+    
+    def enabled = true
 
     public List getTransformations(){
        return Collections.unmodifiableList(this.@transformations)
@@ -52,16 +54,23 @@ public class TransformationGroup extends ObservableSupport implements Transforma
         }
         this.@transformations << transformation
         transformation.addPropertyChangeListener( this )
-        firePropertyChange( "size", this.@transformations.size()-1, this.@transformations.size() )
+        if( enabled ) firePropertyChange( "size", this.@transformations.size()-1, this.@transformations.size() )
     }
 
     public void removeTransformation( Transformation transformation ) {
         if( !transformation ) return
         transformation.removePropertyChangeListener( this )
         this.@transformations.remove( transformation )
-        firePropertyChange( "size", this.@transformations.size()+1, this.@transformations.size() )
+        if( enabled ) firePropertyChange( "size", this.@transformations.size()+1, this.@transformations.size() )
     }
 
+    public void setEnabled( boolean enabled ){
+    	if( this.@enabled != enabled ){
+    		this.@enabled = enabled
+    		firePropertyChange( "enabled", !enabled, enabled )
+    	}
+    }
+    
     public boolean isEmpty() {
        return this.@transformations.isEmpty()
     }
@@ -70,7 +79,7 @@ public class TransformationGroup extends ObservableSupport implements Transforma
        if( this.@transformations.isEmpty() ) return
        int actualSize = this.@transformations.size()
        this.@transformations.clear()
-       firePropertyChange( "size", actualSize, 0 )
+       if( enabled ) firePropertyChange( "size", actualSize, 0 )
     }
     
     public int getSize() {
@@ -97,9 +106,10 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     }
 
     public Shape apply( Shape shape ) {
-       if( isEmpty() ) return shape
+       if( isEmpty() || !enabled ) return shape
        def transform = new AffineTransform()
        this.@transformations.each { transformation ->
+          if( !transformation.enabled ) return
           def t = transformation.transform
           if( transformation instanceof TransformationGroup ){
              shape = transformation.apply( shape )
@@ -122,10 +132,11 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     }
 
     public Image apply( Image image, GraphicsContext context ) {
-       if( isEmpty() ) return image
+       if( isEmpty() || !enabled ) return image
        def transform = new AffineTransform()
        def interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR
        this.@transformations.each { transformation ->
+          if( !transformation.enabled ) return
           def t = transformation.transform
           if( transformation instanceof TransformationGroup ){
              image = transformation.apply( image, context )

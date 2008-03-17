@@ -197,7 +197,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "basicStroke", new StrokesFactory(BasicStrokeGraphicsOperation, true) )
         registerFactory( "compositeStroke", new StrokesFactory(CompositeStrokeGraphicsOperation) )
         registerFactory( "compoundStroke", new StrokesFactory(CompoundStrokeGraphicsOperation) )
-        registerFactory( "textStroke", new StrokesFactory(TextStrokeGraphicsOperation, true) )
+        registerFactory( "textStroke", new StrokesFactory(TextStrokeGraphicsOperation) )
         registerFactory( "shapeStroke", new StrokesFactory(ShapeStrokeGraphicsOperation) )
         registerFactory( "wobbleStroke", new StrokesFactory(WobbleStrokeGraphicsOperation, true) )
         registerFactory( "zigzagStroke", new StrokesFactory(ZigzagStrokeGraphicsOperation) )
