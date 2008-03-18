@@ -31,7 +31,7 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * @author keke
  * @reversion $Revision$
- * @since 0.1.0
+ * @since 0.1
  */
 public class GroovyRestlet implements ApplicationContextAware {
 	private static final Logger	LOG	     = LoggerFactory
