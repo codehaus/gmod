@@ -93,9 +93,9 @@ public abstract class GrooshProcess {
 		return this;
 	}
 
-//	public GrooshProcess leftShift(String file) throws IOException {
-//		return fromFile(file);
-//	}
+	// public GrooshProcess leftShift(String file) throws IOException {
+	// return fromFile(file);
+	// }
 
 	public GrooshProcess leftShift(File file) throws IOException {
 		return fromFile(file);
@@ -159,5 +159,7 @@ public abstract class GrooshProcess {
 	public void waitFor() throws InterruptedException, ExecutionException {
 		getOutput().waitForStreamsHandled();
 	}
+
+	public abstract int exitValue();
 
 }

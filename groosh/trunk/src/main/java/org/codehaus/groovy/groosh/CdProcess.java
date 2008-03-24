@@ -48,6 +48,16 @@ public class CdProcess extends GrooshProcess {
 	private static final String OLDPWD = "OLDPWD";
 	private static final String PWD = "PWD";
 
+	private static final int DIR_DOES_NOT_EXIST = 1;
+	private static final int NOT_A_DIR = 2;
+	private static final int UNKNOWN_ERROR = 100;
+
+	private int exitValue = UNKNOWN_ERROR;
+
+	public int exitValue() {
+		return exitValue;
+	}
+
 	public CdProcess(List<String> args, Map<String, String> env, ExecDir execDir)
 			throws IOException {
 		String arg;
@@ -64,11 +74,13 @@ public class CdProcess extends GrooshProcess {
 
 		File dir = new File(arg);
 		if (!dir.exists()) {
+			exitValue = DIR_DOES_NOT_EXIST;
 			throw new IOException("Target directory " + arg + " ("
 					+ dir.getAbsolutePath() + " ) " + "does not exist!");
 		}
 
 		if (!dir.isDirectory()) {
+			exitValue = NOT_A_DIR;
 			throw new IOException("Target " + arg + " ("
 					+ dir.getAbsolutePath() + " ) " + "is not a directory!");
 		}
@@ -80,6 +92,7 @@ public class CdProcess extends GrooshProcess {
 			env.put(OLDPWD, System.getProperty("user.dir"));
 		}
 		env.put(PWD, arg);
+		exitValue = 0;
 	}
 
 	public void waitForExit() throws IOException {
