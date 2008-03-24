@@ -124,4 +124,8 @@ public class StreamClosureProcess extends GrooshProcess implements
 	protected Source getError() {
 		return null;
 	}
+
+	public int exitValue() {
+		return 0;
+	}
 }

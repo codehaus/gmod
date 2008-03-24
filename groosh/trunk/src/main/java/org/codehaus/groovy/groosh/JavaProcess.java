@@ -31,7 +31,7 @@ import org.codehaus.groovy.util.IOUtil;
  * 
  */
 public class JavaProcess extends GrooshProcess {
-	private Process process;
+	Process process;
 
 	private boolean errHandled = false;
 	private boolean outHandled = false;
@@ -143,5 +143,9 @@ public class JavaProcess extends GrooshProcess {
 
 	public void destroy() {
 		process.destroy();
+	}
+
+	public int exitValue() {
+		return process.exitValue();
 	}
 }
