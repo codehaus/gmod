@@ -93,17 +93,17 @@ public abstract class GrooshProcess {
 		return this;
 	}
 
-	public GrooshProcess leftShift(String file) throws IOException {
-		return fromFile(file);
-	}
+//	public GrooshProcess leftShift(String file) throws IOException {
+//		return fromFile(file);
+//	}
 
 	public GrooshProcess leftShift(File file) throws IOException {
 		return fromFile(file);
 	}
 
-	public GrooshProcess rightShift(String file) throws IOException {
-		return toFile(file);
-	}
+	// public GrooshProcess rightShift(String file) throws IOException {
+	// return toFile(file);
+	// }
 
 	public GrooshProcess rightShift(File file) throws IOException {
 		return toFile(file);
