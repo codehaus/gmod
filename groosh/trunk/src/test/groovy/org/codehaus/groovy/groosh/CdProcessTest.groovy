@@ -10,7 +10,7 @@ class CdProcessTest extends GroovyTestCase {
 		def oldPwd = env.get("PWD")
 		gsh.cd("/")
 		assert "/" == gsh.getCurrentExecDir().toString()
-		def pwd = gsh.pwd().toStringOut()
+		def pwd = gsh.pwd().getText()
 		assert "/\n" == pwd
 		assert "/" == env.get("PWD")
 		assert oldPwd == env.get("OLDPWD")
@@ -22,17 +22,17 @@ class CdProcessTest extends GroovyTestCase {
 	
 	void testEmptyCd() {
 		gsh.cd()
-		def pwd = gsh.pwd().toStringOut()
+		def pwd = gsh.pwd().getText()
 		def userdir = System.getProperty("user.dir") + "\n"
 		assert userdir == pwd
 	}
 	
 	void testCdMinus() {
-		def startPwd = gsh.pwd().toStringOut()
+		def startPwd = gsh.pwd().getText()
 		new File("test").mkdir();
 		gsh.cd("test")
 		gsh.cd("-")
-		def pwd = gsh.pwd().toStringOut()
+		def pwd = gsh.pwd().getText()
 		assert startPwd == pwd
 	}
 
