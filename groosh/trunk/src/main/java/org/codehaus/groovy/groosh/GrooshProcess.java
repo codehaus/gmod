@@ -187,6 +187,11 @@ public abstract class GrooshProcess {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Object> grep(Object filter) throws IOException {
+		return DefaultGroovyMethods.grep(toList(), filter);
+	}
+
 	public abstract int exitValue();
 
 }
