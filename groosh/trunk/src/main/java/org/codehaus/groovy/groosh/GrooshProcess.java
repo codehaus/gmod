@@ -170,13 +170,14 @@ public abstract class GrooshProcess {
 		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
 
 		getOutput().connect(sink);
-
+		startStreamHandling();
 		DefaultGroovyMethods.eachLine(sink.getInputStream(), closure);
 	}
 
 	public List<String> toList() throws IOException {
 		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
 		getOutput().connect(sink);
+		startStreamHandling();
 		BufferedReader ris = new BufferedReader(new InputStreamReader(sink
 				.getInputStream()));
 		List<String> result = new ArrayList<String>();
