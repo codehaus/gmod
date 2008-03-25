@@ -16,9 +16,13 @@ package org.codehaus.groovy.groosh;
 
 import groovy.lang.Closure;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.codehaus.groovy.groosh.stream.DevNull;
@@ -162,13 +166,25 @@ public abstract class GrooshProcess {
 		getOutput().waitForStreamsHandled();
 	}
 
-	public void eachLine(Closure closure) throws IOException,
-			InterruptedException, ExecutionException {
+	public void eachLine(Closure closure) throws IOException {
 		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
 
 		getOutput().connect(sink);
 
 		DefaultGroovyMethods.eachLine(sink.getInputStream(), closure);
+	}
+
+	public List<String> toList() throws IOException {
+		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
+		getOutput().connect(sink);
+		BufferedReader ris = new BufferedReader(new InputStreamReader(sink
+				.getInputStream()));
+		List<String> result = new ArrayList<String>();
+		String line;
+		while ((line = ris.readLine()) != null) {
+			result.add(line);
+		}
+		return result;
 	}
 
 	public abstract int exitValue();

@@ -98,6 +98,18 @@ class UnixCommandsTest extends GroovyTestCase {
 		assert "a\nba\n" == out
 	}
 	
+	void testGetList() {
+		def out = ""
+		gsh.cat('src/test/resources/blah.txt').toList().each {
+			out += "*$it\n"
+		}
+		assert eachLineResult == out
+	}
 	
+//	void testDicDirectGrep() {
+//		
+//		println out
+//		assert dictResult == out
+//	}
 
 }
