@@ -106,10 +106,12 @@ class UnixCommandsTest extends GroovyTestCase {
 		assert eachLineResult == out
 	}
 	
-//	void testDicDirectGrep() {
-//		
-//		println out
-//		assert dictResult == out
-//	}
+	void testDictDirectGrep() {
+		def out = ""
+		gsh.cat('src/test/resources/words').grep(~/.*lexia.*/).each {
+			out += "$it\n"
+		}
+		assert dictResult == out
+	}
 
 }
