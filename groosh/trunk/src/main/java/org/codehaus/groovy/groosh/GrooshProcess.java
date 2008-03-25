@@ -14,6 +14,8 @@
 
 package org.codehaus.groovy.groosh;
 
+import groovy.lang.Closure;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,6 +28,7 @@ import org.codehaus.groovy.groosh.stream.Sink;
 import org.codehaus.groovy.groosh.stream.Source;
 import org.codehaus.groovy.groosh.stream.StandardStreams;
 import org.codehaus.groovy.groosh.stream.StringStreams;
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
 // TODO class should not be reentrant 
 // that is if output is already set, don't let it be done twice.
@@ -55,13 +58,12 @@ public abstract class GrooshProcess {
 		return sink.toString();
 	}
 
-	public String toStream(OutputStream os) throws IOException {
-		Sink sink = IOStreams.outputStreamSource(os);
+	public void toStream(OutputStream os) throws IOException {
+		Sink sink = IOStreams.outputStreamSink(os);
 
 		getOutput().connect(sink);
 		startStreamHandling();
 
-		return sink.toString();
 	}
 
 	public GrooshProcess toFile(File f) throws IOException {
@@ -158,6 +160,15 @@ public abstract class GrooshProcess {
 
 	public void waitFor() throws InterruptedException, ExecutionException {
 		getOutput().waitForStreamsHandled();
+	}
+
+	public void eachLine(Closure closure) throws IOException,
+			InterruptedException, ExecutionException {
+		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
+
+		getOutput().connect(sink);
+
+		DefaultGroovyMethods.eachLine(sink.getInputStream(), closure);
 	}
 
 	public abstract int exitValue();

@@ -1,6 +1,6 @@
 //  Groosh -- Provides a shell-like capability for handling external processes
 //
-//  Copyright © 2007 Alexander Egger
+//  Copyright © 2008 Alexander Egger
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
 //  compliance with the License. You may obtain a copy of the License at
@@ -12,8 +12,9 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-gsh = new groosh.Groosh()
+import static groosh.Groosh.groosh as shell
 
-gsh.cat('src/test/resources/blah.txt') >> new File('blah.out')
-
+shell().cat('src/test/resources/blah.txt').eachLine {
+	println "*$it"
+}
 

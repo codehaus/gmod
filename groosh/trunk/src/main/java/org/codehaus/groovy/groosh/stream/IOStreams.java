@@ -65,7 +65,40 @@ public class IOStreams {
 		}
 	}
 
-	public static Sink outputStreamSource(OutputStream os) {
+	public static Sink outputStreamSink(OutputStream os) {
 		return new IOSink(os);
+	}
+
+	public static class InputStreamSink extends Sink {
+
+		private InputStream is;
+
+		@Override
+		public boolean receivesStream() {
+			return true;
+		}
+
+		@Override
+		public boolean providesOutputStream() {
+			return false;
+		}
+
+		@Override
+		public OutputStream getOutputStream() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void setInputStream(InputStream channel) {
+			is = channel;
+		}
+
+		public InputStream getInputStream() {
+			return is;
+		}
+	}
+
+	public static InputStreamSink inputStreamSink() {
+		return new InputStreamSink();
 	}
 }

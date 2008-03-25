@@ -80,10 +80,24 @@ class UnixCommandsTest extends GroovyTestCase {
 		assert eachLineResult == out
 	}
 	
-	void testReadFromString() {
+	void testDirectEachLine() {
+		def cat = gsh.cat('src/test/resources/blah.txt')
+		def out = ""
 		
-		def out = (gsh._grep('a') << "src/test/resources/blah.txt").text
+		cat.eachLine {
+			out += "*" + it + "\n"
+		}
+		
+		assert eachLineResult == out
+		
+	}
+	
+	void testReadFromFile() {
+		
+		def out = (gsh._grep('a') << new File("src/test/resources/blah.txt")).text
 		assert "a\nba\n" == out
 	}
+	
+	
 
 }

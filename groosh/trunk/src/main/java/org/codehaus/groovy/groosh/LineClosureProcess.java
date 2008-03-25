@@ -33,6 +33,8 @@ import groovy.lang.Closure;
  * 
  */
 public class LineClosureProcess extends StreamClosureProcess {
+	private Object closureResult;
+
 	public LineClosureProcess(Closure closure) {
 		super(closure);
 	}
@@ -50,8 +52,12 @@ public class LineClosureProcess extends StreamClosureProcess {
 			l.clear();
 			l.add(line);
 			l.add(wos);
-			closure.call(l);
+			closureResult = closure.call(l);
 			wos.flush();
 		}
+	}
+
+	public Object getClosureResult() {
+		return closureResult;
 	}
 }
