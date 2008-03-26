@@ -23,12 +23,12 @@ import java.awt.geom.AffineTransform
 public class MatrixTransformation extends AbstractTransformation {
     public static required = ['m00','m10','m01','m11','m02','m12']
 
-    def m00
-    def m10
-    def m01
-    def m11
-    def m02
-    def m12
+    def m00 = 1
+    def m10 = 0
+    def m01 = 0
+    def m11 = 1
+    def m02 = 0
+    def m12 = 0
 
     public MatrixTransformation() {
         super( "matrix" )

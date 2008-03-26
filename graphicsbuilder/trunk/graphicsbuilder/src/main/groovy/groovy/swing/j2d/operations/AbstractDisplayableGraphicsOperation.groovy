@@ -23,6 +23,7 @@ import groovy.swing.j2d.event.GraphicsInputListener
 import groovy.swing.j2d.operations.Filterable
 import groovy.swing.j2d.operations.FilterProvider
 import groovy.swing.j2d.operations.FilterGroup
+import groovy.swing.j2d.operations.transformations.TranslateTransformation
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.AlphaComposite
@@ -41,7 +42,7 @@ import java.beans.PropertyChangeEvent
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOperation implements Transformable, Filterable, GraphicsInputListener {
-    public static optional = ['opacity','composite','asImage','passThrough']
+    public static optional = ['opacity','composite','asImage','passThrough','autoDrag']
 
     TransformationGroup transformations
     TransformationGroup globalTransformations
@@ -63,6 +64,9 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     def opacity
     def composite
     def passThrough = false
+    def autoDrag = false
+    
+    private drag = new ObservableMap()
 
     AbstractDisplayableGraphicsOperation( String name ) {
         super( name )
@@ -125,6 +129,10 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
           super.propertyChange( event )
        }
     }
+    
+    public Map getDrag(){
+    	Collections.unmodifiableMap(drag)
+    }
 
     public void keyPressed( GraphicsInputEvent e ) {
        if( keyPressed ) this.@keyPressed(e)
@@ -143,6 +151,7 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     }
 
     public void mouseDragged( GraphicsInputEvent e ) {
+       if( autoDrag ) this.trackDrag(e)
        if( mouseDragged ) this.@mouseDragged(e)
     }
 
@@ -151,6 +160,7 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     }
 
     public void mouseExited( GraphicsInputEvent e ) {
+       if( autoDrag ) this.endDrag(e)
        if( mouseExited ) this.@mouseExited(e)
     }
 
@@ -159,10 +169,12 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     }
 
     public void mousePressed( GraphicsInputEvent e ) {
+       if( autoDrag ) this.startDrag(e)
        if( mousePressed ) this.@mousePressed(e)
     }
 
     public void mouseReleased( GraphicsInputEvent e ) {
+       if( autoDrag ) this.endDrag(e)
        if( mouseReleased ) this.@mouseReleased(e)
     }
 
@@ -196,8 +208,56 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
         if( keyPressed || keyReleased || keyTyped || mouseClicked ||
             mouseDragged || mouseEntered || mouseExited ||
             mouseMoved || mousePressed || mouseReleased ||
-            mouseWheelMoved ){
+            mouseWheelMoved || autoDrag ){
            context.eventTargets << this
         }
+    }
+    
+    private void startDrag( e ){
+       def bounds = getBounds()
+       def dragMap = this.@drag
+       if( !dragMap.anchor ){ 
+          dragMap.anchor = [x:bounds.x,y:bounds.y]
+       }
+       if( !dragMap.location ){
+    	  dragMap.location = [x:0,y:0]
+       }else{
+    	  dragMap.location = [
+             x: bounds.x - dragMap.anchor.x,
+             y: bounds.y - dragMap.anchor.y
+          ]
+       }
+       dragMap.dragPoint = [x:e.event.x,y:e.event.y]
+    }
+    
+    private void endDrag( e ){
+    	this.@drag.dragging = false
+    }
+    
+    private void trackDrag( e ){
+       def bounds = getBounds()
+       def dragMap = this.@drag
+       def location = dragMap.location
+       if( !dragMap.dragPoint ) return
+       def dx = e.event.x - dragMap.dragPoint.x
+       def dy = e.event.y - dragMap.dragPoint.y
+
+       if( !dragMap.dragging ){
+          if( !txs['location'] ){
+             txs << new TranslateTransformation( name: 'location',
+                                  x: location.x, y: location.y )
+          }else{
+             txs['location'].x = location.x
+             txs['location'].y = location.y
+          }
+          dragMap.dragging = true
+       }
+
+       if( !txs['drag'] ){
+          txs << new TranslateTransformation( name: 'drag', x: dx, y: dy )
+       }else{
+          txs['drag'].x = dx
+          txs['drag'].y = dy
+       }    	
     }
 }
