@@ -43,6 +43,8 @@ import org.codehaus.groovy.runtime.DefaultGroovyMethods;
  */
 public abstract class GrooshProcess {
 
+	protected boolean useError = false;
+
 	protected abstract Sink getInput();
 
 	protected abstract Source getOutput();
@@ -56,16 +58,16 @@ public abstract class GrooshProcess {
 	public String getText() throws IOException {
 		StringStreams.StringSink sink = StringStreams.stringSink();
 
-		getOutput().connect(sink);
+		getSource().connect(sink);
 		startStreamHandling();
-
+		waitForExit();
 		return sink.toString();
 	}
 
 	public void toStream(OutputStream os) throws IOException {
 		Sink sink = IOStreams.outputStreamSink(os);
 
-		getOutput().connect(sink);
+		getSource().connect(sink);
 		startStreamHandling();
 
 	}
@@ -82,11 +84,10 @@ public abstract class GrooshProcess {
 	}
 
 	public GrooshProcess pipeTo(GrooshProcess process) throws IOException {
-		getOutput().connect(process.getInput());
+		getSource().connect(process.getInput());
 
 		startStreamHandling();
 
-		// return other process so chaining is possible
 		return process;
 	}
 
@@ -128,7 +129,7 @@ public abstract class GrooshProcess {
 	}
 
 	private void processSink(Sink sink) throws IOException {
-		getOutput().connect(sink);
+		getSource().connect(sink);
 		startStreamHandling();
 		waitForExit();
 
@@ -163,20 +164,21 @@ public abstract class GrooshProcess {
 	}
 
 	public void waitFor() throws InterruptedException, ExecutionException {
-		getOutput().waitForStreamsHandled();
+		getSource().waitForStreamsHandled();
 	}
 
 	public void eachLine(Closure closure) throws IOException {
 		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
-
-		getOutput().connect(sink);
+		getSource().connect(sink);
 		startStreamHandling();
 		DefaultGroovyMethods.eachLine(sink.getInputStream(), closure);
+		waitForExit();
+
 	}
 
 	public List<String> toList() throws IOException {
 		IOStreams.InputStreamSink sink = IOStreams.inputStreamSink();
-		getOutput().connect(sink);
+		getSource().connect(sink);
 		startStreamHandling();
 		BufferedReader ris = new BufferedReader(new InputStreamReader(sink
 				.getInputStream()));
@@ -185,6 +187,7 @@ public abstract class GrooshProcess {
 		while ((line = ris.readLine()) != null) {
 			result.add(line);
 		}
+		waitForExit();
 		return result;
 	}
 
@@ -194,5 +197,18 @@ public abstract class GrooshProcess {
 	}
 
 	public abstract int exitValue();
+
+	public GrooshProcess useError(boolean useError) {
+		this.useError = useError;
+		return this;
+	}
+
+	private Source getSource() {
+		if (useError) {
+			return getError();
+		} else {
+			return getOutput();
+		}
+	}
 
 }
