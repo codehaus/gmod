@@ -118,6 +118,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "\$swing", new SwingFactory() )
         registerFactory( "alphaComposite", new AlphaCompositeFactory() )
         registerFactory( "viewBox", new ViewBoxFactory() )
+        registerFactory( "props", new PropsFactory() )
 
         //
         // shapes

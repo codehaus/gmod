@@ -27,12 +27,13 @@ import org.jdesktop.swingx.graphics.ReflectionRenderer
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ReflectionFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['opacity','length','blurEnabled','blurRadius']
+   public static required = ['opacity','length','blurEnabled','blurRadius','reflectionOnly']
 
    def opacity
    def length
    def blurEnabled
    def blurRadius
+   def reflectionOnly = false
 
    ReflectionFilterProvider() {
       super( "reflection" )
@@ -40,6 +41,6 @@ class ReflectionFilterProvider extends PropertiesBasedFilterProvider {
    }
    
    public BufferedImage filter( BufferedImage src, BufferedImage dst, Shape clip ){
-	   filter.appendReflection( dst ?: src )
+	   reflectionOnly ? filter.createReflection( dst ?: src ) : filter.appendReflection( dst ?: src )
    }
 }

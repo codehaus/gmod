@@ -29,11 +29,12 @@ import org.jdesktop.swingx.graphics.ShadowRenderer
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class DropShadowFilterProvider extends PropertiesBasedFilterProvider {
-   public static required = ['opacity','size','color']
+   public static required = ['opacity','size','color','shadowOnly']
 
    def opacity
    def size
    def color
+   def shadowOnly = false
 
    DropShadowFilterProvider() {
       super( "dropShadow" )
@@ -42,6 +43,7 @@ class DropShadowFilterProvider extends PropertiesBasedFilterProvider {
    
    public BufferedImage filter( BufferedImage src, BufferedImage dst, Shape clip ){
 	   def shadowImage = filter.createShadow( dst ?: src )
+	   if( shadowOnly ) return shadowImage
 	   def composedImage = GraphicsUtilities.createCompatibleImage(shadowImage)
 	   def g = composedImage.createGraphics()
 	   g.drawImage( shadowImage, 0, 0, null )
