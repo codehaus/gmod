@@ -155,14 +155,14 @@ final class GraphicsRenderer {
      * Will create a compatible BufferedImage with dimensions [width,height] and with
      * a clip set to the rectangle [0,0,width,height]
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param width the width of the image/clip
      * @param height the height of the image/clip
      * @param closure a closure containg GraphicsBuilder's nodes
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, int width, int height, Closure closure ){
        return renderToFile( filename, width, height, gb.group(closure) )
@@ -177,14 +177,14 @@ final class GraphicsRenderer {
      * Will create a compatible BufferedImage with dimensions [width,height] and with
      * a clip set to the rectangle [0,0,width,height]
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param width the width of the image/clip
      * @param height the height of the image/clip
      * @param go any GraphicsOperation
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, int width, int height, GraphicsOperation go ){
        return renderToFile( filename, createImage( width, height ), go )
@@ -199,13 +199,13 @@ final class GraphicsRenderer {
      * Will create a compatible BufferedImage with dimensions [clip.width,clip.height] and with
      * a clip set to the clip parameter
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param clip the dimensions of the image/clip
      * @param closure a closure containg GraphicsBuilder's nodes
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, Rectangle clip, Closure closure ){
        return renderToFile( filename, clip, gb.group(closure) )
@@ -219,13 +219,13 @@ final class GraphicsRenderer {
      * Will create a compatible BufferedImage with dimensions [clip.width,clip.height] and with
      * a clip set to the clip parameter
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param clip the dimensions of the image/clip
      * @param go any GraphicsOperation
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, Rectangle clip, GraphicsOperation go ){
        return renderToFile( filename, createImage( clip.width as int, clip.height as int ), clip, go )
@@ -238,13 +238,13 @@ final class GraphicsRenderer {
      * with javax.imageio.ImageIO.
      * Assumes that the closure contains nodes that GraphicsBuilder can understand.
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param image the destination image
      * @param closure a closure containg GraphicsBuilder's nodes
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, BufferedImage dst, Closure closure ){
        return renderToFile( filename, dst, [0,0,dst.width,dst.height] as Rectangle, gb.group(closure) )
@@ -256,13 +256,13 @@ final class GraphicsRenderer {
      * and the it ends with a file extension recognizable by the plugins registered
      * with javax.imageio.ImageIO.
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param image the destination image
      * @param go any GraphicsOperation
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, BufferedImage dst, GraphicsOperation go ){
        return renderToFile( filename, dst, [0,0,dst.width,dst.height] as Rectangle, go )
@@ -276,14 +276,14 @@ final class GraphicsRenderer {
      * Assumes that the closure contains nodes that GraphicsBuilder can understand.
      * Will set a clip as defined by the clip parameter
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param image the destination image
      * @param clip the dimensions of the clip
      * @param closure a closure containg GraphicsBuilder's nodes
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, BufferedImage dst, Rectangle clip, Closure closure ){
        return renderToFile( filename, dst, clip, gb.group(closure) )
@@ -295,14 +295,14 @@ final class GraphicsRenderer {
      * and the it ends with a file extension recognizable by the plugins registered
      * with javax.imageio.ImageIO.
      *
-     * @param filename the name of the file wher the image will be written
+     * @param filename the name of the file where the image will be written
      * @param image the destination image
      * @param clip the dimensions of the clip
      * @param go any GraphicsOperation
      *
      * @throws IOException if the file can't be created and writen to.
      *
-     * @return a File reference to written image
+     * @return a File reference to the written image
      */
     public File renderToFile( String filename, BufferedImage dst, Rectangle clip, GraphicsOperation go ){
        def fileSeparator = "/" /*System.getProperty("file.separator")*/

@@ -20,7 +20,7 @@ import groovy.swing.j2d.GraphicsBuilder
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
 import groovy.swing.j2d.operations.*
-import groovy.swing.j2d.impl.InterceptableGraphics
+//import groovy.swing.j2d.impl.InterceptableGraphics
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
