@@ -12,13 +12,15 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-package org.codehaus.groovy.groosh;
+package org.codehaus.groovy.groosh.builtin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.groovy.groosh.Aliases;
+import org.codehaus.groovy.groosh.GrooshProcess;
 import org.codehaus.groovy.groosh.stream.Sink;
 import org.codehaus.groovy.groosh.stream.Source;
 import org.codehaus.groovy.util.ExecDir;
@@ -43,7 +45,8 @@ import org.codehaus.groovy.util.ExecDir;
  * @author Alexander Egger
  * 
  */
-public class CdProcess extends GrooshProcess {
+@Aliases( { "cd" })
+public class Cd extends GrooshProcess {
 
 	private static final String OLDPWD = "OLDPWD";
 	private static final String PWD = "PWD";
@@ -54,11 +57,7 @@ public class CdProcess extends GrooshProcess {
 
 	private int exitValue = UNKNOWN_ERROR;
 
-	public int exitValue() {
-		return exitValue;
-	}
-
-	public CdProcess(List<String> args, Map<String, String> env, ExecDir execDir)
+	public Cd(List<String> args, Map<String, String> env, ExecDir execDir)
 			throws IOException {
 		String arg;
 		if (args.isEmpty()) {
@@ -113,5 +112,9 @@ public class CdProcess extends GrooshProcess {
 
 	public Source getError() {
 		return null;
+	}
+
+	public int exitValue() {
+		return exitValue;
 	}
 }

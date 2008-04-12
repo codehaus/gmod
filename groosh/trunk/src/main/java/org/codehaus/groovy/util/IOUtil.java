@@ -17,10 +17,12 @@ package org.codehaus.groovy.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-
 
 /**
  * 
@@ -30,7 +32,7 @@ import java.util.concurrent.Future;
 public class IOUtil {
 	private static final int BUFFER_SIZE = 8192;
 
-	public static int pump(InputStream is, OutputStream stream)
+	private static int pump(InputStream is, OutputStream stream)
 			throws IOException {
 		int pumped = 0;
 		byte[] buffy = new byte[BUFFER_SIZE];
@@ -41,7 +43,21 @@ public class IOUtil {
 			pumped += read;
 		}
 
-		return read;
+		return pumped;
+	}
+
+	private static int pump(BlockingQueue<String> queue, OutputStream os)
+			throws IOException, InterruptedException {
+
+		int pumped = 0;
+		Writer writer = new OutputStreamWriter(os);
+		String line;
+		while ((line = queue.take()) != null) {
+			writer.write(line);
+			pumped += line.length();
+		}
+
+		return pumped;
 	}
 
 	public static Future<Integer> pumpAsync(final InputStream is,
@@ -50,7 +66,7 @@ public class IOUtil {
 		Future<Integer> result = getExecutor().submit(new Callable<Integer>() {
 			public Integer call() throws Exception {
 				try {
-					return IOUtil.pump(is, os);
+					return pump(is, os);
 				} finally {
 					os.close();
 					is.close();
@@ -63,6 +79,21 @@ public class IOUtil {
 
 	public static ExecutorService getExecutor() {
 		return new ThreadPerTaskExecutorService();
+	}
+
+	public static Future<Integer> pumpAsync(final BlockingQueue<String> queue,
+			final OutputStream os) {
+		Future<Integer> result = getExecutor().submit(new Callable<Integer>() {
+			public Integer call() throws Exception {
+				try {
+					return pump(queue, os);
+				} finally {
+					os.close();
+				}
+			}
+		});
+
+		return result;
 	}
 
 }

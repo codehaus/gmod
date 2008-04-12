@@ -61,7 +61,6 @@ public class StreamClosureProcess extends GrooshProcess implements
 		try {
 			result.get();
 		} catch (Exception e) {
-			// TODO handle the exceptions
 			throw new RuntimeException(e);
 		}
 	}
