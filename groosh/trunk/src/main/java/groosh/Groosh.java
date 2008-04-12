@@ -20,13 +20,15 @@ import groovy.lang.GroovyObjectSupport;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.groovy.groosh.CdProcess;
+import org.codehaus.groovy.groosh.AbstractBuiltInProcess;
+import org.codehaus.groovy.groosh.Aliases;
 import org.codehaus.groovy.groosh.GridClosureProcess;
 import org.codehaus.groovy.groosh.GrooshProcess;
 import org.codehaus.groovy.groosh.JavaProcess;
@@ -68,7 +70,19 @@ public class Groosh extends GroovyObjectSupport {
 	}
 
 	static {
-		registerInternalProcess("cd", CdProcess.class);
+		try {
+			registerInternalProcesses();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static Groosh groosh() {
@@ -80,9 +94,33 @@ public class Groosh extends GroovyObjectSupport {
 		env.put("PWD", System.getProperty("user.dir"));
 	}
 
-	public static void registerInternalProcess(String name,
-			Class<? extends GrooshProcess> clazz) {
-		registeredInternalProcesses.put(name, clazz);
+	@SuppressWarnings("unchecked")
+	public static void registerInternalProcesses()
+			throws ClassNotFoundException, IllegalArgumentException,
+			SecurityException, IllegalAccessException, NoSuchFieldException {
+
+		URL url = ClassLoader
+				.getSystemResource("org/codehaus/groovy/groosh/builtin");
+		File directory = new File(url.getFile());
+
+		String[] files = directory.list();
+		for (String file : files) {
+
+			if (file.endsWith(".class")) {
+				// removes the .class extension
+				String classname = file.substring(0, file.length() - 6);
+
+				Class<AbstractBuiltInProcess> clazz = (Class<AbstractBuiltInProcess>) Class
+						.forName("org.codehaus.groovy.groosh.builtin."
+								+ classname);
+				Aliases alias = clazz.getAnnotation(Aliases.class);
+				String[] aliases = alias.value();
+				for (String name : aliases) {
+					registeredInternalProcesses.put(name, clazz);
+				}
+
+			}
+		}
 	}
 
 	public Object invokeMethod(String name, Object args) {

@@ -12,5 +12,7 @@
 	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/commons-cli-1.0.jar"/>
 	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-1.5.1.jar"/>
 	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-eclipse.jar"/>
+	<classpathentry kind="var" path="GROOVY_ECLIPSE_HOME/groovy-src-1.5.1.zip"/>
+	<classpathentry kind="lib" path="/usr/share/java/groovy/lib/ant-1.7.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
