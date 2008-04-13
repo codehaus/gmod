@@ -7,6 +7,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,111 +35,153 @@ import org.springframework.context.ApplicationContextAware;
  * @since 0.1
  */
 public class GroovyRestlet implements ApplicationContextAware {
-	private static final Logger	LOG	     = LoggerFactory
-	                                             .getLogger(GroovyRestlet.class);
-	private static final Logger	PERF_LOG	= LoggerFactory
-	                                             .getLogger("org.lpny.groovyrestlet.perf");
-	private RestletBuilder	    builder;
-	private final GroovyShell	shell;
-	private ApplicationContext	springContext;
+    private static final Logger LOG      = LoggerFactory
+                                                 .getLogger(GroovyRestlet.class);
+    private static final Logger PERF_LOG = LoggerFactory
+                                                 .getLogger("org.lpny.groovyrestlet.perf");
+    private RestletBuilder      builder;
+    private final GroovyShell   shell;
+    private ApplicationContext  springContext;
 
-	public GroovyRestlet() {
-		this(null);
-	}
+    public GroovyRestlet() {
+        this(null);
+    }
 
-	public GroovyRestlet(final ApplicationContext springContext) {
-		super();
-		this.springContext = springContext;
-		shell = new GroovyShell(Thread.currentThread().getContextClassLoader());
-		declareShellContext();
-	}
+    public GroovyRestlet(final ApplicationContext springContext) {
+        super();
+        this.springContext = springContext;
+        shell = new GroovyShell(Thread.currentThread().getContextClassLoader());
+        declareShellContext();
+    }
 
-	/**
-	 * To build from script specified by <code>scriptURI</code>
-	 * 
-	 * @param userDefinedContext
-	 * @param scriptURI
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Object build(final Map<String, Object> userDefinedContext,
-	        final URI scriptURI) {
-		try {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("To build from {}", scriptURI);
-			}
-			final Binding context = shell.getContext();
-			final Map oldVariables = new HashMap(context.getVariables());
-			// merge userDefinedContext to variables
-			context.getVariables().putAll(userDefinedContext);
-			try {
-				return build(scriptURI);
-			} finally {
-				context.getVariables().clear();
-				context.getVariables().putAll(oldVariables);
-			}
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public Object build(final InputStream is) {
+        try {
+            // Initialize builder if it has not been done.
+            getBuilder().init();
+            shell.getContext().setVariable("springContext", springContext);
+            getBuilder().setVariable("springContext", springContext);
+            shell.getContext().setVariable("builder", builder);
+            final long start = System.currentTimeMillis();
+            final Object result = shell.evaluate(is);
+            final long end = System.currentTimeMillis();
+            if (PERF_LOG.isInfoEnabled()) {
+                PERF_LOG.info("Evaluate Script cost={}", end - start);
+            }
+            return result;
+        } catch (final Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unable to build ", e);
+            }
+            throw new RuntimeException(e);
+        }
+    }
 
-	/**
-	 * To build from script specified by <code>scriptURI</code>
-	 * 
-	 * @param scriptURI
-	 * @return
-	 */
-	public Object build(final URI scriptURI) {
-		try {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("To build from {}", scriptURI);
-			}
-			// Initialize builder if it has not been done.
-			getBuilder().init();
-			shell.getContext().setVariable("springContext", springContext);
-			getBuilder().setVariable("springContext", springContext);
-			shell.getContext().setVariable("builder", builder);
-			long start = System.currentTimeMillis();
-			Object result = shell.evaluate(new File(scriptURI));
-			long end = System.currentTimeMillis();
-			if (PERF_LOG.isInfoEnabled()) {
-				PERF_LOG.info("Evaluate Script cost={}", end - start);
-			}
-			return result;
-		} catch (final Exception e) {
-			if (LOG.isErrorEnabled()) {
-				LOG.error("Unable to build from " + scriptURI, e);
-			}
-			throw new RuntimeException(e);
-		}
-	}
+    public Object build(final Map<String, Object> userDefinedContext,
+            final InputStream is) {
+        try {
+            final Binding context = shell.getContext();
+            final Map oldVariables = new HashMap(context.getVariables());
+            // merge userDefinedContext to variables
+            context.getVariables().putAll(userDefinedContext);
+            try {
+                return build(is);
+            } finally {
+                context.getVariables().clear();
+                context.getVariables().putAll(oldVariables);
+            }
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public RestletBuilder getBuilder() {
-		if (builder == null) {
-			builder = new RestletBuilder();
-		}
-		return builder;
-	}
+    /**
+     * To build from script specified by <code>scriptURI</code>
+     * 
+     * @param userDefinedContext
+     * @param scriptURI
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    public Object build(final Map<String, Object> userDefinedContext,
+            final URI scriptURI) {
+        try {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("To build from {}", scriptURI);
+            }
+            final Binding context = shell.getContext();
+            final Map oldVariables = new HashMap(context.getVariables());
+            // merge userDefinedContext to variables
+            context.getVariables().putAll(userDefinedContext);
+            try {
+                return build(scriptURI);
+            } finally {
+                context.getVariables().clear();
+                context.getVariables().putAll(oldVariables);
+            }
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public void setApplicationContext(
-	        final ApplicationContext applicationContext) throws BeansException {
-		springContext = applicationContext;
-	}
+    /**
+     * To build from script specified by <code>scriptURI</code>
+     * 
+     * @param scriptURI
+     * @return
+     */
+    @Deprecated
+    public Object build(final URI scriptURI) {
+        try {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("To build from {}", scriptURI);
+            }
+            // Initialize builder if it has not been done.
+            getBuilder().init();
+            shell.getContext().setVariable("springContext", springContext);
+            getBuilder().setVariable("springContext", springContext);
+            shell.getContext().setVariable("builder", builder);
+            final long start = System.currentTimeMillis();
+            final Object result = shell.evaluate(new File(scriptURI));
+            final long end = System.currentTimeMillis();
+            if (PERF_LOG.isInfoEnabled()) {
+                PERF_LOG.info("Evaluate Script cost={}", end - start);
+            }
+            return result;
+        } catch (final Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unable to build from " + scriptURI, e);
+            }
+            throw new RuntimeException(e);
+        }
+    }
 
-	public void setBuilder(final RestletBuilder builder) {
-		Validate.notNull(builder);
-		this.builder = builder;
-	}
+    public RestletBuilder getBuilder() {
+        if (builder == null) {
+            builder = new RestletBuilder();
+        }
+        return builder;
+    }
 
-	private void declareShellContext() {
-		final Binding context = shell.getContext();
-		final Global global = new Global();
-		context.setVariable("global", global);
-		context.setVariable("protocol", Protocol.class);
-		context.setVariable("mediaType", MediaType.class);
-		context.setVariable("status", Status.class);
-		context.setVariable("challengeScheme", ChallengeScheme.class);
-		context.setVariable("redirectorMode", Redirector.class);
-		context.setVariable("routingMode", Router.class);
-	}
+    public void setApplicationContext(
+            final ApplicationContext applicationContext) throws BeansException {
+        springContext = applicationContext;
+    }
+
+    public void setBuilder(final RestletBuilder builder) {
+        Validate.notNull(builder);
+        this.builder = builder;
+    }
+
+    private void declareShellContext() {
+        final Binding context = shell.getContext();
+        final Global global = new Global();
+        context.setVariable("global", global);
+        context.setVariable("protocol", Protocol.class);
+        context.setVariable("mediaType", MediaType.class);
+        context.setVariable("status", Status.class);
+        context.setVariable("challengeScheme", ChallengeScheme.class);
+        context.setVariable("redirectorMode", Redirector.class);
+        context.setVariable("routingMode", Router.class);
+    }
 }
