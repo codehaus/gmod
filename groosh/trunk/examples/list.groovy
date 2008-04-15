@@ -12,9 +12,9 @@
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
 
-import static groosh.Groosh.groosh as shell
+groosh.Groosh.withGroosh(this)
 
-shell().list('/').eachLine {
+list("/", "-R").eachLine {
 	println "$it"
 }
 
