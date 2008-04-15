@@ -95,7 +95,7 @@ public abstract class GrooshProcess {
 		return pipeTo(process);
 	}
 
-	public GrooshProcess or(Sink sink) throws IOException {
+	public GrooshProcess rightShift(Sink sink) throws IOException {
 		processSink(sink);
 		return this;
 	}
