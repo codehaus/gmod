@@ -6,7 +6,7 @@
 	<groupId>org.codehaus.groovy-contrib</groupId>
 	<artifactId>groovy-groosh</artifactId>
 	<packaging>jar</packaging>
-	<version>0.3.0</version>
+	<version>0.4.0</version>
 	<name>Groosh</name>
 
 	<inceptionYear>2008</inceptionYear>
