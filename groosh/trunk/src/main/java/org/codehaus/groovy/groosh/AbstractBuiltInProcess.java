@@ -33,7 +33,6 @@ public abstract class AbstractBuiltInProcess extends GrooshProcess implements
 	}
 
 	public void startStreamHandling() throws IOException {
-		os = System.out;
 		result = IOUtil.getExecutor().submit(this);
 	}
 

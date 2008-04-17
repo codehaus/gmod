@@ -11,9 +11,8 @@
 //  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
-import static groosh.Groosh.groosh as shell;
-import static org.codehaus.groovy.groosh.stream.StandardStreams.stdout
+groosh.Groosh.withGroosh(this)
 
-shell().cat('src/test/resources/blah.txt') | stdout()
+cat('src/test/resources/blah.txt') >> stdout
 
 

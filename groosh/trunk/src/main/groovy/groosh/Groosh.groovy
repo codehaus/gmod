@@ -56,13 +56,10 @@ public class Groosh extends GroovyObjectSupport {
 
 	private Map<String, String> env = new HashMap<String, String>();
 
-	private static Map instances = Collections.synchronizedMap([:])
-
-	
 	private ExecDir execDir = new ExecDir();
 
-	private String sudoUser;
-	private String sudoPassword = "";
+	String sudoUser;
+	String sudoPassword = "";
 
 	static {
 		registerStreamClosureProcess("groovy", StreamClosureProcess.class);
@@ -130,6 +127,11 @@ public class Groosh extends GroovyObjectSupport {
 	}
 
 	public Object invokeMethod(String name, Object args) {
+		if (this.metaClass.hasProperty(this,name)) {
+			this.setProperty(name,getArgs(args)[0])
+			return
+		}
+		
 		GrooshProcess process;
 		boolean withSudo = false;
 
@@ -248,14 +250,6 @@ public class Groosh extends GroovyObjectSupport {
 		} else
 			throw new IllegalStateException("no support for args of type "
 					+ arg1.getClass());
-	}
-
-	public void setSudoUser(String sudoUser) {
-		this.sudoUser = sudoUser;
-	}
-
-	public void setSudoPassword(String sudoPassword) {
-		this.sudoPassword = sudoPassword;
 	}
 	
 	static void withGroosh(Object it) {

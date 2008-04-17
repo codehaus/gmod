@@ -14,7 +14,7 @@ import org.codehaus.groovy.groosh.AbstractBuiltInProcess;
 import org.codehaus.groovy.groosh.Aliases;
 import org.codehaus.groovy.util.ExecDir;
 
-@Aliases( { "dir", "ls", "list" })
+@Aliases( { "list" })
 public class Dir extends AbstractBuiltInProcess {
 
 	private List<File> dirNames = new ArrayList<File>();
