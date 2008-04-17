@@ -64,6 +64,11 @@ public class TransformationGroup extends ObservableSupport implements Transforma
         if( enabled ) firePropertyChange( "size", this.@transformations.size()+1, this.@transformations.size() )
     }
 
+    public boolean isEnabled() {
+       def b = this.@transformations.any { it.enabled }
+       b ? this.@enabled : false
+    }
+    
     public void setEnabled( boolean enabled ){
     	if( this.@enabled != enabled ){
     		this.@enabled = enabled
@@ -162,6 +167,10 @@ public class TransformationGroup extends ObservableSupport implements Transforma
     
     public String toString() {
     	"transformations$transformations"
+    }
+    
+    public Iterator iterator() {
+        this.@transformations.iterator()
     }
 
     /* ===== OPERATOR OVERLOADING ===== */

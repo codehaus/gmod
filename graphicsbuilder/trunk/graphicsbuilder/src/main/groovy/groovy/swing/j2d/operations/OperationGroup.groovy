@@ -77,6 +77,10 @@ public class OperationGroup extends ObservableSupport {
     	"ops$operations"
     }
     
+    public Iterator iterator() {
+        this.@operations.iterator()
+    }
+    
     /* ===== OPERATOR OVERLOADING ===== */
 
     public OperationGroup leftShift( GraphicsOperation operation ) {

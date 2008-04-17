@@ -16,11 +16,21 @@
 package groovy.swing.j2d.operations
 
 import groovy.swing.j2d.GraphicsContext
-import java.awt.Shape
+import groovy.swing.j2d.GraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface OutlineProvider /*extends GraphicsOperation*/ {
-   Shape getShape( GraphicsContext context )
+class BasicGraphicsRuntime implements GraphicsRuntime {
+   protected GraphicsContext context
+   protected GraphicsOperation operation
+    
+   BasicGraphicsRuntime( GraphicsOperation operation, GraphicsContext context ){
+      this.operation = operation
+      this.context = context
+   }
+   
+   public GraphicsContext getGraphicsContext() {
+      context
+   }
 }

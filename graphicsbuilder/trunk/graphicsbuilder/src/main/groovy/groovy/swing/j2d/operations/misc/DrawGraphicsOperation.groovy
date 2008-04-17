@@ -39,7 +39,7 @@ public class DrawGraphicsOperation extends AbstractShapeGraphicsOperation {
     public Shape getShape( GraphicsContext context) {
         def s = null
         if( shape instanceof ShapeProvider || shape instanceof OutlineProvider ){
-           s = shape.getLocallyTransformedShape(context)
+           s = shape.runtime(context).locallyTransformedShape
         }else if( shape instanceof Shape ){
            s = shape
         }else{

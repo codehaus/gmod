@@ -13,14 +13,27 @@
  * See the License for the specific language governing permissions and
  */
 
-package groovy.swing.j2d.operations
+package groovy.swing.j2d.operations.misc
 
 import groovy.swing.j2d.GraphicsContext
-import java.awt.Shape
+import groovy.swing.j2d.operations.AbstractGraphicsOperation
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public interface OutlineProvider /*extends GraphicsOperation*/ {
-   Shape getShape( GraphicsContext context )
+class BackgroundGraphicsOperation extends AbstractGraphicsOperation {
+    public static required = ['color']
+
+    def color
+
+    BackgroundGraphicsOperation() {
+        super( "color" )
+    }
+
+    protected void doExecute( GraphicsContext context ){
+        if( !color ) return
+        def clip = context.g.clipBounds
+        context.g.setBackground( color )
+        context.g.clearRect( clip.x as int, clip.y as int, clip.width as int, clip.height as int )
+    }
 }

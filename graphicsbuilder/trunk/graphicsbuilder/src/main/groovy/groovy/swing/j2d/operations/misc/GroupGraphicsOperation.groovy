@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations.misc
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.operations.GraphicsRuntime
 import groovy.swing.j2d.operations.Grouping
 import groovy.swing.j2d.operations.PaintProvider
 import groovy.swing.j2d.operations.Transformable
@@ -37,7 +38,6 @@ import java.beans.PropertyChangeEvent
 class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements Grouping {
     private def previousGroupContext
     private BufferedImage image
-    private Rectangle bounds
     
     ViewBox viewBox
 
@@ -63,10 +63,6 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        image
     }
     
-    public Rectangle getBounds() {
-       bounds
-    }
-    
     public boolean hasCenter() {
        false
     }
@@ -82,7 +78,6 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
     protected void localPropertyChange( PropertyChangeEvent event ) {
         super.localPropertyChange( event )
         image = null
-        bounds = null
      }
 
     protected void executeBeforeAll( GraphicsContext context ) {
@@ -91,7 +86,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        
        gcopy = context.g
        
-       def boundingShape = getBoundingShape(context)
+       def boundingShape = runtime.boundingShape
        if( asImage || hasFilters() || composite ){
           def filterOffset = hasFilters() ? filters.offset : 0
           def bounds = boundingShape.bounds
@@ -154,8 +149,6 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        context.groupContext = previousGroupContext
 
        addAsEventTarget(context)
-       
-       bounds = new Rectangle(getBoundingShape(context).bounds)
     }
 
     protected void executeNestedOperation( GraphicsContext context, GraphicsOperation go ) {
@@ -180,21 +173,8 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
        go.execute( context )
     }
       
-    public Shape getBoundingShape( GraphicsContext context ) {
-        def bounds = [0,0,0,0] as Rectangle
-        if( viewBox ){
-            bounds = viewBox.getLocallyTransformedShape(context)
-            if( !viewBox.pinned ){
-               if( transformations ) bounds = transformations.apply(bounds)
-               if( globalTransformations ) bounds = globalTransformations.apply(bounds)
-            }
-        }else if( context.g.clipBounds ){
-            bounds = new Rectangle(context.g.clipBounds)
-        }else{
-            bounds.width = context.component?.bounds?.width
-            bounds.height = context.component?.bounds?.height         
-        }
-        return bounds
+    protected GraphicsRuntime createRuntime( GraphicsContext context ){
+       return new GroupGraphicsRuntime(this,context)
     }
 
     protected void addAsEventTarget( GraphicsContext context ){

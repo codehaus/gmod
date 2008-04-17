@@ -59,10 +59,10 @@ public class AreaGraphicsOperation extends AbstractShapeGraphicsOperation {
            throw new IllegalArgumentException("No nested shapes on ${this}")
         }
 
-        area = new Area( gos[0].getLocallyTransformedShape(context) )
+        area = new Area( gos[0].runtime(context).locallyTransformedShape )
         gos[1..-1].each {
            it.addPropertyChangeListener( this )
-           area."$areaMethod"( new Area(it.getLocallyTransformedShape(context)) )
+           area."$areaMethod"( new Area(it.runtime(context).locallyTransformedShape) )
         }
     }
 }

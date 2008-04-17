@@ -34,7 +34,8 @@ import groovy.swing.j2d.operations.shapes.MorphGraphicsOperation
 import com.jhlabs.image.*
 import com.jhlabs.image.LightFilter.*
 import org.jdesktop.swingx.graphics.BlendComposite
-import org.jdesktop.animation.timing.Animator.*
+import org.jdesktop.animation.timing.Animator.*
+
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -188,7 +189,7 @@ class SwingXGraphicsBuilderHelper {
       builder.registerFactory( "reflection", new FilterFactory(ReflectionFilterProvider) )
       builder.registerFactory( "sgaussianBlur", new FilterFactory(SgaussianBlurFilterProvider) )
       builder.registerFactory( "stackBlur", new FilterFactory(StackBlurFilterProvider) )
-      
+
       // texture
       builder.registerFactory( "brushedMetal", new FilterFactory(BrushedMetalFilterProvider) )
       builder.registerFactory( "cellular", new FilterFactory(CellularFilterProvider,false) )
@@ -319,13 +320,13 @@ class SwingXGraphicsBuilderHelper {
       builder.smearSquares = SmearFilter.SQUARES
 
       // knot
-  	  builder.knotRgb = Gradient.RGB
-	  builder.knotHueCV = Gradient.HUE_CW
-	  builder.knotHueCCW = Gradient.HUE_CCW
-	  builder.knotLinear = Gradient.LINEAR
-	  builder.knotSpline = Gradient.SPLINE
-	  builder.knotCircleUp = Gradient.CIRCLE_UP
-	  builder.knotCircleDown = Gradient.CIRCLE_DOWN
+      builder.knotRgb = Gradient.RGB
+      builder.knotHueCV = Gradient.HUE_CW
+      builder.knotHueCCW = Gradient.HUE_CCW
+      builder.knotLinear = Gradient.LINEAR
+      builder.knotSpline = Gradient.SPLINE
+      builder.knotCircleUp = Gradient.CIRCLE_UP
+      builder.knotCircleDown = Gradient.CIRCLE_DOWN
       builder.knotConstant = Gradient.CONSTANT
 
       // noise
@@ -381,7 +382,7 @@ class SwingXGraphicsBuilderHelper {
       builder.inifiteRepeatCount = -1
 
       // shortcuts
-      builder.addShortcut( 'morph', 'start', 's' )
+      builder.addShortcut( 'morph', 'start', 'a' )
       builder.addShortcut( 'morph', 'end', 'e' )
       builder.addShortcut( 'morph', 'morph', 'm' )
 

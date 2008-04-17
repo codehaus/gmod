@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations.paints
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.PaintProvider
+import groovy.swing.j2d.operations.GraphicsRuntime
 import groovy.swing.j2d.operations.AbstractGraphicsOperation
 
 /**
@@ -53,5 +54,9 @@ abstract class AbstractPaintingGraphicsOperation extends AbstractGraphicsOperati
         if( !asPaint ) {
            context.g.paint = getPaint(context, context.g.clipBounds)
         }
+    }
+    
+    protected GraphicsRuntime createRuntime( GraphicsContext context ){
+       return new PaintingGraphicsRuntime(this,context)
     }
 }

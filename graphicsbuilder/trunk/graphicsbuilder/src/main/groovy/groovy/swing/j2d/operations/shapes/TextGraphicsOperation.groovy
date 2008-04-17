@@ -70,6 +70,16 @@ public class TextGraphicsOperation extends AbstractShapeGraphicsOperation {
        outline = null
     }
 
+    protected void executeBeforeAll( GraphicsContext context ) {
+       // make sure nested font nodes are executed before
+       def fo = operations.reverse().find { it instanceof FontGraphicsOperation }
+       if( fo ){
+          fo.execute( context )
+       }
+       
+       super.executeBeforeAll( context )
+    }
+    
     private void calculateOutline( GraphicsContext context ) {
         def g = context.g
         if( operations ){

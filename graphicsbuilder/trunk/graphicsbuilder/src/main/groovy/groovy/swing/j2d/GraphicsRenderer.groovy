@@ -327,7 +327,7 @@ final class GraphicsRenderer {
 
     private BufferedImage createImage( int width, int height ){
        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
-       if( ge.isHeadless() ){
+       if( GraphicsEnvironment.isHeadless() ){
            return new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB  )
        }else{
           for( gd in ge.getScreenDevices() ){

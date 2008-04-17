@@ -59,10 +59,15 @@ public class FilterGroup extends ObservableSupport {
     }
 
     public boolean isEmpty() {
-       return this.@filters.isEmpty()
+        return this.@filters.isEmpty()
     }
     
-    public void setEnabled( boolean enabled ){
+    public boolean isEnabled() {
+       def b = this.@filters.any { it.enabled }
+       b ? this.@enabled : false
+    }
+    
+    public void setEnabled( boolean enabled ) {
     	if( this.@enabled != enabled ){
     		this.@enabled = enabled
     		firePropertyChange( "enabled", !enabled, enabled )
@@ -85,6 +90,7 @@ public class FilterGroup extends ObservableSupport {
     }
 
     public BufferedImage apply( BufferedImage image, Shape clip ) {
+       if( !enabled ) return image
        BufferedImage dst = null
        this.@filters.each { filter ->
           if( filter.enabled ){
@@ -100,6 +106,10 @@ public class FilterGroup extends ObservableSupport {
     
     public String toString() {
     	"filters$filters"
+    }
+    
+    public Iterator iterator() {
+        this.@filters.iterator()
     }
     
     /* ===== OPERATOR OVERLOADING ===== */

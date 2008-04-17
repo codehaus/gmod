@@ -108,4 +108,8 @@ abstract class AbstractNestingGraphicsOperation extends AbstractDisplayableGraph
     protected void executeAfterAll( GraphicsContext context ) {
 
     }
+    
+    protected def findLast( Closure cls ) {
+       operations?.reverse()?.find( cls )
+    }
 }

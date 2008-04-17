@@ -71,11 +71,11 @@ class TexturePaintGraphicsOperation extends AbstractPaintingGraphicsOperation {
                 iobj = image
              }else if( image instanceof ImageGraphicsOperation ){
                 // TODO refactor this mess
-                if( image.image && image.image instanceof ImageGraphicsOperation ){
-                   image.image.addPropertyChangeListener( this )
-                   iobj = image.image.getLocallyTransformedImage(context)
+                if( image.runtime.image && image.runtime.image instanceof ImageGraphicsOperation ){
+                   image.runtime.image.addPropertyChangeListener( this )
+                   iobj = image.runtime.image.runtime.locallyTransformedImage
                 }else{
-                   iobj = image.getImageObj(context)
+                   iobj = image.runtime.image
                 }
              }/*else if( image instanceof ShapeProvider || image instanceof OutlineProvider ){
                 image.addPropertyChangeListener( this )
