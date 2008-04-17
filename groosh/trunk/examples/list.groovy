@@ -15,6 +15,6 @@
 groosh.Groosh.withGroosh(this)
 
 list("/", "-R").eachLine {
-	println "$it"
+	println "** $it"
 }
 

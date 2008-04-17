@@ -11,6 +11,9 @@
 //  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 //  implied. See the License for the specific language governing permissions and limitations under the
 //  License.
+groosh.Groosh.withGroosh(this)
 
-gsh = new groosh.Groosh(sudoUser:"user",sudoPassword:"password")
-gsh.sudo_cat("/var/log/messages").toStdOut()
+groosh.sudoUser("root")
+groosh.sudoPassword("test")
+
+sudo_cat("/var/log/messages") >> stdout
