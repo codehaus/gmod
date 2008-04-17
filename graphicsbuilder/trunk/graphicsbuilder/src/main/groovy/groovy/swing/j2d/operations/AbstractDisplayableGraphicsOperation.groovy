@@ -189,19 +189,15 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     public boolean hasXY() {
        false
     }
-
-    public abstract Shape getBoundingShape( GraphicsContext context )
     
-    public abstract Rectangle getBounds()
+    public boolean hasFilters(){
+       return filters && filters.enabled && !filters.empty
+    }
 
     protected void applyOpacity( GraphicsContext context ){
        if( opacity != null ){
           context.g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity as float)
        }
-    }
-    
-    protected boolean hasFilters(){
-    	return filters && filters.enabled && !filters.empty
     }
 
     protected void addAsEventTarget( GraphicsContext context ){
@@ -214,7 +210,7 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     }
     
     private void startDrag( e ){
-       def bounds = getBounds()
+       def bounds = runtime.boundingShape.bounds
        def dragMap = this.@drag
        if( !dragMap.anchor ){ 
           dragMap.anchor = [x:bounds.x,y:bounds.y]
@@ -235,7 +231,7 @@ abstract class AbstractDisplayableGraphicsOperation extends AbstractGraphicsOper
     }
     
     private void trackDrag( e ){
-       def bounds = getBounds()
+       def bounds = runtime.boundingShape.bounds
        def dragMap = this.@drag
        def location = dragMap.location
        if( !dragMap.dragPoint ) return

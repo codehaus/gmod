@@ -52,7 +52,7 @@ class ShapePathOperation extends AbstractPathOperation {
     public void apply( GeneralPath path, GraphicsContext context ) {
        def s = shape
        if( shape instanceof ShapeProvider || shape instanceof OutlineProvider ){
-          s = shape.getLocallyTransformedShape(context)
+          s = shape.runtime(context).locallyTransformedShape
        }
        path.append( s, connect as boolean )
     }

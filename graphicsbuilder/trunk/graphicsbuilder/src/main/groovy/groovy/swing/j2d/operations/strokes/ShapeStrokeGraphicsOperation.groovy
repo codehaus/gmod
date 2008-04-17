@@ -59,7 +59,7 @@ public class ShapeStrokeGraphicsOperation extends AbstractStrokeGraphicsOperatio
         def s = []
         shapes.each { shape ->
            if( shape instanceof Shape ) s << shape
-           if( shape instanceof ShapeProvider ) s << shape.getLocallyTransformedShape(null)
+           if( shape instanceof ShapeProvider ) s << shape.runtime.locallyTransformedShape
         }
 
         return new ShapeStroke( s as Shape[], advance as float )

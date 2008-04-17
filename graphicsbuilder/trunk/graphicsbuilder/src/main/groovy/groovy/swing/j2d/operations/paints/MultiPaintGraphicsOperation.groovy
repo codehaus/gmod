@@ -86,6 +86,10 @@ final class MultiPaintGraphicsOperation extends AbstractGraphicsOperation implem
       firePropertyChange( "size", actualSize, 0 )
    }
    
+   public Iterator iterator() {
+      return this.@paints.iterator()
+   }
+   
    public int getSize() {
       return this.@paints.size()
    }

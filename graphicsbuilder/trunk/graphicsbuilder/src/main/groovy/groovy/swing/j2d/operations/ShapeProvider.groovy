@@ -23,8 +23,4 @@ import java.awt.Shape
  */
 public interface ShapeProvider /*extends GraphicsOperation*/ {
    Shape getShape( GraphicsContext context )
-
-   Shape getLocallyTransformedShape( GraphicsContext context )
-
-   Shape getGloballyTransformedShape( GraphicsContext context )
 }

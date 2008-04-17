@@ -34,6 +34,7 @@ import java.beans.PropertyChangeEvent
 abstract class AbstractGraphicsOperation extends ObservableSupport implements GraphicsOperation {
     private String nodeName
     private boolean executing
+    private GraphicsRuntime runtime
     
     private Map props = new ObservableMap()
     
@@ -64,6 +65,7 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     }
 
     public final void execute( GraphicsContext context ) {
+       runtime = createRuntime(context)
         try {
            executing = true
            if( beforeRender ) beforeRender( context, this )
@@ -83,6 +85,15 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
         }
     }
 
+    public final GraphicsRuntime runtime( GraphicsContext context = null ){
+       createRuntime(context)
+    }
+    
+    public final GraphicsRuntime getRuntime(){
+       runtime = runtime ?: createRuntime()
+       runtime
+    }
+    
     public void propertyChange( PropertyChangeEvent event ) {
        if( event.source == this ){
           localPropertyChange( event )
@@ -100,7 +111,11 @@ abstract class AbstractGraphicsOperation extends ObservableSupport implements Gr
     protected abstract void doExecute( GraphicsContext context )
 
     protected void localPropertyChange( PropertyChangeEvent event ) {
-
+       this.@runtime = null
+    }
+    
+    protected GraphicsRuntime createRuntime( GraphicsContext context ){
+       return new BasicGraphicsRuntime(this,context)
     }
 
     protected boolean isParameter( String property ) {

@@ -119,6 +119,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "alphaComposite", new AlphaCompositeFactory() )
         registerFactory( "viewBox", new ViewBoxFactory() )
         registerFactory( "props", new PropsFactory() )
+        registerFactory( "background", new BackgroundFactory() )
 
         //
         // shapes
@@ -234,7 +235,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     private void registerShortcuts(){
         registerShortcutHandler()
 
-        ['colorPaint'].each { nodeName ->
+        ['colorPaint','background'].each { nodeName ->
            addShortcut( nodeName, 'red', 'r' )
            addShortcut( nodeName, 'green', 'g' )
            addShortcut( nodeName, 'blue', 'b' )
@@ -244,7 +245,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         ['draw','arc','circle','ellipse','polygon','rect','text','donut',
          'triangle','regularPolygon','rays','arrow','pin','cross','star', 'balloon',
          'roundRect','group','path','line','cubicCurve','quadCurve','polyline',
-         'add','subtract','intersect','xor'].each { nodeName ->
+         'add','subtract','intersect','xor','morph'].each { nodeName ->
            addShortcut( nodeName, 'borderColor', 'bc' )
            addShortcut( nodeName, 'borderWidth', 'bw' )
            addShortcut( nodeName, 'fill', 'f' )

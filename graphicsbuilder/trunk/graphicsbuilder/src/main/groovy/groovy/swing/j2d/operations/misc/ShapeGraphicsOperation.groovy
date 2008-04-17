@@ -15,12 +15,13 @@
 
 package groovy.swing.j2d.operations.misc
 
+import java.awt.Shape
 import groovy.swing.j2d.GraphicsContext
+import groovy.swing.j2d.operations.GraphicsRuntime
 import groovy.swing.j2d.operations.ShapeProvider
 import groovy.swing.j2d.operations.Transformable
 import groovy.swing.j2d.operations.AbstractGraphicsOperation
 import groovy.swing.j2d.operations.TransformationGroup
-import java.awt.Shape
 import java.beans.PropertyChangeEvent
 
 /**
@@ -83,26 +84,10 @@ class ShapeGraphicsOperation extends AbstractGraphicsOperation implements ShapeP
     }
 
     public Shape getShape( GraphicsContext context ){
-       return getActualShape( context )
+       runtime(contex).shape
     }
-    public Shape getLocallyTransformedShape( GraphicsContext context ){
-       return getActualShape( context )
-    }
-    public Shape getGloballyTransformedShape( GraphicsContext context ){
-       return getActualShape( context )
-    }
-
-    private Shape getActualShape( GraphicsContext context ){
-       if( shape instanceof ShapeProvider ){
-          // TODO apply local
-          def s = shape.getLocallyTransformedShape(context)
-          if( transformations && !transformations.isEmpty() ){
-             s = transformations.apply(s)
-          }
-          return s
-       }else if( shape instanceof Shape ){
-          return shape
-       }
-       throw new IllegalArgumentException("shape.shape must be one of [java.awt.Shape,ShapeProvider]")
+    
+    protected GraphicsRuntime createRuntime( GraphicsContext context ){
+       return new ShapeGraphicsRuntime(this,context)
     }
 }

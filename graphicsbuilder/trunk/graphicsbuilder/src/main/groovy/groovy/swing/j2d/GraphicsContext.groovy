@@ -17,6 +17,7 @@ package groovy.swing.j2d
 
 import java.awt.Component
 import java.awt.Graphics2D
+import java.awt.geom.Rectangle2D
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -26,6 +27,7 @@ public class GraphicsContext {
    Component component
    List eventTargets = []
    Map groupContext = [:]
+   Rectangle2D bounds
 
    GraphicsContext copy() {
       GraphicsContext copy = new GraphicsContext()
@@ -33,6 +35,12 @@ public class GraphicsContext {
       copy.component = component
       copy.eventTargets.addAll( eventTargets )
       copy.groupContext.putAll( groupContext )
+      if( bounds ) {
+         copy.bounds = new Rectangle2D.Double(bounds.x as double, 
+                                              bounds.y as double, 
+                                              bounds.width as double, 
+                                              bounds.height as double)
+      }
       return copy
    }
 }

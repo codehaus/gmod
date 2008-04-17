@@ -237,8 +237,9 @@ class GraphicsPanel extends JPanel implements PropertyChangeListener, MouseListe
          def targets = []
          def eventTargets = context.eventTargets
          for( target in eventTargets.reverse() ){
-             def bp = target.getBoundingShape(context)
-             if( bp && bp.contains(e.point) ){
+             //def bp = target.getBoundingShape(context)
+             def bs = target.runtime.boundingShape 
+             if( bs && bs.contains(e.point) ){
                  targets << target
                  if( !target.passThrough ) break
              }

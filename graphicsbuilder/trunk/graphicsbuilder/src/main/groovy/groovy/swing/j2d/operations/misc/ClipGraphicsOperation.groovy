@@ -100,7 +100,7 @@ class ClipGraphicsOperation extends AbstractGraphicsOperation implements Transfo
         if( !shape ) return
         def s = shape
         if( shape instanceof ShapeProvider ){
-           s = shape.getLocallyTransformedShape(context)
+           s = shape.runtime(context).locallyTransformedShape
         }
         if( transformations && !transformations.isEmpty() ){
            s = transformations.apply( s )
