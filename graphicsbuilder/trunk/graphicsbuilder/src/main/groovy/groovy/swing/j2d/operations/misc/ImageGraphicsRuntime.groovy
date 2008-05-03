@@ -20,6 +20,9 @@ import java.awt.Rectangle
 import java.awt.Shape
 import java.awt.Transparency
 import java.awt.image.BufferedImage
+import java.awt.GraphicsConfiguration
+import java.awt.GraphicsDevice
+import java.awt.GraphicsEnvironment
 import javax.imageio.ImageIO
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
@@ -100,8 +103,8 @@ class ImageGraphicsRuntime extends AbstractDisplayableGraphicsRuntime {
                                      (input.height+(operation.filters.offset*2)) as int )
          def clip = new Rectangle( 0i, 0i, input.width as int, input.height as int )
 
-         BufferedImage src = context?.g?.deviceConfiguration.createCompatibleImage(
-               bounds.width as int, bounds.height as int, Transparency.BITMASK )
+         def dc = context?.g?.deviceConfiguration
+         BufferedImage src = createCompatibleImage( bounds.width as int, bounds.height as int )
 
          def graphics = src.createGraphics()
          def contextCopy = context.copy()
@@ -138,5 +141,24 @@ class ImageGraphicsRuntime extends AbstractDisplayableGraphicsRuntime {
          }
       }
       boundingShape
+   }
+    
+   private def createCompatibleImage( int width, int height ) {
+      def dc = context?.g?.deviceConfiguration
+      if( dc ){
+         return dc.createCompatibleImage( width, height, Transparency.BITMASK )
+      }
+      else{
+         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
+         if( GraphicsEnvironment.isHeadless() ){
+             return new BufferedImage( width, height, BufferedImage.BITMASK  )
+         }else{
+            for( gd in ge.getScreenDevices() ){
+               GraphicsConfiguration[] gc = gd.configurations
+               return gc[0].createCompatibleImage( width, height, Transparency.BITMASK )
+            }
+         }
+         throw new IllegalStateException("Couldn't create BufferedImage")
+      }
    }
 }

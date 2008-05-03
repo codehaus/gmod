@@ -132,7 +132,7 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
            drawImage = true
        }   	
     	
-       if( !asImage || drawImage ){
+       if( !asImage && drawImage ){
           def filterOffset = hasFilters() ? filters.offset : 0 
           gcopy.drawImage( image, 
                            (cbounds.x - filterOffset) as int, 

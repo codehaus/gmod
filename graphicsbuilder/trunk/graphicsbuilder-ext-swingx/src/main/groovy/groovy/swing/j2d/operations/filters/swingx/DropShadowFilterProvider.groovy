@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.operations.filters.swingx
 
+import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
 import java.awt.Shape
@@ -55,7 +55,7 @@ class DropShadowFilterProvider extends PropertiesBasedFilterProvider {
    protected def convertValue( property, value ){
       switch( property ){
          case "color":
-            return FilterUtils.getColor(value)
+            return ColorCache.getInstance().getColor(value)
          default:
             return super.convertValue(property,value)
       }

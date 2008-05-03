@@ -393,7 +393,7 @@ class SwingXGraphicsBuilderHelper {
       }
 
       ['fastMotionBlur','fmb','circleDistort','kaleidoscope','pinch','sphereDistort',
-       'twirl','water','feedback','shatter'].each { nodeName ->
+       'twirl','water','feedback','shatter','ambientLight'].each { nodeName ->
          builder.addShortcut( nodeName, 'centreX', 'cx' )
          builder.addShortcut( nodeName, 'centreY', 'cy' )
       }
@@ -415,5 +415,9 @@ class SwingXGraphicsBuilderHelper {
       builder.addShortcut( 'curl', 'width', 'w' )
       builder.addShortcut( 'curl', 'height', 'h' )
       builder.addShortcut( 'scratch', 'width', 'w' )
+      
+      ['dropShadow','ambientLight'].each { nodeName ->
+         builder.addShortcut( nodeName, 'color', 'c' )
+      }
    }
 }
