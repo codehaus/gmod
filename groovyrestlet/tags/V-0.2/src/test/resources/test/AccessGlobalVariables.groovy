@@ -1,0 +1,12 @@
+assert protocol != null;
+assert protocol.HTTP !=null
+assert status!=null
+assert status.INFO_CONTINUE != null
+assert mediaType != null
+assert mediaType.TEXT_PLAIN !=null
+assert challengeScheme!=null
+assert challengeScheme.HTTP_BASIC!=null
+assert redirectorMode!=null
+assert redirectorMode.MODE_CLIENT_PERMANENT!=null
+assert routingMode!=null
+assert routingMode.BEST!=null
