@@ -15,6 +15,12 @@
 
 package groovy.swing.j2d
 
+
+import java.awt.GraphicsConfiguration
+import java.awt.GraphicsEnvironment
+import java.awt.Transparency
+import java.awt.image.BufferedImage
+
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Shape
@@ -148,5 +154,21 @@ class GraphicsBuilderHelper {
            throw new IllegalArgumentException( "'join=$join' is not one of [bevel,miter,round]" )
        }
        throw new IllegalArgumentException( "'join' value is not a String nor an int" )
+   }
+   
+   public static BufferedImage createCompatibleImage( int width, int height ) {
+      return createCompatibleImage( width, height, false )
+   }
+   
+   public static BufferedImage createCompatibleImage( int width, int height, boolean withAlpha ) {
+      if( GraphicsEnvironment.isHeadless() ){
+         return new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB )
+         //return new BufferedImage( width, height, withAlpha ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB  )
+     }else{
+        GraphicsConfiguration gc = GraphicsEnvironment.localGraphicsEnvironment.defaultScreenDevice.defaultConfiguration
+        return gc.createCompatibleImage( width as int, height as int, Transparency.BITMASK as int )
+        //return gc.createCompatibleImage( width as int, height as int, (withAlpha ? Transparency.TRANSLUCENT : Transparency.BITMASK) as int )
+     }
+     throw new IllegalStateException("Couldn't create BufferedImage")
    }
 }

@@ -33,7 +33,7 @@
    <packaging>jar</packaging>
    <name>GraphicsBuilder [jdk6]</name>
 
-   <description></description>
+   <description>JDK6 extension for GraphicsBuilder</description>
 
    <dependencies>
       <dependency>
@@ -57,6 +57,13 @@
             <configuration>
                <source>1.6</source>
                <target>1.6</target>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.codehaus.groovy.maven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <configuration>
+               <targetBytecode>1.6</targetBytecode>
             </configuration>
          </plugin>
       </plugins>

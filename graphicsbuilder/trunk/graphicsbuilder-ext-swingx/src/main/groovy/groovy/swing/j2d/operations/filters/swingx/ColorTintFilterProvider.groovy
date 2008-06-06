@@ -15,8 +15,8 @@
 
 package groovy.swing.j2d.operations.filters.swingx
 
+import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.operations.filters.FilterUtils
 import groovy.swing.j2d.operations.filters.PropertiesBasedFilterProvider
 
 import java.awt.Color
@@ -44,6 +44,6 @@ class ColorTintFilterProvider extends PropertiesBasedFilterProvider {
    }
    
    protected void setFilterProperty( name, value ){
-       filter = new ColorTintFilter( FilterUtils.getColor(mixColor), mixValue as float )
+       filter = new ColorTintFilter( ColorCache.getInstance().getColor(mixColor), mixValue as float )
    }
 }

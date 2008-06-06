@@ -15,12 +15,8 @@
 
 package groovy.swing.j2d
 
-import java.awt.GraphicsConfiguration
-import java.awt.GraphicsDevice
-import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.RenderingHints
-import java.awt.Transparency
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 
@@ -63,7 +59,7 @@ final class GraphicsRenderer {
      * @param go any GraphicsOperation
      */
     public BufferedImage render( int width, int height, GraphicsOperation go ){
-       return render( createImage( width, height ), go )
+       return render( GraphicsBuilderHelper.createCompatibleImage( width, height ), go )
     }
 
     /**
@@ -88,7 +84,7 @@ final class GraphicsRenderer {
      * @param go any GraphicsOperation
      */
     public BufferedImage render( Rectangle clip, GraphicsOperation go ){
-       return render( createImage( clip.width as int, clip.height as int ), clip, go )
+       return render( GraphicsBuilderHelper.createCompatibleImage( clip.width as int, clip.height as int ), clip, go )
     }
 
     /**
@@ -187,7 +183,7 @@ final class GraphicsRenderer {
      * @return a File reference to the written image
      */
     public File renderToFile( String filename, int width, int height, GraphicsOperation go ){
-       return renderToFile( filename, createImage( width, height ), go )
+       return renderToFile( filename, GraphicsBuilderHelper.createCompatibleImage( width, height, filename ==~ /(?i).*[png|gif]/ ), go )
     }
 
     /**
@@ -228,7 +224,8 @@ final class GraphicsRenderer {
      * @return a File reference to the written image
      */
     public File renderToFile( String filename, Rectangle clip, GraphicsOperation go ){
-       return renderToFile( filename, createImage( clip.width as int, clip.height as int ), clip, go )
+       return renderToFile( filename, GraphicsBuilderHelper.createCompatibleImage( 
+             clip.width as int, clip.height as int, filename ==~ /(?i).*[png|gif]/ ), clip, go )
     }
 
     /**
@@ -307,7 +304,7 @@ final class GraphicsRenderer {
     public File renderToFile( String filename, BufferedImage dst, Rectangle clip, GraphicsOperation go ){
        def fileSeparator = "/" /*System.getProperty("file.separator")*/
        def file = null
-       def extension = "png"
+       def extension = "jpg"
 
        if( filename.lastIndexOf(fileSeparator) != -1 ){
           def dirs = filename[0..(filename.lastIndexOf(fileSeparator)-1)]
@@ -321,20 +318,8 @@ final class GraphicsRenderer {
           extension = filename[(filename.lastIndexOf(".")+1)..-1]
        }
 
+       if( !dst ) dst = GraphicsBuilderHelper.createCompatibleImage( width, height, filename ==~ /(?i).*[png|gif]/ )
        ImageIO.write( render( dst, clip, go ), extension, file )
        return file
-    }
-
-    private BufferedImage createImage( int width, int height ){
-       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
-       if( GraphicsEnvironment.isHeadless() ){
-           return new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB  )
-       }else{
-          for( gd in ge.getScreenDevices() ){
-             GraphicsConfiguration[] gc = gd.configurations
-             return gc[0].createCompatibleImage( width as int, height as int, Transparency.TRANSLUCENT as int )
-          }
-       }
-       throw new IllegalStateException("Couldn't create BufferedImage")
     }
 }

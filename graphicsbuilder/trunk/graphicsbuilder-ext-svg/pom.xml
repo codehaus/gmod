@@ -33,8 +33,7 @@
    <packaging>jar</packaging>
    <name>GraphicsBuilder [svg]</name>
 
-   <description>
-   </description>
+   <description>SVG extension for GraphicsBuilder</description>
 
    <dependencies>
       <dependency>

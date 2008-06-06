@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.GraphicsBuilderHelper
 import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.BasicStroke
@@ -25,7 +26,6 @@ import java.awt.Color
 import java.awt.Paint
 import java.awt.Rectangle
 import java.awt.Shape
-import java.awt.Transparency
 import java.awt.geom.Area
 import java.awt.geom.AffineTransform
 import java.awt.image.BufferedImage
@@ -82,8 +82,9 @@ abstract class AbstractDrawingGraphicsOperation extends AbstractNestingGraphicsO
            int swidth = strokeBounds.width + (filterOffset*2)
            int sheight = strokeBounds.height + (filterOffset*2)
              
-    	   image = gcopy.deviceConfiguration.createCompatibleImage(
-    	              swidth, sheight, Transparency.BITMASK )
+    	   //image = gcopy.deviceConfiguration.createCompatibleImage(
+    	   //           swidth, sheight, Transparency.BITMASK )
+    	   image = GraphicsBuilderHelper.createCompatibleImage( swidth, sheight )
     	              
     	   def imageBounds = new Rectangle(0,0,swidth,sheight)
     	             	              
