@@ -18,7 +18,6 @@ package groovy.swing.j2d.operations.misc
 import java.awt.Image
 import java.awt.Rectangle
 import java.awt.Shape
-import java.awt.Transparency
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import java.beans.PropertyChangeEvent

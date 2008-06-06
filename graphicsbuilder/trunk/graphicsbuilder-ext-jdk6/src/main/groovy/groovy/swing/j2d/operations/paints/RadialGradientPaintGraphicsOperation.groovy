@@ -21,7 +21,7 @@ import java.awt.RadialGradientPaint
 import java.awt.geom.AffineTransform
 import java.awt.geom.Point2D
 import java.awt.geom.Rectangle2D
-import java.awt.MultipleGradientPaint.*
+import java.awt.MultipleGradientPaint.CycleMethod
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.GradientStop

@@ -17,6 +17,7 @@ package groovy.swing.j2d.operations.misc
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.GraphicsOperation
+import groovy.swing.j2d.GraphicsBuilderHelper
 import groovy.swing.j2d.operations.GraphicsRuntime
 import groovy.swing.j2d.operations.Grouping
 import groovy.swing.j2d.operations.PaintProvider
@@ -28,7 +29,6 @@ import groovy.swing.j2d.impl.ExtPropertyChangeEvent
 
 import java.awt.Rectangle
 import java.awt.Shape
-import java.awt.Transparency
 import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 
@@ -93,8 +93,9 @@ class GroupGraphicsOperation extends AbstractNestingGraphicsOperation implements
           int swidth = bounds.width + (filterOffset * 2)
           int sheight = bounds.height + (filterOffset * 2)
           
-          image = gcopy.deviceConfiguration.createCompatibleImage(
-                     swidth, sheight, Transparency.BITMASK )
+          //image = gcopy.deviceConfiguration.createCompatibleImage(
+          //           swidth, sheight, Transparency.BITMASK )
+          image = GraphicsBuilderHelper.createCompatibleImage( swidth, sheight )
                      
           def gi = image.createGraphics()
           gi.color = context.g.color

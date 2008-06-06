@@ -136,7 +136,7 @@ final class SWFRenderer {
        }
        
        def context = new GraphicsContext()
-       context.g = createImage(params.width,params.height).getGraphics()
+       context.g = GraphicsBuilderHelper.createCompatibleImage(params.width,params.height).getGraphics()
        context.g.color = Color.BLACK
        context.g.clip = new Rectangle(0,0,params.width,params.height)
        
@@ -161,19 +161,6 @@ final class SWFRenderer {
        def template = templateEngine.createTemplate(HTML_TEMPLATE).make(binding)
        def html = parentDir ? new File(parentDir,file+".html") : new File(file+".html")
        html.text = template.toString()
-    }
-    
-    private BufferedImage createImage( int width, int height ){
-       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
-       if( ge.isHeadless() ){
-           return new BufferedImage( width, height, BufferedImage.TYPE_INT_RGB  )
-       }else{
-          for( gd in ge.getScreenDevices() ){
-             GraphicsConfiguration[] gc = gd.configurations
-             return gc[0].createCompatibleImage( width as int, height as int, Transparency.TRANSLUCENT as int )
-          }
-       }
-       throw new IllegalStateException("Couldn't create BufferedImage")
     }
     
     private def color( clr ) {

@@ -50,6 +50,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         if( registerExtensions ){
            def helpers = ["Jdk6GraphicsBuilderHelper",
                           "SwingXGraphicsBuilderHelper",
+                          "JHlabsGraphicsBuilderHelper",
+                          "AnimationGraphicsBuilderHelper",
                           "BatikGraphicsBuilderHelper"]
            helpers.each { helper ->
               try{
