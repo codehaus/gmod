@@ -183,6 +183,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerFactory( "translate", new TransformationFactory(TranslateTransformation) )
         registerFactory( "matrix", new TransformationFactory(MatrixTransformation) )
         registerFactory( "freeze", new TransformationFactory(FreezeTransformation) )
+        registerFactory( "transform", new TransformTransformationFactory() )
 
         //
         // paints
