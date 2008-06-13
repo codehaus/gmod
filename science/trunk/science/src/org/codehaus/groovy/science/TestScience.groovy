@@ -208,10 +208,11 @@ class TestScience extends GroovyTestCase
 	
 	void testValidator()
 	{
+		// Make a {@code CumulativeExpressionEvaluator}, and run several
+		// expressions through it to make sure that they work.
+		
 		def nullaryOperator = "x";
 		def dummy = new SymbolicExpression( nullaryOperator, [] );
-		def sum = dummy + dummy + dummy;
-		def badSum
 		
 		def validator = new CumulativeExpressionValidator();
 		
@@ -231,5 +232,20 @@ class TestScience extends GroovyTestCase
 		assert   validator.validates( dummy );
 		assert   validator.validates( dummy + dummy );
 		assert   validator.validates( dummy + dummy + dummy );
+	}
+	
+	void testConstantOperator()
+	{
+		// Make sure that {@code ConstantOperator} works properly.
+		
+		shouldFail( NullPointerException, { new ConstantOperator( null ) } );
+		
+		def c = { new SymbolicExpression( new ConstantOperator( it ), [] ) };
+		
+		def threepio = c( [ 3, "P", 0 ] );
+		
+		assertEquals( threepio, threepio );
+		assertEquals( threepio, c( [ 3, "P", 0 ] ) );
+		assertToString( threepio, "<< (Constant: [3, P, 0]): [] >>" );
 	}
 }
