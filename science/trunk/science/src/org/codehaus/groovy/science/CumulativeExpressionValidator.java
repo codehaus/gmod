@@ -76,7 +76,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 *     {@code false} if it wants to forbid that expression and {@code true}
 	 *     otherwise
 	 */
-	public void addRestriction( Closure restriction )
+	public void allowOnly( Closure restriction )
 	{
 		addFilter( FilterType.Restriction, restriction );
 	}
@@ -91,7 +91,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 *     {@code true} if it wants to allow that expression to bypass earlier
 	 *     restrictions and {@code false} otherwise
 	 */
-	public void addException( Closure restriction )
+	public void allowAlso( Closure restriction )
 	{
 		addFilter( FilterType.Exception, restriction );
 	}

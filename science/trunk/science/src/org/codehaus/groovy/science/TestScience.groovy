@@ -7,10 +7,22 @@ class TestScience extends GroovyTestCase
 	{
 		// Make several failed attempts to construct an expression.
 		
-		this.shouldFail( NullPointerException, { new SymbolicExpression( null, null ) } );
-		this.shouldFail( NullPointerException, { new SymbolicExpression( "dummy", null ) } );
-		this.shouldFail( NullPointerException, { new SymbolicExpression( "dummy", null, null ) } );
-		this.shouldFail( NullPointerException, { new SymbolicExpression( "dummy", [null, null] ) } );
+		this.shouldFail(
+			NullPointerException,
+			{ new SymbolicExpression( null, null ) }
+		);
+		this.shouldFail(
+			NullPointerException,
+			{ new SymbolicExpression( "dummy", null ) }
+		);
+		this.shouldFail(
+			NullPointerException,
+			{ new SymbolicExpression( "dummy", null, null ) }
+		);
+		this.shouldFail(
+			NullPointerException,
+			{ new SymbolicExpression( "dummy", [null, null] ) }
+		);
 	}
 	
 	void testNullaryExpression()
@@ -28,8 +40,8 @@ class TestScience extends GroovyTestCase
 	
 	void testCompoundExpression()
 	{
-		// Make a somewhat more complicated expression by combining a simple
-		// one with itself using the {@code +} operator.
+		// Make a somewhat more complicated expression by combining a simple one
+		// with itself using the {@code +} operator.
 		
 		def nullaryOperator = "dummy";
 		def dummy = new SymbolicExpression( nullaryOperator, [] );
@@ -58,7 +70,8 @@ class TestScience extends GroovyTestCase
 		def z = new SymbolicExpression( "z", [] );
 		
 		
-		def operatorList = new ArrayList( Arrays.asList( OverloadableOperators.values() ) )
+		def operatorList =
+			new ArrayList( Arrays.asList( OverloadableOperators.values() ) );
 		
 		
 		assertEquals( 
@@ -163,8 +176,8 @@ class TestScience extends GroovyTestCase
 	
 	void testCompoundExpressionTraversal()
 	{
-		// Traverse a somewhat complicated expression and render it in a
-		// custom string presentation.
+		// Traverse a somewhat complicated expression and render it in a custom
+		// string presentation.
 		
 		def nullaryOperator = "dummy";
 		def dummy = new SymbolicExpression( nullaryOperator, [] );
@@ -203,7 +216,10 @@ class TestScience extends GroovyTestCase
 		}
 		
 		
-		assertEquals( customExpressionToString( sum ), "dummy + dummy + dummy" );
+		assertEquals(
+			customExpressionToString( sum ),
+			"dummy + dummy + dummy"
+		);
 	}
 	
 	void testValidator()
@@ -216,18 +232,47 @@ class TestScience extends GroovyTestCase
 		
 		def validator = new CumulativeExpressionValidator();
 		
-		validator.addRestriction( { false } );
-		validator.addException( { it.getOperator().is( nullaryOperator ) && it.getArgumentList().isEmpty() } );
-		validator.addException( { it.getOperator().is( OverloadableOperators.Plus ) && (it.getArgumentList().size() == 2) } );
 		
-		assert   validator.validates( new SymbolicExpression( nullaryOperator, [] ) );
-		assert  !validator.validates( new SymbolicExpression( nullaryOperator, [dummy] ) );
-		assert  !validator.validates( new SymbolicExpression( nullaryOperator, [dummy, dummy] ) );
+		validator.allowOnly( { false } );
 		
-		assert  !validator.validates( new SymbolicExpression( OverloadableOperators.Plus, [] ) );
-		assert  !validator.validates( new SymbolicExpression( OverloadableOperators.Plus, [dummy] ) );
-		assert   validator.validates( new SymbolicExpression( OverloadableOperators.Plus, [dummy, dummy] ) );
-		assert  !validator.validates( new SymbolicExpression( OverloadableOperators.Plus, [dummy, dummy, dummy] ) );
+		validator.allowAlso( { (
+			it.getOperator().is( nullaryOperator )
+			&&
+			it.getArgumentList().isEmpty()
+		) } );
+		
+		validator.allowAlso( { (
+			it.getOperator().is( OverloadableOperators.Plus )
+			&&
+			(it.getArgumentList().size() == 2)
+		) } );
+		
+		
+		assert   validator.validates(
+			new SymbolicExpression( nullaryOperator, [] )
+		);
+		assert  !validator.validates(
+			new SymbolicExpression( nullaryOperator, [dummy] )
+		);
+		assert  !validator.validates(
+			new SymbolicExpression( nullaryOperator, [dummy, dummy] )
+		);
+		
+		assert  !validator.validates(
+			new SymbolicExpression( OverloadableOperators.Plus, [] )
+		);
+		assert  !validator.validates(
+			new SymbolicExpression( OverloadableOperators.Plus, [dummy] )
+		);
+		assert   validator.validates(
+			new SymbolicExpression( OverloadableOperators.Plus, [dummy, dummy] )
+		);
+		assert  !validator.validates(
+			new SymbolicExpression(
+				OverloadableOperators.Plus,
+				[dummy, dummy, dummy]
+			)
+		);
 		
 		assert   validator.validates( dummy );
 		assert   validator.validates( dummy + dummy );
