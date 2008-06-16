@@ -1,7 +1,6 @@
 package org.codehaus.groovy.science;
 
 
-import groovy.lang.Closure;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,17 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	}
 	
 	
-	private List< Closure > filters;
+	/**
+	 * <p>The conditions set by each of the incremental changes made to the
+	 * {@code validates} method, in the order those changes were registered.</p>
+	 */
+	private List< Object > filters;
+	
+	
+	/**
+	 * <p>The types of each of the incremental changes made to the
+	 * {@code validates} method, in the order those changes were registered.</p>
+	 */
 	private List< FilterType > filterTypes;
 	
 	
@@ -37,27 +46,29 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 */
 	public CumulativeExpressionValidator()
 	{
-		filters      = new ArrayList< Closure >();
+		filters      = new ArrayList< Object >();
 		filterTypes  = new ArrayList< FilterType >();
 	}
 	
 	/**
-	 * <p>Incrementally change the {@code validates} method by registering a filter
-	 * that will override its present output in certain cases.</p>
+	 * <p>Incrementally change the {@code validates} method by registering a
+	 * filter that will override its present output in certain cases.</p>
 	 * 
-	 * <p>If {@code type} is {@code Restriction}, {@code filter} is a closure that
-	 * accepts a {@code SymbolicExpression} and returns {@code false} if it
-	 * wants to forbid that expression and {@code true} otherwise.</p>
+	 * <p>If {@code type} is {@code Restriction}, {@code filter} is an object
+	 * whose {@code isCase} method in Groovy accepts a
+	 * {@code SymbolicExpression} and returns {@code false} if it wants to
+	 * forbid that expression and {@code true} otherwise.</p>
 	 * 
-	 * <p>If {@code type} is {@code Exception}, {@code filter} is a closure that
-	 * accepts a {@code SymbolicExpression} and return {@code true} if it wants
-	 * to allow that expression to bypass earlier restrictions and {@code false}
+	 * <p>If {@code type} is {@code Exception}, {@code filter} is an object
+	 * whose {@code isCase} method in Groovy accepts a
+	 * {@code SymbolicExpression} and returns {@code true} if it wants to allow
+	 * that expression to bypass earlier restrictions and {@code false}
 	 * otherwise.</p>
 	 * 
 	 * @param type    the type of filter that {@code filter} represents
 	 * @param filter  an incremental change to the {@code validates} method
 	 */
-	private void addFilter( FilterType type, Closure filter )
+	private void addFilter( FilterType type, Object filter )
 	{
 		if ( filter == null )
 			throw new NullPointerException();
@@ -72,11 +83,11 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * accept.</p>
 	 * 
 	 * @param restriction
-	 *     a closure that accepts a {@code SymbolicExpression} and returns
-	 *     {@code false} if it wants to forbid that expression and {@code true}
-	 *     otherwise
+	 *     an object whose {@code isCase} method in Groovy accepts a
+	 *     {@code SymbolicExpression} and returns {@code false} if it wants to
+	 *     forbid that expression and {@code true} otherwise
 	 */
-	public void allowOnly( Closure restriction )
+	public void allowOnly( Object restriction )
 	{
 		addFilter( FilterType.Restriction, restriction );
 	}
@@ -87,11 +98,12 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * accept.</p>
 	 * 
 	 * @param restriction
-	 *     a closure that accepts a {@code SymbolicExpression} and returns
-	 *     {@code true} if it wants to allow that expression to bypass earlier
-	 *     restrictions and {@code false} otherwise
+	 *     an object whose {@code isCase} method in Groovy accepts a
+	 *     {@code SymbolicExpression} and returns {@code true} if it wants to
+	 *     allow that expression to bypass earlier restrictions and
+	 *     {@code false} otherwise
 	 */
-	public void allowAlso( Closure restriction )
+	public void allowAlso( Object restriction )
 	{
 		addFilter( FilterType.Exception, restriction );
 	}
@@ -120,10 +132,14 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 			switch ( filterTypes.get( filterIndex ) )
 			{
 			case Restriction:
-				result = result && (Boolean)filters.get( filterIndex ).call( expression );
+				result = result && MakeshiftGroovyDispatcher.isCase(
+					filters.get( filterIndex ), expression
+				);
 				break;
 			case Exception:
-				result = result || (Boolean)filters.get( filterIndex ).call( expression );
+				result = result || MakeshiftGroovyDispatcher.isCase(
+					filters.get( filterIndex ), expression
+				);
 				break;
 			default:
 				throw new IllegalStateException();
