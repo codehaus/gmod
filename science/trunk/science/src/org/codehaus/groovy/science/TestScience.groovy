@@ -233,13 +233,9 @@ class TestScience extends GroovyTestCase
 		def validator = new CumulativeExpressionValidator();
 		
 		
-		validator.allowOnly( { false } );
+		validator.allowOnly( false );
 		
-		validator.allowAlso( { (
-			it.getOperator().is( nullaryOperator )
-			&&
-			it.getArgumentList().isEmpty()
-		) } );
+		validator.allowAlso( dummy );
 		
 		validator.allowAlso( { (
 			it.getOperator().is( OverloadableOperators.Plus )
@@ -252,25 +248,28 @@ class TestScience extends GroovyTestCase
 			new SymbolicExpression( nullaryOperator, [] )
 		);
 		assert  !validator.validates(
-			new SymbolicExpression( nullaryOperator, [dummy] )
+			new SymbolicExpression( nullaryOperator, [ dummy ] )
 		);
 		assert  !validator.validates(
-			new SymbolicExpression( nullaryOperator, [dummy, dummy] )
+			new SymbolicExpression( nullaryOperator, [ dummy, dummy ] )
 		);
 		
 		assert  !validator.validates(
 			new SymbolicExpression( OverloadableOperators.Plus, [] )
 		);
 		assert  !validator.validates(
-			new SymbolicExpression( OverloadableOperators.Plus, [dummy] )
+			new SymbolicExpression( OverloadableOperators.Plus, [ dummy ] )
 		);
 		assert   validator.validates(
-			new SymbolicExpression( OverloadableOperators.Plus, [dummy, dummy] )
+			new SymbolicExpression(
+				OverloadableOperators.Plus,
+				[ dummy, dummy ]
+			)
 		);
 		assert  !validator.validates(
 			new SymbolicExpression(
 				OverloadableOperators.Plus,
-				[dummy, dummy, dummy]
+				[ dummy, dummy, dummy ]
 			)
 		);
 		
