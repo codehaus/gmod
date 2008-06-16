@@ -1,0 +1,5 @@
+Proxy-o-Matic uses Maven2 as its build tool, which means that if you want to 
+build your own version of from source you'll need to have it installed.  
+Follow the instructions at http://maven.apache.org 
+
+Have fun!
