@@ -293,4 +293,36 @@ class TestScience extends GroovyTestCase
 		assertEquals( threepio, c( [ 3, "P", 0 ] ) );
 		assertToString( threepio, "<< (Constant: [3, P, 0]): [] >>" );
 	}
+	
+	void testIdentifierOperator()
+	{
+		// Make sure that {@code IdentifierOperator} works properly.
+		
+		shouldFail( NullPointerException, { new IdentifierOperator( null ) } );
+		shouldFail(
+			NullPointerException,
+			{ new IdentifierOperator( null, "x" ) }
+		);
+		shouldFail(
+			NullPointerException,
+			{ new IdentifierOperator( Object.class, null ) }
+		);
+		
+		assertEquals(
+			new IdentifierOperator( "x" ),
+			new IdentifierOperator( Object, "x" )
+		);
+		
+		def r = {
+			new SymbolicExpression(
+				new IdentifierOperator( Number.class, it ), []
+			)
+		};
+		
+		def x = r( "x" );
+		
+		assertEquals( x, x );
+		assertEquals( x, r( "x" ) );
+		assertToString( x, "<< (Identifier: class java.lang.Number x): [] >>" );
+	}
 }
