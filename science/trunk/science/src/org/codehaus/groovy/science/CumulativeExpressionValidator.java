@@ -133,12 +133,14 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 			{
 			case Restriction:
 				result = result && MakeshiftGroovyDispatcher.isCase(
-					filters.get( filterIndex ), expression
+					filters.get( filterIndex ),
+					expression
 				);
 				break;
 			case Exception:
 				result = result || MakeshiftGroovyDispatcher.isCase(
-					filters.get( filterIndex ), expression
+					filters.get( filterIndex ),
+					expression
 				);
 				break;
 			default:
