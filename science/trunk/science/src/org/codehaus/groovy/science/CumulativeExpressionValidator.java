@@ -7,13 +7,17 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 
 
 /**
- * <p>An {@code ExpressionValidator} that is built incrementally by specifying
- * restrictions on the expressions it accepts and by specifying exceptions to
- * those restrictions.</p>
+ * <p>An {@code ExpressionValidator} that can be built up from simpler cases.</p>
  * 
- * <p>A {@code CumulativeExpressionValidator} must be built in a careful order.
- * Whichever restrictions and exceptions have been registered the latest have
- * the highest precedence.</p>
+ * <p>Note that when building a {@code CumulativeExpressionValidator} using
+ * {@code allowOnly( Object )} and {@code allowAlso( Object )}, the operations
+ * must be performed in a careful order. Whichever restrictions and exceptions
+ * have been registered the latest have the highest precedence.</p>
+ * 
+ * <p>Also note that all case objects given when building a
+ * {@code CumulativeExpressionValidator} are used directly, so if those objects
+ * are not immutable, further modifications to those objects will affect the
+ * validator's behavior.</p>
  */
 public class CumulativeExpressionValidator implements ExpressionValidator
 {
