@@ -226,22 +226,22 @@ class TestScience extends GroovyTestCase
 	{
 		// Make a {@code CumulativeExpressionEvaluator}, and run several
 		// expressions through it to make sure that they work.
+		//
+		// TODO: Put in some more tests. Not all of the constructors and
+		// methods are represented here.
 		
 		def nullaryOperator = "x";
 		def dummy = new SymbolicExpression( nullaryOperator, [] );
 		
-		def validator = new CumulativeExpressionValidator();
+		def validator = new CumulativeExpressionValidator( false );
+				
+		validator |= dummy;
 		
-		
-		validator.allowOnly( false );
-		
-		validator.allowAlso( dummy );
-		
-		validator.allowAlso( { (
+		validator |= { (
 			it.getOperator().is( OverloadableOperators.Plus )
 			&&
 			(it.getArgumentList().size() == 2)
-		) } );
+		) };
 		
 		
 		assert   validator.validates(
@@ -252,6 +252,13 @@ class TestScience extends GroovyTestCase
 		);
 		assert  !validator.validates(
 			new SymbolicExpression( nullaryOperator, [ dummy, dummy ] )
+		);
+		
+		assert  !(~validator).validates(
+			new SymbolicExpression( nullaryOperator, [] )
+		);
+		assert   (~validator).validates(
+			new SymbolicExpression( nullaryOperator, [ dummy ] )
 		);
 		
 		assert  !validator.validates(
