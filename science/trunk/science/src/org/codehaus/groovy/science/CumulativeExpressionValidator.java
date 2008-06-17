@@ -3,6 +3,7 @@ package org.codehaus.groovy.science;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 
 /**
@@ -132,16 +133,18 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 			switch ( filterTypes.get( filterIndex ) )
 			{
 			case Restriction:
-				result = result && MakeshiftGroovyDispatcher.isCase(
+				result = result && ((Boolean)InvokerHelper.invokeMethod(
 					filters.get( filterIndex ),
-					expression
-				);
+					"isCase",
+					new Object[]{ expression }
+				)).booleanValue();
 				break;
 			case Exception:
-				result = result || MakeshiftGroovyDispatcher.isCase(
+				result = result || ((Boolean)InvokerHelper.invokeMethod(
 					filters.get( filterIndex ),
-					expression
-				);
+					"isCase",
+					new Object[]{ expression }
+				)).booleanValue();
 				break;
 			default:
 				throw new IllegalStateException();
