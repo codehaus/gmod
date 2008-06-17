@@ -113,6 +113,27 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	
 	
 	/**
+	 * <p>Invokes the method {@code isCase} on the given {@code caseValue} using
+	 * the Groovy runtime, testing the {@code switchValue} to see if it would
+	 * match the {@code caseValue} in a Groovy {@code switch} statement.</p>
+	 * 
+	 * @param caseValue    the object representing the case being matched
+	 * @param switchValue  the object representing the value being switched on
+	 * 
+	 * @return
+	 *     {@code true} if the {@code switchValue} matches the
+	 *     {@code caseValue}; {@code false} otherwise
+	 */
+	private static boolean invokeIsCase( Object caseValue, Object switchValue )
+	{
+		return ((Boolean)InvokerHelper.invokeMethod(
+			caseValue,
+			"isCase",
+			new Object[]{ switchValue }
+		)).booleanValue();
+	}
+	
+	/**
 	 * <p>Incrementally changes the {@code validates} method by registering a
 	 * filter that will override its present output in certain cases.</p>
 	 * 
@@ -231,11 +252,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 				if ( !(
 					argumentList.size() == numberOfArguments
 					&&
-					((Boolean)InvokerHelper.invokeMethod(
-						finalOperatorCase,
-						"isCase",
-						new Object[]{ switchValue.getOperator() }
-					)).booleanValue()
+					invokeIsCase( finalOperatorCase, switchValue.getOperator() )
 				) )
 					return false;
 				
@@ -245,13 +262,10 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 					argumentIndex++
 				)
 				{
-					if (
-						!((Boolean)InvokerHelper.invokeMethod(
-							finalArgumentCases.get( argumentIndex ),
-							"isCase",
-							new Object[]{ argumentList.get( argumentIndex ) }
-						)).booleanValue()
-					)
+					if ( !invokeIsCase(
+    					finalArgumentCases.get( argumentIndex ),
+    					argumentList.get( argumentIndex )
+					) )
 						return false;
 				}
 				
@@ -310,20 +324,16 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 				
 				// This filter should have no effect on whether this validator
 				// accepts expressions with other root operators.
-				if (
-					!((Boolean)InvokerHelper.invokeMethod(
-    					finalOperatorCase,
-    					"isCase",
-    					new Object[]{ switchValue.getOperator() }
-        			)).booleanValue()
-				)
+				if ( !invokeIsCase(
+					finalOperatorCase,
+					switchValue.getOperator()
+				) )
 					return false;
 				
-				return ((Boolean)InvokerHelper.invokeMethod(
-						finalArgumentListCase,
-						"isCase",
-						new Object[]{ switchValue.getArgumentList() }
-				)).booleanValue();
+				return invokeIsCase(
+					finalArgumentListCase,
+					switchValue.getArgumentList()
+				);
 			}
 		} );
 	}
@@ -390,11 +400,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 				if ( !(
 					argumentList.size() == numberOfArguments
 					&&
-					((Boolean)InvokerHelper.invokeMethod(
-						finalOperatorCase,
-						"isCase",
-						new Object[]{ switchValue.getOperator() }
-					)).booleanValue()
+					invokeIsCase( finalOperatorCase, switchValue.getOperator() )
 				) )
 					return true;
 				
@@ -404,13 +410,10 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 					argumentIndex++
 				)
 				{
-					if (
-						!((Boolean)InvokerHelper.invokeMethod(
+					if ( !invokeIsCase(
 							finalArgumentCases.get( argumentIndex ),
-							"isCase",
-							new Object[]{ argumentList.get( argumentIndex ) }
-						)).booleanValue()
-					)
+							argumentList.get( argumentIndex )
+					) )
 						return false;
 				}
 				
@@ -473,20 +476,16 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 				
 				// This filter should have no effect on whether this validator
 				// accepts expressions with other root operators.
-				if (
-					!((Boolean)InvokerHelper.invokeMethod(
-    					finalOperatorCase,
-    					"isCase",
-    					new Object[]{ switchValue.getOperator() }
-        			)).booleanValue()
-				)
+				if ( !invokeIsCase(
+					finalOperatorCase,
+					switchValue.getOperator()
+				) )
 					return true;
 				
-				return ((Boolean)InvokerHelper.invokeMethod(
-						finalArgumentListCase,
-						"isCase",
-						new Object[]{ switchValue.getArgumentList() }
-				)).booleanValue();
+				return invokeIsCase(
+					finalArgumentListCase,
+					switchValue.getArgumentList()
+				);
 			}
 		} );
 	}
@@ -507,18 +506,16 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 			switch ( filterTypes.get( filterIndex ) )
 			{
 			case Restriction:
-				result = result && ((Boolean)InvokerHelper.invokeMethod(
+				result = result && invokeIsCase(
 					filters.get( filterIndex ),
-					"isCase",
-					new Object[]{ expression }
-				)).booleanValue();
+					expression
+				);
 				break;
 			case Exception:
-				result = result || ((Boolean)InvokerHelper.invokeMethod(
+				result = result || invokeIsCase(
 					filters.get( filterIndex ),
-					"isCase",
-					new Object[]{ expression }
-				)).booleanValue();
+					expression
+				);
 				break;
 			default:
 				throw new IllegalStateException();
@@ -616,11 +613,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 				return (
 					self.validates( switchValue )
 					^
-					((Boolean)InvokerHelper.invokeMethod(
-						that,
-						"isCase",
-						new Object[]{ switchValue }
-					)).booleanValue()
+					invokeIsCase( that, switchValue )
 				);
 			}
 		} );
