@@ -113,7 +113,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	
 	
 	/**
-	 * <p>Incrementally change the {@code validates} method by registering a
+	 * <p>Incrementally changes the {@code validates} method by registering a
 	 * filter that will override its present output in certain cases.</p>
 	 * 
 	 * <p>If {@code type} is {@code Restriction}, {@code filter} is an object
@@ -140,7 +140,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	}
 	
 	/**
-	 * <p>Incrementally change the {@code validates} method by registering a
+	 * <p>Incrementally changes the {@code validates} method by registering a
 	 * restriction that will narrow the range of expressions that it will
 	 * accept.</p>
 	 * 
@@ -155,7 +155,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	}
 	
 	/**
-	 * <p>Incrementally change the {@code validates} method by registering an
+	 * <p>Incrementally changes the {@code validates} method by registering an
 	 * exception that will expand the range of expressions that it will
 	 * accept.</p>
 	 * 
@@ -168,6 +168,327 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	public void allowAlso( Object restriction )
 	{
 		addFilter( FilterType.Exception, restriction );
+	}
+	
+	/**
+	 * <p>Incrementally changes the {@code validates} method by also allowing,
+	 * out of all of the {@code SymbolicExpression}s with a given kind of
+	 * operator and a particular number of arguments, those expressions whose
+	 * arguments satisfy a given list of individual conditions.</p>
+	 * 
+	 * <p>For instance, in Groovy, an addition operator {@code additionOp}, a
+	 * subtraction operator {@code subtractionOp}, and a multiplication operator
+	 * {@code multiplicationOp} might be allowed for a
+	 * {@code CumulativeExpressionValidator} {@code numberContext} using the
+	 * following code:</p>
+	 * 
+	 * {@code
+	 * numberContext.allowAlso(
+	 *    [ additionOp, subtractionOp, multiplicationOp ],
+	 *    [ numberContext, numberContext ]
+	 * );
+	 * }
+	 * 
+	 * <p>Likewise, if a function {@code isObviouslyZero} is defined on
+	 * {@code SymbolicExpression}s, a division operator might be allowed in the
+	 * following way in order to avoid blatant division by zero:</p>
+	 * 
+	 * {@code
+	 * numberContext.allowAlso(
+	 *    divisionOp,
+	 *    [ numberContext, numberContext & { !isObviouslyZero( it ) } ]
+	 * );
+	 * }
+	 * 
+	 * @param operatorCase
+	 *     an object whose Groovy {@code isCase} method must return {@code true}
+	 *     when given a {@code SymbolicExpression}'s operator in order for this
+	 *     filter to apply to that expression
+	 * 
+	 * @param argumentCases
+	 *     a list of objects whose Groovy {@code isCase} methods must all return
+	 *     {@code true} when given the corresponding arguments of a
+	 *     {@code SymbolicExpression} in order for this filter to allow that
+	 *     expression to bypass earlier restrictions
+	 */
+	public void allowAlso( Object operatorCase, List< Object > argumentCases )
+	{
+		final Object finalOperatorCase = operatorCase;
+		final List< Object > finalArgumentCases = argumentCases;
+		final int numberOfArguments = argumentCases.size();
+		
+		allowAlso( new Object() {
+			
+			@SuppressWarnings("unused")
+            public boolean isCase( SymbolicExpression switchValue )
+			{
+				List< SymbolicExpression > argumentList =
+					switchValue.getArgumentList();
+				
+				// This filter should have no effect on whether this validator
+				// accepts expressions with other root operators or root
+				// arities.
+				if ( !(
+					argumentList.size() == numberOfArguments
+					&&
+					((Boolean)InvokerHelper.invokeMethod(
+						finalOperatorCase,
+						"isCase",
+						new Object[]{ switchValue.getOperator() }
+					)).booleanValue()
+				) )
+					return false;
+				
+				for (
+					int argumentIndex = 0;
+					argumentIndex < numberOfArguments;
+					argumentIndex++
+				)
+				{
+					if (
+						!((Boolean)InvokerHelper.invokeMethod(
+							finalArgumentCases.get( argumentIndex ),
+							"isCase",
+							new Object[]{ argumentList.get( argumentIndex ) }
+						)).booleanValue()
+					)
+						return false;
+				}
+				
+				return true;
+			}
+		} );
+	}
+
+	/**
+	 * <p>Incrementally changes the {@code validates} method by also allowing,
+	 * out of all of the {@code SymbolicExpression}s with a given kind of
+	 * operator, those expressions whose argument lists satisfy a given
+	 * condition.</p>
+	 * 
+	 * <p>For instance, in Groovy, an addition operator {@code additionOp} that
+	 * can take any number of numeric arguments might be allowed for a
+	 * {@code CumulativeExpressionValidator} {@code numberContext} using the
+	 * following code:</p>
+	 * 
+	 * {@code
+	 * numberContext.allowAlso(
+	 *    additionOp,
+	 *    { it.every { it in numberContext } }
+	 * );
+	 * }
+	 * 
+	 * <p>This can be done for multiple operators at once:</p>
+	 * 
+	 * {@code
+	 * numberContext.allowAlso(
+	 *    [ additionOp, multiplicationOp ],
+	 *    { it.every { it in numberContext } }
+	 * );
+	 * }
+	 * 
+	 * @param operatorCase
+	 *     an object whose Groovy {@code isCase} method must return {@code true}
+	 *     when given a {@code SymbolicExpression}'s operator in order for this
+	 *     filter to apply to that expression
+	 * 
+	 * @param argumentCases
+	 *     an object whose Groovy {@code isCase} method must return {@code true}
+	 *     when given the argument list of a {@code SymbolicExpression} in order
+	 *     for this filter to allow that expression to bypass earlier restrictions
+	 */
+	public void allowAlso( Object operatorCase, Object argumentListCase )
+	{
+		final Object finalOperatorCase = operatorCase;
+		final Object finalArgumentListCase = argumentListCase;
+		
+		allowAlso( new Object() {
+			
+			@SuppressWarnings("unused")
+            public boolean isCase( SymbolicExpression switchValue )
+			{
+				
+				// This filter should have no effect on whether this validator
+				// accepts expressions with other root operators.
+				if (
+					!((Boolean)InvokerHelper.invokeMethod(
+    					finalOperatorCase,
+    					"isCase",
+    					new Object[]{ switchValue.getOperator() }
+        			)).booleanValue()
+				)
+					return false;
+				
+				return ((Boolean)InvokerHelper.invokeMethod(
+						finalArgumentListCase,
+						"isCase",
+						new Object[]{ switchValue.getArgumentList() }
+				)).booleanValue();
+			}
+		} );
+	}
+	
+	/**
+	 * <p>Incrementally changes the {@code validates} method by only allowing,
+	 * out of all of the {@code SymbolicExpression}s with a given kind of
+	 * operator and a particular number of arguments, those expressions whose
+	 * arguments satisfy a given list of individual conditions.</p>
+	 * 
+	 * <p>For instance, in Groovy, if a function {@code isObviouslyZero} is
+	 * defined on {@code SymbolicExpression}s, a division operator
+	 * {@code divisionOp} might be allowed and restricted in the following way
+	 * so as to avoid blatant division by zero:</p>
+	 * 
+	 * {@code
+	 * numberContext.allowAlso(
+	 *    divisionOp,
+	 *    [ numberContext, numberContext ]
+	 * );
+	 * numberContext.allowOnly(
+	 *    divisionOp,
+	 *    [ true, { !isObviouslyZero( it ) } ]
+	 * );
+	 * }
+	 * 
+	 * <p>Note that this kind of restriction does <em>not</em> prevent this
+	 * validator from accepting expressions that have root operators other than
+	 * {@code divisionOp}, and it will <em>not</em> prevent {@code divisionOp}
+	 * from being applied to a number of arguments other than two (if that kind
+	 * of usage has been allowed). The operator condition and the number of
+	 * argument conditions given must match an expression for this filter to
+	 * even apply to that expression. This is to make it easy to apply
+	 * restrictions to operators one at a time.</p>
+	 * 
+	 * @param operatorCase
+	 *     an object whose Groovy {@code isCase} method must return {@code true}
+	 *     when given a {@code SymbolicExpression}'s operator in order for this
+	 *     filter to apply to that expression
+	 * 
+	 * @param argumentCases
+	 *     a list of objects whose Groovy {@code isCase} methods must return at
+	 *     least one {@code false} when given the corresponding arguments of a
+	 *     {@code SymbolicExpression} in order for this filter to forbid that
+	 *     expression
+	 */
+	public void allowOnly( Object operatorCase, List< Object > argumentCases )
+	{
+		final Object finalOperatorCase = operatorCase;
+		final List< Object > finalArgumentCases = argumentCases;
+		final int numberOfArguments = argumentCases.size();
+		
+		allowAlso( new Object() {
+			
+			@SuppressWarnings("unused")
+            public boolean isCase( SymbolicExpression switchValue )
+			{
+				List< SymbolicExpression > argumentList =
+					switchValue.getArgumentList();
+				
+				// This filter should have no effect on whether this validator
+				// accepts expressions with other root operators or root
+				// arities.
+				if ( !(
+					argumentList.size() == numberOfArguments
+					&&
+					((Boolean)InvokerHelper.invokeMethod(
+						finalOperatorCase,
+						"isCase",
+						new Object[]{ switchValue.getOperator() }
+					)).booleanValue()
+				) )
+					return true;
+				
+				for (
+					int argumentIndex = 0;
+					argumentIndex < numberOfArguments;
+					argumentIndex++
+				)
+				{
+					if (
+						!((Boolean)InvokerHelper.invokeMethod(
+							finalArgumentCases.get( argumentIndex ),
+							"isCase",
+							new Object[]{ argumentList.get( argumentIndex ) }
+						)).booleanValue()
+					)
+						return false;
+				}
+				
+				return true;
+			}
+		} );
+	}
+	
+	/**
+	 * <p>Incrementally changes the {@code validates} method by only allowing,
+	 * out of all of the {@code SymbolicExpression}s with a given kind of
+	 * operator and a particular number of arguments, those expressions whose
+	 * argument lists satisfy a given condition.</p>
+	 * 
+	 * <p>For instance, in Groovy, if a sorting function {@code sortExpressions}
+	 * is defined on immutable {@code List}s of {@code SymbolicExpression}s, an
+	 * addition operator {@code additionOp} might be allowed and restricted in
+	 * the following way so as to allow it to have any number of numeric
+	 * arguments and to enforce that its arguments are always sorted
+	 * correctly:</p>
+	 * 
+	 * {@code
+	 * niceNumberContext.allowAlso(
+	 *    additionOp,
+	 *    { it.every { it in niceNumberContext } }
+	 * );
+	 * niceNumberContext.allowOnly(
+	 *    additionOp,
+	 *    { it == sortExpressions( it ) }
+	 * );
+	 * }
+	 * 
+	 * <p>Note that this kind of restriction does <em>not</em> prevent this
+	 * validator from accepting expressions that have root operators other than
+	 * {@code additionOp}. The operator condition must match an expression for
+	 * this filter to even apply to that expression. This is to make it easy to
+	 * apply restrictions to operators one at a time.</p>
+	 * 
+	 * @param operatorCase
+	 *     an object whose Groovy {@code isCase} method must return {@code true}
+	 *     when given a {@code SymbolicExpression}'s operator in order for this
+	 *     filter to apply to that expression
+	 * 
+	 * @param argumentCases
+	 *     an object whose Groovy {@code isCase} method must return
+	 *     {@code false} when given the argument list of a
+	 *     {@code SymbolicExpression} in order for this filter to forbid that
+	 *     expression
+	 */
+	public void allowOnly( Object operatorCase, Object argumentListCase )
+	{
+		final Object finalOperatorCase = operatorCase;
+		final Object finalArgumentListCase = argumentListCase;
+		
+		allowAlso( new Object() {
+			
+			@SuppressWarnings("unused")
+            public boolean isCase( SymbolicExpression switchValue )
+			{
+				
+				// This filter should have no effect on whether this validator
+				// accepts expressions with other root operators.
+				if (
+					!((Boolean)InvokerHelper.invokeMethod(
+    					finalOperatorCase,
+    					"isCase",
+    					new Object[]{ switchValue.getOperator() }
+        			)).booleanValue()
+				)
+					return true;
+				
+				return ((Boolean)InvokerHelper.invokeMethod(
+						finalArgumentListCase,
+						"isCase",
+						new Object[]{ switchValue.getArgumentList() }
+				)).booleanValue();
+			}
+		} );
 	}
 	
 	/* (non-Javadoc)

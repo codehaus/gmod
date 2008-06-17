@@ -331,4 +331,172 @@ class TestScience extends GroovyTestCase
 		assertEquals( x, r( "x" ) );
 		assertToString( x, "<< (Identifier: class java.lang.Number x): [] >>" );
 	}
+	
+	void testBasicAlgebraRepresentation()
+	{
+		// Put together some example algebraic expressions and make sure they
+		// fit in real number or boolean contexts, as appropriate.
+		//
+		// TODO: Put in more actual tests. Only a few parts of the interface are
+		// actually required here, and they are essentially all that is used.
+		
+		
+		// First, define the ways that expressions are to be constructed.
+		def additionOp        = OverloadableOperators.Plus;
+		def subtractionOp     = OverloadableOperators.Minus;
+		def multiplicationOp  = OverloadableOperators.Multiply;
+		def divisionOp        = OverloadableOperators.Div;
+		def exponentiationOp  = OverloadableOperators.Power;
+		def negativeOp        = OverloadableOperators.Negative;
+		def disjunctionOp     = OverloadableOperators.Or;
+		def implicationOp     = OverloadableOperators.RightShift;
+		
+		def equalityOp = "equality";
+		def equality = { first, second ->
+			new SymbolicExpression( equalityOp, [ first, second ] )
+		};
+		
+		// shortcut for representing real-valued variables
+		def real = {
+			new SymbolicExpression(
+				new IdentifierOperator( Number.class, it ),
+				[]
+			)
+		};
+		
+		// shortcut for representing boolean-valued variables
+		def bool = {
+			new SymbolicExpression(
+				new IdentifierOperator( Boolean.class, it ),
+				[]
+			)
+		};
+		
+		// shortcut for representing constants
+		def con = { new SymbolicExpression( new ConstantOperator( it ), [] ) };
+		
+		
+		// Next, define the semantics of the expressions that will be
+		// constructed.
+		def numberContext = new CumulativeExpressionValidator( false );
+		def booleanContext = new CumulativeExpressionValidator( false );
+		
+		numberContext.allowAlso(
+			[
+				additionOp,
+				subtractionOp,
+				multiplicationOp,
+				divisionOp,
+				exponentiationOp
+			],
+			[ numberContext, numberContext ]
+		);
+		numberContext.allowAlso( negativeOp, [ numberContext ] );
+		booleanContext.allowAlso(
+			[
+				disjunctionOp,
+				implicationOp,
+				equalityOp
+			],
+			[ booleanContext, booleanContext ]
+		);
+		booleanContext.allowAlso( equalityOp, [ numberContext, numberContext ] );
+		
+		numberContext.allowAlso(
+			{ (
+				(it instanceof IdentifierOperator)
+				&&
+				Number.class.isAssignableFrom( it.getType() )
+			) },
+			[]
+		);
+		booleanContext.allowAlso(
+			{ (
+				(it instanceof IdentifierOperator)
+				&&
+				Boolean.class.isAssignableFrom( it.getType() )
+			) },
+			[]
+		);
+		
+		numberContext.allowAlso(
+			{ (
+				(it instanceof ConstantOperator)
+				&&
+				(it.getValue() instanceof Number)
+			) },
+			[]
+		);
+		booleanContext.allowAlso(
+			{ (
+				(it instanceof ConstantOperator)
+				&&
+				(it.getValue() instanceof Boolean)
+			) },
+			[]
+		);
+		
+		
+		// Finally, make sure that some sample expressions do or do not fit the
+		// defined semantics.
+		
+		def a = real( "a" );
+		def b = real( "b" );
+		def c = real( "c" );
+		def x = real( "x" );
+		
+		assert (
+			(
+    			equality( a * x ** con( 2 ) + b * x + c, con( 0 ) )
+    			>>
+    			(
+        			equality(
+        				x,
+        				(-b + (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
+        				/ (con( 2 ) * a)
+        			)
+        			|
+        			equality(
+        				x,
+        				(-b - (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
+        				/ (con( 2 ) * a)
+        			)
+        		)
+    		)
+			in booleanContext
+		);
+		assert (
+			equality( a * x ** con( 2 ) + b * x + c, con( 0 ) )
+			>>
+			(
+    			equality(
+    				x,
+    				(-b + (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
+    				/ (con( 2 ) * a)
+    			)
+    			|
+    			equality(
+    				x,
+    				(-b - (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
+    				/ (con( 2 ) * a)
+    			)
+    		)
+			in booleanContext
+		);
+		assert ( !(con( 3 ) + con( true ) in numberContext) );
+		assert ( !(con( 3 ) + con( true ) in booleanContext) );
+		
+		
+		def p = bool( "p" );
+		def q = bool( "q" );
+		def r = bool( "r" );
+		
+		assert (
+			equality(
+				equality( q, r ),
+				equality( (p >> q) >> r, (p >> r) >> q )
+			)
+			in booleanContext
+		);
+	}
 }
