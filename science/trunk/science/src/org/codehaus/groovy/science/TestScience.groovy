@@ -446,24 +446,9 @@ class TestScience extends GroovyTestCase
 		def x = real( "x" );
 		
 		assert (
-			(
-    			equality( a * x ** con( 2 ) + b * x + c, con( 0 ) )
-    			>>
-    			(
-        			equality(
-        				x,
-        				(-b + (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
-        				/ (con( 2 ) * a)
-        			)
-        			|
-        			equality(
-        				x,
-        				(-b - (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
-        				/ (con( 2 ) * a)
-        			)
-        		)
-    		)
-			in booleanContext
+			(-b - (b ** con( 2 ) - con( 4 ) * a * c) ** con( 0.5 ))
+			/ (con( 2 ) * a)
+			in numberContext
 		);
 		assert (
 			equality( a * x ** con( 2 ) + b * x + c, con( 0 ) )
