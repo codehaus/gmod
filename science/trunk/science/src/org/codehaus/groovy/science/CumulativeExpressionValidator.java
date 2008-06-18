@@ -7,7 +7,8 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 
 
 /**
- * <p>An {@code ExpressionValidator} that can be built up from simpler cases.</p>
+ * <p>A validator for {@code SymbolicExpressions} that can be built up from
+ * simpler cases.</p>
  * 
  * <p>Note that when building a {@code CumulativeExpressionValidator} using
  * {@code allowOnly( Object )} and {@code allowAlso( Object )}, the operations
@@ -19,7 +20,7 @@ import org.codehaus.groovy.runtime.InvokerHelper;
  * are not immutable, further modifications to those objects will affect the
  * validator's behavior.</p>
  */
-public class CumulativeExpressionValidator implements ExpressionValidator
+public class CumulativeExpressionValidator
 {
 	/**
 	 * <p>A type of incremental change to the {@code validates} method.</p>
@@ -309,7 +310,8 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * @param argumentCases
 	 *     an object whose Groovy {@code isCase} method must return {@code true}
 	 *     when given the argument list of a {@code SymbolicExpression} in order
-	 *     for this filter to allow that expression to bypass earlier restrictions
+	 *     for this filter to allow that expression to bypass earlier
+	 *     restrictions
 	 */
 	public void allowAlso( Object operatorCase, Object argumentListCase )
 	{
@@ -490,13 +492,17 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 		} );
 	}
 	
-	/* (non-Javadoc)
+	/**
+	 * <p>Checks the given expression against this
+	 * {@code CumulativeExpressionValidator}'s criteria and returns whether the
+	 * criteria are satisfied.</p>
 	 * 
-	 * @see org.codehaus.groovy.science.ExpressionValidator#validates(
-	 *     org.codehaus.groovy.science.SymbolicExpression
-	 * )
+	 * @param expression  the expression to validate
+	 * 
+	 * @return
+	 *     {@code true} if the given expression fits the criteria; {@code false}
+	 *     otherwise
 	 */
-	@Override
 	public boolean validates( SymbolicExpression expression )
 	{
 		boolean result = defaultValue;
@@ -532,7 +538,7 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * 
 	 * <p>This is an alias for {@code validates( SymbolicExpression )}.</p>
 	 * 
-	 * @see org.codehaus.groovy.science.ExpressionValidator#validates(
+	 * @see org.codehaus.groovy.science.CumulativeExpressionValidator#validates(
 	 *     org.codehaus.groovy.science.SymbolicExpression
 	 * )
 	 * 
