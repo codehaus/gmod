@@ -552,6 +552,11 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * all of the expressions this validator accepts as well as all expressions
 	 * accepted by the given object's {@code isCase} method in Groovy.</p>
 	 * 
+	 * <p>Note that further changes to this
+	 * {@code CumulativeExpressionValidator} and/or the {@code other} case
+	 * object after this method is called will affect the behavior of the
+	 * returned {@code CumulativeExpressionValidator}.</p>
+	 * 
 	 * @param other  the case to take a disjunction with
 	 * 
 	 * @return
@@ -561,8 +566,9 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	public CumulativeExpressionValidator or( Object other )
 	{
 		CumulativeExpressionValidator result =
-			new CumulativeExpressionValidator( this );
+			new CumulativeExpressionValidator( false );
 		
+		result.allowAlso( this );
 		result.allowAlso( other );
 		
 		return result;
@@ -573,6 +579,11 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * exactly those expressions this validator accepts that are also accepted
 	 * by the given object's {@code isCase} method in Groovy.</p>
 	 * 
+	 * <p>Note that further changes to this
+	 * {@code CumulativeExpressionValidator} and/or the {@code other} case
+	 * object after this method is called will affect the behavior of the
+	 * returned {@code CumulativeExpressionValidator}.</p>
+	 * 
 	 * @param other  the case to take a conjunction with
 	 * 
 	 * @return
@@ -582,8 +593,9 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	public CumulativeExpressionValidator and( Object other )
 	{
 		CumulativeExpressionValidator result =
-			new CumulativeExpressionValidator( this );
+			new CumulativeExpressionValidator( true );
 		
+		result.allowOnly( this );
 		result.allowOnly( other );
 		
 		return result;
@@ -593,6 +605,11 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	 * <p>Returns a new {@code CumulativeExpressionValidator} that accepts
 	 * exactly those expressions with are accepted by this validator or the
 	 * given object's {@code isCase} method in Groovy, but not both.</p>
+	 * 
+	 * <p>Note that further changes to this
+	 * {@code CumulativeExpressionValidator} and/or the {@code other} case
+	 * object after this method is called will affect the behavior of the
+	 * returned {@code CumulativeExpressionValidator}.</p>
 	 * 
 	 * @param other  the case to take a symmetric difference with
 	 * 
@@ -622,6 +639,11 @@ public class CumulativeExpressionValidator implements ExpressionValidator
 	/**
 	 * <p>Returns a new {@code CumulativeExpressionValidator} that accepts
 	 * exactly those expressions this validator does not accept.</p>
+	 * 
+	 * <p>Note that further changes to this
+	 * {@code CumulativeExpressionValidator} after this method is called will
+	 * affect the behavior of the returned
+	 * {@code CumulativeExpressionValidator}.</p>
 	 * 
 	 * @return  the result of taking the complement of this validator
 	 */
