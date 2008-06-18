@@ -22,58 +22,68 @@ import static org.kordamp.groovy.util.ProxyOMatic.proxy
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ProxiesFromExpandoTests extends GroovyTestCase {
-	void testBuildProxyFromFoo() {
-	   def expando = new Expando()
-	   expando.foo = { -> "Foo" }
-	   def foo = proxy( Foo, expando )
-	   
-	   assertNotNull( "proxy is null", foo )
-	   assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-	   assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-	}
+   void testBuildProxyFromFoo() {
+      def expando = new Expando()
+      expando.foo = { -> "Foo" }
+      def foo = proxy( Foo, expando )
+      
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+   }
 
-	void testBuildProxyFromFooBar() {
-	   def expando = new Expando()
-	   expando.foo = { -> "Foo" }
-	   expando.bar = { -> "Bar" }
-	   expando.foobar = { -> "FooBar" }
-	   def foo = proxy( FooBar, expando )
-	   
-	   assertNotNull( "proxy is null", foo )
-	   assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-	   assertTrue( "proxy is not of type Bar", foo instanceof Bar )
-	   assertTrue( "proxy is not of type FooBar", foo instanceof FooBar )
-	   assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-	   assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
-	   assertEquals( "proxy.foobar() did not return 'FooBar'", "FooBar", foo.foobar() )  
-	}
-	
-	void testBuildProxyFromFooBar_withSelfMethodCalls() {
-	   def expando = new Expando()
-	   expando.foo = { -> "Foo" }
-	   expando.bar = { -> "Bar" }
-	   expando.foobar = { -> foo() + bar() }
-	   def foo = proxy( FooBar, expando )
-	   
-	   assertNotNull( "proxy is null", foo )
-	   assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-	   assertTrue( "proxy is not of type Bar", foo instanceof Bar )
-	   assertTrue( "proxy is not of type FooBar", foo instanceof FooBar )
-	   assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-	   assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
-	   assertEquals( "proxy.foobar() did not return 'FooBar'", "FooBar", foo.foobar() )  
-	}
-	
-	void testBuildProxyFromFooAndBar() {
-	   def expando = new Expando()
-	   expando.foo = { -> "Foo" }
-	   expando.bar = { -> "Bar" }
-	   def foo = proxy( FooBar, expando )
-	   
-	   assertNotNull( "proxy is null", foo )
-	   assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-	   assertTrue( "proxy is not of type Bar", foo instanceof Bar )
-	   assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-	   assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
-	}
+   void testBuildProxyFromFooBar() {
+      def expando = new Expando()
+      expando.foo = { -> "Foo" }
+      expando.bar = { -> "Bar" }
+      expando.foobar = { -> "FooBar" }
+      def foo = proxy( FooBar, expando )
+      
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertTrue( "proxy is not of type Bar", foo instanceof Bar )
+      assertTrue( "proxy is not of type FooBar", foo instanceof FooBar )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+      assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
+      assertEquals( "proxy.foobar() did not return 'FooBar'", "FooBar", foo.foobar() )  
+   }
+   
+   void testBuildProxyFromFooBar_withSelfMethodCalls() {
+      def expando = new Expando()
+      expando.foo = { -> "Foo" }
+      expando.bar = { -> "Bar" }
+      expando.foobar = { -> foo() + bar() }
+      def foo = proxy( FooBar, expando )
+      
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertTrue( "proxy is not of type Bar", foo instanceof Bar )
+      assertTrue( "proxy is not of type FooBar", foo instanceof FooBar )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+      assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
+      assertEquals( "proxy.foobar() did not return 'FooBar'", "FooBar", foo.foobar() )  
+   }
+   
+   void testBuildProxyFromFooAndBar() {
+      def expando = new Expando()
+      expando.foo = { -> "Foo" }
+      expando.bar = { -> "Bar" }
+      def foo = proxy( FooBar, expando )
+      
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertTrue( "proxy is not of type Bar", foo instanceof Bar )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+      assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
+   }
+
+   void testBuildProxyFromFooWithIncompleteImpl() {
+      def foo = proxy( Foo, new Expando() )
+
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      shouldFail( UnsupportedOperationException ) {
+         foo.foo()
+      }
+   }
 }

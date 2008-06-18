@@ -31,7 +31,10 @@ class ConvertedExpando extends ConversionHandler {
    public Object invokeCustom( Object proxy, Method method, Object[] args )
    throws Throwable {
       Expando expando = getDelegate()
-      Closure cl = expando[method.name]
+      def cl = expando[method.name]
+      if( !cl  || !(cl instanceof Closure) ) {
+         throw new UnsupportedOperationException("Method ${methodSignature(method.name,args)} is not implemented")
+      }
       return method.parameterTypes.length == 0 ? cl.call() : cl.call(args)
    }
   
@@ -39,5 +42,11 @@ class ConvertedExpando extends ConversionHandler {
       Expando expando = getDelegate()
       Closure cl = expando.toString
       return cl ? cl.call() : expando.toString()
+   }
+
+   private String methodSignature( String name, Object[] args ) {
+      // TODO handle arrays
+      def types = args.inject([]) { it == null ? Object : it.getClass() }
+      return "$name( ${types.join(',')} )"
    }
 }

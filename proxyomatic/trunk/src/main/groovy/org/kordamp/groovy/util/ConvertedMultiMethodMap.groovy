@@ -32,7 +32,11 @@ class ConvertedMultiMethodMap extends ConversionHandler {
    public Object invokeCustom( Object proxy, Method method, Object[] args )
    throws Throwable {
       Map map = getDelegate()
-      Closure cl = map.get( new MethodKey(method) )
+      MethodKey key = new MethodKey(method)
+      def cl = map.get( key )
+      if( !cl || !(cl instanceof Closure)) {
+         throw new UnsupportedOperationException("Method $key is not implemented")
+      }
       return method.parameterTypes.length == 0 ? cl.call() : cl.call(args)
    }
   
