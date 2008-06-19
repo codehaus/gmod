@@ -86,4 +86,24 @@ class ProxiesFromMapTests extends GroovyTestCase {
          foo.foo()
       }
    }
+
+   void testBuildProxyFromFooWithInvokeMethod() {
+      def foo = proxy( Foo , [
+         invokeMethod: { String name, args -> "Foo" }
+      ])
+
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+   }
+
+   void testBuildProxyFromFooWithMethodMissing() {
+      def foo = proxy( Foo, [
+         methodMissing: { String name, args -> "Foo" }
+      ])
+
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+   }
 }

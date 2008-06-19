@@ -15,34 +15,17 @@
  */
 package org.kordamp.groovy.util
 
-import org.codehaus.groovy.runtime.DefaultGroovyMethods
-import org.codehaus.groovy.runtime.ConversionHandler
-import java.lang.reflect.Method
-
 /**
  * General adapter for maps that support "overloaded methods" via MethodKey to any Java interface.<br/>
  * Based on org.codehaus.groovy.runtime.ConvertedMap by <a href="mailto:blackdrag@gmx.org">Jochen Theodorou</a> 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ConvertedMultiMethodMap extends ConversionHandler {
+class ConvertedMultiMethodMap extends AbstractConversionHandler {
    protected ConvertedMultiMethodMap( Map map ) {
       super( map )
    }
-  
-   public Object invokeCustom( Object proxy, Method method, Object[] args )
-   throws Throwable {
-      Map map = getDelegate()
-      MethodKey key = new MethodKey(method)
-      def cl = map.get( key )
-      if( !cl || !(cl instanceof Closure)) {
-         throw new UnsupportedOperationException("Method $key is not implemented")
-      }
-      return method.parameterTypes.length == 0 ? cl.call() : cl.call(args)
-   }
-  
-   public String toString() {
-      Map map = getDelegate()
-      Closure cl = map.get( new MethodKey("toString") )
-      return cl ? cl.call() : DefaultGroovyMethods.toString(map)
+
+   protected Object getMethod( MethodKey methodKey ) {
+      getDelegate()[methodKey]
    }
 }

@@ -15,38 +15,17 @@
  */
 package org.kordamp.groovy.util
 
-import org.codehaus.groovy.runtime.ConversionHandler
-import java.lang.reflect.Method
-
 /**
  * General adapter for Expando to any Java interface.<br/>
  * Based on org.codehaus.groovy.runtime.ConvertedMap by <a href="mailto:blackdrag@gmx.org">Jochen Theodorou</a> 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ConvertedExpando extends ConversionHandler {
+class ConvertedExpando extends AbstractConversionHandler {
    protected ConvertedExpando( Expando expando ) {
       super( expando )
    }
-  
-   public Object invokeCustom( Object proxy, Method method, Object[] args )
-   throws Throwable {
-      Expando expando = getDelegate()
-      def cl = expando[method.name]
-      if( !cl  || !(cl instanceof Closure) ) {
-         throw new UnsupportedOperationException("Method ${methodSignature(method.name,args)} is not implemented")
-      }
-      return method.parameterTypes.length == 0 ? cl.call() : cl.call(args)
-   }
-  
-   public String toString() {
-      Expando expando = getDelegate()
-      Closure cl = expando.toString
-      return cl ? cl.call() : expando.toString()
-   }
 
-   private String methodSignature( String name, Object[] args ) {
-      // TODO handle arrays
-      def types = args.inject([]) { it == null ? Object : it.getClass() }
-      return "$name( ${types.join(',')} )"
+   protected Object getMethod( MethodKey methodKey ) {
+      getDelegate()[methodKey.name]
    }
 }

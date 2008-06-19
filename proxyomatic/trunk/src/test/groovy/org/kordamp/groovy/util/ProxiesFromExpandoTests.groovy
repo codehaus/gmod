@@ -86,4 +86,24 @@ class ProxiesFromExpandoTests extends GroovyTestCase {
          foo.foo()
       }
    }
+
+   void testBuildProxyFromFooWithInvokeMethod() {
+      def expando = new Expando()
+      expando.invokeMethod = { String name, args -> "Foo" }
+      def foo = proxy( Foo, expando )
+
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+   }
+
+   void testBuildProxyFromFooWithMethodMissing() {
+      def expando = new Expando()
+      expando.methodMissing = { String name, args -> "Foo" }
+      def foo = proxy( Foo, expando ) 
+
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+   }
 }

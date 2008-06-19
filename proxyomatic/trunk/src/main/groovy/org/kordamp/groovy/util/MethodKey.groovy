@@ -113,31 +113,43 @@ class MethodKey {
    MethodKey( Method method ) {
       this( method.returnType, method.name, method.parameterTypes )
    }
+
+   public String getName() {
+      return this.name
+   } 
+  
+   public Class[] getParameterTypes() {
+      return this.parameterTypes
+   } 
+  
+   public Class getReturnType() {
+      return this.returnType
+   } 
   
    public int hashCode() {
       // TODO consider returnType
-      parameterTypes.inject(name.hashCode()){ v, c -> v + c.hashCode() }
+      this.@parameterTypes.inject(this.@name.hashCode()){ v, c -> v + c.hashCode() }
    }
   
    public boolean equals( Object other ) {
       if( !(other instanceof MethodKey) ) return false
-      if( name != other.name ) return false
+      if( this.@name != other.@name ) return false
 
-      if( parameterTypes.length == 0 ){
-         switch( other.parameterTypes.length ){
+      if( this.@parameterTypes.length == 0 ){
+         switch( other.@parameterTypes.length ){
             case 0:
                return true
             case 1:
-               return other.parameterTypes == [Object]
+               return other.@parameterTypes == [Object]
             default:
                return false
          }
-      }else if( other.parameterTypes.length == 0 ){
-         switch( parameterTypes.length ){
+      }else if( other.@parameterTypes.length == 0 ){
+         switch( this.@parameterTypes.length ){
             case 0:
                return true
             case 1:
-               return parameterTypes == [Object]
+               return this.@parameterTypes == [Object]
             default:
                return false
          }
@@ -145,11 +157,11 @@ class MethodKey {
 
       // TODO consider returnType
 
-      return parameterTypes == other.parameterTypes
+      return this.@parameterTypes == other.@parameterTypes
    }
   
    public String toString() {
       // TODO handle arrays
-      "${returnType.name} $name("+parameterTypes.name.join(",")+")"
+      "${this.@returnType.name} ${this.@name}("+this.@parameterTypes.name.join(",")+")"
    }
 }
