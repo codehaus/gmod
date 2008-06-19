@@ -54,6 +54,8 @@ abstract class ProxyObject {
       if( !__realized ){
          assignDelegateToMethodBodies()
          def types = extraTypes ? extraTypes << type : [type]
+         // TODO wait til Metaclass is properly wired
+         //injectGroovyObjectInterface(types)
          __proxy = makeProxy( types )
          __realized = true
          return __proxy
@@ -71,4 +73,17 @@ abstract class ProxyObject {
    protected abstract void assignDelegateToMethodBodies()
   
    protected abstract def makeProxy( List<Class> types )
+
+   private void injectGroovyObjectInterface( types ) {
+      def count = 0
+      types.each { type ->
+         if( GroovyObject.class.isAssignableFrom(type) ){
+            count++
+         }
+      }
+
+      if( count != types.size() ) {
+         types << GroovyObject
+      }
+   }
 }
