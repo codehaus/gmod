@@ -16,29 +16,28 @@
 package org.kordamp.groovy.util
 
 /**
- * General adapter for Expando to any Java interface.<br/>
- * Based on org.codehaus.groovy.runtime.ConvertedMap by <a href="mailto:blackdrag@gmx.org">Jochen Theodorou</a> 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ConvertedExpando extends AbstractConversionHandler {
-   protected ConvertedExpando( Expando expando ) {
-      super( expando )
+class TypeUtils {
+   static getShortName( Class type ) {
+      def classname = getName(type)
+      int lastDot = name.lastIndexOf(".")
+      return classname[(lastDot+1)..-1]
    }
 
-   protected Object getMethod( MethodKey methodKey ) {
-      getDelegate()[methodKey.name]
+   static getName( Class type ) {
+      if( type.isArray() ){
+         int dimension = 0
+         Class componentType = type
+         while( componentType.isArray() ){
+            componentType = componentType.componentType
+            dimension++
+         }
+         return componentType.name.replaceAll("\$",".") + ("[]"*dimension)
+      }
+      return type.name.replaceAll("\$",".")
    }
 
-   protected boolean isProperty( String name ) {
-      // TODO handle PME ??
-      getDelegate()[name] instanceof Closure
-   }
-
-   protected Object getPropertyValue( String name ) {
-      getDelegate()[name]
-   }
-
-   protected void setPropertyValue( String name, value ) {
-      getDelegate()[name] = value
+   private TypeUtils() {
    }
 }

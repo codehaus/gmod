@@ -31,7 +31,7 @@ class ProxyOMatic {
     * @throws GroovyCastException if the proxy can't be created
     */ 
    static proxy( Class type, source ) {
-      makeProxy( source ).asType( type )
+      makeProxy( source ).asType( type, [] )
    }
     
    /**

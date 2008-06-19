@@ -9,7 +9,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or methodsied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -23,31 +23,31 @@ import java.lang.reflect.Proxy
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ProxiedClosure extends ProxyObject {
-   private Map __impl = [:]
+   private Map __methods = [:]
   
    protected def addMethodDefinition( MethodKey name, Closure body ) {
-      __impl[name] = body
+      __methods[name] = body
    }
    
    protected def addMethodDefinition( String name, Closure body ) {
-      __impl[new MethodKey(name, body.parameterTypes)] = body
+      __methods[new MethodKey(name, body.parameterTypes)] = body
    }
    
    protected def addMethodDefinition( Class returnType, String name, Closure body ) {
-      __impl[new MethodKey(returnType, name, body.parameterTypes)] = body
+      __methods[new MethodKey(returnType, name, body.parameterTypes)] = body
    }
    
    protected void assignDelegateToMethodBodies() {
-      __impl.each { k, c -> if(c instanceof Closure) c.delegate = this }
+      __methods.each { k, c -> if(c instanceof Closure) c.delegate = this }
    }
   
    protected def makeProxy( List<Class> types ) {
       // only handles interfaces for the time being
-      if( types.any{it.isInstance(__impl)} || types.any{!(it.isInterface())} ){
+      if( types.any{it.isInstance(__methods)} || types.any{!(it.isInterface())} ){
          throw new GroovyCastException("Can't create proxy with $types")
       }
       Proxy.newProxyInstance( types[0].getClassLoader(),
                     types as Class[],
-                    new ConvertedMultiMethodMap(__impl)) 
+                    new ConvertedMultiMethodMap([methods:__methods,properties:__properties])) 
    }
 }

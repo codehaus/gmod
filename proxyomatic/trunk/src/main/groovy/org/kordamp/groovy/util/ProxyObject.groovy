@@ -22,7 +22,11 @@ import org.codehaus.groovy.runtime.InvokerHelper
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class ProxyObject {
-   private boolean __realized
+   protected Map __properties = [:]
+   protected boolean __realized
+   protected boolean __handlingStatics
+   protected boolean __handlingProperties
+
    private def __proxy
    private ProxyObject self
    //private UberObject uber
@@ -33,22 +37,58 @@ abstract class ProxyObject {
   
    final def methodMissing( String name, value ) {
       if( !__realized ) {
-         switch( value.length ){
-            case 1:
-               return addMethodDefinition( name, value[0] )
-            case 2:
-               return addMethodDefinition( (Class) value[0], name, (Closure) value[1] )
-            default:
-               throw new GroovyRuntimeException("Illegal proxy method declaration [$name, argCount:$value.length]")
-         }   
+         if( __handlingProperties ){
+            // name will be propertyName
+            // value will be propertyValue
+            __properties[name] = value
+         }else if( __handlingStatics ){
+
+         }else{
+            switch( value.length ){
+               case 1:
+                  return addMethodDefinition( name, value[0] )
+               case 2:
+                  return addMethodDefinition( (Class) value[0], name, (Closure) value[1] )
+               default:
+                  throw new GroovyRuntimeException("Illegal proxy method declaration [$name, argCount:$value.length]")
+            }   
+         }
       }else{
          return InvokerHelper.invokeMethod( __proxy, name, value )
       }
    }
+   
+   final def statics( Closure closure ) {
+      if( !__realized ) {
+         if( __handlingStatics ) {
+             // nested statics{} is not allowed!
+             throw new GroovyRuntimeException("Can't nest statics definitions")
+         }
+         __handlingStatics = true
+         closure.delegate = this
+         closure()
+         __handlingStatics = false
+      }
+   }
   
+   final def properties( Closure closure ) {
+      if( !__realized ) {
+         if( __handlingProperties ) {
+             // nested properties{} is not allowed!
+             throw new GroovyRuntimeException("Can't nest properties definitions")
+         }
+         __handlingProperties = true
+         closure.delegate = this
+         closure()
+         __handlingProperties = false
+      }
+   }
+  
+/*
    def asType( Class type ) {
       asType( type, null )
    }
+*/
   
    final def asType( Class type, List<Class> extraTypes ) {
       if( !__realized ){
