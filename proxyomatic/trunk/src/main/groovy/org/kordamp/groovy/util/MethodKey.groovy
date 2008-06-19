@@ -161,7 +161,7 @@ class MethodKey {
    }
   
    public String toString() {
-      // TODO handle arrays
-      "${this.@returnType.name} ${this.@name}("+this.@parameterTypes.name.join(",")+")"
+      def types = this.@parameterTypes.asType(List).collect { TypeUtils.getShortName(it.name) }
+      "${TypeUtils.getShortName(this.@returnType)} ${this.@name}("+types.join(",")+")"
    }
 }

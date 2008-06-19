@@ -26,6 +26,18 @@ class ConvertedMultiMethodMap extends AbstractConversionHandler {
    }
 
    protected Object getMethod( MethodKey methodKey ) {
-      getDelegate()[methodKey]
+      getDelegate().methods[methodKey]
+   }
+
+   protected boolean isProperty( String name ) {
+      getDelegate().properties.contains(name)
+   }
+
+   protected Object getPropertyValue( String name ) {
+      getDelegate().properties[name]
+   }
+
+   protected void setPropertyValue( String name, value ) {
+      getDelegate().properties[name] = value
    }
 }

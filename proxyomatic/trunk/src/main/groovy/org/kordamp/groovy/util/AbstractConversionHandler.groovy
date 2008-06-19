@@ -74,6 +74,12 @@ abstract class AbstractConversionHandler extends ConversionHandler {
 
    protected abstract Object getMethod( MethodKey methodKey )
 
+   protected abstract boolean isProperty( String name )
+
+   protected abstract Object getPropertyValue( String name )
+
+   protected abstract void setPropertyValue( String name, value )
+
    protected final Object getMethod( Method method ) {
       return getMethod( new MethodKey(method) )
    }
@@ -87,12 +93,11 @@ abstract class AbstractConversionHandler extends ConversionHandler {
    }
 
    private String methodSignature( String name, Object[] args ) {
-      // TODO handle arrays
-      def types = args.inject([]) { it == null ? Object : it.getClass() }
+      def types = args.asType(List).collect { TypeUtils.getShortName(it == null ? Object : it.getClass()) }
       return "$name(${types.join(',')})"
    }
 
-   // --- GroovyObject interface --
+   // ---### GroovyObject interface ###---
 
    protected Object callGroovyObjectMethod( Object proxy, MethodKey methodKey, Object[] args ) {
       switch( methodKey.name ) {
@@ -120,6 +125,11 @@ abstract class AbstractConversionHandler extends ConversionHandler {
          return methodImpl(name)
       }
 
+      // try 'direct' access
+      if( isProperty(name) ) {
+         return getPropertyValue(name)
+      }
+
       return groovyObjectGetPropertyMissing(proxy,name)
    }
 
@@ -134,6 +144,11 @@ abstract class AbstractConversionHandler extends ConversionHandler {
       methodImpl = getMethod("set${name[0].toUpperCase()}${name[1..-1]}".toString()) 
       if( isValidMethodImpl(methodImpl) ) {
          methodImpl(name,value)
+      }
+
+      // try 'direct' access
+      if( isProperty(name) ) {
+         setPropertyValue(name,value)
       }
 
       groovyObjectSetPropertyMissing(proxy,name,value)
