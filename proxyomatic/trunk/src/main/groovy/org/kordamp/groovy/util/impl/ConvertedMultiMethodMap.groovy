@@ -13,32 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kordamp.groovy.util
+package org.kordamp.groovy.util.impl
 
 /**
- * General adapter for Expando to any Java interface.<br/>
+ * General adapter for maps that support "overloaded methods" via MethodKey to any Java interface.<br/>
  * Based on org.codehaus.groovy.runtime.ConvertedMap by <a href="mailto:blackdrag@gmx.org">Jochen Theodorou</a> 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ConvertedExpando extends AbstractConversionHandler {
-   protected ConvertedExpando( Expando expando ) {
-      super( expando )
+class ConvertedMultiMethodMap extends AbstractConversionHandler {
+   protected ConvertedMultiMethodMap( Map map, Class proxyClass ) {
+      super( map, proxyClass )
    }
 
    protected Object getMethod( MethodKey methodKey ) {
-      getDelegate()[methodKey.name]
+      getDelegate().methods[methodKey]
    }
 
    protected boolean isProperty( String name ) {
-      // TODO handle PME ??
-      getDelegate()[name] instanceof Closure
+      getDelegate().properties.containsKey(name)
    }
 
    protected Object getPropertyValue( String name ) {
-      getDelegate()[name]
+      getDelegate().properties[name]
    }
 
    protected void setPropertyValue( String name, value ) {
-      getDelegate()[name] = value
+      getDelegate().properties[name] = value
    }
 }
