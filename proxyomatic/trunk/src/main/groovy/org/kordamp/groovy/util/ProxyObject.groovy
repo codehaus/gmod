@@ -22,26 +22,65 @@ import org.codehaus.groovy.runtime.InvokerHelper
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class ProxyObject {
-   protected Map __properties = [:]
-   protected boolean __realized
-   protected boolean __handlingStatics
-   protected boolean __handlingProperties
+   protected Map __PROXY__properties = [:]
+   protected boolean __PROXY__realized
+   protected boolean __PROXY__handlingStatics
+   protected boolean __PROXY__handlingProperties
 
-   private def __proxy
+   private def __PROXY__proxy
    private ProxyObject self
    //private UberObject uber
   
    ProxyObject() {
       self = this
    }
+
+   def getProperty( String name ) {
+      switch( name ) {
+         case "__PROXY__properties": 
+            return this.@__PROXY_properties
+         case "__PROXY__realized": 
+            return this.@__PROXY_realized
+         case "__PROXY__handlingStatics": 
+            return this.@__PROXY_handlingStatics
+         case "__PROXY__handlingProperties": 
+            return this.@__PROXY_handlingProperties
+         case "self": 
+            return this.@self
+      }
+      return this.@__PROXY__properties[name]
+   }
+  
+   void setProperty( String name, Object value ) {
+      if( value?.class?.isArray() ) value = value[0]
+      switch( name ) {
+         case "__PROXY__properties": 
+            this.@__PROXY_properties = value
+            break
+         case "__PROXY__realized": 
+            this.@__PROXY_realized = value
+            break
+         case "__PROXY__handlingStatics": 
+            this.@__PROXY_handlingStatics = value
+            break
+         case "__PROXY__handlingProperties": 
+            this.@__PROXY_handlingProperties = value
+            break
+         case "self":
+            throw new GroovyRuntimeException("self is a read-only property")
+         default: 
+            this.@__PROXY__properties[name] = value
+      }
+   }
   
    final def methodMissing( String name, value ) {
-      if( !__realized ) {
-         if( __handlingProperties ){
+      if( !this.@__PROXY__realized ) {
+         if( this.@__PROXY__handlingProperties ){
             // name will be propertyName
             // value will be propertyValue
-            __properties[name] = value
-         }else if( __handlingStatics ){
+            if( value?.class?.isArray() ) value = value[0]
+            this.@__PROXY__properties[name] = value
+         }else if( this.@__PROXY__handlingStatics ){
 
          }else{
             switch( value.length ){
@@ -54,33 +93,33 @@ abstract class ProxyObject {
             }   
          }
       }else{
-         return InvokerHelper.invokeMethod( __proxy, name, value )
+         return InvokerHelper.invokeMethod( this.@__PROXY__proxy, name, value )
       }
    }
    
    final def statics( Closure closure ) {
-      if( !__realized ) {
-         if( __handlingStatics ) {
+      if( !this.@__PROXY__realized ) {
+         if( this.@__PROXY__handlingStatics ) {
              // nested statics{} is not allowed!
              throw new GroovyRuntimeException("Can't nest statics definitions")
          }
-         __handlingStatics = true
+         this.@__PROXY__handlingStatics = true
          closure.delegate = this
          closure()
-         __handlingStatics = false
+         this.@__PROXY__handlingStatics = false
       }
    }
   
    final def properties( Closure closure ) {
-      if( !__realized ) {
-         if( __handlingProperties ) {
+      if( !this.@__PROXY__realized ) {
+         if( this.@__PROXY__handlingProperties ) {
              // nested properties{} is not allowed!
              throw new GroovyRuntimeException("Can't nest properties definitions")
          }
-         __handlingProperties = true
+         this.@__PROXY__handlingProperties = true
          closure.delegate = this
          closure()
-         __handlingProperties = false
+         this.@__PROXY__handlingProperties = false
       }
    }
   
@@ -91,16 +130,16 @@ abstract class ProxyObject {
 */
   
    final def asType( Class type, List<Class> extraTypes ) {
-      if( !__realized ){
+      if( !this.@__PROXY__realized ){
          assignDelegateToMethodBodies()
          def types = extraTypes ? extraTypes << type : [type]
          // TODO wait til Metaclass is properly wired
          //injectGroovyObjectInterface(types)
-         __proxy = makeProxy( types )
-         __realized = true
-         return __proxy
+         this.@__PROXY__proxy = makeProxy( types )
+         this.@__PROXY__realized = true
+         return this.@__PROXY__proxy
       }else{
-         return __proxy.asType(type)
+         return this.@__PROXY__proxy.asType(type)
       }
    }
    
@@ -126,4 +165,35 @@ abstract class ProxyObject {
          types << GroovyObject
       }
    }
+ 
+/*
+   private Class createProxyClass( types ) {
+      def buffer = new StringBuffer()
+      types.each { type ->
+         buffer.append("import ")
+         buffer.append(TypeUtils.getName(type))
+         buffer.append("\n")
+      }
+      buffer.append("\n")
+
+      buffer.append("class ")
+      def classname = TypeUtils.getShortName(types[0]) + "_proxy" + System.nanoTime()
+      buffer.append(classname)
+      buffer.append(" extends ")
+      buffer.append(TypeUtils.getShortName(types[0]))
+
+      if( types.size() > 1 ){
+         buffer.append(" implements ")
+         def shortTypes = types.collect { TypeUtils.getShortName(it == null ? Object : it.getClass()) }
+         buffer.append(shortTypes.join(", "))
+      }
+      buffer.append("{}")
+      buffer.append("\n")
+      buffer.append("klass = ")
+      buffer.append(classname)
+
+      GroovyShell shell = new GroovyShell( types[0].classLoader )
+      shell.evaluate( buffer.toString() )
+   }
+*/
 }
