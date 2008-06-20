@@ -38,39 +38,46 @@ abstract class ProxyObject {
    def getProperty( String name ) {
       switch( name ) {
          case "__PROXY__properties": 
-            return this.@__PROXY_properties
+            return this.@__PROXY__properties
          case "__PROXY__realized": 
-            return this.@__PROXY_realized
+            return this.@__PROXY__realized
          case "__PROXY__handlingStatics": 
-            return this.@__PROXY_handlingStatics
+            return this.@__PROXY__handlingStatics
          case "__PROXY__handlingProperties": 
-            return this.@__PROXY_handlingProperties
+            return this.@__PROXY__handlingProperties
          case "self": 
             return this.@self
       }
-      return this.@__PROXY__properties[name]
+      
+      if( !this.@__PROXY__realized ) {
+         return this.@__PROXY__properties[name]
+      }
+      return InvokerHelper.invokeMethod( this.@__PROXY__proxy, "getProperty", name )
    }
   
    void setProperty( String name, Object value ) {
       if( value?.class?.isArray() ) value = value[0]
       switch( name ) {
          case "__PROXY__properties": 
-            this.@__PROXY_properties = value
+            this.@__PROXY__properties = value
             break
          case "__PROXY__realized": 
-            this.@__PROXY_realized = value
+            this.@__PROXY__realized = value
             break
          case "__PROXY__handlingStatics": 
-            this.@__PROXY_handlingStatics = value
+            this.@__PROXY__handlingStatics = value
             break
          case "__PROXY__handlingProperties": 
-            this.@__PROXY_handlingProperties = value
+            this.@__PROXY__handlingProperties = value
             break
          case "self":
-            throw new GroovyRuntimeException("self is a read-only property")
-         default: 
-            this.@__PROXY__properties[name] = value
+            throw new GroovyRuntimeException("self is a read-only property")  
       }
+      
+      if( !this.@__PROXY__realized ){
+         this.@__PROXY__properties[name] = value
+      }
+      InvokerHelper.invokeMethod( this.@__PROXY__proxy, "setProperty", [name,value] )
    }
   
    final def methodMissing( String name, value ) {
