@@ -21,8 +21,8 @@ package org.kordamp.groovy.util
 class TypeUtils {
    static getShortName( Class type ) {
       def classname = getName(type)
-      int lastDot = name.lastIndexOf(".")
-      return classname[(lastDot+1)..-1]
+      int lastDot = classname.lastIndexOf(".")
+      return classname.substring((lastDot+1),classname.length())
    }
 
    static getName( Class type ) {

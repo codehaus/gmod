@@ -21,103 +21,62 @@ import static org.kordamp.groovy.util.ProxyOMatic.proxy
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ProxiesFromClosureTests extends GroovyTestCase {
-   void testBuildProxyFromFoo() {
-      def foo = proxy( Foo ) {
-         foo { -> "Foo" }
-      }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-   }
-   
-   void testBuildProxyFromFooBar() {
-      def foo = proxy( FooBar ) {
-         foo { -> "Foo" }
-         bar { -> "Bar" }
-         foobar { -> "FooBar" }
-      }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      assertTrue( "proxy is not of type Bar", foo instanceof Bar )
-      assertTrue( "proxy is not of type FooBar", foo instanceof FooBar )
-      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-      assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
-      assertEquals( "proxy.foobar() did not return 'FooBar'", "FooBar", foo.foobar() )  
-   }
-   
-   void testBuildProxyFromFooBar_withSelfMethodCalls() {
-      def foo = proxy( FooBar ) {
-         foo { -> "Foo" }
-         bar { -> "Bar" }
-         foobar { -> foo() + bar() }
-      }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      assertTrue( "proxy is not of type Bar", foo instanceof Bar )
-      assertTrue( "proxy is not of type FooBar", foo instanceof FooBar )
-      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-      assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
-      assertEquals( "proxy.foobar() did not return 'FooBar'", "FooBar", foo.foobar() )  
-   }
-   
+class ProxiesFromClosureTests extends AbstractProxiesTestCase {
    void testBuildProxyFromFooz() {
       def foo = proxy( Fooz ) {
          foo { -> "Foo" }
          foo { String n -> "Foo$n".toString() }
       }
-      
+       
       assertNotNull( "proxy is null", foo )
       assertTrue( "proxy is not of type Foo", foo instanceof Foo )
       assertTrue( "proxy is not of type Fooz", foo instanceof Fooz )
       assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
       assertEquals( "proxy.foo('Bar') did not return 'FooBar'", "FooBar", foo.foo('Bar') )
+   } 
+    
+   def proxyFromFoo() {
+      proxy( Foo ) {
+         foo { -> "Foo" }
+      }
    }
    
-   void testBuildProxyFromFooAndBar() {
-      def foo = proxy( Foo, [Bar] ) {
+   def proxyFromFooBar() {
+      proxy( FooBar ) {
+         foo { -> "Foo" }
+         bar { -> "Bar" }
+         foobar { -> "FooBar" }
+      }
+   }
+   
+   def proxyFromFooBarWithSelfMethodCalls() {
+      proxy( FooBar ) {
+         foo { -> "Foo" }
+         bar { -> "Bar" }
+         foobar { -> foo() + bar() }
+      }
+   }
+   
+   def proxyFromFooAndBar() {
+      proxy( Foo, [Bar] ) {
          foo { -> "Foo" }
          bar { -> "Bar" }
       }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      assertTrue( "proxy is not of type Bar", foo instanceof Bar )
-      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
-      assertEquals( "proxy.bar() did not return 'Bar'", "Bar", foo.bar() )
    }
 
-   void testBuildProxyFromFooWithIncompleteImpl() {
-      def foo = proxy( Foo ) {
-      }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      shouldFail( UnsupportedOperationException ) {
-         foo.foo()
-      }
+   def proxyFromFooImcompleteImpl() {
+      proxy( Foo ) {}
    }
 
-   void testBuildProxyFromFooWithInvokeMethod() {
-      def foo = proxy( Foo ) {
+   def proxyFromFooWithInvokeMethod() {
+      proxy( Foo ) {
          invokeMethod { String name, args -> "Foo" }
       }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
    }
 
-   void testBuildProxyFromFooWithMethodMissing() {
-      def foo = proxy( Foo ) {
+   def proxyFromFooWithMethodMissing() {
+      proxy( Foo ) {
          methodMissing { String name, args -> "Foo" }
       }
-      
-      assertNotNull( "proxy is null", foo )
-      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
-      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
    }
 }

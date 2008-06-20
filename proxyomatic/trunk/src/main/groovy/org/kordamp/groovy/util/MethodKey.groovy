@@ -161,7 +161,7 @@ class MethodKey {
    }
   
    public String toString() {
-      def types = this.@parameterTypes.asType(List).collect { TypeUtils.getShortName(it.name) }
+      def types = this.@parameterTypes.asType(List).collect { TypeUtils.getShortName(it) }
       "${TypeUtils.getShortName(this.@returnType)} ${this.@name}("+types.join(",")+")"
    }
 }
