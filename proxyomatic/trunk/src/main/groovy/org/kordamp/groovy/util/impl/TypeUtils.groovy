@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kordamp.groovy.util
+package org.kordamp.groovy.util.impl
 
 /**
+ * Contains code borrowed from [groovy.util.ProxyGenerator, org.codehaus.groovy.runtime.MetaClassHelper]
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class TypeUtils {
+   static final Object[] EMPTY_ARRAY = new Object[0]
+   static final Class[] EMPTY_CLASS_ARRAY = new Class[0]   
+    
    static getShortName( Class type ) {
       def classname = getName(type)
       int lastDot = classname.lastIndexOf(".")
-      return classname.substring((lastDot+1),classname.length())
+      return classname.substring((lastDot+1))
    }
 
    static getName( Class type ) {
@@ -33,11 +37,27 @@ class TypeUtils {
             componentType = componentType.componentType
             dimension++
          }
-         return componentType.name.replaceAll("\$",".") + ("[]"*dimension)
+         return componentType.name.replaceAll(/\$/,/\./) + ("[]"*dimension)
       }
-      return type.name.replaceAll("\$",".")
+      return type.name.replaceAll(/\$/,/\./)
    }
 
+   static Class[] castArgumentsToClassArray( Object[] args ) {
+      if( !args) return EMPTY_CLASS_ARRAY
+      Class[] classes = new Class[args.length]
+      for( int i = 0; i < args.length; i++ ) {
+         Object arg = args[i]
+         if( arg instanceof Class) {
+            classes[i] = (Class) arg
+         }else if( args == null){
+            classes[i] = Object
+         }else{
+            classes[i] = arg.getClass()
+         }
+      }
+      return classes
+  }   
+   
    private TypeUtils() {
    }
 }

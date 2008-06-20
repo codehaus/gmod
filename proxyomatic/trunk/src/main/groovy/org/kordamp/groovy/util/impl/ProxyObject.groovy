@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kordamp.groovy.util
+package org.kordamp.groovy.util.impl
 
 import org.codehaus.groovy.runtime.InvokerHelper
 
@@ -130,24 +130,16 @@ abstract class ProxyObject {
       }
    }
   
-/*
-   def asType( Class type ) {
-      asType( type, null )
-   }
-*/
-  
-   final def asType( Class type, List<Class> extraTypes ) {
+   final def realize( Class type, List<Class> extraTypes ) {
       if( !this.@__PROXY__realized ){
          assignDelegateToMethodBodies()
          def types = extraTypes ? extraTypes << type : [type]
          // TODO wait til Metaclass is properly wired
-         //injectGroovyObjectInterface(types)
+         injectGroovyObjectInterface(types)
          this.@__PROXY__proxy = makeProxy( types )
          this.@__PROXY__realized = true
-         return this.@__PROXY__proxy
-      }else{
-         return this.@__PROXY__proxy.asType(type)
       }
+      return this.@__PROXY__proxy
    }
    
    protected abstract def addMethodDefinition( MethodKey name, Closure body ) 
@@ -173,8 +165,7 @@ abstract class ProxyObject {
       }
    }
  
-/*
-   private Class createProxyClass( types ) {
+   protected Class createProxyClass( types ) {
       def buffer = new StringBuffer()
       types.each { type ->
          buffer.append("import ")
@@ -183,18 +174,25 @@ abstract class ProxyObject {
       }
       buffer.append("\n")
 
-      buffer.append("class ")
+      buffer.append("abstract class ")
       def classname = TypeUtils.getShortName(types[0]) + "_proxy" + System.nanoTime()
       buffer.append(classname)
-      buffer.append(" extends ")
-      buffer.append(TypeUtils.getShortName(types[0]))
-
-      if( types.size() > 1 ){
+      
+      if( !types[0].isInterface() ){
+         buffer.append(" extends ")
+         buffer.append(TypeUtils.getShortName(types[0]))
+         if( types.size() > 1 ){
+            buffer.append(" implements ")
+            def shortTypes = types[1..-1].collect { TypeUtils.getShortName(it == null ? Object : it) }
+            buffer.append(shortTypes.join(", "))
+         }
+      }else{
          buffer.append(" implements ")
-         def shortTypes = types.collect { TypeUtils.getShortName(it == null ? Object : it.getClass()) }
+         def shortTypes = types.collect { TypeUtils.getShortName(it == null ? Object : it) }
          buffer.append(shortTypes.join(", "))
       }
-      buffer.append("{}")
+      
+      buffer.append(" {}")
       buffer.append("\n")
       buffer.append("klass = ")
       buffer.append(classname)
@@ -202,5 +200,4 @@ abstract class ProxyObject {
       GroovyShell shell = new GroovyShell( types[0].classLoader )
       shell.evaluate( buffer.toString() )
    }
-*/
 }

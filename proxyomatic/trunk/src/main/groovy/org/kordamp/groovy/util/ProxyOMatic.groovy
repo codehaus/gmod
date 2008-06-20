@@ -15,6 +15,11 @@
  */
 package org.kordamp.groovy.util
 
+import org.kordamp.groovy.util.impl.ProxyObject
+import org.kordamp.groovy.util.impl.ProxiedClosure
+import org.kordamp.groovy.util.impl.ProxiedMap
+import org.kordamp.groovy.util.impl.ProxiedExpando
+
 /**
  * ProxyOMatic lets you create dynamic proxies in a pinch!<br/>
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -31,7 +36,7 @@ class ProxyOMatic {
     * @throws GroovyCastException if the proxy can't be created
     */ 
    static proxy( Class type, source ) {
-      makeProxy( source ).asType( type, [] )
+      makeProxy( source ).realize( type, [] )
    }
     
    /**
@@ -47,7 +52,7 @@ class ProxyOMatic {
     * @throws GroovyCastException if the proxy can't be created
     */   
    static proxy( Class type, List<Class> extraTypes, source ) {
-      makeProxy( source ).asType( type, extraTypes )
+      makeProxy( source ).realize( type, extraTypes )
    }
 
    /**
@@ -63,7 +68,7 @@ class ProxyOMatic {
     * @throws GroovyCastException if the proxy can't be created
     */     
    static proxy( Class type, Class[] extraTypes, source ) {
-      makeProxy( source ).asType( type, extraTypes as List<Class> )
+      makeProxy( source ).realize( type, extraTypes as List<Class> )
    }
    
    /**
