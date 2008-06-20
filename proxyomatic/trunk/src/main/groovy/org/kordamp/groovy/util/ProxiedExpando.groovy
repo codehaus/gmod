@@ -23,37 +23,37 @@ import java.lang.reflect.Proxy
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ProxiedExpando extends ProxyObject {
-   private Expando __expando
+   private Expando __PROXY__expando
    
    ProxiedExpando( Expando expando ) {
-      __expando = expando
+      this.@__PROXY__expando = expando
    }
   
    protected def addMethodDefinition( MethodKey name, Closure body ) {
-      __expando[name] = body
+      this.@__PROXY__expando[name] = body
    }   
    
    protected def addMethodDefinition( String name, Closure body ) {
-      __expando[name] = body
-      //__expando[new MethodKey(name, body.parameterTypes)] = body
+      this.@__PROXY__expando[name] = body
+      //this.@__PROXY__expando[new MethodKey(name, body.parameterTypes)] = body
    }
    
    protected def addMethodDefinition( Class returnType, String name, Closure body ) {
-      __expando[name] = body
-      //__expando[new MethodKey(returnType, name, body.parameterTypes)] = body
+      this.@__PROXY__expando[name] = body
+      //this.@__PROXY__expando[new MethodKey(returnType, name, body.parameterTypes)] = body
    }
    
    protected void assignDelegateToMethodBodies() {
-      __expando.properties.each { k, c -> if(c instanceof Closure) c.delegate = this }
+      this.@__PROXY__expando.properties.each { k, c -> if(c instanceof Closure) c.delegate = this }
    }
   
    protected def makeProxy( List<Class> types ) {
       // only handles interfaces for the time being
-      if( types.any{it.isInstance(__expando)} || types.any{!(it.isInterface())} ){
+      if( types.any{it.isInstance(this.@__PROXY__expando)} || types.any{!(it.isInterface())} ){
          throw new GroovyCastException("Can't create proxy with $types")
       }
       Proxy.newProxyInstance( types[0].getClassLoader(),
                     types as Class[],
-                    new ConvertedExpando(__expando)) 
+                    new ConvertedExpando(this.@__PROXY__expando)) 
    }
 }

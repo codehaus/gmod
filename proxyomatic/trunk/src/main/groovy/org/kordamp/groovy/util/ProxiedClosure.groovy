@@ -23,31 +23,32 @@ import java.lang.reflect.Proxy
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ProxiedClosure extends ProxyObject {
-   private Map __methods = [:]
+   private Map __PROXY__methods = [:]
   
    protected def addMethodDefinition( MethodKey name, Closure body ) {
-      __methods[name] = body
+      this.@__PROXY__methods[name] = body
    }
    
    protected def addMethodDefinition( String name, Closure body ) {
-      __methods[new MethodKey(name, body.parameterTypes)] = body
+      this.@__PROXY__methods[new MethodKey(name, body.parameterTypes)] = body
    }
    
    protected def addMethodDefinition( Class returnType, String name, Closure body ) {
-      __methods[new MethodKey(returnType, name, body.parameterTypes)] = body
+      this.@__PROXY__methods[new MethodKey(returnType, name, body.parameterTypes)] = body
    }
    
    protected void assignDelegateToMethodBodies() {
-      __methods.each { k, c -> if(c instanceof Closure) c.delegate = this }
+      this.@__PROXY__methods.each { k, c -> if(c instanceof Closure) c.delegate = this }
    }
   
    protected def makeProxy( List<Class> types ) {
       // only handles interfaces for the time being
-      if( types.any{it.isInstance(__methods)} || types.any{!(it.isInterface())} ){
+      if( types.any{it.isInstance(this.@__PROXY__methods)} || types.any{!(it.isInterface())} ){
          throw new GroovyCastException("Can't create proxy with $types")
       }
       Proxy.newProxyInstance( types[0].getClassLoader(),
                     types as Class[],
-                    new ConvertedMultiMethodMap([methods:__methods,properties:__properties])) 
+                    new ConvertedMultiMethodMap([methods:this.@__PROXY__methods,
+                                                 properties:this.@__PROXY__properties])) 
    }
 }
