@@ -41,4 +41,11 @@ class ConvertedExpando extends AbstractConversionHandler {
    protected void setPropertyValue( String name, value ) {
       getDelegate()[name] = value
    }
+
+   Map getProperties() {
+      getDelegate().properties.inject([:]) { map, e ->
+         map[e.key] = e.value
+         map
+      }
+   }
 }

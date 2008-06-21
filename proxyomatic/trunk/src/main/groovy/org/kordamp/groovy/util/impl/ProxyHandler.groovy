@@ -45,6 +45,8 @@ interface ProxyHandler {
 
    boolean isProperty( String name )
 
+   Map getProperties()
+
    //Object getPropertyValue( String name )
 
    //void setPropertyValue( String name, value )

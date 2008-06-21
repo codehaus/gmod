@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package org.kordamp.groovy.util.impl
+package org.kordamp.groovy.util.impl
 
 import java.lang.reflect.Modifier
 import org.codehaus.groovy.reflection.CachedClass
@@ -51,5 +51,9 @@ class ProxiedMetaMethod extends MetaMethod {
 
     Object invoke( Object object, Object[] arguments ) {
        proxyHandler.invokeCustom( methodKey, arguments )
+    }
+
+    protected Class[] getPT() {
+       methodKey.parameterTypes
     }
 }
