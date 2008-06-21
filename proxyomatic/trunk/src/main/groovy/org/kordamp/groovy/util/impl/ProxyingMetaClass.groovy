@@ -29,9 +29,9 @@ public class ProxyingMetaClass implements MetaClass {
    private ClassNode classNode
    
    private Map metaMethodCache = [:]
-   private List flatMethodCache = []
+   private List classMethods = []
    
-   ProxyingMetaClass( ProxyHandler proxyHandler, proxyClass ) {
+   ProxyingMetaClass( ProxyHandler proxyHandler, Class proxyClass ) {
       this.proxyHandler = proxyHandler
       this.proxyClass = proxyClass
       this.classNode = new ClassNode(proxyClass)
@@ -48,17 +48,24 @@ public class ProxyingMetaClass implements MetaClass {
 
    public List getMetaMethods() {
       // TODO Auto-generated method stub
-      return null;
+      []
    }
 
    public List getMethods() {
-      // TODO Auto-generated method stub
-      return null;
+      classMethods.asImmutable()
    }
 
    public List getProperties() {
-      // TODO Auto-generated method stub
-      return null;
+      /*
+      Map props = proxyHandler.getProperties()
+      props.inject([]) { list, e ->
+         list << new ProxiedMetaProperty( e.key, e.value ? e.value.getClass() : Object, proxyHandler )
+         list
+      }
+      */
+      // TODO add metaClass MetaProperty
+      // TODO add class MetaProperty
+      []
    }
 
    public Object getProperty( Class sender, Object receiver, String property, boolean isCallToSuper,
@@ -85,8 +92,8 @@ public class ProxyingMetaClass implements MetaClass {
    }
 
    public MetaMethod pickMethod( String methodName, Class[] arguments ) {
-      // TODO Auto-generated method stub
-      return null;
+      def key = new MethodKey(name, arguments)
+      metaMethodCache.get(name)?.get(key)
    }
 
    public int selectConstructorAndTransformArguments( int numberOfConstructors, Object[] arguments ) {
@@ -109,8 +116,8 @@ public class ProxyingMetaClass implements MetaClass {
    }
 
    public MetaMethod getMetaMethod( String name, Object[] args ) {
-      // TODO Auto-generated method stub
-      return null;
+      def key = new MethodKey( name, TypeUtils.castArgumentsToClassArray(args) )
+      metaMethodCache.get(name)?.get(key)
    }
 
    public MetaProperty getMetaProperty( String name ) {
@@ -128,8 +135,7 @@ public class ProxyingMetaClass implements MetaClass {
    }
 
    public Class getTheClass() {
-      // TODO Auto-generated method stub
-      return null;
+      return proxyClass
    }
 
    public MetaProperty hasProperty( Object obj, String name ) {
@@ -153,7 +159,7 @@ public class ProxyingMetaClass implements MetaClass {
    }
 
    public List respondsTo( Object obj, String name ) {
-      return []
+      metaMethodCache.get(name) ?: []
    }
 
    public List respondsTo( Object obj, String name, Object[] argTypes ) {
@@ -171,11 +177,16 @@ public class ProxyingMetaClass implements MetaClass {
    // -------------------------------
    
    private void populateMethods() {
-      
       proxyClass.methods.each { method ->
+         if( method.name =~ /\$/ ) {
+            // skip it
+            return
+         }
          Map methods = metaMethodCache.get(method.name,[:])
          def key = new MethodKey(method)
-         methods[] = new ProxiedMetaMethod(key,proxyHandler,ReflectionCache.getCachedClass(proxyClass))
+         def metaMethod = new ProxiedMetaMethod(key,proxyHandler,ReflectionCache.getCachedClass(proxyClass))
+         methods[key] = metaMethod
+         classMethods << metaMethod
       }
    }
 }

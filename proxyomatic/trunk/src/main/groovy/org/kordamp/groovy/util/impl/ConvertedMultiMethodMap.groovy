@@ -40,4 +40,8 @@ class ConvertedMultiMethodMap extends AbstractConversionHandler {
    protected void setPropertyValue( String name, value ) {
       getDelegate().properties[name] = value
    }
+
+   Map getProperties() {
+      getDelegate().properties.asImmutable()
+   }
 }

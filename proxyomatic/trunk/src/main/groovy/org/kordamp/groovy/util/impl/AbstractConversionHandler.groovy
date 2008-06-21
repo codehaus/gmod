@@ -113,6 +113,13 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
    }
 
    Object groovyObjectGetProperty( String name ) {
+      // check for 'metaClass' or 'class'
+      if( name == 'metaClass' ) {
+         return groovyObjectGetMetaClass()
+      }else if( name == "class" ) {
+         return groovyObjectGetMetaClass().theClass
+      }
+
       // check if overridden
       def methodImpl = getMethod(GET_PROPERTY) 
       if( isValidMethodImpl(methodImpl) ) {
@@ -134,6 +141,13 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
    }
 
    void groovyObjectSetProperty( String name, Object value ) {
+      // check for 'metaClass' or 'class'
+      if( name == 'metaClass' ) {
+         groovyObjectSetMetaClass( (MetaClass) value )
+      }else if( name == "class" ) {
+         throw new GroovyRuntimeException("'class' is a read-only property")
+      }
+
       // check if overridden
       def methodImpl = getMethod(SET_PROPERTY) 
       if( isValidMethodImpl(methodImpl) ) {
@@ -178,7 +192,7 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
       if( isValidMethodImpl(methodImpl) ) {
          return methodImpl(name)
       }
-      throw new MissingPropertyException( name, proxyClass )
+      throw new MissingPropertyException( name, proxyingMetaClass.theClass )
    }
 
    void groovyObjectSetPropertyMissing( String name, Object value ) {
@@ -187,6 +201,6 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
       if( isValidMethodImpl(methodImpl) ) {
          methodImpl(name,value)
       }
-      throw new MissingPropertyException( name, proxyClass )
+      throw new MissingPropertyException( name, proxyingMetaClass.theClass )
    }
 }
