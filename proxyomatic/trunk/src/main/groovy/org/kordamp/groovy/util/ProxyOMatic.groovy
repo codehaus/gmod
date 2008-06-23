@@ -88,7 +88,9 @@ class ProxyOMatic {
    private static makeProxy( Map map ) {
       def proxyObject = new ProxiedMap()
       map.each { name, value ->
-         if( value instanceof Closure ){
+         if( name == "properties" && value instanceof Closure ){
+            proxyObject.properties( value )
+         }else if( value instanceof Closure ){
             proxyObject.addMethodDefinition( name, value )
          }
       }

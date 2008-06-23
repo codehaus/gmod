@@ -12,5 +12,4 @@
 	<classpathentry kind="var" path="M2_REPO/jline/jline/0.9.94/jline-0.9.94.jar" sourcepath="M2_REPO/jline/jline/0.9.94/jline-0.9.94-sources.jar"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_SUPPORT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="output" path="target/classes"/>
 </classpath>

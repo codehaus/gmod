@@ -20,16 +20,16 @@ import org.codehaus.groovy.runtime.ConversionHandler
 import java.lang.reflect.Method
 
 /**
- * General adapter for maps that support "overloaded methods" via MethodKey to any Java interface.<br/>
+ * General adapter for maps that support "overloaded methods" via ProxyMethodKey to any Java interface.<br/>
  * Based on org.codehaus.groovy.runtime.ConvertedMap by <a href="mailto:blackdrag@gmx.org">Jochen Theodorou</a> 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 abstract class AbstractConversionHandler extends ConversionHandler implements ProxyHandler {
-   private ProxyingMetaClass proxyingMetaClass 
+   private RealizedProxyMetaClass realizedProxyMetaClass 
     
    protected AbstractConversionHandler( Object delegate, Class proxyClass ) {
       super( delegate )
-      proxyingMetaClass = new ProxyingMetaClass( this, proxyClass )
+      realizedProxyMetaClass = new RealizedProxyMetaClass( proxyClass, this )
    }
   
    public Object invokeCustom( Object proxy, Method method, Object[] args ) throws Throwable {
@@ -41,10 +41,10 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
    }
    
    public Object invokeCustom( /*Object proxy,*/ Class returnType, String methodName, Class[] parameterTypes, Object[] args ) {
-      return invokeCustom( /*proxy,*/ new MethodKey( returnType, methodName, parameterTypes), args )
+      return invokeCustom( /*proxy,*/ new ProxyMethodKey( returnType, methodName, parameterTypes), args )
    }
    
-   public Object invokeCustom( /*Object proxy,*/ MethodKey methodKey, Object[] args ) {
+   public Object invokeCustom( /*Object proxy,*/ ProxyMethodKey methodKey, Object[] args ) {
       // 1st check for GroovyObject methods
       if( GROOVY_OBJECT_METHODS.contains(methodKey) ){
          // check if 'overridden'
@@ -62,7 +62,7 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
       def methodImpl = getMethod(methodKey)
       if( !isValidMethodImpl(methodImpl) ) {
          // 4th try "methodMissing"
-         return groovyObjectMethodMissing(methodKey.name,args)
+         return doMethodMissing(methodKey.name,args)
       }
       return methodKey.parameterTypes.length == 0 ? methodImpl() : methodImpl(*args)
    }
@@ -72,7 +72,7 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
       return toStringMethod ? toStringMethod() : DefaultGroovyMethods.toString(getDelegate())
    }
 
-   protected abstract Object getMethod( MethodKey methodKey )
+   protected abstract Object getMethod( ProxyMethodKey methodKey )
 
    protected abstract boolean isProperty( String name )
 
@@ -81,11 +81,15 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
    protected abstract void setPropertyValue( String name, value )
 
    protected final Object getMethod( Method method ) {
-      return getMethod( new MethodKey(method) )
+      return getMethod( new ProxyMethodKey(method) )
    }
 
    protected final Object getMethod( String name ) {
-      return getMethod( new MethodKey(name) )
+      return getMethod( new ProxyMethodKey(name) )
+   }
+   
+   protected final Object getMethod( String name, Class[] parameterTypes ) {
+      return getMethod( new ProxyMethodKey(name,parameterTypes) )
    }
    
    protected boolean isValidMethodImpl( cl ) {
@@ -99,25 +103,41 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
 
    // ---### GroovyObject interface ###---
 
-   protected Object callGroovyObjectMethod( MethodKey methodKey, Object[] args ) {
+   protected Object callGroovyObjectMethod( ProxyMethodKey methodKey, Object[] args ) {
       switch( methodKey.name ) {
          case "getProperty":
-            return groovyObjectGetProperty(*args)
+            return doGetProperty(*args)
          case "setProperty":
-            return groovyObjectSetProperty(*args)
+            return doSetProperty(*args)
          case "getMetaClass":
-            return groovyObjectGetMetaClass()
+            return doGetMetaClass()
          case "setMetaClass":
-            return groovyObjectSetMetaClass(*args)
+            return doSetMetaClass(*args)
       }
    }
 
-   Object groovyObjectGetProperty( String name ) {
+   Object doGetAttribute( String name ) {
+      if( isProperty(name) ) {
+         return getPropertyValue(name)
+      }
+
+      throw new MissingFieldException( name, realizedProxyMetaClass.theClass )
+   }   
+   
+   void doSetAttribute( String name, Object value ) {
+      if( isProperty(name) ) {
+         setPropertyValue(name,value)
+      }
+
+      throw new MissingFieldException( name, realizedProxyMetaClass.theClass )
+   }   
+   
+   Object doGetProperty( String name ) {
       // check for 'metaClass' or 'class'
       if( name == 'metaClass' ) {
-         return groovyObjectGetMetaClass()
+         return doGetMetaClass()
       }else if( name == "class" ) {
-         return groovyObjectGetMetaClass().theClass
+         return doGetMetaClass().theClass
       }
 
       // check if overridden
@@ -137,13 +157,14 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
          return getPropertyValue(name)
       }
 
-      return groovyObjectGetPropertyMissing(name)
+      return doGetPropertyMissing(name)
    }
 
-   void groovyObjectSetProperty( String name, Object value ) {
+   void doSetProperty( String name, Object value ) {
       // check for 'metaClass' or 'class'
       if( name == 'metaClass' ) {
-         groovyObjectSetMetaClass( (MetaClass) value )
+         doSetMetaClass( (MetaClass) value )
+         return
       }else if( name == "class" ) {
          throw new GroovyRuntimeException("'class' is a read-only property")
       }
@@ -152,31 +173,35 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
       def methodImpl = getMethod(SET_PROPERTY) 
       if( isValidMethodImpl(methodImpl) ) {
          methodImpl(name,value)
+         return
       }
 
       // check if getter is available
-      methodImpl = getMethod("set${name[0].toUpperCase()}${name[1..-1]}".toString(),(value?value.getClass():Object)) 
+      def parameterTypes = value?[value.getClass()]:[Object]
+      methodImpl = getMethod("set${name[0].toUpperCase()}${name[1..-1]}".toString(), parameterTypes as Class[]) 
       if( isValidMethodImpl(methodImpl) ) {
          methodImpl(name,value)
+         return
       }
 
       // try 'direct' access
       if( isProperty(name) ) {
          setPropertyValue(name,value)
+         return
       }
 
-      groovyObjectSetPropertyMissing(name,value)
+      doSetPropertyMissing(name,value)
    }
 
-   MetaClass groovyObjectGetMetaClass() {
-      return proxyingMetaClass
+   MetaClass doGetMetaClass() {
+      return realizedProxyMetaClass
    }
 
-   void groovyObjectSetMetaClass( MetaClass metaClass ) {
+   void doSetMetaClass( MetaClass metaClass ) {
       // metaClass should be read-only?
    }
 
-   Object groovyObjectMethodMissing( String name, Object args ) {
+   Object doMethodMissing( String name, Object args ) {
       // check if overridden
       def methodImpl = getMethod(METHOD_MISSING) 
       if( isValidMethodImpl(methodImpl) ) {
@@ -186,21 +211,22 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
       throw new UnsupportedOperationException("Method ${methodSignature(name,args)} is not implemented")
    }
 
-   Object groovyObjectGetPropertyMissing( String name ) {
+   Object doGetPropertyMissing( String name ) {
       // check if overridden
       def methodImpl = getMethod(GET_PROPERTY_MISSING) 
       if( isValidMethodImpl(methodImpl) ) {
          return methodImpl(name)
       }
-      throw new MissingPropertyException( name, proxyingMetaClass.theClass )
+      throw new MissingPropertyException( name, realizedProxyMetaClass.theClass )
    }
 
-   void groovyObjectSetPropertyMissing( String name, Object value ) {
+   void doSetPropertyMissing( String name, Object value ) {
       // check if overridden
       def methodImpl = getMethod(SET_PROPERTY_MISSING) 
       if( isValidMethodImpl(methodImpl) ) {
          methodImpl(name,value)
+         return
       }
-      throw new MissingPropertyException( name, proxyingMetaClass.theClass )
+      throw new MissingPropertyException( name, realizedProxyMetaClass.theClass )
    }
 }

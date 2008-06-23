@@ -16,7 +16,7 @@
 package org.kordamp.groovy.util.impl
 
 /**
- * General adapter for maps that support "overloaded methods" via MethodKey to any Java interface.<br/>
+ * General adapter for maps that support "overloaded methods" via ProxyMethodKey to any Java interface.<br/>
  * Based on org.codehaus.groovy.runtime.ConvertedMap by <a href="mailto:blackdrag@gmx.org">Jochen Theodorou</a> 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
@@ -25,11 +25,11 @@ class ConvertedMultiMethodMap extends AbstractConversionHandler {
       super( map, proxyClass )
    }
 
-   protected Object getMethod( MethodKey methodKey ) {
+   Object getMethod( ProxyMethodKey methodKey ) {
       getDelegate().methods[methodKey]
    }
 
-   protected boolean isProperty( String name ) {
+   boolean isProperty( String name ) {
       getDelegate().properties.containsKey(name)
    }
 

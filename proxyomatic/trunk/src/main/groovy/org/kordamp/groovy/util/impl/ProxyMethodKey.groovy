@@ -21,7 +21,7 @@ import java.lang.reflect.Method
  * 
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class MethodKey {
+class ProxyMethodKey implements Comparable {
    private String name
    private Class returnType
    private Class[] parameterTypes
@@ -29,42 +29,54 @@ class MethodKey {
    private static final Class[] EMPTY_PARAMETER_TYPES = new Class[0]
   
    /**
-    * Creates a new MethodKey with default return type and no parameters.<br/>
+    * Creates a new ProxyMethodKey with default return type and no parameters.<br/>
     * The method signature would be<br/><br/>
     * <pre>  Object name()</pre>
     * 
     * @param name the name of the method
     */
-   MethodKey( String name ) {
+   ProxyMethodKey( String name ) {
      this( Object, name, EMPTY_PARAMETER_TYPES )
    }
   
    /**
-    * Creates a new MethodKey with default return type and the specified parameters.<br/>
+    * Creates a new ProxyMethodKey with default return type and the specified parameters.<br/>
     * Assuming parameterTypes = [String,Integer] the method signature would be<br/><br/>
     * <pre>  Object name( String, Integer )</pre>
     * 
     * @param name the name of the method
     * @param parameterTypes the parameter types (may be null or empty)
     */
-   MethodKey( String name, Class[] parameterTypes ) {
+   ProxyMethodKey( String name, Class[] parameterTypes ) {
      this( Object, name, parameterTypes )
+   }
+    
+   /**
+    * Creates a new ProxyMethodKey with default return type and the specified parameters.<br/>
+    * Assuming parameterTypes = [String,Integer] the method signature would be<br/><br/>
+    * <pre>  Object name( String, Integer )</pre>
+    * 
+    * @param name the name of the method
+    * @param parameterTypes a List of Class objects (may be null or empty)
+    */
+   ProxyMethodKey( String name, List parameterTypes ) {
+     this( Object, name, parameterTypes as Class[] )
    }
   
    /**
-    * Creates a new MethodKey with the specified return type and no parameters.<br/>
+    * Creates a new ProxyMethodKey with the specified return type and no parameters.<br/>
     * Assuming returnType = Integer the method signature would be<br/><br/>
     * <pre>  String name()</pre>
     * 
     * @param returnType the return type of the method
     * @param name the name of the method
     */ 
-   MethodKey( Class returnType, String name ) {
+   ProxyMethodKey( Class returnType, String name ) {
       this( returnType, name, EMPTY_PARAMETER_TYPES )
    }
   
    /**
-    * Creates a new MethodKey with the specified return type and parameters.<br/>
+    * Creates a new ProxyMethodKey with the specified return type and parameters.<br/>
     * Assuming returnType = Integer and parameterTypes = [String,Integer] the method signature would be<br/><br/>
     * <pre>  String name( String, Integer )</pre>
     * 
@@ -72,26 +84,39 @@ class MethodKey {
     * @param name the name of the method
     * @param parameterTypes the parameter types (may be null or empty)
     */   
-   MethodKey( Class returnType, String name, Class[] parameterTypes ) {
+   ProxyMethodKey( Class returnType, String name, Class[] parameterTypes ) {
       this.name = name
       this.returnType = returnType ?: Object
       this.parameterTypes = parameterTypes ?: EMPTY_PARAMETER_TYPES
    }
+    
+   /**
+    * Creates a new ProxyMethodKey with the specified return type and parameters.<br/>
+    * Assuming returnType = Integer and parameterTypes = [String,Integer] the method signature would be<br/><br/>
+    * <pre>  String name( String, Integer )</pre>
+    * 
+    * @param returnType the return type of the method
+    * @param name the name of the method
+    * @param parameterTypes a List of Class objects (may be null or empty)
+    */   
+   ProxyMethodKey( Class returnType, String name, List parameterTypes ) {
+      this( returnType, name, parameterTypes as Class[] )
+   }    
   
    /**
-    * Creates a new MethodKey with default return type and parameters inferred from the closure.<br/>
+    * Creates a new ProxyMethodKey with default return type and parameters inferred from the closure.<br/>
     * Assuming closure = { a, Integer b -> } the method signature would be<br/><br/>
     * <pre>  Object name( Object, Integer )</pre>
     * 
     * @param name the name of the method
     * @param closure a closure that serves as the body of the method
     */
-   MethodKey( String name, Closure closure ) {
+   ProxyMethodKey( String name, Closure closure ) {
       this( Object, name, closure.parameterTypes )
    }
   
    /**
-    * Creates a new MethodKey with the specified return type and parameters inferred from the closure.<br/>
+    * Creates a new ProxyMethodKey with the specified return type and parameters inferred from the closure.<br/>
     * Assuming return type = String and closure = { a, Integer b -> } the method signature would be<br/><br/>
     * <pre>  String name( Object, Integer )</pre>
     * 
@@ -99,18 +124,18 @@ class MethodKey {
     * @param name the name of the method
     * @param closure a closure that serves as the body of the method
     */
-   MethodKey( Class returnType, String name, Closure closure ) {
+   ProxyMethodKey( Class returnType, String name, Closure closure ) {
       this( returnType, name, closure.parameterTypes )
    }
   
    /**
-    * Creates a new MethodKey based on the information provided by the method.<br/>
+    * Creates a new ProxyMethodKey based on the information provided by the method.<br/>
     * Assuming return type = String and closure = { a, Integer b -> } the method signature would be<br/><br/>
     * <pre>  String name( Object, Integer )</pre>
     * 
     * @param method any method
     */
-   MethodKey( Method method ) {
+   ProxyMethodKey( Method method ) {
       this( method.returnType, method.name, method.parameterTypes )
    }
 
@@ -132,7 +157,7 @@ class MethodKey {
    }
   
    public boolean equals( Object other ) {
-      if( !(other instanceof MethodKey) ) return false
+      if( !(other instanceof ProxyMethodKey) ) return false
       if( this.@name != other.@name ) return false
 
       if( this.@parameterTypes.length == 0 ){
@@ -163,5 +188,20 @@ class MethodKey {
    public String toString() {
       def types = this.@parameterTypes.asType(List).collect { TypeUtils.getShortName(it) }
       "${TypeUtils.getShortName(this.@returnType)} ${this.@name}("+types.join(",")+")"
+   }
+   
+   public int compareTo( Object other ){
+      if( !(other instanceof ProxyMethodKey) ){
+         return -1
+      }
+      
+      if( this.@name < other.@name ) return -1
+      if( this.@name > other.@name ) return 1
+      if( this.@parameterTypes.length < other.@parameterTypes.length ) return -1
+      if( this.@parameterTypes.length > other.@parameterTypes.length ) return 1
+      
+      // TODO check parameterTypes
+      
+      return 0
    }
 }

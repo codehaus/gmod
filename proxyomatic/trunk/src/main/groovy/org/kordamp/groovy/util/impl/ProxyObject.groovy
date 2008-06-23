@@ -142,7 +142,7 @@ abstract class ProxyObject {
       return this.@__PROXY__proxy
    }
    
-   protected abstract def addMethodDefinition( MethodKey name, Closure body ) 
+   protected abstract def addMethodDefinition( ProxyMethodKey name, Closure body ) 
    
    protected abstract def addMethodDefinition( String name, Closure body )
    
@@ -197,7 +197,14 @@ abstract class ProxyObject {
       buffer.append("klass = ")
       buffer.append(classname)
 
-      GroovyShell shell = new GroovyShell( types[0].classLoader )
+      ClassLoader cl = null
+      types.each { type ->
+         if( !cl ) cl = type.classLoader
+      }
+      
+      //GroovyShell shell = new GroovyShell( cl ?: getClassLoader() )
+      GroovyShell shell = new GroovyShell( (ClassLoader) types[0].classLoader )
+      //GroovyShell shell = new GroovyShell( ProxyObject.class.getClassLoader() )
       shell.evaluate( buffer.toString() )
    }
 }
