@@ -21,15 +21,21 @@ import java.lang.reflect.Method
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 interface ProxyHandler {
-   ProxyMethodKey INVOKE_METHOD = new ProxyMethodKey("invokeMethod",[String,Object] as Class[])
-   ProxyMethodKey GET_PROPERTY = new ProxyMethodKey("getProperty",[String] as Class[])
-   ProxyMethodKey SET_PROPERTY = new ProxyMethodKey("setProperty",[String,Object] as Class[])
+   ProxyMethodKey INVOKE_METHOD = new ProxyMethodKey("invokeMethod",[String,Object])
+   ProxyMethodKey GET_PROPERTY = new ProxyMethodKey("getProperty",[String])
+   ProxyMethodKey SET_PROPERTY = new ProxyMethodKey("setProperty",[String,Object] )
    ProxyMethodKey GET_METACLASS = new ProxyMethodKey(MetaClass,"getMetaClass")
-   ProxyMethodKey SET_METACLASS = new ProxyMethodKey("setMetaClass",[MetaClass] as Class[])
+   ProxyMethodKey SET_METACLASS = new ProxyMethodKey("setMetaClass",[MetaClass])
    
-   ProxyMethodKey METHOD_MISSING = new ProxyMethodKey("methodMissing",[String,Object] as Class[])
-   ProxyMethodKey GET_PROPERTY_MISSING = new ProxyMethodKey("propertyMissing",[String] as Class[])
-   ProxyMethodKey SET_PROPERTY_MISSING = new ProxyMethodKey("propertyMissing",[String,Object] as Class[])
+   ProxyMethodKey METHOD_MISSING = new ProxyMethodKey("methodMissing",[String,Object])
+   ProxyMethodKey GET_PROPERTY_MISSING = new ProxyMethodKey("propertyMissing",[String])
+   ProxyMethodKey SET_PROPERTY_MISSING = new ProxyMethodKey("propertyMissing",[String,Object])
+   
+   ProxyMethodKey TO_STRING = new ProxyMethodKey("toString")
+   ProxyMethodKey EQUALS = new ProxyMethodKey(Boolean.TYPE,"equals",[Object])
+   ProxyMethodKey HASHCODE = new ProxyMethodKey(Integer.TYPE,"hashCode")
+   
+   ProxyMethodKey GET_CLASS = new ProxyMethodKey(Class,"getClass")
 
    List GROOVY_OBJECT_METHODS = [
       GET_PROPERTY, SET_PROPERTY, GET_METACLASS, SET_METACLASS

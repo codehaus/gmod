@@ -45,6 +45,12 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
    }
    
    public Object invokeCustom( /*Object proxy,*/ ProxyMethodKey methodKey, Object[] args ) {
+      if( methodKey == GET_CLASS ){
+         return doGetProperty("class")
+      }else if( methodKey == GET_METACLASS ) {
+         return doGetProperty("metaClass")
+      }
+      
       // 1st check for GroovyObject methods
       if( GROOVY_OBJECT_METHODS.contains(methodKey) ){
          // check if 'overridden'
@@ -68,8 +74,18 @@ abstract class AbstractConversionHandler extends ConversionHandler implements Pr
    }
   
    public String toString() {
-      def toStringMethod = getMethod("toString")
+      def toStringMethod = getMethod(TO_STRING)
       return toStringMethod ? toStringMethod() : DefaultGroovyMethods.toString(getDelegate())
+   }
+   
+   public boolean equals( Object other ) {
+      def equalsMethod = getMethod(EQUALS)
+      return equalsMethod ? equalsMethod(other) : super.equals(other)
+   }
+   
+   public int hashCode() {
+      def hashCodeMethod = getMethod(HASHCODE)
+      return hashCodeMethod ? hashCodeMethod() : super.hashCode()
    }
 
    protected abstract Object getMethod( ProxyMethodKey methodKey )

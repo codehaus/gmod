@@ -21,32 +21,54 @@ package org.kordamp.groovy.util.impl
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 class ConvertedExpando extends AbstractConversionHandler {
-   protected ConvertedExpando( Expando expando, Class proxyClass ) {
+   private Map extraProperties 
+    
+   protected ConvertedExpando( Expando expando, Map extraProperties, Class proxyClass ) {
       super( expando, proxyClass )
+      this.extraProperties = extraProperties
    }
 
    Object getMethod( ProxyMethodKey methodKey ) {
-      getDelegate()[methodKey.name]
+      def method = getDelegate()[methodKey.name]
+      if( method ) {
+         return method
+      }
+      getDelegate().getProperties()[methodKey]
    }
 
    boolean isProperty( String name ) {
       // TODO handle PME ??
-      getDelegate()[name] instanceof Closure
+      if( getDelegate().properties.containsKey(name) ) {
+         return !(getDelegate()[name] instanceof Closure)
+      }
+      return extraProperties.containsKey(name)
    }
 
    protected Object getPropertyValue( String name ) {
       getDelegate()[name]
+      if( getDelegate().getProperties().containsKey(name) ) {
+         return getDelegate()[name]
+      }
+      extraProperties[name]
    }
 
    protected void setPropertyValue( String name, value ) {
-      getDelegate()[name] = value
+      if( getDelegate().getProperties().containsKey(name) ) {
+         getDelegate()[name] = value
+         return
+      }
+      extraProperties[name] = value
    }
 
    Map getProperties() {
-      getDelegate().properties.inject([:]) { map, e ->
+      def m = getDelegate().getProperties().inject([:]) { map, e ->
          if( !(e.value instanceof Closure) ){
             map[e.key] = e.value
          }
+         map
+      }
+      extraProperties.inject(m) { map, e ->
+         map[e.key] = e.value
          map
       }
    }
