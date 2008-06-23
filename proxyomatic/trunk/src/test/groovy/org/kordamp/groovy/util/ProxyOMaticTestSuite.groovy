@@ -30,6 +30,7 @@ class ProxyOMaticTestSuite extends GroovyTestCase {
       suite.addTest( new TestSuite( ProxiesFromExpandoTests ) )
       
       suite.addTest( new TestSuite( ProxyMetaClassFromClosureTests ) )
+      suite.addTest( new TestSuite( ProxyMetaClassFromMapTests ) )
 
       return suite
    }

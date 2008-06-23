@@ -22,7 +22,7 @@ import org.kordamp.groovy.util.impl.ProxyMethodKey
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ProxyMetaClassFromClosureTests extends AbstractProxyMetaClassTestCase {
+class ProxyMetaClassFromMapTests extends AbstractProxyMetaClassTestCase {
    def proxyFromFooWithPropertiesNode() {
       proxy( Foo, [
          properties: {
