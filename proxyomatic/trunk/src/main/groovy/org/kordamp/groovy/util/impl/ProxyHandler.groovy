@@ -21,15 +21,15 @@ import java.lang.reflect.Method
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 interface ProxyHandler {
-   MethodKey INVOKE_METHOD = new MethodKey("invokeMethod",[String,Object] as Class[])
-   MethodKey GET_PROPERTY = new MethodKey("getProperty",[String] as Class[])
-   MethodKey SET_PROPERTY = new MethodKey("setProperty",[String,Object] as Class[])
-   MethodKey GET_METACLASS = new MethodKey(MetaClass,"getMetaClass")
-   MethodKey SET_METACLASS = new MethodKey("setMetaClass",[MetaClass] as Class[])
+   ProxyMethodKey INVOKE_METHOD = new ProxyMethodKey("invokeMethod",[String,Object] as Class[])
+   ProxyMethodKey GET_PROPERTY = new ProxyMethodKey("getProperty",[String] as Class[])
+   ProxyMethodKey SET_PROPERTY = new ProxyMethodKey("setProperty",[String,Object] as Class[])
+   ProxyMethodKey GET_METACLASS = new ProxyMethodKey(MetaClass,"getMetaClass")
+   ProxyMethodKey SET_METACLASS = new ProxyMethodKey("setMetaClass",[MetaClass] as Class[])
    
-   MethodKey METHOD_MISSING = new MethodKey("methodMissing",[String,Object] as Class[])
-   MethodKey GET_PROPERTY_MISSING = new MethodKey("propertyMissing",[String] as Class[])
-   MethodKey SET_PROPERTY_MISSING = new MethodKey("propertyMissing",[String,Object] as Class[])
+   ProxyMethodKey METHOD_MISSING = new ProxyMethodKey("methodMissing",[String,Object] as Class[])
+   ProxyMethodKey GET_PROPERTY_MISSING = new ProxyMethodKey("propertyMissing",[String] as Class[])
+   ProxyMethodKey SET_PROPERTY_MISSING = new ProxyMethodKey("propertyMissing",[String,Object] as Class[])
 
    List GROOVY_OBJECT_METHODS = [
       GET_PROPERTY, SET_PROPERTY, GET_METACLASS, SET_METACLASS
@@ -39,9 +39,9 @@ interface ProxyHandler {
    
    Object invokeCustom( Class returnType, String methodName, Class[] parameterTypes, Object[] args )
    
-   Object invokeCustom( MethodKey methodKey, Object[] args )  
+   Object invokeCustom( ProxyMethodKey methodKey, Object[] args )  
    
-   Object getMethod( MethodKey methodKey )
+   Object getMethod( ProxyMethodKey methodKey )
 
    boolean isProperty( String name )
 
@@ -58,18 +58,22 @@ interface ProxyHandler {
    //boolean isValidMethodImpl( cl ) 
 
    // ---### GroovyObject interface ###---
+   
+   Object doGetAttribute( String name )
 
-   Object groovyObjectGetProperty( String name )
+   void doSetAttribute( String name, Object value )
 
-   void groovyObjectSetProperty( String name, Object value )
+   Object doGetProperty( String name )
 
-   MetaClass groovyObjectGetMetaClass()
+   void doSetProperty( String name, Object value )
 
-   void groovyObjectSetMetaClass( MetaClass metaClass )
+   MetaClass doGetMetaClass()
 
-   Object groovyObjectMethodMissing( String name, Object args )
+   void doSetMetaClass( MetaClass metaClass )
 
-   Object groovyObjectGetPropertyMissing( String name )
+   Object doMethodMissing( String name, Object args )
 
-   void groovyObjectSetPropertyMissing( String name, Object value )
+   Object doGetPropertyMissing( String name )
+
+   void doSetPropertyMissing( String name, Object value )
 }

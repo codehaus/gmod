@@ -29,18 +29,18 @@ class ProxiedExpando extends ProxyObject {
       this.@__PROXY__expando = expando
    }
   
-   protected def addMethodDefinition( MethodKey name, Closure body ) {
+   protected def addMethodDefinition( ProxyMethodKey name, Closure body ) {
       this.@__PROXY__expando[name] = body
    }   
    
    protected def addMethodDefinition( String name, Closure body ) {
       this.@__PROXY__expando[name] = body
-      //this.@__PROXY__expando[new MethodKey(name, body.parameterTypes)] = body
+      //this.@__PROXY__expando[new ProxyMethodKey(name, body.parameterTypes)] = body
    }
    
    protected def addMethodDefinition( Class returnType, String name, Closure body ) {
       this.@__PROXY__expando[name] = body
-      //this.@__PROXY__expando[new MethodKey(returnType, name, body.parameterTypes)] = body
+      //this.@__PROXY__expando[new ProxyMethodKey(returnType, name, body.parameterTypes)] = body
    }
    
    protected void assignDelegateToMethodBodies() {

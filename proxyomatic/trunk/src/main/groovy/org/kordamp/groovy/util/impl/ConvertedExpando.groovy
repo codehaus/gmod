@@ -25,11 +25,11 @@ class ConvertedExpando extends AbstractConversionHandler {
       super( expando, proxyClass )
    }
 
-   protected Object getMethod( MethodKey methodKey ) {
+   Object getMethod( ProxyMethodKey methodKey ) {
       getDelegate()[methodKey.name]
    }
 
-   protected boolean isProperty( String name ) {
+   boolean isProperty( String name ) {
       // TODO handle PME ??
       getDelegate()[name] instanceof Closure
    }
@@ -44,7 +44,9 @@ class ConvertedExpando extends AbstractConversionHandler {
 
    Map getProperties() {
       getDelegate().properties.inject([:]) { map, e ->
-         map[e.key] = e.value
+         if( !(e.value instanceof Closure) ){
+            map[e.key] = e.value
+         }
          map
       }
    }

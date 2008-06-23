@@ -25,16 +25,16 @@ import java.lang.reflect.Proxy
 class ProxiedClosure extends ProxyObject {
    private Map __PROXY__methods = [:]
   
-   protected def addMethodDefinition( MethodKey name, Closure body ) {
+   protected def addMethodDefinition( ProxyMethodKey name, Closure body ) {
       this.@__PROXY__methods[name] = body
    }
    
    protected def addMethodDefinition( String name, Closure body ) {
-      this.@__PROXY__methods[new MethodKey(name, body.parameterTypes)] = body
+      this.@__PROXY__methods[new ProxyMethodKey(name, body.parameterTypes)] = body
    }
    
    protected def addMethodDefinition( Class returnType, String name, Closure body ) {
-      this.@__PROXY__methods[new MethodKey(returnType, name, body.parameterTypes)] = body
+      this.@__PROXY__methods[new ProxyMethodKey(returnType, name, body.parameterTypes)] = body
    }
    
    protected void assignDelegateToMethodBodies() {

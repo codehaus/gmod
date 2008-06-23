@@ -19,15 +19,14 @@ import java.lang.reflect.Modifier
 import org.codehaus.groovy.reflection.CachedClass
 
 /**
- * Contains code borrowed from [groovy.util.ProxyGenerator, org.codehaus.groovy.runtime.MetaClassHelper]
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ProxiedMetaMethod extends MetaMethod {
-    private MethodKey methodKey
+class ProxyMetaMethod extends MetaMethod {
+    private ProxyMethodKey methodKey
     private ProxyHandler proxyHandler
     private CachedClass theClass
     
-    ProxiedMetaMethod( MethodKey methodKey, ProxyHandler proxyHandler, CachedClass theClass ){
+    ProxyMetaMethod( ProxyMethodKey methodKey, ProxyHandler proxyHandler, CachedClass theClass ){
        this.methodKey = methodKey
        this.proxyHandler = proxyHandler
        this.theClass = theClass
