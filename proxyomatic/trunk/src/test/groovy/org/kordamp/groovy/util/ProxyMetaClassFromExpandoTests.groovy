@@ -22,57 +22,65 @@ import static org.kordamp.groovy.util.ProxyOMatic.methodKey
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class ProxyMetaClassFromMapTests extends AbstractProxyMetaClassTestCase {
+class ProxyMetaClassFromExpandoTests extends AbstractProxyMetaClassTestCase {
    def proxyFromFooWithPropertiesNode() {
-      proxy( Foo, [
-         properties: {
-            foo("Foo")
-         }
-      ])
+      def expando = new Expando()
+      expando.properties = { ->
+         foo("Foo")
+      }
+      proxy( Foo, expando )
    }
    
    def proxyFromFooWithGetPropertyMethod() {
-      proxy( Foo, [
-         getProperty: { String name -> "Foo" }
-      ])
+      def expando = new Expando()
+      expando.getProperty = { String name -> "Foo" }
+      proxy( Foo, expando )
    }
    
    def proxyFromFooWithPropertyMissing_get() {
-      proxy( Foo, [
-         propertyMissing: { String name -> "Foo" }
-      ])
+      def expando = new Expando()
+      expando.propertyMissing = { String name -> "Foo" }
+      proxy( Foo, expando )
    }
    
    def proxyFromFooWithSetPropertyMethod() {
       def map = [foo:"Foo"]
-      proxy( Foo, [
-         getProperty: { String name -> map[name] },
-         setProperty: { String name, value -> map[name] = value }
-      ])
+      def expando = new Expando()
+      expando.getProperty = { String name -> map[name] }
+      expando.setProperty = { String name, value -> map[name] = value }
+      proxy( Foo, expando )
    }
    
    def proxyFromFooWithPropertyMissing_set() {
+      // TODO figure this out !!!
       def map = [foo:"Foo"]
       def impl = [:]
       impl[methodKey('propertyMissing',[String])] = { String name -> map[name] }
       impl[methodKey('propertyMissing',[String,Object])] = { String name, value -> map[name] = value }
       proxy( Foo, impl )
+      /*
+      def map = [foo:"Foo"]
+      def expando = new Expando()
+      expando[methodKey('propertyMissing',[String])] = { String name -> map[name] }
+      expando[methodKey('propertyMissing',[String,Object])] = { String name, value -> map[name] = value }
+      proxy( Foo, expando )
+      */
    }
    
-   void testGetPropertyDefinedWithMapKey() {
-      def foo = proxy( Foo, [
-         foo: "Foo"
-      ])
+   void testGetPropertyDefinedWithExpandoKey() {
+      def expando = new Expando()
+      expando.foo = "Foo"
+      def foo = proxy( Foo, expando )
       
       assertNotNull( "proxy is null", foo )
       assertTrue( "proxy is not of type Foo", foo instanceof Foo )
       assertEquals( "proxy.foo did not return 'Foo'", "Foo", foo.foo )
    }
    
-   void testSetPropertyDefinedWithMapKey() {
-      def foo = proxy( Foo, [
-         foo: "Foo"
-      ])
+   void testSetPropertyDefinedWithExpandoKey() {
+      def expando = new Expando()
+      expando.foo = "Foo"
+      def foo = proxy( Foo, expando )
       
       assertNotNull( "proxy is null", foo )
       assertTrue( "proxy is not of type Foo", foo instanceof Foo )

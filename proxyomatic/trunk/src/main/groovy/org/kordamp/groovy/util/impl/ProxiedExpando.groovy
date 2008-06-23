@@ -44,7 +44,7 @@ class ProxiedExpando extends ProxyObject {
    }
    
    protected void assignDelegateToMethodBodies() {
-      this.@__PROXY__expando.properties.each { k, c -> if(c instanceof Closure) c.delegate = this }
+      this.@__PROXY__expando.getProperties().each { k, c -> if(c instanceof Closure) c.delegate = this }
    }
   
    protected def makeProxy( List<Class> types ) {
@@ -54,7 +54,7 @@ class ProxiedExpando extends ProxyObject {
       }
       Proxy.newProxyInstance( types[0].getClassLoader(),
                     types as Class[],
-                    new ConvertedExpando(this.@__PROXY__expando,
+                    new ConvertedExpando(this.@__PROXY__expando,this.@__PROXY__properties,
                                           createProxyClass(types))) 
    }
 }

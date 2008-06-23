@@ -15,6 +15,7 @@
  */
 package org.kordamp.groovy.util
 
+import org.kordamp.groovy.util.impl.ProxyMethodKey
 import org.kordamp.groovy.util.impl.ProxyObject
 import org.kordamp.groovy.util.impl.ProxiedClosure
 import org.kordamp.groovy.util.impl.ProxiedMap
@@ -56,7 +57,7 @@ class ProxyOMatic {
    }
 
    /**
-    * Creates a dynamic proxy of class <i>type</i> from a Closure, Map or Expando..<br/>
+    * Creates a dynamic proxy of class <i>type</i> from a Closure, Map or Expando.<br/>
     * Additional types may be injected if <i>extraTypes</i> is not empty.
     * 
     * @param type the target class of the dynamic proxy
@@ -69,6 +70,45 @@ class ProxyOMatic {
     */     
    static proxy( Class type, Class[] extraTypes, source ) {
       makeProxy( source ).realize( type, extraTypes as List<Class> )
+   }
+ 
+   /**
+    * Creates a methodKey suitable for identifying a method call.<br/>
+    * ReturnType will be set to <tt>Object</tt><br/>
+    * ParameterTypes will be empty.
+    * 
+    * @param name the name of the method
+    * 
+    * @return a ProxyMethodKey
+    */ 
+   static methodKey( String name ) {
+      new ProxyMethodKey(name)
+   }
+   
+   /**
+    * Creates a methodKey suitable for identifying a method call.<br/>
+    * ReturnType will be set to <tt>Object</tt><br/>
+    * 
+    * @param name the name of the method
+    * @param argTypes an array of Class objects (may be null or empty)
+    * 
+    * @return a ProxyMethodKey
+    */  
+   static methodKey( String name, Class[] argTypes ) {
+      new ProxyMethodKey(name,argTypes)
+   }
+    
+   /**
+    * Creates a methodKey suitable for identifying a method call.<br/>
+    * ReturnType will be set to <tt>Object</tt><br/>
+    * 
+    * @param name the name of the method
+    * @param argTypes a list of Class objects (may be null or empty)
+    * 
+    * @return a ProxyMethodKey
+    */ 
+   static methodKey( String name, List argTypes ) {
+      new ProxyMethodKey(name,argTypes)
    }
    
    /**
@@ -92,6 +132,8 @@ class ProxyOMatic {
             proxyObject.properties( value )
          }else if( value instanceof Closure ){
             proxyObject.addMethodDefinition( name, value )
+         }else{
+            proxyObject.@__PROXY__properties[name] = value
          }
       }
       proxyObject
@@ -99,6 +141,10 @@ class ProxyOMatic {
    
    private static makeProxy( Expando expando ) {
       def proxyObject = new ProxiedExpando(expando)
+      if( expando.properties instanceof Closure ){
+         proxyObject.properties( expando.properties )
+         expando.properties = null
+      }
       proxyObject
    }
 }
