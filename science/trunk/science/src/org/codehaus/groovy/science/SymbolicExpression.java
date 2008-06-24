@@ -72,6 +72,71 @@ public class SymbolicExpression
 		this.argumentList = new ArrayList< SymbolicExpression >( argumentList );
 	}
 	
+	
+	/**
+	 * <p>Creates a nullary {@code SymbolicExpression} with the given
+	 * operator.</p>
+	 * 
+	 * @param operator  the root operator to use
+	 * 
+	 * @return  the nullary expression with the given operator
+	 * 
+	 * @throws NullPointerException  if {@code operator} is {@code null}
+	 */
+	public static SymbolicExpression expr( Object operator )
+	{
+		return new SymbolicExpression(
+			operator,
+			new ArrayList< SymbolicExpression >()
+		);
+	}
+	
+	/**
+	 * <p>Creates a {@code SymbolicExpression} with the given operator and
+	 * arguments.</p>
+	 * 
+	 * @param operator      the root operator to use
+	 * @param argumentList  the arguments to apply that operator to
+	 * 
+	 * @return  the expression with the given operator and arguments
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code operator} or {@code argumentList} is {@code null}, or if
+	 *     {@code argumentList} contains {@code null}
+	 */
+	public static SymbolicExpression expr(
+		Object operator,
+		List< SymbolicExpression > argumentList
+	)
+	{
+		return new SymbolicExpression( operator, argumentList );
+	}
+	
+	/**
+	 * <p>Creates a {@code SymbolicExpression} with the given operator and
+	 * arguments.</p>
+	 * 
+	 * @param operator   the root operator to use
+	 * @param arguments  the arguments to apply that operator to
+	 * 
+	 * @return  the expression with the given operator and arguments
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code operator} or {@code arguments} is {@code null}, or if
+	 *     {@code arguments} contains {@code null}
+	 */
+	public static SymbolicExpression expr(
+		Object operator,
+		SymbolicExpression... arguments
+	)
+	{
+		if ( arguments == null )
+			throw new NullPointerException();
+		
+		return new SymbolicExpression( operator, Arrays.asList( arguments ) );
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
