@@ -4,6 +4,8 @@ package org.codehaus.groovy.science.tests
 import org.codehaus.groovy.science.OverloadableOperators
 import org.codehaus.groovy.science.SymbolicExpression
 
+import static org.codehaus.groovy.science.SymbolicExpression.*
+
 
 class SymbolicExpressionTests extends GroovyTestCase
 {
@@ -12,20 +14,42 @@ class SymbolicExpressionTests extends GroovyTestCase
 		// Make several failed attempts to construct an expression.
 		
 		this.shouldFail(
-			NullPointerException,
+			NullPointerException.class,
 			{ new SymbolicExpression( null, null ) }
 		);
+		
 		this.shouldFail(
-			NullPointerException,
+			NullPointerException.class,
 			{ new SymbolicExpression( "dummy", null ) }
 		);
+		
 		this.shouldFail(
-			NullPointerException,
+			NullPointerException.class,
 			{ new SymbolicExpression( "dummy", null, null ) }
 		);
+		
 		this.shouldFail(
-			NullPointerException,
-			{ new SymbolicExpression( "dummy", [null, null] ) }
+			NullPointerException.class,
+			{ new SymbolicExpression( "dummy", [ null, null ] ) }
+		);
+		
+		this.shouldFail( NullPointerException.class, { expr( null ) } );
+		
+		this.shouldFail( NullPointerException.class, { expr( null, null ) } );
+		
+		this.shouldFail(
+			NullPointerException.class,
+			{ expr( "dummy", null ) }
+		);
+		
+		this.shouldFail(
+			NullPointerException.class,
+			{ expr( "dummy", null, null ) }
+		);
+		
+		this.shouldFail(
+			NullPointerException.class,
+			{ expr( "dummy", [ null, null ] ) }
 		);
 	}
 	
@@ -37,6 +61,9 @@ class SymbolicExpressionTests extends GroovyTestCase
 		def dummy = new SymbolicExpression( nullaryOperator, [] );
 		
 		assertEquals( dummy, dummy );
+		assertEquals( dummy, expr( "dummy" ) );
+		assertEquals( dummy, expr( nullaryOperator ) );
+		assertEquals( dummy, expr( nullaryOperator, [] ) );
 		assertToString( dummy, "<< dummy: [] >>" );
 		assertSame( dummy.getOperator(), nullaryOperator );
 		assertEquals( dummy.getArgumentList(), [] );
