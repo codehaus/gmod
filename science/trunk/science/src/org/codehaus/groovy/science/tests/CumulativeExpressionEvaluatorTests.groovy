@@ -98,8 +98,6 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 			expr( quotientOp, expr( productOp, pi, pi ), pi )
 		);
 		
-		println algebraicExpression1( testExpression );
-		println algebraicExpression2( testExpression );
 		assertFalse( testExpression == goalExpression );
 		assertEquals( algebraicExpression1( testExpression ), goalExpression );
 		assertEquals( algebraicExpression2( testExpression ), goalExpression );
