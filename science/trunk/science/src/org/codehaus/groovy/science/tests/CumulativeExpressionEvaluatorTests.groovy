@@ -3,7 +3,6 @@ package org.codehaus.groovy.science.tests
 
 import org.codehaus.groovy.science.ConstantOperator
 import org.codehaus.groovy.science.CumulativeExpressionEvaluator
-import org.codehaus.groovy.science.MalformedExpressionException
 import org.codehaus.groovy.science.OverloadableOperators
 import org.codehaus.groovy.science.SymbolicExpression
 
@@ -47,21 +46,22 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 		
 		handlers.put( piOp, {
 			if ( !it.isEmpty() )
-				throw new MalformedExpressionException();
+				return null;
 			
 			return pi;
 		} );
 		
 		operatorTranslations.each { key, value ->
-			handlers.put( key, {
-				if ( it.size() != 2 )
-					throw new MalformedExpressionException();
+			handlers.put( key, { arguments ->
+				if ( arguments.size() != 2 )
+					return null;
 				
-				return expr(
-					value,
-					algebraicExpression1( it[ 0 ] ),
-					algebraicExpression1( it[ 1 ] )
-				);
+				def newArguments = arguments.collect( algebraicExpression1 );
+				
+				if ( newArguments.any { it == null } )
+					return null;
+				
+				return expr( value, newArguments );
 			} );
 		};
 		
@@ -69,7 +69,7 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 			def handler = handlers[ it.getOperator() ];
 			
 			if ( handler == null )
-				throw new MalformedExpressionException();
+				return null;
 			
 			return handler( it.getArgumentList() );
 		};
@@ -98,6 +98,8 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 			expr( quotientOp, expr( productOp, pi, pi ), pi )
 		);
 		
+		println algebraicExpression1( testExpression );
+		println algebraicExpression2( testExpression );
 		assertFalse( testExpression == goalExpression );
 		assertEquals( algebraicExpression1( testExpression ), goalExpression );
 		assertEquals( algebraicExpression2( testExpression ), goalExpression );
@@ -135,7 +137,7 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 		operatorToString.each { key, value ->
 			handlers.put( key, {
 				if ( it.size() != 2 )
-					throw new MalformedExpressionException();
+					return null;
 				
 				return (
 					"("
@@ -151,7 +153,7 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 			def handler = handlers[ it.getOperator() ];
 			
 			if ( handler == null )
-				throw new MalformedExpressionException();
+				return null;
 			
 			return handler( it.getArgumentList() );
 		};
