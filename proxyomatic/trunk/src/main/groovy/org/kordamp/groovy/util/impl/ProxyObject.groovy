@@ -85,7 +85,9 @@ abstract class ProxyObject {
          if( this.@__PROXY__handlingProperties ){
             // name will be propertyName
             // value will be propertyValue
-            if( value?.class?.isArray() ) value = value[0]
+            if( value?.class?.isArray() ) {
+               value = value.length > 0 ? value[0] : null
+            }
             this.@__PROXY__properties[name] = value
          }else if( this.@__PROXY__handlingStatics ){
 
