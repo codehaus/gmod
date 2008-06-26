@@ -11,7 +11,10 @@ import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
  * <p>An evaluator for {@code SymbolicExpressions} that can be built up from
- * simpler cases.</p>
+ * simpler cases. By using this class's {@code evaluate} or {@code doCall}
+ * method, a {@code SymbolicExpression} can be transformed into another
+ * {@code SymbolicExpression} based on the {@code Closure} behaviors that have
+ * been specified.</p>
  * 
  * <p>Note that when building a {@code CumulativeExpressionEvaluator}, whichever
  * behaviors are specified the latest have the highest precedence.</p>
@@ -28,11 +31,11 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * order those changes were registered.</p>
 	 * 
 	 * <p>Each of these behaviors is a closure that must accept a single
-	 * {@code SymbolicExpression} and return either a non-{@code null} value
-	 * that expression it thinks that expression should evaluate to or
-	 * {@code null} if it has no suggestions. The behaviors are arranged in
-	 * order of precedence, with the most recently added behaviors (which have
-	 * the highest precedence) at the beginning of the list.</p>
+	 * {@code SymbolicExpression} and return either a non-{@code null},
+	 * {@code SymbolicExpression} value it thinks that expression should
+	 * evaluate to or {@code null} if it has no suggestions. The behaviors are
+	 * arranged in order of precedence, with the most recently added behaviors
+	 * (which have the highest precedence) at the beginning of the list.</p>
 	 */
 	private Deque< Closure > behaviors;
 	
@@ -53,9 +56,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * evaluate everything using the given behavior.</p>
 	 * 
 	 * @param defaultBehavior
-	 *     a closure that takes a {@code CumulativeExpressionEvaluator} and
-	 *     returns the result of evaluating that expression or {@code null} if
-	 *     it can determine no result
+	 *     a closure that takes a {@code SymbolicExpression} and returns the
+	 *     {@code SymbolicExpression} result of evaluating that expression or
+	 *     {@code null} if it can determine no result
 	 */
 	public CumulativeExpressionEvaluator( Closure defaultBehavior )
 	{
@@ -82,9 +85,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * behavior that will override its present output in certain cases.</p>
 	 * 
 	 * <p>The behavior is specified as a {@code Closure} that accepts a 
-	 * {@code SymbolicExpression} and returns a non-{@code null} value to
-	 * replace the current output with or {@code null} if the existing behavior
-	 * should still be used.</p>
+	 * {@code SymbolicExpression} and returns a non-{@code null},
+	 * {@code SymbolicExpression} value to replace the current output with or
+	 * {@code null} if the existing behavior should still be used.</p>
 	 * 
 	 * @param behavior  an incremental change to the {@code evaluates} method
 	 */
@@ -101,9 +104,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * behavior that will override its present output in certain cases.</p>
 	 * 
 	 * <p>The behavior is specified as a {@code Closure} that accepts a 
-	 * {@code SymbolicExpression} and returns a non-{@code null} value to
-	 * replace the current output with or {@code null} if the existing behavior
-	 * should still be used.</p>
+	 * {@code SymbolicExpression} and returns a non-{@code null},
+	 * {@code SymbolicExpression} value to replace the current output with or
+	 * {@code null} if the existing behavior should still be used.</p>
 	 * 
 	 * <p>The behavior will only be overridden for a particular
 	 * {@code SymbolicExpression} if the given {@code expressionCase} case
@@ -128,9 +131,10 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * <p>The behavior is specified as two {@code Closure}s. The {@code fixer}
 	 * takes a {@code SymbolicExpression} and converts it into a
 	 * value that the {@code behavior} can handle. The {@code behavior} takes
-	 * the converted expression and returns a non-{@code null} value to replace
-	 * the current output with (for the original expression} or {@code null} if
-	 * the existing behavior should still be used.</p>
+	 * the converted expression and returns a non-{@code null},
+	 * {@code SymbolicExpression} value to replace the current output with (for
+	 * the original expression} or {@code null} if the existing behavior should
+	 * still be used.</p>
 	 * 
 	 * @param fixer
 	 *     a converter that is applied to the {@code SymbolicExpression} before
@@ -172,9 +176,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * behavior that will override its present output in certain cases.</p>
 	 * 
 	 * <p>The behavior is specified as a {@code Closure} that accepts a 
-	 * {@code SymbolicExpression} and returns a non-{@code null} value to
-	 * replace the current output with or {@code null} if the existing behavior
-	 * should still be used.</p>
+	 * {@code SymbolicExpression} and returns a non-{@code null},
+	 * {@code SymbolicExpression} value to replace the current output with or
+	 * {@code null} if the existing behavior should still be used.</p>
 	 * 
 	 * <p>The behavior will only be overridden for a particular
 	 * {@code SymbolicExpression} if the Groovy {@code isCase} methods of
@@ -213,9 +217,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * accept their respective parts of a {@code SymbolicExpression} and convert
 	 * them into values that the {@code behavior} can handle. The
 	 * {@code behavior} then accepts the resulting expression and returns a 
-	 * non-{@code null} value to replace the current output with (for the
-	 * original expression) or {@code null} if the existing behavior should
-	 * still be used.</p>
+	 * non-{@code null}, {@code SymbolicExpression} value to replace the current
+	 * output with (for the original expression) or {@code null} if the existing
+	 * behavior should still be used.</p>
 	 * 
 	 * <p>If any of the fixers returns {@code null} for a particular
 	 * {@code SymbolicExpression}, the behavior does not apply to that
@@ -248,9 +252,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * behavior that will override its present output in certain cases.</p>
 	 * 
 	 * <p>The behavior is specified as a {@code Closure} that accepts a 
-	 * {@code SymbolicExpression} and returns a non-{@code null} value to
-	 * replace the current output with or {@code null} if the existing behavior
-	 * should still be used.</p>
+	 * {@code SymbolicExpression} and returns a non-{@code null},
+	 * {@code SymbolicExpression} value to replace the current output with or
+	 * {@code null} if the existing behavior should still be used.</p>
 	 * 
 	 * <p>The behavior will only be overridden for a particular
 	 * {@code SymbolicExpression} if the Groovy {@code isCase} methods of
@@ -296,9 +300,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * {@code argumentFixers} accept their parts of a {@code SymbolicExpression}
 	 * and convert them into values that the {@code behavior} can handle. The
 	 * {@code behavior} then accepts the resulting expression and returns a 
-	 * non-{@code null} value to replace the current output with (for the
-	 * original expression) or {@code null} if the existing behavior should
-	 * still be used.</p>
+	 * non-{@code null}, {@code SymbolicExpression} value to replace the current
+	 * output with (for the original expression) or {@code null} if the existing
+	 * behavior should still be used.</p>
 	 * 
 	 * <p>If any of the fixers returns {@code null} for a particular
 	 * {@code SymbolicExpression}, the behavior does not apply to that
@@ -337,14 +341,15 @@ public class CumulativeExpressionEvaluator extends Closure
 	 *     the value the expression evaluates to, or {@code null} if no result
 	 *     can be determined
 	 */
-	public Object evaluate( SymbolicExpression expression )
+	public SymbolicExpression evaluate( SymbolicExpression expression )
 	{
 		if ( expression == null )
 			throw new NullPointerException();
 		
 		for ( Closure behavior: behaviors )
 		{
-			Object result = behavior.call( new Object[]{ expression } );
+			SymbolicExpression result =
+				(SymbolicExpression)behavior.call( new Object[]{ expression } );
 			
 			if ( result != null )
 				return result;
@@ -367,21 +372,9 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * 
 	 * @return  the value the expression evaluates to
 	 */
-	public Object doCall( SymbolicExpression expression )
-		throws MalformedExpressionException
+	public SymbolicExpression doCall( SymbolicExpression expression )
 	{
-		if ( expression == null )
-			throw new NullPointerException();
-		
-		for ( Closure behavior: behaviors )
-		{
-			Object result = behavior.call( new Object[]{ expression } );
-			
-			if ( result != null )
-				return result;
-		}
-		
-		throw new MalformedExpressionException();
+		return evaluate( expression );
 	}
 	
 	/**
@@ -406,10 +399,8 @@ public class CumulativeExpressionEvaluator extends Closure
 	}
 	
 	/**
-	 * <p>Converts a case object into a closure that takes a
-	 * {@code SymbolicExpression} and returns that returns its argument if
-	 * Returns a closure that accepts an object and returns either that object
-	 * (if the object matches the case) or {@code null} (otherwise).</p>
+	 * <p>Returns a closure that accepts an object and returns either that
+	 * object (if the object matches the case) or {@code null} (otherwise).</p>
 	 * 
 	 * <p>This method is useful when calling a {@code setBehavior} method when
 	 * the operator and/or one or more of the arguments do not need to be
@@ -450,7 +441,7 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * 
 	 * @param fixers  the list of individual element fixers
 	 * 
-	 * @return  the resulting list fixer
+	 * @return  the resulting list fixer, or {@code null} if there is no result
 	 */
 	public static Closure listFixer( List< Closure > fixers )
 	{
@@ -537,18 +528,28 @@ public class CumulativeExpressionEvaluator extends Closure
 					return null;
 				
 				
-				List< SymbolicExpression > resultArgumentList =
-					(List< SymbolicExpression >)finalArgumentListFixer.call(
+				List< ? > resultArgumentList =
+					(List< ? >)finalArgumentListFixer.call(
 						new Object[]{ subject.getArgumentList() }
 					);
 				
 				if ( resultArgumentList == null )
 					return null;
 				
+				for ( Object resultArgument: resultArgumentList )
+				{
+					if (
+						(resultArgument == null)
+						||
+						!(resultArgument instanceof SymbolicExpression)
+					)
+						return null;
+				}
+				
 				
 				return new SymbolicExpression(
 					resultOperator,
-					resultArgumentList
+					(List< SymbolicExpression >)resultArgumentList
 				);
 			}
 		};
