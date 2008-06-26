@@ -63,10 +63,14 @@ public class SymbolicExpression
 			(operator == null)
 			||
 			(argumentList == null)
-			||
-			argumentList.contains( null )
 		)
 			throw new NullPointerException();
+		
+		for ( SymbolicExpression argument: argumentList )
+		{
+			if ( argument == null )
+				throw new NullPointerException();
+		}
 		
 		this.operator = operator;
 		this.argumentList = new ArrayList< SymbolicExpression >( argumentList );
