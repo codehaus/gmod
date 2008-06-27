@@ -41,15 +41,14 @@ class ProxiedClosure extends ProxyObject {
       this.@__PROXY__methods.each { k, c -> if(c instanceof Closure) c.delegate = this }
    }
   
-   protected def makeProxy( List<Class> types ) {
+   protected def makeProxy( List<Class> types, ClassLoader classLoader ) {
       // only handles interfaces for the time being
       if( /*types.any{it.isInstance(this.@__PROXY__methods)} ||*/ types.any{!(it.isInterface())} ){
          throw new GroovyCastException("Can't create proxy with $types")
       }
-      Proxy.newProxyInstance( types[0].getClassLoader(),
-                    types as Class[],
+      Proxy.newProxyInstance( classLoader, types as Class[],
                     new ConvertedMultiMethodMap([methods:this.@__PROXY__methods,
                                                  properties:this.@__PROXY__properties],
-                                                 createProxyClass(types))) 
+                                                 createProxyClass(types,classLoader))) 
    }
 }

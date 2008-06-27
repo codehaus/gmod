@@ -66,4 +66,10 @@ class ProxiesFromExpandoTests extends AbstractProxiesTestCase {
       expando.methodMissing = { String name, args -> "Foo" }
       proxy( Foo, expando ) 
    }
+   
+   def proxyFromFooAndList() {
+      def expando = new Expando()
+      expando.foo = { -> "Foo" }
+      proxy( Foo, [List], expando )
+   }
 }
