@@ -16,9 +16,7 @@ import groovy.lang.Closure;
 
 // TODO: Reduce some of the code reuse here by factoring out some common
 // {@code Iterator} functionality, and move some of these inner classes and
-// utility methods into their own files, if it makes sense to do so. Maybe
-// both versions of {@code pTerm} could be implemented in terms of the same
-// helper function, since there is very little difference between the two.
+// utility methods into their own files, if it makes sense to do so.
 
 
 /**
