@@ -209,4 +209,26 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 		
 		assertFalse( distributiveReplacements.hasNext() );
 	}
+	
+	void testReplacementsAnywhereFor()
+	{
+		// Test {@code replacementsAnywhereFor} by using it to demonstrate an
+		// example application of pattern search-and-replace.
+		
+		def plusToDivResults = replacementsAnywhereFor(
+			pTerm( "a" ) + pTerm( "b" ),
+			rTerm( "a" ) / rTerm( "b" ),
+			con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 )
+		).iterator();
+		
+		[
+			(con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 ))) / con( 5 ),
+			(con( 1 ) + con( 2 )) / (con( 3 ) + con( 4 )) + con( 5 ),
+			con( 1 ) / con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 ),
+			con( 1 ) + con( 2 ) + con( 3 ) / con( 4 ) + con( 5 )
+		].each {
+			assertEquals( it, plusToDivResults.next() );
+		};
+		assertFalse( plusToDivResults.hasNext() );
+	}
 }

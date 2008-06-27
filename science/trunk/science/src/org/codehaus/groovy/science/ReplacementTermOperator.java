@@ -316,7 +316,7 @@ public class ReplacementTermOperator
 	 * 
 	 * @return
 	 *     an {@code Iterable} over the possible results of the pattern search-
-	 *     and-replace.
+	 *     and-replace
 	 * 
 	 * @throws NullPointerException
 	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
@@ -447,6 +447,66 @@ public class ReplacementTermOperator
 				};
 			}
 		};
+	}
+	
+	/**
+	 * <p>Performs a pattern search-and-replace on each subexpression of the
+	 * given subject expression, and returns an {@code Iterable} of the possible
+	 * result expressions.<p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * (the {@code subject} itself) and going inward, with each argument of an
+	 * expression explored in the order specified by that expression's argument
+	 * list.</p>
+	 * 
+	 * <p>During the replacement, the expression segment {@code Closure} that
+	 * "jumps" to the subexpression currently being operated on will be
+	 * available in the match result. It is guaranteed to be associated with a
+	 * key that does not conflict with any of the keys used in
+	 * {@code pattern}.</p>
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against each subexpression of
+	 *     {@code subject}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to each of the results of
+	 *     matching {@code pattern} against each subexpression of
+	 *     {@code subject}
+	 * 
+	 * @param subject
+	 *     the expression to perform the pattern search-and-replace on
+	 * 
+	 * @return
+	 *     an {@code Iterable} over the possible results of the pattern search-
+	 *     and-replace
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
+	 *     {@code null}
+	 */
+	public static Iterable< SymbolicExpression > replacementsAnywhereFor(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(replacement == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		Object name = new Object();
+		
+		return replacementsFor(
+			PatternTermOperator.pJump( name, pattern ),
+			rJump( name, replacement ),
+			subject
+		);
 	}
 	
 	
