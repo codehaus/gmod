@@ -97,6 +97,22 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 				)
 			) }
 		);
+		
+		assertEquals(
+			replacementFor(
+				[ jump: { "This is not null or a SymbolicExpression." } ],
+				rJump( "jump", dummy )
+			),
+			null
+		);
+		
+		assertEquals(
+			replacementFor(
+				[ jump: { -> "This closure has no parameters." } ],
+				rJump( "jump", dummy )
+			),
+			null
+		);
 	}
 	
 	void testRJump()

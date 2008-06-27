@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import groovy.lang.Closure;
+import groovy.lang.MissingMethodException;
 
 
 /**
@@ -222,10 +222,13 @@ public class ReplacementTermOperator
 						new Object[]{ innerResult }
 					);
 				}
-				catch ( RuntimeException e )
+				catch ( ClassCastException e )
 				{
-					System.out.println( "Should catch: " + e );
-					throw e;
+					return null;
+				}
+				catch ( MissingMethodException e )
+				{
+					return null;
 				}
 			}
 		} );
