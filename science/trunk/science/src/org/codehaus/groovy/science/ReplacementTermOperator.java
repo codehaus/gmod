@@ -114,35 +114,121 @@ public class ReplacementTermOperator
 		
 		final Object finalName = name;
 		
-		return new SymbolicExpression(
-			new ReplacementTermOperator( new Closure( null ) {
+		return rTerm( new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+			public SymbolicExpression doCall( Map< ?, ? > matchInformation )
+			{
+				if ( matchInformation == null )
+					throw new NullPointerException();
 				
-				@SuppressWarnings("unused")
-				public SymbolicExpression doCall( Map< ?, ? > matchInformation )
+				try
 				{
-					if ( matchInformation == null )
-						throw new NullPointerException();
-					
-					try
-					{
-						if ( !matchInformation.containsKey( finalName ) )
-							return null;
-					}
-					catch ( ClassCastException e )
-					{
+					if ( !matchInformation.containsKey( finalName ) )
 						return null;
-					}
-					
-					Object result = matchInformation.get( finalName );
-					
-					if ( result instanceof SymbolicExpression )
-						return (SymbolicExpression)result;
-					
+				}
+				catch ( ClassCastException e )
+				{
 					return null;
 				}
-			} ),
-			new ArrayList< SymbolicExpression >()
-		);
+				
+				Object result = matchInformation.get( finalName );
+				
+				if ( result instanceof SymbolicExpression )
+					return (SymbolicExpression)result;
+				
+				return null;
+			}
+		} );
+	}
+	
+	/**
+	 * <p>Creates a replacement {@code SymbolicExpression} that complements a
+	 * pattern expression produced by
+	 * {@code PatternTermOperator.pJump( Object, SymbolicExpression )}.
+	 * expects an expression segment {@code Closure} to be associated with
+	 * {@code name} in the match result, and it applies {@code innerReplacement}
+	 * to the match result, returning the expression obtained by plugging the
+	 * resulting expression into that expression segment. If
+	 * {@code innerReplacement} fails to produce a result, or if there is no
+	 * {@code Closure} associated with {@code name} in the match result that can
+	 * be used to create a new expression from that result expression, this
+	 * replacement expression fails.</p>
+	 * 
+	 * @see PatternTermOperator#pJump( Object, SymbolicExpression )
+	 * 
+	 * @param name
+	 *     the object the replacement expression should hope to find associated
+	 *     with the expression segment {@code Closure} it needs to "jump" with
+	 * 
+	 * @param rJump
+	 *     the replacement expression whose result to insert at the other end of
+	 *     the "jump"
+	 * 
+	 * @return
+	 *     a replacement expression that produces, if possible the result of
+	 *     {@code innerReplacement}, as modified by a call to a {@code Closure}
+	 *     associated with the given {@code name}
+	 * 
+	 * @throws NullPointerException  if {@code name} is {@code null}
+	 */
+	public static SymbolicExpression rJump(
+		Object name,
+		SymbolicExpression innerReplacement
+	)
+	{
+		if (
+			(name == null)
+			||
+			(innerReplacement == null)
+		)
+			throw new NullPointerException();
+		
+		final Object finalName = name;
+		final SymbolicExpression finalInnerReplacement = innerReplacement;
+		
+		return rTerm( new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+			public SymbolicExpression doCall( Map< ?, ? > matchInformation )
+			{
+				if ( matchInformation == null )
+					throw new NullPointerException();
+				
+				try
+				{
+					if ( !matchInformation.containsKey( finalName ) )
+						return null;
+				}
+				catch ( ClassCastException e )
+				{
+					return null;
+				}
+				
+				Object jumpSegment = matchInformation.get( finalName );
+				
+				if ( !(jumpSegment instanceof Closure) )
+					return null;
+				
+				SymbolicExpression innerResult =
+					replacementFor( matchInformation, finalInnerReplacement );
+				
+				if ( innerResult == null )
+					return null;
+				
+				try
+				{
+					return (SymbolicExpression)((Closure)jumpSegment).call(
+						new Object[]{ innerResult }
+					);
+				}
+				catch ( RuntimeException e )
+				{
+					System.out.println( "Should catch: " + e );
+					throw e;
+				}
+			}
+		} );
 	}
 	
 	/**
