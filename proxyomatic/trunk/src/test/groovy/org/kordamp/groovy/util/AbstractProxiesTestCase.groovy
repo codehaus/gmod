@@ -87,4 +87,13 @@ abstract class AbstractProxiesTestCase extends GroovyTestCase {
       assertTrue( "proxy is not of type Foo", foo instanceof Foo )
       assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
    }
+   
+   void testBuildProxyFromFooAndList() {
+      def foo = proxyFromFooAndList()
+      
+      assertNotNull( "proxy is null", foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof Foo )
+      assertTrue( "proxy is not of type Foo", foo instanceof List )
+      assertEquals( "proxy.foo() did not return 'Foo'", "Foo", foo.foo() )
+   }
 }

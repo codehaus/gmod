@@ -47,14 +47,13 @@ class ProxiedExpando extends ProxyObject {
       this.@__PROXY__expando.getProperties().each { k, c -> if(c instanceof Closure) c.delegate = this }
    }
   
-   protected def makeProxy( List<Class> types ) {
+   protected def makeProxy( List<Class> types, ClassLoader classLoader ) {
       // only handles interfaces for the time being
       if( /*types.any{it.isInstance(this.@__PROXY__expando)} ||*/ types.any{!(it.isInterface())} ){
          throw new GroovyCastException("Can't create proxy with $types")
       }
-      Proxy.newProxyInstance( types[0].getClassLoader(),
-                    types as Class[],
+      Proxy.newProxyInstance( classLoader, types as Class[],
                     new ConvertedExpando(this.@__PROXY__expando,this.@__PROXY__properties,
-                                          createProxyClass(types))) 
+                                          createProxyClass(types,classLoader))) 
    }
 }

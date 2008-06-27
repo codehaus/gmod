@@ -79,4 +79,10 @@ class ProxiesFromClosureTests extends AbstractProxiesTestCase {
          methodMissing { String name, args -> "Foo" }
       }
    }
+   
+   def proxyFromFooAndList() {
+      proxy( Foo, [List] ) {
+         foo { -> "Foo" }
+      }
+   }
 }

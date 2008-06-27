@@ -109,7 +109,7 @@ abstract class ProxyObject {
    final def statics( Closure closure ) {
       if( !this.@__PROXY__realized ) {
          if( this.@__PROXY__handlingStatics ) {
-             // nested statics{} is not allowed!
+             // nested statics{} are not allowed!
              throw new GroovyRuntimeException("Can't nest statics definitions")
          }
          this.@__PROXY__handlingStatics = true
@@ -122,7 +122,7 @@ abstract class ProxyObject {
    final def properties( Closure closure ) {
       if( !this.@__PROXY__realized ) {
          if( this.@__PROXY__handlingProperties ) {
-             // nested properties{} is not allowed!
+             // nested properties{} are not allowed!
              throw new GroovyRuntimeException("Can't nest properties definitions")
          }
          this.@__PROXY__handlingProperties = true
@@ -136,9 +136,8 @@ abstract class ProxyObject {
       if( !this.@__PROXY__realized ){
          assignDelegateToMethodBodies()
          def types = extraTypes ? extraTypes << type : [type]
-         // TODO wait til Metaclass is properly wired
          injectGroovyObjectInterface(types)
-         this.@__PROXY__proxy = makeProxy( types )
+         this.@__PROXY__proxy = makeProxy( types, createClassLoader(types) )
          this.@__PROXY__realized = true
       }
       return this.@__PROXY__proxy
@@ -152,7 +151,7 @@ abstract class ProxyObject {
    
    protected abstract void assignDelegateToMethodBodies()
   
-   protected abstract def makeProxy( List<Class> types )
+   protected abstract def makeProxy( List<Class> types, ClassLoader classLoader )
 
    private void injectGroovyObjectInterface( types ) {
       def count = 0
@@ -167,7 +166,15 @@ abstract class ProxyObject {
       }
    }
  
-   protected Class createProxyClass( types ) {
+   protected ClassLoader createClassLoader( List<Class> types ) {
+      def classLoaders = types.classLoader
+      def cl = new CompositeClassLoader( classLoaders.unique() )
+      cl.addClassLoader( ProxyObject.getClassLoader() )
+      cl.addClassLoader( Thread.currentThread().getContextClassLoader() )
+      return cl
+   }
+   
+   protected Class createProxyClass( List<Class>types, ClassLoader classLoader ) {
       def buffer = new StringBuffer()
       types.each { type ->
          buffer.append("import ")
@@ -198,15 +205,8 @@ abstract class ProxyObject {
       buffer.append("\n")
       buffer.append("klass = ")
       buffer.append(classname)
-
-      ClassLoader cl = null
-      types.each { type ->
-         if( !cl ) cl = type.classLoader
-      }
       
-      //GroovyShell shell = new GroovyShell( cl ?: getClassLoader() )
-      GroovyShell shell = new GroovyShell( (ClassLoader) types[0].classLoader )
-      //GroovyShell shell = new GroovyShell( ProxyObject.class.getClassLoader() )
+      GroovyShell shell = new GroovyShell( classLoader )
       shell.evaluate( buffer.toString() )
    }
 }
