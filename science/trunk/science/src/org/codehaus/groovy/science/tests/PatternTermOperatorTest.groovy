@@ -1,8 +1,10 @@
 package org.codehaus.groovy.science.tests
 
 
+import org.codehaus.groovy.science.PatternTermOperator.ConcatenationOfIterables
 import org.codehaus.groovy.science.PatternTermOperator.ProductOfIterables
 
+import static org.codehaus.groovy.science.ConstantOperator.*
 import static org.codehaus.groovy.science.PatternTermOperator.*
 import static org.codehaus.groovy.science.SymbolicExpression.*
 
@@ -11,8 +13,8 @@ class PatternTermOperatorTest extends GroovyTestCase
 {
 	void testProductOfIterablesConstructorFailure()
 	{
-		// Make sure that {@code PatternMatchingTools.ProductOfIterables}'s
-		// constructor fails when necessary.
+		// Make sure that {@code ProductOfIterables}'s constructor fails when
+		// necessary.
 		
 		shouldFail(
 			NullPointerException.class,
@@ -54,7 +56,49 @@ class PatternTermOperatorTest extends GroovyTestCase
 			assertEquals( it, iterator.next() );
 		};
 		
-		assert !iterator.hasNext();
+		assertFalse( iterator.hasNext() );
+	}
+	
+	void testConcatenationOfIterablesConstructorFailure()
+	{
+		// Make sure that {@code ConcatenationOfIterables}'s constructor fails
+		// when necessary.
+		
+		shouldFail(
+			NullPointerException.class,
+			{ new ConcatenationOfIterables( null ) }
+		);
+		
+		shouldFail(
+			NullPointerException.class,
+			{ new ConcatenationOfIterables( [ null ] ) }
+		);
+		
+		shouldFail(
+			NullPointerException.class,
+			{ new ConcatenationOfIterables(
+				[ [ 1, 2, 3 ], null [ 4, 5, 6 ] ]
+			) }
+		);
+	}
+	
+	void testConcatenationOfIterables()
+	{
+		// Test {@code ConcatenationOfIterables} by making sure that a
+		// particular usage of it actually gives the right values in the right
+		// order.
+		
+		def iterator = new ConcatenationOfIterables( [
+			[ 1, 2 ],
+			[ 3, 4 ],
+			[ 5, 6 ]
+		] ).iterator();
+		
+		[ 1, 2, 3, 4, 5, 6 ].each {
+			assertEquals( it, iterator.next() );
+		};
+		
+		assertFalse( iterator.hasNext() );
 	}
 	
 	void testPTermFailure()
@@ -70,14 +114,10 @@ class PatternTermOperatorTest extends GroovyTestCase
 		
 		shouldFail(
 			ClassCastException.class,
-			{
-				matchesFor(
-					pTerm(
-						{ "This is not null, a Map, or an Iterator< Map >." }
-					),
-					dummy
-				)
-			}
+			{ matchesFor(
+				pTerm( { "This is not null, a Map, or an Iterator< Map >." } ),
+				dummy
+			) }
 		);
 	}
 	
@@ -92,13 +132,13 @@ class PatternTermOperatorTest extends GroovyTestCase
 		
 		def nullMatches = matchesFor( pTerm( { null } ), dummy ).iterator();
 		
-		assert !nullMatches.hasNext();
+		assertFalse( nullMatches.hasNext() );
 		
 		
 		def singleMatches = matchesFor( pTerm( { [:] } ), dummy ).iterator();
 		
 		assertEquals( singleMatches.next(), [:] );
-		assert !singleMatches.hasNext();
+		assertFalse( singleMatches.hasNext() );
 		
 		
 		def listMatches = matchesFor(
@@ -108,13 +148,88 @@ class PatternTermOperatorTest extends GroovyTestCase
 		
 		assertEquals( listMatches.next(), [ a: 1 ] );
 		assertEquals( listMatches.next(), [ a: dummy ] );
-		assert !listMatches.hasNext();
+		assertFalse( listMatches.hasNext() );
 		
 		
 		def nameMatches = matchesFor( pTerm( "x" ), dummy ).iterator();
 		
 		assertEquals( nameMatches.next(), [ x: dummy ] );
-		assert !nameMatches.hasNext();
+		assertFalse( nameMatches.hasNext() );
+	}
+	
+	void testPJumpFailure()
+	{
+		// Make sure that {@code pJump( Object, SymbolicExpression )} and
+		// {@code pJump( SymbolicExpression )} fail when necessary.
+		
+		def dummy = expr( "dummy" );
+		
+		
+		shouldFail( NullPointerException.class, { pJump( null ) } );
+		shouldFail( NullPointerException.class, { pJump( dummy, null ) } );
+		shouldFail( NullPointerException.class, { pJump( null, dummy ) } );
+		
+		shouldFail(
+			ClassCastException.class,
+			{ matchesFor(
+				pJump( pTerm(
+					{ "This is not null, a Map, or an Iterator< Map >." }
+				) ),
+				dummy
+			).iterator().hasNext() }
+		);
+	}
+	
+	void testPJump()
+	{
+		// Make sure that {@code pJump( Object, SymbolicExpression )} traverses
+		// subexpressions in the correct order and provides correct expression
+		// segments.
+		
+		def dummy = expr( "dummy" );
+		
+		def plusPattern = pJump( "jump", pTerm( "a" ) + pTerm( "b" ) );
+		
+		
+		def plusNoMatches =
+			matchesFor( plusPattern, expr( "dummy" ) ).iterator();
+		
+		assertFalse( plusNoMatches.hasNext() );
+		
+		
+		def plusMatches = matchesFor(
+			plusPattern,
+			con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 )
+		).iterator();
+		
+		[
+			[
+				jump: dummy,
+				a: con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )),
+				b: con( 5 )
+			],
+			[
+				jump: dummy + con( 5 ),
+				a: con( 1 ) + con( 2 ),
+				b: con( 3 ) + con( 4 )
+			],
+			[
+				jump: dummy + (con( 3 ) + con( 4 )) + con( 5 ),
+				a: con( 1 ),
+				b: con( 2 )
+			],
+			[
+				jump: con( 1 ) + con( 2 ) + dummy + con( 5 ),
+				a: con( 3 ),
+				b: con( 4 )
+			]
+		].each {
+			def modifiedMatch = new HashMap( plusMatches.next() );
+			modifiedMatch[ "jump" ] = modifiedMatch[ "jump" ]( dummy );
+			
+			assertEquals( it, modifiedMatch );
+		};
+		assertFalse( plusMatches.hasNext() );
 	}
 	
 	void testMatchesForFailure()
@@ -150,7 +265,7 @@ class PatternTermOperatorTest extends GroovyTestCase
 		assertEquals( multiMatches.next(), [ a: 2, b: 1 ] );
 		assertEquals( multiMatches.next(), [ a: 1, b: 2 ] );
 		assertEquals( multiMatches.next(), [ a: 2, b: 2 ] );
-		assert !multiMatches.hasNext();
+		assertFalse( multiMatches.hasNext() );
 		
 		
 		def conflictingPattern = (
@@ -166,6 +281,58 @@ class PatternTermOperatorTest extends GroovyTestCase
 		assertEquals( conflictingMatches.next(), [ a: 1, b: 1, c: 2 ] );
 		assertEquals( conflictingMatches.next(), [ a: 1, b: 2, c: 2 ] );
 		assertEquals( conflictingMatches.next(), [ a: 2, b: 2, c: 2 ] );
-		assert !conflictingMatches.hasNext();
+		assertFalse( conflictingMatches.hasNext() );
+	}
+	
+	void testMatchesAnywhereForFailure()
+	{
+		// Make sure that {@code matchesAnywhereFor} fails when necessary.
+		
+		def dummy = expr( "dummy" );
+		
+		shouldFail(
+			NullPointerException.class,
+			{ matchesAnywhereFor( null, null ) }
+		);
+		
+		shouldFail(
+			NullPointerException.class,
+			{ matchesAnywhereFor( null, dummy ) }
+		);
+		
+		shouldFail(
+			NullPointerException.class,
+			{ matchesAnywhereFor( dummy, null ) }
+		);
+	}
+	
+	void testMatchesAnywhereFor()
+	{
+		// Make sure that {@code matchesAnywhereFor} iterates through
+		// subexpressions of the subject expression in the correct order.
+		
+		def plusPattern = pTerm( "a" ) + pTerm( "b" );
+		
+		
+		def plusNoMatches =
+			matchesAnywhereFor( plusPattern, expr( "dummy" ) ).iterator();
+		
+		assertFalse( plusNoMatches.hasNext() );
+		
+		
+		def plusMatches = matchesAnywhereFor(
+			plusPattern,
+			con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 )
+		).iterator();
+		
+		[
+			[ a: con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )), b: con( 5 ) ],
+			[ a: con( 1 ) + con( 2 ), b: con( 3 ) + con( 4 ) ],
+			[ a: con( 1 ), b: con( 2 ) ],
+			[ a: con( 3 ), b: con( 4 ) ]
+		].each {
+			assertEquals( it, plusMatches.next() )
+		};
+		assertFalse( plusMatches.hasNext() );
 	}
 }

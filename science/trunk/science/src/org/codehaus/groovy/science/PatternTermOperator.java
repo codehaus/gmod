@@ -1,6 +1,7 @@
 package org.codehaus.groovy.science;
 
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,13 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import groovy.lang.Closure;
+
+
+// TODO: Reduce some of the code reuse here by factoring out some common
+// {@code Iterator} functionality, and move some of these inner classes and
+// utility methods into their own files, if it makes sense to do so. Maybe
+// both versions of {@code pTerm} could be implemented in terms of the same
+// helper function, since there is very little difference between the two.
 
 
 /**
@@ -30,6 +38,182 @@ import groovy.lang.Closure;
  */
 public class PatternTermOperator
 {
+	/**
+	 * <p>An {@code Iterable} that iterates through the elements of each of a
+	 * list of other {@code Iterable}s, one by one.</p>
+	 * 
+	 * @param <T>
+	 *     the type of value produced by each of the {@code Iterable}s in the
+	 *     concatenation
+	 */
+	private static class ConcatenationOfIterables< T > implements Iterable< T >
+	{
+		/**
+		 * <p>The {@code Iterable}s in the concatenation.</p>
+		 */
+		private List< Iterable< T > > innerIterables;
+		
+		/**
+		 * <p>The number of {@code Iterable}s in the concatenation.</p>
+		 */
+		private int sizeOfConcatenation;
+		
+		
+		/**
+		 * <p>Creates a new {@code ConcatenationOfIterables} that is a
+		 * concatenation of the given {@code Iterable}s.</p>
+		 * 
+		 * @param innerIterables
+		 *     the {@code Iterable}s to be in the concatenation
+		 * 
+		 * @throws NullPointerException
+		 *     if {@code innerIterables} is {@code null} or contains
+		 *     {@code null}
+		 */
+		public ConcatenationOfIterables( List< Iterable< T > > innerIterables )
+		{
+			if ( innerIterables == null )
+				throw new NullPointerException();
+			
+			for ( Iterable< T > innerIterable: innerIterables )
+			{
+				if ( innerIterable == null )
+					throw new NullPointerException();
+			}
+			
+			
+			this.innerIterables =
+				new ArrayList< Iterable< T > >( innerIterables );
+			
+			sizeOfConcatenation = innerIterables.size();
+		}
+		
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Iterable#iterator()
+		 */
+		@Override
+		public Iterator< T > iterator()
+		{
+			return new Iterator< T >()
+			{
+				/**
+				 * <p>A flag that is {@code true} only when {@code nextValue}
+				 * actually represents either the next value this
+				 * {@code Iterator} will generate or {@code null} if this
+				 * {@code Iterator} has no more values.</p>
+				 */
+				private boolean nextIsCalculated = false;
+				
+				/**
+				 * <p>The value that this {@code Iterator} is about to generate
+				 * via its {@code next} method. This value is {@code null} if
+				 * there are no more elements for this {@code Iterator} to
+				 * generate (in which case {@code nextIsCalculated} is also
+				 * {@code true}) or if the next value has not been calculated
+				 * yet (in which case {@code nextIsCalculated} is also
+				 * {@code false}).</p>
+				 */
+				private T nextValue = null;
+				
+				/**
+				 * <p>An {@code Iterator} belonging to the current
+				 * {@code Iterable} being traversed in the concatenation of
+				 * {@code Iterable}s, or {@code null} if there is no
+				 * {@code Iterable} being traversed at the moment (which is the
+				 * case before the iteration starts and after the iteration
+				 * ends).</p>
+				 */
+				private Iterator< T > innerIterator = null;
+				
+				/**
+				 * <p>The index, between {@code 0}, inclusive, and
+				 * {@code sizeOfConcatenation}, inclusive, of the next
+				 * {@code Iterable} out of the {@code innerIterables} to use. A
+				 * value of {@code sizeOfConcatenation} indicates that the
+				 * current {@code innerIterator} is the last one.</p>
+				 */
+				private int nextIterableIndex = 0;
+				
+				/**
+				 * <p>Calculates the next value to return from this
+				 * {@code Iterator}, if necessary.</p>
+				 */
+				private void calculateNext()
+				{
+					if ( nextIsCalculated )
+						return;
+					
+					
+					while ( true )
+					{
+						if ( innerIterator == null )
+						{
+							if ( sizeOfConcatenation <= nextIterableIndex )
+							{
+								nextValue = null;
+								nextIsCalculated = true;
+								return;
+							}
+							
+							innerIterator = innerIterables.get(
+								nextIterableIndex
+							).iterator();
+							
+							nextIterableIndex++;
+						}
+						
+						if ( innerIterator.hasNext() )
+						{
+							nextValue = innerIterator.next();
+							nextIsCalculated = true;
+							return;
+						}
+						
+						innerIterator = null;
+					}
+				}
+				
+				/* (non-Javadoc)
+				 * @see java.util.Iterator#hasNext()
+				 */
+				@Override
+				public boolean hasNext()
+				{
+					calculateNext();
+					
+					return (nextValue != null);
+				}
+				
+				/* (non-Javadoc)
+				 * @see java.util.Iterator#next()
+				 */
+				@Override
+				public T next()
+				{
+					calculateNext();
+					
+					if ( nextValue == null )
+						throw new NoSuchElementException();
+					
+					nextIsCalculated = false;
+					
+					return nextValue;
+				}
+				
+				/* (non-Javadoc)
+				 * @see java.util.Iterator#remove()
+				 */
+				@Override
+				public void remove()
+				{
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+	}
+	
+	
 	/**
 	 * <p>An {@code Iterable} that iterates through the Cartesian product of a
 	 * list of other {@code Iterable}s.</p>
@@ -74,10 +258,11 @@ public class PatternTermOperator
 	 * {@code Iterator} is undefined.</p>
 	 * 
 	 * @param <T>
-	 *     the type of value produced by each of the {@code Iterator}s in the
+	 *     the type of value produced by each of the {@code Iterable}s in the
 	 *     product
 	 */
-	private static class ProductOfIterables< T > implements Iterable< List< T > >
+	private static class ProductOfIterables< T >
+		implements Iterable< List< T > >
 	{
 		/**
 		 * <p>The {@code Iterable}s in the product.</p>
@@ -181,8 +366,8 @@ public class PatternTermOperator
 				private List< T > nextValue = firstValue;
 				
 				/**
-				 * Calculates the next value to return from this
-				 * {@code Iterator}, if necessary. 
+				 * <p>Calculates the next value to return from this
+				 * {@code Iterator}, if necessary.</p>
 				 */
 				private void calculateNext()
 				{
@@ -419,13 +604,484 @@ public class PatternTermOperator
 	}
 	
 	/**
+	 * <p>Returns a pattern expression that matches the given
+	 * {@code innerPattern} pattern expression against each subexpression of a
+	 * subject expression, one at a time. Each of those match result
+	 * {@code Map}s is augmented by associating {@code name} with a
+	 * {@code Closure} representing the "jumped" expression segment.</p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * and going inward, with each argument of an expression explored in the
+	 * order specified by that expression's argument list.</p>
+	 * 
+	 * <p>An expression segment {@code Closure} is a closure that represents all
+	 * of a {@code SymbolicExpression} except one subexpression of it. The
+	 * closure accepts a {@code SymbolicExpression} to put in place of that
+	 * subexpression, and it returns the completed
+	 * {@code SymbolicExpression}.</p> 
+	 * 
+	 * <p>Note that if any application of {@code innerPattern} results in a
+	 * match result that contains an association for {@code name}, that result
+	 * will be skipped in order to avoid a naming conflict.</p>
+	 * 
+	 * @param name
+	 *     the object to associate, in each match, with the expression segment
+	 *     "jumped" to get to where {@code innerPattern} was applied
+	 * 
+	 * @param innerPattern
+	 *     the pattern expression to try to match to each subexpression of a
+	 *     {@code SymbolicExpression}
+	 * 
+	 * @return
+	 *     a pattern expression that takes any subject expression it is applied
+	 *     to and matches {@code innerPattern} to each of the subject
+	 *     expression's subexpressions, augmenting each of the match results by
+	 *     associating {@code name} with a {@code Closure} representing the
+	 *     "jumped" expression segment
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code name} or {@code innerPattern} is {@code null}
+	 */
+	public static SymbolicExpression pJump(
+		Object name,
+		SymbolicExpression innerPattern
+	)
+	{
+		if (
+			(name == null)
+			||
+			(innerPattern == null)
+		)
+			throw new NullPointerException();
+		
+		return pJumpHelper( name, innerPattern );
+	}
+	
+	/**
+	 * <p>Returns a pattern expression that matches the given
+	 * {@code innerPattern} pattern expression against each subexpression of a
+	 * subject expression, one at a time.</p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * and going inward, with each argument of an expression explored in the
+	 * order specified by that expression's argument list.</p>
+	 * 
+	 * @param innerPattern
+	 *     the pattern expression to try to match to each subexpression of a
+	 *     {@code SymbolicExpression}
+	 * 
+	 * @return
+	 *     a pattern expression that takes any subject expression it is applied
+	 *     to and matches {@code innerPattern} to each of the subject
+	 *     expression's subexpressions
+	 * 
+	 * @throws NullPointerException  if {@code innerPattern} is {@code null}
+	 */
+	public static SymbolicExpression pJump( SymbolicExpression innerPattern )
+	{
+		if ( innerPattern == null )
+			throw new NullPointerException();
+		
+		return pJumpHelper( null, innerPattern );
+	}
+	
+	/**
+	 * <p>This method provides the actual implementation of
+	 * {@code pJump( Object, SymbolicExpression )} (when {@code name} is not
+	 * {@code null}) and {@code pJump( Object )} (when {@code name} is
+	 * {@code null}).</p>
+	 * 
+	 * @see pJump( Object, SymbolicExpression )
+	 * @see pJump( SymbolicExpression )
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code innerPattern} is {@code null}
+	 */
+	private static SymbolicExpression pJumpHelper(
+		Object name,
+		SymbolicExpression innerPattern
+	)
+	{
+		if ( innerPattern == null )
+			throw new NullPointerException();
+		
+		final Object finalName = name;
+		final SymbolicExpression finalInnerPattern = innerPattern;
+		
+		return pTerm( new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+			public Iterable< Map< ?, ? > >
+				doCall( SymbolicExpression expression )
+			{
+				if ( expression == null )
+					throw new NullPointerException();
+				
+				final SymbolicExpression finalExpression = expression;
+				
+				return new Iterable< Map< ?, ? > >()
+				{
+					public Iterator< Map< ?, ? > > iterator()
+					{
+						return new Iterator< Map< ?, ? > >()
+						{
+							/**
+							 * <p>A flag that is {@code true} only when
+							 * {@code nextValue} actually represents either the
+							 * next value this {@code Iterator} will generate or
+							 * {@code null} if this {@code Iterator} has no more
+							 * values.</p>
+							 */
+							private boolean nextIsCalculated = false;
+							
+							/**
+							 * <p>The value that this {@code Iterator} is about
+							 * to generate via its {@code next} method. This
+							 * value is {@code null} if there are no more
+							 * elements for this {@code Iterator} to generate
+							 * (in which case {@code nextIsCalculated} is also
+							 * {@code true}) or if the next value has not been
+							 * calculated yet (in which case
+							 * {@code nextIsCalculated} is also
+							 * {@code false}).</p>
+							 */
+							private Map< ?, ? > nextValue;
+							
+							/**
+							 * <p>An {@code Iterator} that loops through the
+							 * subexpressions of {@code expression} one by
+							 * one.</p>
+							 * 
+							 * <p>This iterator should be in perfect sync with
+							 * {@code theseSegments} at all times. The values
+							 * returned by {@code theseSubexpressions} should be
+							 * exactly the same as the "holes" in the segments
+							 * returned by {@code theseSegments}.</p>
+							 * 
+							 * @see theseSegments
+							 */
+							private Iterator< SymbolicExpression >
+								theseSubexpressions =
+								subexpressions( finalExpression ).iterator();
+							
+							/**
+							 * <p>An {@code Iterator} that loops through the
+							 * expression segments of {@code expression} one by
+							 * one.</p>
+							 * 
+							 * <p>This iterator should be in perfect sync with
+							 * {@code theseSubexpressions} at all times. The
+							 * values returned by {@code theseSubexpressions}
+							 * should be exactly the same as the "holes" in the
+							 * segments returned by {@code theseSegments}.</p>
+							 * 
+							 * @see theseSubexpressions
+							 */
+							private Iterator< Closure > theseSegments =
+								expressionSegments(
+									finalExpression
+								).iterator();
+							
+							/**
+							 * <p>The {@code Iterator} yielding the matches of
+							 * the current application of
+							 * {@code innerPattern}.</p>
+							 */
+							private Iterator< Map< ?, ? > > patternResults =
+								null;
+							
+							/**
+							 * <p>The expression segment representing the "jump"
+							 * from {@code expression} to the subexpression
+							 * currently being matched using
+							 * {@code innerPattern}.</p>
+							 */
+							private Closure currentSegment;
+							
+							/**
+							 * <p>Calculates the next value to return from this
+							 * {@code Iterator}, if necessary.</p>
+							 */
+							private void calculateNext()
+							{
+								if ( nextIsCalculated )
+									return;
+								
+								while ( true )
+								{
+									if ( patternResults == null )
+									{
+										if ( !theseSegments.hasNext() )
+										{
+											nextValue = null;
+											nextIsCalculated = true;
+											
+											return;
+										}
+										
+										currentSegment = theseSegments.next();
+										patternResults = matchesFor(
+											finalInnerPattern,
+											theseSubexpressions.next()
+										).iterator();
+									}
+									
+									while ( patternResults.hasNext() )
+									{
+// NOTE: This is deep nesting. Something should probably be done about this....
+
+Map< Object, Object > thisResult =
+	new HashMap< Object, Object >( patternResults.next() );
+
+if ( finalName == null )
+{
+	nextValue = thisResult;
+	nextIsCalculated = true;
+	
+	return;
+}
+
+if ( !thisResult.containsKey( finalName ) )
+{
+	thisResult.put( finalName, currentSegment );
+	
+	nextValue = thisResult;
+	nextIsCalculated = true;
+	
+	return;
+}
+									}
+									
+									patternResults = null;
+								}
+							}
+							
+							/* (non-Javadoc)
+							 * @see java.util.Iterator#hasNext()
+							 */
+							@Override
+							public boolean hasNext()
+							{
+								calculateNext();
+								
+								return (nextValue != null);
+							}
+							
+							/* (non-Javadoc)
+							 * @see java.util.Iterator#next()
+							 */
+							@Override
+							public Map< ?, ? > next()
+							{
+								calculateNext();
+								
+								if ( nextValue == null )
+									throw new NoSuchElementException();
+								
+								nextIsCalculated = false;
+								
+								return nextValue;
+							}
+							
+							/* (non-Javadoc)
+							 * @see java.util.Iterator#remove()
+							 */
+							@Override
+							public void remove()
+							{
+								throw new UnsupportedOperationException();
+							}
+						};
+					}
+				};
+			}
+		} );
+	}
+	
+	/**
+	 * <p>Returns an {@code Iterable} whose {@code Iterator}s iterate through
+	 * and provide each of the subexpressions of {@code expression}.</p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * and going inward, with each argument of an expression explored in the
+	 * order specified by that expression's argument list.</p>
+	 * 
+	 * @param expression  the expression to iterate on
+	 * 
+	 * @return  an {@code Iterable} representing a sequence of subexpressions
+	 * 
+	 * @throws NullPointerException  if {@code expression} is {@code null}
+	 */
+	private static Iterable< SymbolicExpression > subexpressions(
+		SymbolicExpression expression
+	)
+	{
+		if ( expression == null )
+			throw new NullPointerException();
+		
+		List< Iterable< SymbolicExpression > > innerIterables =
+			new ArrayList< Iterable< SymbolicExpression > >();
+		
+		innerIterables.add( Arrays.asList( new SymbolicExpression[]{
+			expression
+		} ) );
+		
+		for ( SymbolicExpression argument: expression.getArgumentList() )
+		{
+			innerIterables.add( subexpressions( argument ) );
+		}
+		
+		return new ConcatenationOfIterables< SymbolicExpression >(
+			innerIterables
+		);
+	}
+	
+	/**
+	 * <p>Returns an {@code Iterable} whose {@code Iterator}s iterate through
+	 * each of the subexpressions of {@code expression} and provide
+	 * {@code Closure}s that represent all of {@code expression} except for
+	 * those subexpressions.</p>
+	 * 
+	 * <p>Each of the "expression segment" closures accepts a
+	 * {@code SymbolicExpression} and returns a {@code SymbolicExpression}
+	 * exactly like the original {@code expression} except that one of the
+	 * subexpressions has been replaced by the given expression.</p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * and going inward, with each argument of an expression explored in the
+	 * order specified by that expression's argument list.</p>
+	 * 
+	 * @param expression  the expression to iterate on
+	 * 
+	 * @return
+	 *     an {@code Iterable} representing a sequence of expression segments
+	 * 
+	 * @throws NullPointerException  if {@code expression} is {@code null}
+	 */
+	private static Iterable< Closure > expressionSegments(
+		SymbolicExpression expression
+	)
+	{
+		if ( expression == null )
+			throw new NullPointerException();
+		
+		return expressionSegments(
+			new Closure( null )
+			{
+				@SuppressWarnings("unused")
+				public SymbolicExpression doCall(
+					SymbolicExpression replacement
+				)
+				{
+					return replacement;
+				}
+			},
+			expression
+		);
+	}
+	
+	/**
+	 * <p>Returns an {@code Iterable} whose {@code Iterator}s iterate through
+	 * each of the subexpressions of {@code expression} and provide
+	 * {@code Closure}s that represent all of {@code segmentSoFar( expression )}
+	 * except those subexpressions.</p>
+	 * 
+	 * <p>Each of the closures accepts a {@code SymbolicExpression} and returns
+	 * a {@code SymbolicExpression} exactly like
+	 * {@code segmentSoFar( expression )} except that one of the subexpressions
+	 * has been replaced by the given expression.</p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * and going inward, with each argument of an expression explored in the
+	 * order specified by that expression's argument list.</p>
+	 * 
+	 * @see expressionSegments( SymbolicExpression )
+	 * 
+	 * @param segmentSoFar
+	 *     an expression segment that any segment of {@code expression} that is
+	 *     not replaced should be plugged into
+	 * 
+	 * @param expression  the expression to iterate on
+	 * 
+	 * @return
+	 *     an {@code Iterable} representing a sequence of expression segments
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code segmentSoFar} or {@code expression} is {@code null}
+	 */
+	private static Iterable< Closure > expressionSegments(
+		Closure segmentSoFar,
+		SymbolicExpression expression
+	)
+	{
+		if (
+			(segmentSoFar == null)
+			||
+			(expression == null)
+		)
+			throw new NullPointerException();
+		
+		final Closure finalSegmentSoFar = segmentSoFar;
+		
+		List< Iterable< Closure > > innerIterables =
+			new ArrayList< Iterable< Closure > >();
+		
+		innerIterables.add( Arrays.asList( new Closure[]{ new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+			public SymbolicExpression doCall( SymbolicExpression replacement )
+			{
+				return (SymbolicExpression)finalSegmentSoFar.call(
+					new Object[]{ replacement }
+				);
+			}
+		} } ) );
+		
+		final Object operator = expression.getOperator();
+		
+		final List< SymbolicExpression > argumentList =
+			expression.getArgumentList();
+		
+		int numberOfArguments = argumentList.size();
+		for ( int index = 0; index < numberOfArguments; index++ )
+		{
+			final int thisIndex = index;
+			innerIterables.add( expressionSegments(
+				new Closure( null )
+				{
+					@SuppressWarnings("unused")
+					public SymbolicExpression doCall(
+						SymbolicExpression replacement
+					)
+					{
+						List< SymbolicExpression > theseArguments =
+							new ArrayList< SymbolicExpression >( argumentList );
+						
+						theseArguments.set( thisIndex, replacement );
+						
+						return (SymbolicExpression)finalSegmentSoFar.call(
+							new Object[]{ new SymbolicExpression(
+								operator,
+								theseArguments
+							) }
+						);
+					}
+				},
+				argumentList.get( index )
+			) );
+		}
+		
+		return new ConcatenationOfIterables< Closure >( innerIterables );
+	}
+	
+	/**
 	 * <p>Applies the {@code pattern} expression to the {@code subject}
 	 * expression and returns an {@code Iterable} whose {@code Iterator}s will
-	 * iterate through each of the possible match results.<p>
+	 * iterate through each of the possible match results.</p>
 	 * 
 	 * <p>Note that if any of the matchers in the pattern expression returns an
 	 * {@code Iterable} of something other than {@code Map}s, this method could
-	 * very well return that bad {@code Iterable}.<p>
+	 * very well return that bad {@code Iterable}.</p>
 	 * 
 	 * @param pattern  a pattern {@code SymbolicExpression}
 	 * @param subject  a {@code SymbolicExpression} to try to match
@@ -540,8 +1196,8 @@ public class PatternTermOperator
 					private Map< ?, ? > nextValue;
 					
 					/**
-					 * Calculates the next value to return from this
-					 * {@code Iterator}, if necessary. 
+					 * <p>Calculates the next value to return from this
+					 * {@code Iterator}, if necessary.</p>
 					 */
 					private void calculateNext()
 					{
@@ -597,11 +1253,9 @@ public class PatternTermOperator
 							
 							for ( Object key: commonKeys )
 							{
-								if (
-									!result.get( key ).equals(
-										map.get( key )
-									)
-								)
+								if ( !result.get( key ).equals(
+									map.get( key )
+								) )
 									return null;
 							}
 							
@@ -650,6 +1304,47 @@ public class PatternTermOperator
 				};
 			}
 		};
+	}
+	
+	/**
+	 * <p>Applies the {@code pattern} expression to every subexpression of the
+	 * {@code subject} expression and returns an {@code Iterable} whose
+	 * {@code Iterator}s will iterate through each of the possible match
+	 * results.</p>
+	 * 
+	 * <p>The subexpressions are traversed starting with the root subexpression
+	 * (the {@code subject} itself) and going inward, with each argument of an
+	 * expression explored in the order specified by that expression's argument
+	 * list.</p>
+	 * 
+	 * <p>Note that if any of the matchers in the pattern expression returns an
+	 * {@code Iterable} of something other than {@code Map}s, this method could
+	 * very well return that bad {@code Iterable}.</p>
+	 * 
+	 * @param pattern  a pattern {@code SymbolicExpression}
+	 * @param subject  a {@code SymbolicExpression} to try to match
+	 * 
+	 * @return  an {@code Iterable} of the possible match results
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern} or {@code subject} is {@code null}
+	 */
+	public static Iterable< Map< ?, ? > > matchesAnywhereFor(
+		SymbolicExpression pattern,
+		SymbolicExpression subject
+	)
+	{
+		List< Iterable< Map< ?, ? > > > innerIterables =
+			new ArrayList< Iterable< Map< ?, ? > > >();
+		
+		innerIterables.add( matchesFor( pattern, subject ) );
+		
+		for ( SymbolicExpression subSubject: subject.getArgumentList() )
+		{
+			innerIterables.add( matchesAnywhereFor( pattern, subSubject ) );
+		}
+		
+		return new ConcatenationOfIterables< Map< ?, ? > >( innerIterables );
 	}
 	
 	
