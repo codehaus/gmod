@@ -77,6 +77,50 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 		assertEquals( replacementFor( [ x: dummy ], rTermX2 ), dummy );
 	}
 	
+	void testRJumpFailure()
+	{
+		// Make sure that {@code rJump} fails when necessary.
+		
+		def dummy = expr( "dummy" );
+		
+		
+		shouldFail( NullPointerException.class, { rJump( null, dummy ) } );
+		shouldFail( NullPointerException.class, { rJump( dummy, null ) } );
+		
+		shouldFail(
+			ClassCastException.class,
+			{ replacementFor(
+				[ jump: { it } ],
+				rJump(
+					"jump",
+					rTerm( { "This is not null or a SymbolicExpression." } )
+				)
+			) }
+		);
+	}
+	
+	void testRJump()
+	{
+		// Test {@code rJump} by using it to make a replacement expression and
+		// testing that expression with {@code replacementsFor}.
+		
+		def plusToDivResults = replacementsFor(
+			pJump( "jump", pTerm( "a" ) + pTerm( "b" ) ),
+			rJump( "jump", rTerm( "a" ) / rTerm( "b" ) ),
+			con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 )
+		).iterator();
+		
+		[
+			(con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 ))) / con( 5 ),
+			(con( 1 ) + con( 2 )) / (con( 3 ) + con( 4 )) + con( 5 ),
+			con( 1 ) / con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 ),
+			con( 1 ) + con( 2 ) + con( 3 ) / con( 4 ) + con( 5 )
+		].each {
+			assertEquals( it, plusToDivResults.next() );
+		};
+		assertFalse( plusToDivResults.hasNext() );
+	}
+	
 	void testReplacementFor()
 	{
 		// Test {@code replacementFor} with some replacement expressions, making
