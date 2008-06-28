@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,17 +48,13 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         registerShortcuts()
 
         if( registerExtensions ){
-           def helpers = ["Jdk6GraphicsBuilderHelper",
-                          "SwingXGraphicsBuilderHelper",
-                          "JHlabsGraphicsBuilderHelper",
-                          "AnimationGraphicsBuilderHelper",
-                          "BatikGraphicsBuilderHelper"]
-           helpers.each { helper ->
+           def plugins = ["Jdk6","SwingX","JHlabs","Animation","Batik","Substance"]
+           plugins.each { plugin ->
               try{
-                 Class helperClass = Class.forName("groovy.swing.j2d.${helper}")
-                 helperClass.registerOperations( this )
+                 Class pluginClass = Class.forName("groovy.swing.j2d.${plugin}GraphicsBuilderPlugin")
+                 pluginClass.registerOperations( this )
               }catch( Exception e ){
-                 System.err.println("GraphicsRenderer: couldn't register ${helper}")
+                 System.err.println("GraphicsRenderer: couldn't register ${plugin}GraphicsBuilderPlugin")
               }
            }
         }
