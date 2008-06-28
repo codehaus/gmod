@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import groovy.swing.j2d.operations.shapes.path.CloseExtPathOperation
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class BatikGraphicsBuilderHelper {
+class BatikGraphicsBuilderPlugin {
    public static void registerOperations( GraphicsBuilder builder ) {
       builder.registerGraphicsOperationBeanFactory( "xpath", ExtPathGraphicsOperation )
       builder.registerFactory( "xarcTo", new ExtPathOperationFactory( ArcToExtPathOperation) )
