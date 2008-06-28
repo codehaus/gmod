@@ -2,6 +2,8 @@ package org.codehaus.groovy.science;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -305,7 +307,7 @@ public class ReplacementTermOperator
 	
 	/**
 	 * <p>Performs a pattern search-and-replace on the given subject expression,
-	 * and returns an {@code Iterable} of the possible result expressions.<p>
+	 * and returns an {@code Iterable} of the possible result expressions.</p>
 	 * 
 	 * @param pattern
 	 *     the pattern expression to match against {@code subject}
@@ -453,9 +455,119 @@ public class ReplacementTermOperator
 	}
 	
 	/**
+	 * <p>Performs a pattern search-and-replace on the given subject expression.
+	 * If a replacement can be made, the first one is chosen (as determined by
+	 * the {@code Iterator} produced by matching {@code pattern} against
+	 * {@code subject}). If no replacement can be made, the original expression
+	 * is returned.</p>
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against {@code subject}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to the first result of matching
+	 *     {@code pattern} against {@code subject}
+	 * 
+	 * @param subject
+	 *     the expression to perform the pattern search-and-replace on
+	 * 
+	 * @return
+	 *     the {@code SymbolicExpression} formed by making the replacement
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
+	 *     {@code null}
+	 */
+	public static SymbolicExpression firstReplacementFor(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(replacement == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		
+		Iterator< SymbolicExpression > resultIterator = replacementsFor(
+			pattern,
+			replacement,
+			subject
+		).iterator();
+		
+		if ( resultIterator.hasNext() )
+			return resultIterator.next();
+		
+		return subject;
+	}
+	
+	/**
+	 * <p>Performs pattern search-and-replaces on the given subject expression
+	 * until no further changes are made, and returns the final expression.</p>
+	 * 
+	 * <p>The first replacement, as determined by the {@code Iterator} given
+	 * when applying {@code pattern}, is always taken.</p>
+	 * 
+	 * <p>If a search-and-replace operation results in one or more new ways for
+	 * the search-and-replaces to match, and this happens repeatedly, this
+	 * method can wind up in an infinite loop.</p>
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against {@code subject}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to the first result of matching
+	 *     {@code pattern} against {@code subject}
+	 * 
+	 * @param subject
+	 *     the expression to perform the pattern search-and-replace on
+	 * 
+	 * @return
+	 *     the {@code SymbolicExpression} formed by making the replacements
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
+	 *     {@code null}
+	 */
+	public static SymbolicExpression replaceRepeatedly(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(replacement == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		
+		SymbolicExpression result = subject;
+		
+		while ( true )
+		{
+			SymbolicExpression newResult =
+				firstReplacementFor( pattern, replacement, result );
+			
+			if ( newResult.equals( result ) )
+				return result;
+			
+			result = newResult;
+		}
+	}
+	
+	/**
 	 * <p>Performs a pattern search-and-replace on each subexpression of the
 	 * given subject expression, and returns an {@code Iterable} of the possible
-	 * result expressions.<p>
+	 * result expressions.</p>
 	 * 
 	 * <p>The subexpressions are traversed starting with the root subexpression
 	 * (the {@code subject} itself) and going inward, with each argument of an
@@ -509,6 +621,294 @@ public class ReplacementTermOperator
 			PatternTermOperator.pJump( name, pattern ),
 			rJump( name, replacement ),
 			subject
+		);
+	}
+	
+	/**
+	 * <p>Performs a pattern search-and-replace on each subexpression of the
+	 * given subject expression. If a replacement can be made, the first one is
+	 * chosen (as determined by the first nonempty {@code Iterator} produced by
+	 * matching {@code pattern} against {@code subject}). If no replacement can
+	 * be made, the original expression is returned.</p>
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against the subexpressions of
+	 *     {@code subject}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to the first result of matching
+	 *     {@code pattern} against the subexpressions of {@code subject}
+	 * 
+	 * @param subject
+	 *     the expression to perform the pattern search-and-replace on
+	 * 
+	 * @return
+	 *     the {@code SymbolicExpression} formed by making the replacement
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
+	 *     {@code null}
+	 */
+	public static SymbolicExpression firstReplacementAnywhereFor(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(replacement == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		
+		Iterator< SymbolicExpression > resultIterator = replacementsAnywhereFor(
+			pattern,
+			replacement,
+			subject
+		).iterator();
+		
+		if ( resultIterator.hasNext() )
+			return resultIterator.next();
+		
+		return subject;
+	}
+	
+	/**
+	 * <p>Performs pattern search-and-replaces on the subexpressions of the
+	 * given subject expression until no further changes are made, and returns
+	 * the final expression.</p>
+	 * 
+	 * <p>The first replacement, as determined by the first nonempty
+	 * {@code Iterator} given when applying {@code pattern}, is always
+	 * taken.</p>
+	 * 
+	 * <p>If a search-and-replace operation results in one or more new ways for
+	 * the search-and-replaces to match, and this happens repeatedly, this
+	 * method can wind up in an infinite loop.</p>
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against the subexpressions of
+	 *     {@code subject}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to the first result of matching
+	 *     {@code pattern} against the subexpressions of {@code subject}
+	 * 
+	 * @param subject
+	 *     the expression to perform the pattern search-and-replace on
+	 * 
+	 * @return
+	 *     the {@code SymbolicExpression} formed by making the replacements
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
+	 *     {@code null}
+	 */
+	public static SymbolicExpression replaceAnywhereRepeatedly(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(replacement == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		
+		SymbolicExpression result = subject;
+		
+		while ( true )
+		{
+			SymbolicExpression newResult =
+				firstReplacementAnywhereFor( pattern, replacement, result );
+			
+			if ( newResult.equals( result ) )
+				return result;
+			
+			result = newResult;
+		}
+	}
+	
+	/**
+	 * <p>Finds all pattern matches in the subexpressions of the given subject
+	 * expression, and returns the result of performing search-and-replaces on
+	 * all of those matches.</p>
+	 * 
+	 * <p>The first replacement, as determined by the {@code Iterator} given
+	 * when applying {@code pattern}, is always taken, unless that replacement
+	 * would result from or overwrite some previously made replacement.</p>
+	 * 
+	 * <p>If a search-and-replace operation results in one or more new ways for
+	 * the search-and-replaces to match, the new potential replacements will not
+	 * be attempted. Unlike {@code replaceAnywhereRepeatedly}, this method
+	 * should never wind up in an infinite loop because of a situation like
+	 * this.</p>
+	 * 
+	 * @see replaceAnywhereRepeatedly
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against {@code subject}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to each result of matching
+	 *     {@code pattern} against {@code subject}
+	 * 
+	 * @param subject
+	 *     the expression to perform the pattern search-and-replace on
+	 * 
+	 * @return
+	 *     the {@code SymbolicExpression} formed by making the replacements
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern}, {@code replacement}, or {@code subject} is
+	 *     {@code null}
+	 */
+	public static SymbolicExpression replaceAll(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(replacement == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		
+		final SymbolicExpression finalPattern = pattern;
+		final SymbolicExpression finalReplacement = replacement;
+		
+		final Object placeholderOperator = new Object();
+		
+		SymbolicExpression temporaryResult = replaceAnywhereRepeatedly(
+			PatternTermOperator.pTerm( new Closure( null ) {
+				
+				private boolean containsPlaceholder(
+					SymbolicExpression expression
+				)
+				{
+					if ( expression == null )
+						throw new NullPointerException();
+					
+					Object operator = expression.getOperator();
+					if ( operator instanceof ConstantOperator )
+					{
+						Object value =
+							((ConstantOperator< ? >)operator).getValue();
+						
+						if ( value instanceof SymbolicExpression )
+						{
+							if (
+								((SymbolicExpression)value).getOperator()
+									== placeholderOperator
+							)
+								return true;
+						}
+					}
+					
+					for (
+						SymbolicExpression argument:
+							expression.getArgumentList()
+					)
+					{
+						if ( containsPlaceholder( argument ) )
+							return true;
+					}
+					
+					return false;
+				}
+				
+				@SuppressWarnings("unused")
+                public Iterable< Map< ?, ? > > doCall(
+					SymbolicExpression thisSubject
+				)
+				{
+					if ( thisSubject == null )
+						throw new NullPointerException();
+					
+					if ( containsPlaceholder( thisSubject ) )
+						return new ArrayList< Map< ?, ? > >();
+					
+					return PatternTermOperator.matchesFor(
+						finalPattern,
+						thisSubject
+					);
+				}
+			} ),
+			rTerm( new Closure( null ) {
+				
+				@SuppressWarnings("unused")
+                public SymbolicExpression doCall( Map< ?, ? > matchResult )
+				{
+					SymbolicExpression result =
+						replacementFor( matchResult, finalReplacement );
+					
+					if ( result == null )
+						return null;
+					
+					return ConstantOperator.con( new SymbolicExpression(
+						placeholderOperator,
+						Arrays.asList( result )
+					) );
+				}
+			} ),
+			subject
+		);
+		
+		final Object key = new Object();
+		
+		return replaceAnywhereRepeatedly(
+			PatternTermOperator.pTerm( new Closure( null ) {
+				
+				@SuppressWarnings("unused")
+                public Iterable< Map< ?, ? > > doCall(
+					SymbolicExpression thisSubject
+				)
+				{
+					if ( thisSubject == null )
+						throw new NullPointerException();
+					
+					Object operator = thisSubject.getOperator();
+					if ( !(operator instanceof ConstantOperator) )
+						return new ArrayList< Map< ?, ? > >();
+					
+					Object value = ((ConstantOperator< ? >)operator).getValue();
+					
+					if ( !(value instanceof SymbolicExpression) )
+						return new ArrayList< Map< ?, ? > >();
+					
+					SymbolicExpression innerExpression =
+						(SymbolicExpression)value;
+					
+					if ( innerExpression.getOperator() != placeholderOperator )
+						return new ArrayList< Map< ?, ? > >();
+					
+					Map< Object, Object > result =
+						new HashMap< Object, Object >();
+					
+					result.put(
+						key,
+						innerExpression.getArgumentList().get( 0 )
+					);
+					
+					return Arrays.asList( new Map< ?, ? >[]{ result } );
+				}
+			} ),
+			rTerm( key ),
+			temporaryResult
 		);
 	}
 	
