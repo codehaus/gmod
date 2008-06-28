@@ -1,0 +1,17 @@
+<projectDescription>
+  <name>graphicsbuilder-ext-substance</name>
+  <comment>Substance extension for GraphicsBuilder</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.codehaus.groovy.eclipse.groovyBuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.codehaus.groovy.eclipse.groovyNature</nature>
+  </natures>
+</projectDescription>
