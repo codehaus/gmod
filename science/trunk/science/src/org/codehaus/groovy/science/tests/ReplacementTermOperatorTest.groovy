@@ -226,6 +226,65 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 		assertFalse( distributiveReplacements.hasNext() );
 	}
 	
+	void testFirstReplacementFor()
+	{
+		// Test {@code firstReplacementsFor} by using it for an example
+		// application of pattern search-and-replace.
+		
+		def alternationMatcher = { SymbolicExpression... alternatives ->
+			pTerm( { subject ->
+				def matchResultList = [];
+				alternatives.each { alternative ->
+					for ( thisResult in matchesFor( alternative, subject ) )
+					{
+						matchResultList.add( thisResult );
+					}
+				};
+				return matchResultList;
+			} )
+		};
+		
+		
+		def distributiveReplacement = firstReplacementFor(
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "b" ),
+				pTerm( "b" ) * pTerm( "a" )
+			)
+			+
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "c" ),
+				pTerm( "c" ) * pTerm( "a" )
+			),
+			rTerm( "a" ) * (rTerm( "b" ) + rTerm( "c" )),
+			con( 1 ) * con( 2 ) + con( 1 ) * con( 2 )
+		);
+		
+		assertEquals(
+			distributiveReplacement,
+			con( 1 ) * (con( 2 ) + con( 2 ))
+		);
+	}
+	
+	void testReplaceRepeatedly()
+	{
+		// Test {@code replaceRepeatedly} by using it for an example application
+		// of pattern search-and-replace.
+		
+		assertFalse(
+			con( 1 ) + (con( 2 ) + (con( 3 ) + (con( 4 ) + con( 5 ))))
+				== con( 1 ) + con( 2 ) + con( 3 ) + con( 4 ) + con( 5 )
+		);
+		
+		assertEquals(
+			replaceRepeatedly(
+				pTerm( "a" ) + (pTerm( "b" ) + pTerm( "c" )),
+				rTerm( "a" ) + rTerm( "b" ) + rTerm( "c" ),
+				con( 1 ) + (con( 2 ) + (con( 3 ) + (con( 4 ) + con( 5 ))))
+			),
+			con( 1 ) + con( 2 ) + con( 3 ) + con( 4 ) + con( 5 )
+		);
+	}
+	
 	void testReplacementsAnywhereFor()
 	{
 		// Test {@code replacementsAnywhereFor} by using it to demonstrate an
@@ -246,5 +305,144 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 			assertEquals( it, plusToDivResults.next() );
 		};
 		assertFalse( plusToDivResults.hasNext() );
+	}
+	
+	void testFirstReplacementAnywhereFor()
+	{
+		// Test {@code firstReplacementAnywhereFor} by using it for an example
+		// application of pattern search-and-replace.
+		
+		def alternationMatcher = { SymbolicExpression... alternatives ->
+			pTerm( { subject ->
+				def matchResultList = [];
+				alternatives.each { alternative ->
+					for ( thisResult in matchesFor( alternative, subject ) )
+					{
+						matchResultList.add( thisResult );
+					}
+				};
+				return matchResultList;
+			} )
+		};
+		
+		
+		def distributiveReplacement = firstReplacementAnywhereFor(
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "b" ),
+				pTerm( "b" ) * pTerm( "a" )
+			)
+			+
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "c" ),
+				pTerm( "c" ) * pTerm( "a" )
+			),
+			rTerm( "a" ) * (rTerm( "b" ) + rTerm( "c" )),
+			con( 1 ) * con( 2 ) + con( 1 ) * con( 2 ) + con( 1 ) * con( 3 )
+		);
+		
+		assertEquals(
+			distributiveReplacement,
+			con( 1 ) * (con( 2 ) + con( 2 )) + con( 1 ) * con( 3 )
+		);
+	}
+	
+	void testReplaceAnywhereRepeatedly()
+	{
+		// Test {@code replaceAnywhereRepeatedly} by using it for example
+		// applications of pattern search-and-replace.
+		
+		def alternationMatcher = { SymbolicExpression... alternatives ->
+			pTerm( { subject ->
+				def matchResultList = [];
+				alternatives.each { alternative ->
+					for ( thisResult in matchesFor( alternative, subject ) )
+					{
+						matchResultList.add( thisResult );
+					}
+				};
+				return matchResultList;
+			} )
+		};
+		
+		
+		def distributiveReplacement = replaceAnywhereRepeatedly(
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "b" ),
+				pTerm( "b" ) * pTerm( "a" )
+			)
+			+
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "c" ),
+				pTerm( "c" ) * pTerm( "a" )
+			),
+			rTerm( "a" ) * (rTerm( "b" ) + rTerm( "c" )),
+			con( 1 ) * con( 2 ) + con( 1 ) * con( 2 ) + con( 1 ) * con( 3 )
+		);
+		
+		// Note that the specific order of operations is of interest here. The
+		// above expression is (((1*2)+(1*2))+(1*3)), so the transformation from
+		// ((1*2)+(1*2)) to (1*(2+2)), the only transformation possible, will be
+		// performed first, followed by the transformation from
+		// ((1*(2+2))+(1*3)) to (1*((2+2)+3)).
+		
+		assertEquals(
+			distributiveReplacement,
+			con( 1 ) * (con( 2 ) + con( 2 ) + con( 3 ))
+		);
+		
+		
+		def diabolicalDistributiveReplacement = replaceAnywhereRepeatedly(
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "b" ),
+				pTerm( "b" ) * pTerm( "a" )
+			)
+			+
+			alternationMatcher(
+				pTerm( "a" ) * pTerm( "c" ),
+				pTerm( "c" ) * pTerm( "a" )
+			),
+			rTerm( "a" ) * (rTerm( "b" ) + rTerm( "c" )),
+			con( 1 ) * con( 2 ) + con( 1 ) * con( 2 ) + con( 3 ) * con( 2 )
+		);
+		
+		// Here, the eagerness of the search-and-replace mechanism prevents this
+		// expression from being simplified as well as one might expect. The
+		// above expression is (((1*2)+(1*2))+(3*2)), so the transformation from
+		// ((1*2)+(1*2)) to (1*(2+2)) will be performed first, making it
+		// impossible to make any further replacements.
+		
+		assertEquals(
+			diabolicalDistributiveReplacement,
+			con( 1 ) * (con( 2 ) + con( 2 )) + con( 3 ) * con( 2 )
+		);
+	}
+	
+	void testReplaceAll()
+	{
+		// Test {@code replaceAll} by using it for example applications of
+		// pattern search-and-replace.
+		
+		def plusToDivTrippedUpResult = replaceAll(
+			pTerm( "a" ) + pTerm( "b" ),
+			rTerm( "a" ) / rTerm( "b" ),
+			con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 )) + con( 5 )
+		);
+		
+		assertEquals(
+			plusToDivTrippedUpResult,
+			(con( 1 ) + con( 2 ) + (con( 3 ) + con( 4 ))) / con( 5 )
+		);
+		
+		
+		def plusToDivResult = replaceAll(
+			pTerm( "a" ) + pTerm( "b" ),
+			rTerm( "a" ) / rTerm( "b" ),
+			con( 1 ) + con( 2 ) - (con( 3 ) + con( 4 )) - con( 5 )
+		);
+		
+		assertEquals(
+			plusToDivResult,
+			(con( 1 ) / con( 2 ) - con( 3 ) / con( 4 )) - con( 5 )
+		);
 	}
 }
