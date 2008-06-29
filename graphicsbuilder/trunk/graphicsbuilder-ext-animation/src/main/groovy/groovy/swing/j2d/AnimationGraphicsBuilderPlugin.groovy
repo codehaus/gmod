@@ -34,7 +34,7 @@ class AnimationGraphicsBuilderPlugin {
       builder.directionBackward = Direction.BACKWARD
       builder.repeatBehaviorLoop = RepeatBehavior.LOOP
       builder.repeatBehaviorReverse = RepeatBehavior.REVERSE
-      builder.inifiniteDuration = -1
-      builder.inifiteRepeatCount = -1
+      builder.infiniteDuration = -1
+      builder.infiniteRepeatCount = -1
    }
 }
