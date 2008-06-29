@@ -17,6 +17,7 @@ package groovy.swing.j2d.factory
 
 import org.jvnet.substance.api.SubstanceColorScheme
 import org.jvnet.substance.colorscheme.*
+//import org.jvnet.substance.colorschemepack.*
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -36,7 +37,12 @@ public class ColorSchemeFactory extends AbstractGraphicsOperationFactory {
     private SubstanceColorScheme parseColorScheme( value ) {
          value = camelCaseConverter(value)
          value = value[0].toUpperCase() + value[1..-1]
-         def clazz = ("org.jvnet.substance.colorscheme."+ value + "ColorScheme") as Class
+         def clazz = null
+         try {
+            clazz = ("org.jvnet.substance.colorscheme."+ value + "ColorScheme") as Class
+         }catch( ex ){
+            clazz = ("org.jvnet.substance.colorschemepack."+ value + "ColorScheme") as Class
+         }
          clazz.newInstance()
     }
 

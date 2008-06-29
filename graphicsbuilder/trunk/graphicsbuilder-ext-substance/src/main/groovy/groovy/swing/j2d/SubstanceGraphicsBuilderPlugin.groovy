@@ -59,37 +59,33 @@ class SubstanceGraphicsBuilderPlugin {
       builder.addShortcut( "fractalFlame", 'colorScheme2', 'cs2' )
       builder.addShortcut( "fractalFlame", 'iterations', 'i' )
       
-      builder.aquaColorScheme = builder.colorScheme("Aqua")
-      builder.barbyPinkColorScheme = builder.colorScheme("BarbyPink")
-      builder.bottleGreenColorScheme = builder.colorScheme("BottleGreen")
-      builder.brownColorScheme = builder.colorScheme("Brown")
-      builder.charcoalColorScheme = builder.colorScheme("Charcoal")
-      builder.cremeColorScheme = builder.colorScheme("Creme")
-      builder.darkGrayColorScheme = builder.colorScheme("DarkGray")
-      builder.darkMetallicColorScheme = builder.colorScheme("DarkMetallic")
-      builder.darkVioletColorScheme = builder.colorScheme("DarkViolet")
-      builder.desertSandColorScheme = builder.colorScheme("DesertSand")
-      builder.ebonyColorScheme = builder.colorScheme("Ebony")
-      builder.jadeForestColorScheme = builder.colorScheme("JadeForest")
-      builder.lightAquaColorScheme = builder.colorScheme("LightAqua")
-      builder.lightGrayColorScheme = builder.colorScheme("LightGray")
-      builder.limeGreenColorScheme = builder.colorScheme("LimeGreen")
-      builder.metallicColorScheme = builder.colorScheme("Metallic")
-      builder.oliveColorScheme = builder.colorScheme("Olive")
-      builder.orangeColorScheme = builder.colorScheme("Orange")
-      builder.purpleColorScheme = builder.colorScheme("Purple")
-      builder.raspberryColorScheme = builder.colorScheme("Raspberry")
-      builder.sepiaColorScheme = builder.colorScheme("Sepia")
-      builder.steelBlueColorScheme = builder.colorScheme("SteelBlue")
-      builder.sunfireRedColorScheme = builder.colorScheme("SunfireRed")
-      builder.sunGlareColorScheme = builder.colorScheme("SunGlare")
-      builder.sunsetColorScheme = builder.colorScheme("Sunset")
-      builder.terracottaColorScheme = builder.colorScheme("Terracotta")
-      builder.ultramarineColorScheme = builder.colorScheme("Ultramarine")
+      builder.ColorSchemes = [:]
+      def schemes = [ "aqua", "barbyPink", "bottleGreen", "brown", "charcoal", "creme",
+         "darkGray", "darkMetallic", "darkViolet", "desertSand", "ebony",
+         "jadeForest", "lightAqua", "lightGray", "limeGreen", "metallic",
+         "olive", "orange", "purple", "raspberry", "sepia", "steelBlue",
+         "sunfireRed", "sunGlare", "sunset", "terracotta", "ultramarine",
+         "belize", "bloodyMoon", "blueYonder", "brickWall", "brownVelvet",
+         "cobaltSteel", "desertMars", "earthFresco", "emeraldGrass", "fauveMauve",
+         "gooseberryJungle", "greenPearl", "mahogany", "orchidAlloy", "peach",
+         "placidPink", "skyHigh", "springLeaf", "turquoiseLake", "wildPine", "yellowMarine"
+      ]
+      schemes.each { name ->
+         def scheme = builder.colorScheme(name)
+         builder."${name}ColorScheme" = scheme
+         builder.ColorSchemes[name.toUpperCase()] = scheme
+      }
       
       builder.kaleidoscopeIFS = new Kaleidoscope()
       builder.scripturesIFS = new Scriptures()
       builder.singularityIFS = new Singularity()
       builder.vortexIFS = new Vortex()
+      
+      builder.IFS = [
+         KALEIDOSCOPE: builder.kaleidoscopeIFS,
+         SCRIPTURES: builder.scripturesIFS,
+         SINGULARITY: builder.singularityIFS,
+         VORTEX: builder.vortexIFS
+      ]
    }
 }
