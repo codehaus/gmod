@@ -36,7 +36,7 @@ public class ColorSchemeFactory extends AbstractGraphicsOperationFactory {
     private SubstanceColorScheme parseColorScheme( value ) {
          value = camelCaseConverter(value)
          value = value[0].toUpperCase() + value[1..-1]
-         def clazz = (value + "ColorScheme") as Class
+         def clazz = ("org.jvnet.substance.colorscheme."+ value + "ColorScheme") as Class
          clazz.newInstance()
     }
 

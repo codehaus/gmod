@@ -54,7 +54,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
                  Class pluginClass = Class.forName("groovy.swing.j2d.${plugin}GraphicsBuilderPlugin")
                  pluginClass.registerOperations( this )
               }catch( Exception e ){
-                 System.err.println("GraphicsRenderer: couldn't register ${plugin}GraphicsBuilderPlugin")
+                 System.err.println("GraphicsBuilder: could not register ${plugin}GraphicsBuilderPlugin")
               }
            }
         }
