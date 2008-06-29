@@ -18,6 +18,7 @@ package groovy.swing.j2d.operations.filters
 import groovy.swing.j2d.ColorCache
 import groovy.swing.j2d.impl.ObservableSupport
 import groovy.swing.j2d.operations.FilterProvider
+import groovy.swing.j2d.operations.FilterGroup
 
 import java.awt.Color
 import java.beans.PropertyChangeEvent
@@ -31,6 +32,7 @@ abstract class AbstractFilterProvider extends ObservableSupport implements Filte
     
     //public static required = []
     public static optional = ['enabled']
+    protected FilterGroup parent
     
     String name
     def enabled = true

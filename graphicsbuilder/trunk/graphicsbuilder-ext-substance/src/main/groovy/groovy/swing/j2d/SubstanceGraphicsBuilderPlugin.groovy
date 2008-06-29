@@ -15,9 +15,12 @@
 
 package groovy.swing.j2d
 
+import groovy.swing.j2d.factory.FilterFactory
 import groovy.swing.j2d.factory.ColorSchemeFactory
 import groovy.swing.j2d.factory.ShaperFactory
+import groovy.swing.j2d.operations.filters.substance.*
 import org.jvnet.substance.shaperpack.*
+import org.jvnet.substance.watermarkpack.flamefractal.*
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
@@ -36,6 +39,7 @@ class SubstanceGraphicsBuilderPlugin {
       def colorSchemeFactory = new ColorSchemeFactory()
       builder.registerFactory( "colorScheme", colorSchemeFactory )
       builder.registerFactory( "cs", colorSchemeFactory )
+      builder.registerFactory( "fractalFlame", new FilterFactory(FractalFlameFilterProvider) )
 
       ["butterfly","dolphin","fish","foot","iceCream","raceCar","rhino","stegosaurus"].each { nodeName ->
          nodeName += "Shape"
@@ -50,46 +54,42 @@ class SubstanceGraphicsBuilderPlugin {
          builder.addShortcut( nodeName, 'asImage', 'i' )
          builder.addShortcut( nodeName, 'passThrough', 'pt' )
       }
-
-      builder.variables['aquaColorScheme'] = builder.colorScheme( "Aqua")
-      builder.variables['barbyPinkColorScheme'] = builder.colorScheme( "BarbyPink")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "BlendBi"
-      builder.variables['bottleGreenColorScheme'] = builder.colorScheme( "BottleGreen")
-      builder.variables['brownColorScheme'] = builder.colorScheme( "Brown")
-      builder.variables['charcoalColorScheme'] = builder.colorScheme( "Charcoal")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Colorblind"
-      builder.variables['cremeColorScheme'] = builder.colorScheme( "Creme")
-      builder.variables['darkGrayColorScheme'] = builder.colorScheme( "DarkGray")
-      builder.variables['darkMetallicColorScheme'] = builder.colorScheme( "DarkMetallic")
-      builder.variables['darkVioletColorScheme'] = builder.colorScheme( "DarkViolet")
-      builder.variables['desertSandColorScheme'] = builder.colorScheme( "DesertSand")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Deuteranopia"
-      builder.variables['ebonyColorScheme'] = builder.colorScheme( "Ebony")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "HueShift"
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Inverted"
-      builder.variables['jadeForestColorScheme'] = builder.colorScheme( "JadeForest")
-      builder.variables['lightAquaColorScheme'] = builder.colorScheme( "LightAqua")
-      builder.variables['lightGrayColorScheme'] = builder.colorScheme( "LightGray")
-      builder.variables['limeGreenColorScheme'] = builder.colorScheme( "LimeGreen")
-      builder.variables['metallicColorScheme'] = builder.colorScheme( "Metallic")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Negated"
-      builder.variables['oliveColorScheme'] = builder.colorScheme( "Olive")
-      builder.variables['orangeColorScheme'] = builder.colorScheme( "Orange")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Protanopia"
-      builder.variables['purpleColorScheme'] = builder.colorScheme( "Purple")
-      builder.variables['raspberryColorScheme'] = builder.colorScheme( "Raspberry")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Saturated"
-      builder.variables['sepiaColorScheme'] = builder.colorScheme( "Sepia")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Shade"
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Shift"
-      builder.variables['steelBlueColorScheme'] = builder.colorScheme( "SteelBlue")
-      builder.variables['sunfireRedColorScheme'] = builder.colorScheme( "SunfireRed")
-      builder.variables['sunGlareColorScheme'] = builder.colorScheme( "SunGlare")
-      builder.variables['sunsetColorScheme'] = builder.colorScheme( "Sunset")
-      builder.variables['terracottaColorScheme'] = builder.colorScheme( "Terracotta")
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Tint"
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Tone"
-      //builder.variables['aquaColorScheme'] = builder.colorScheme( "Trinatopia"
-      builder.variables['ultramarineColorScheme'] = builder.colorScheme( "Ultramarine")
+      
+      builder.addShortcut( "fractalFlame", 'colorScheme1', 'cs1' )
+      builder.addShortcut( "fractalFlame", 'colorScheme2', 'cs2' )
+      builder.addShortcut( "fractalFlame", 'iterations', 'i' )
+      
+      builder.aquaColorScheme = builder.colorScheme("Aqua")
+      builder.barbyPinkColorScheme = builder.colorScheme("BarbyPink")
+      builder.bottleGreenColorScheme = builder.colorScheme("BottleGreen")
+      builder.brownColorScheme = builder.colorScheme("Brown")
+      builder.charcoalColorScheme = builder.colorScheme("Charcoal")
+      builder.cremeColorScheme = builder.colorScheme("Creme")
+      builder.darkGrayColorScheme = builder.colorScheme("DarkGray")
+      builder.darkMetallicColorScheme = builder.colorScheme("DarkMetallic")
+      builder.darkVioletColorScheme = builder.colorScheme("DarkViolet")
+      builder.desertSandColorScheme = builder.colorScheme("DesertSand")
+      builder.ebonyColorScheme = builder.colorScheme("Ebony")
+      builder.jadeForestColorScheme = builder.colorScheme("JadeForest")
+      builder.lightAquaColorScheme = builder.colorScheme("LightAqua")
+      builder.lightGrayColorScheme = builder.colorScheme("LightGray")
+      builder.limeGreenColorScheme = builder.colorScheme("LimeGreen")
+      builder.metallicColorScheme = builder.colorScheme("Metallic")
+      builder.oliveColorScheme = builder.colorScheme("Olive")
+      builder.orangeColorScheme = builder.colorScheme("Orange")
+      builder.purpleColorScheme = builder.colorScheme("Purple")
+      builder.raspberryColorScheme = builder.colorScheme("Raspberry")
+      builder.sepiaColorScheme = builder.colorScheme("Sepia")
+      builder.steelBlueColorScheme = builder.colorScheme("SteelBlue")
+      builder.sunfireRedColorScheme = builder.colorScheme("SunfireRed")
+      builder.sunGlareColorScheme = builder.colorScheme("SunGlare")
+      builder.sunsetColorScheme = builder.colorScheme("Sunset")
+      builder.terracottaColorScheme = builder.colorScheme("Terracotta")
+      builder.ultramarineColorScheme = builder.colorScheme("Ultramarine")
+      
+      builder.kaleidoscopeIFS = new Kaleidoscope()
+      builder.scripturesIFS = new Scriptures()
+      builder.singularityIFS = new Singularity()
+      builder.vortexIFS = new Vortex()
    }
 }

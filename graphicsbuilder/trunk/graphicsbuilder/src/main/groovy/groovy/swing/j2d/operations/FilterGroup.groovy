@@ -47,6 +47,7 @@ public class FilterGroup extends ObservableSupport {
     public void addFilter( FilterProvider filter ) {
         if( !filter ) return
         this.@filters << filter
+        filter.parent = this
         filter.addPropertyChangeListener( this )
         if( enabled ) firePropertyChange( "size", this.@filters.size()-1, this.@filters.size() )
     }
@@ -55,6 +56,7 @@ public class FilterGroup extends ObservableSupport {
         if( !filter ) return
         filter.removePropertyChangeListener( this )
         this.@filters.remove( filter )
+        filter.parent = null
         if( enabled ) firePropertyChange( "size", this.@filters.size()+1, this.@filters.size() )
     }
 
