@@ -3,9 +3,11 @@ package org.codehaus.groovy.science.tests
 
 import org.codehaus.groovy.science.ConstantOperator
 import org.codehaus.groovy.science.CumulativeExpressionValidator
-import org.codehaus.groovy.science.IdentifierOperator
 import org.codehaus.groovy.science.OverloadableOperators
 import org.codehaus.groovy.science.SymbolicExpression
+
+import static org.codehaus.groovy.science.ConstantOperator.*
+import static org.codehaus.groovy.science.SymbolicExpression.*
 
 
 class CumulativeExpressionValidatorTests extends GroovyTestCase
@@ -97,20 +99,16 @@ class CumulativeExpressionValidatorTests extends GroovyTestCase
 			new SymbolicExpression( equalityOp, [ first, second ] )
 		};
 		
+		def identifierOp = new Object();
+		
 		// shortcut for representing real-valued variables
 		def real = {
-			new SymbolicExpression(
-				new IdentifierOperator( Number.class, it ),
-				[]
-			)
+			con( expr( identifierOp, con( Number ), con( it ) ) );
 		};
 		
 		// shortcut for representing boolean-valued variables
 		def bool = {
-			new SymbolicExpression(
-				new IdentifierOperator( Boolean.class, it ),
-				[]
-			)
+			con( expr( identifierOp, con( Boolean ), con( it ) ) );
 		};
 		
 		// shortcut for representing constants
@@ -145,17 +143,39 @@ class CumulativeExpressionValidatorTests extends GroovyTestCase
 		
 		numberContext.allowAlso(
 			{ (
-				(it instanceof IdentifierOperator)
+				(it instanceof ConstantOperator)
 				&&
-				Number.class.isAssignableFrom( it.getType() )
+				(it.value instanceof SymbolicExpression)
+				&&
+				(it.value.operator == identifierOp)
+				&&
+				(it.value.argumentList.size() == 2)
+				&&
+				(
+					it.value.argumentList[ 0 ].operator
+					instanceof ConstantOperator
+				)
+				&&
+				(it.value.argumentList[ 0 ].operator.value == Number)
 			) },
 			[]
 		);
 		booleanContext.allowAlso(
 			{ (
-				(it instanceof IdentifierOperator)
+				(it instanceof ConstantOperator)
 				&&
-				Boolean.class.isAssignableFrom( it.getType() )
+				(it.value instanceof SymbolicExpression)
+				&&
+				(it.value.operator == identifierOp)
+				&&
+				(it.value.argumentList.size() == 2)
+				&&
+				(
+					it.value.argumentList[ 0 ].operator
+					instanceof ConstantOperator
+				)
+				&&
+				(it.value.argumentList[ 0 ].operator.value == Boolean)
 			) },
 			[]
 		);
@@ -209,8 +229,8 @@ class CumulativeExpressionValidatorTests extends GroovyTestCase
     		)
 			in booleanContext
 		);
-		assert ( !(con( 3 ) + con( true ) in numberContext) );
-		assert ( !(con( 3 ) + con( true ) in booleanContext) );
+		assertFalse( con( 3 ) + con( true ) in numberContext );
+		assertFalse( con( 3 ) + con( true ) in booleanContext );
 		
 		
 		def p = bool( "p" );
