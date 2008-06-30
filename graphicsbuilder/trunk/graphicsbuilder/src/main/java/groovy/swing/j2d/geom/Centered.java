@@ -21,7 +21,7 @@ import java.awt.Shape;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public interface Centered extends Shape {
-   public double getCy();
+   float getCy();
 
-   double getCx();
+   float getCx();
 }

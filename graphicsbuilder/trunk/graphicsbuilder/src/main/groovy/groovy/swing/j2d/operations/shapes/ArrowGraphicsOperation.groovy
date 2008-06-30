@@ -61,12 +61,12 @@ public class ArrowGraphicsOperation extends AbstractShapeGraphicsOperation {
        def r = rise != null ? rise : 0.5
        def d = depth != null ? depth : 0.5
        def a = angle != null ? angle : 0
-       arrow = new Arrow( x as double,
-                          y as double,
-                          width as double,
-                          height as double,
-                          r as double,
-                          d as double,
-                          a as double )
+       arrow = new Arrow( x as float,
+                          y as float,
+                          width as float,
+                          height as float,
+                          r as float,
+                          d as float,
+                          a as float )
     }
 }

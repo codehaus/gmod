@@ -56,10 +56,10 @@ public class RegularPolygonGraphicsOperation extends AbstractShapeGraphicsOperat
     }
     
     private void calculatePolygon() {
-       polygon = new RegularPolygon( cx as double,
-                                     cy as double,
-                                     radius as double,
+       polygon = new RegularPolygon( cx as float,
+                                     cy as float,
+                                     radius as float,
                                      sides as int,
-                                     angle as double )
+                                     angle as float )
     }
 }

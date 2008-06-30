@@ -70,24 +70,24 @@ final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
 
       if( sides ){
          if( angle != null ){
-            outerShape = new RegularPolygon( cx as double,
-                                             cy as double,
-                                             or as double,
+            outerShape = new RegularPolygon( cx as float,
+                                             cy as float,
+                                             or as float,
                                              sides as int,
-                                             angle as double )
-            innerShape = new RegularPolygon( cx as double,
-                                             cy as double,
-                                             ir as double,
+                                             angle as float )
+            innerShape = new RegularPolygon( cx as float,
+                                             cy as float,
+                                             ir as float,
                                              sides as int,
-                                             angle as double )
+                                             angle as float )
          }else{
-            outerShape = new RegularPolygon( cx as double,
-                                             cy as double,
-                                             or as double,
+            outerShape = new RegularPolygon( cx as float,
+                                             cy as float,
+                                             or as float,
                                              sides as int )
-            innerShape = new RegularPolygon( cx as double,
-                                             cy as double,
-                                             ir as double,
+            innerShape = new RegularPolygon( cx as float,
+                                             cy as float,
+                                             ir as float,
                                              sides as int )
          }
       }else{

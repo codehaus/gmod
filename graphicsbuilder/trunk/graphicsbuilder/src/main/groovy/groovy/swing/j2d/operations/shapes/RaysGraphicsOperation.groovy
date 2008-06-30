@@ -58,12 +58,12 @@ public class RaysGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
     
     private void calculateRays() {
-       shape = new Rays( cx as double,
-                          cy as double,
-                          radius as double,
+       shape = new Rays( cx as float,
+                          cy as float,
+                          radius as float,
                           rays as int,
-                          angle as double,
-                          extent as double,
+                          angle as float,
+                          extent as float,
                           rounded as boolean )
     }
 }

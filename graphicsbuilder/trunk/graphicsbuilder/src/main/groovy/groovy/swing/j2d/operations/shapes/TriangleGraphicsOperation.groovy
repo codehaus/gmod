@@ -72,21 +72,21 @@ final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
 
     private void calculateEquilateralTriangle(){
        def a = angle != null ? angle : 0
-       triangle = new Triangle( x as double,
-                                y as double,
-                                width as double,
-                                a as double,
+       triangle = new Triangle( x as float,
+                                y as float,
+                                width as float,
+                                a as float,
                                 rotateAtCenter ? true : false )
     }
 
     private void calculateIsoscelesTriangle(){
        def h = height != null ? height : Double.NaN
        def a = angle != null ? angle : 0
-       triangle = new Triangle( x as double,
-                                y as double,
-                                width as double,
-                                a as double,
-                                h as double,
+       triangle = new Triangle( x as float,
+                                y as float,
+                                width as float,
+                                a as float,
+                                h as float,
                                 rotateAtCenter ? true : false )
     }
 
@@ -110,12 +110,12 @@ final class TriangleGraphicsOperation extends AbstractShapeGraphicsOperation {
 
        def h = height != null ? height : Double.NaN
        def a = angle != null ? angle : 0
-       triangle = new Triangle( x as double,
-                                y as double,
-                                width as double,
-                                a as double,
+       triangle = new Triangle( x as float,
+                                y as float,
+                                width as float,
+                                a as float,
                                 ap,
-                                h as double,
+                                h as float,
                                 rotateAtCenter ? true : false )
     }
 }
