@@ -29,18 +29,18 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RoundPin implements Shape, Cloneable, Centered {
-   private double angle;
-   private double cx;
-   private double cy;
-   private double height;
+   private float angle;
+   private float cx;
+   private float cy;
+   private float height;
    private Shape pin;
-   private double radius;
+   private float radius;
 
-   public RoundPin( double cx, double cy, double radius ) {
+   public RoundPin( float cx, float cy, float radius ) {
       this( cx, cy, radius, radius * 2, 0 );
    }
 
-   public RoundPin( double cx, double cy, double radius, double height, double angle ) {
+   public RoundPin( float cx, float cy, float radius, float height, float angle ) {
       this.cx = cx;
       this.cy = cy;
       this.radius = radius;
@@ -69,7 +69,7 @@ public class RoundPin implements Shape, Cloneable, Centered {
       return pin.contains( r );
    }
 
-   public double getAngle() {
+   public float getAngle() {
       return angle;
    }
 
@@ -81,15 +81,15 @@ public class RoundPin implements Shape, Cloneable, Centered {
       return pin.getBounds2D();
    }
 
-   public double getCx() {
+   public float getCx() {
       return cx;
    }
 
-   public double getCy() {
+   public float getCy() {
       return cy;
    }
 
-   public double getHeight() {
+   public float getHeight() {
       return height;
    }
 
@@ -101,7 +101,7 @@ public class RoundPin implements Shape, Cloneable, Centered {
       return pin.getPathIterator( at, flatness );
    }
 
-   public double getRadius() {
+   public float getRadius() {
       return radius;
    }
 
@@ -114,7 +114,7 @@ public class RoundPin implements Shape, Cloneable, Centered {
    }
 
    private void calculatePath() {
-      Arc2D.Double head = new Arc2D.Double( cx - (radius * 1), cy - (radius * 1), radius * 2,
+      Arc2D.Float head = new Arc2D.Float( cx - (radius * 1), cy - (radius * 1), radius * 2,
             radius * 2, 0, 181, Arc2D.PIE );
       GeneralPath body = new GeneralPath();
       body.moveTo( cx - radius, cy );

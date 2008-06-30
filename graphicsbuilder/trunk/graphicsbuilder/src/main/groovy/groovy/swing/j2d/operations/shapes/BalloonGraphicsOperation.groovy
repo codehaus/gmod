@@ -68,15 +68,15 @@ final class BalloonGraphicsOperation extends AbstractShapeGraphicsOperation {
        def tl = getTabLocation()
        def ap = getAnglePosition()
        def th = tabHeight == null ? tabWidth/2 : tabHeight
-       balloon = new Balloon( x as double,
-                              y as double,
-                              width as double,
-                              height as double,
-                              arc as double,
-                              tabWidth as double,
-                              th as double,
+       balloon = new Balloon( x as float,
+                              y as float,
+                              width as float,
+                              height as float,
+                              arc as float,
+                              tabWidth as float,
+                              th as float,
                               tl as int,
-                              tabDisplacement as double,
+                              tabDisplacement as float,
                               ap as int )
     }
 

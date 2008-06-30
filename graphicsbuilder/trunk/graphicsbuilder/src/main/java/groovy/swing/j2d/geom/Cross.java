@@ -28,23 +28,23 @@ import java.awt.geom.RoundRectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Cross implements Shape, Cloneable, Centered {
-   private double angle;
+   private float angle;
    private Shape cross;
-   private double cx;
-   private double cy;
-   private double radius;
-   private double roundness;
-   private double width;
+   private float cx;
+   private float cy;
+   private float radius;
+   private float roundness;
+   private float width;
 
-   public Cross( double cx, double cy, double radius, double width ) {
+   public Cross( float cx, float cy, float radius, float width ) {
       this( cx, cy, radius, width, 0, 0 );
    }
 
-   public Cross( double cx, double cy, double radius, double width, double angle ) {
+   public Cross( float cx, float cy, float radius, float width, float angle ) {
       this( cx, cy, radius, width, angle, 0 );
    }
 
-   public Cross( double cx, double cy, double radius, double width, double angle, double roundness ) {
+   public Cross( float cx, float cy, float radius, float width, float angle, float roundness ) {
       if( width > radius * 2 ){
          throw new IllegalArgumentException( "width can not be greater than radius*2 ("
                + (radius * 2) + ")" );
@@ -81,7 +81,7 @@ public class Cross implements Shape, Cloneable, Centered {
       return cross.contains( r );
    }
 
-   public double getAngle() {
+   public float getAngle() {
       return angle;
    }
 
@@ -93,11 +93,11 @@ public class Cross implements Shape, Cloneable, Centered {
       return cross.getBounds2D();
    }
 
-   public double getCx() {
+   public float getCx() {
       return cx;
    }
 
-   public double getCy() {
+   public float getCy() {
       return cy;
    }
 
@@ -109,15 +109,15 @@ public class Cross implements Shape, Cloneable, Centered {
       return cross.getPathIterator( at, flatness );
    }
 
-   public double getRadius() {
+   public float getRadius() {
       return radius;
    }
 
-   public double getRoundness() {
+   public float getRoundness() {
       return roundness;
    }
 
-   public double getWidth() {
+   public float getWidth() {
       return width;
    }
 
@@ -130,10 +130,10 @@ public class Cross implements Shape, Cloneable, Centered {
    }
 
    private void calculatePath() {
-      double arcwh = width * roundness;
-      Shape beam1 = new RoundRectangle2D.Double( cx - radius, cy - (width / 2), radius * 2, width,
+      float arcwh = width * roundness;
+      Shape beam1 = new RoundRectangle2D.Float( cx - radius, cy - (width / 2), radius * 2, width,
             arcwh, arcwh );
-      Shape beam2 = new RoundRectangle2D.Double( cx - (width / 2), cy - radius, width, radius * 2,
+      Shape beam2 = new RoundRectangle2D.Float( cx - (width / 2), cy - radius, width, radius * 2,
             arcwh, arcwh );
       cross = new Area( beam1 );
       ((Area) cross).add( new Area( beam2 ) );

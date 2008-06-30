@@ -58,10 +58,10 @@ public class RoundPinGraphicsOperation extends AbstractShapeGraphicsOperation {
     private void calculateRoundPin() {
        def h = height != null ? height : radius * 2
        def a = angle != null ? angle : 0
-       pin = new RoundPin( cx as double,
-                           cy as double,
-                           radius as double,
-                           h as double,
-                           a as double )
+       pin = new RoundPin( cx as float,
+                           cy as float,
+                           radius as float,
+                           h as float,
+                           a as float )
     }
 }

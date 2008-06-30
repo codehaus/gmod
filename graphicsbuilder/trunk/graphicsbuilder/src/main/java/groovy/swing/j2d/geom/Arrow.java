@@ -28,29 +28,29 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Arrow implements Shape, Cloneable {
-   private double angle;
+   private float angle;
    private Shape arrow;
-   private double depth;
-   private double height;
-   private double rise;
-   private double width;
-   private double x;
-   private double y;
+   private float depth;
+   private float height;
+   private float rise;
+   private float width;
+   private float x;
+   private float y;
 
-   public Arrow( double x, double y, double width, double height ) {
+   public Arrow( float x, float y, float width, float height ) {
       this( x, y, width, height, height / 4, width / 2, 0 );
    }
 
-   public Arrow( double x, double y, double width, double height, double angle ) {
+   public Arrow( float x, float y, float width, float height, float angle ) {
       this( x, y, width, height, height / 4, width / 2, angle );
    }
 
-   public Arrow( double x, double y, double width, double height, double rise, double depth ) {
+   public Arrow( float x, float y, float width, float height, float rise, float depth ) {
       this( x, y, width, height, rise, depth, 0 );
    }
 
-   public Arrow( double x, double y, double width, double height, double rise, double depth,
-         double angle ) {
+   public Arrow( float x, float y, float width, float height, float rise, float depth,
+         float angle ) {
       if( depth < 0 || depth > 1 ){
          throw new IllegalArgumentException( "depth must be inside the range [0..1]" );
       }
@@ -87,7 +87,7 @@ public class Arrow implements Shape, Cloneable {
       return arrow.contains( r );
    }
 
-   public double getAngle() {
+   public float getAngle() {
       return angle;
    }
 
@@ -99,11 +99,11 @@ public class Arrow implements Shape, Cloneable {
       return arrow.getBounds2D();
    }
 
-   public double getDepth() {
+   public float getDepth() {
       return depth;
    }
 
-   public double getHeight() {
+   public float getHeight() {
       return height;
    }
 
@@ -115,19 +115,19 @@ public class Arrow implements Shape, Cloneable {
       return arrow.getPathIterator( at, flatness );
    }
 
-   public double getRise() {
+   public float getRise() {
       return rise;
    }
 
-   public double getWidth() {
+   public float getWidth() {
       return width;
    }
 
-   public double getX() {
+   public float getX() {
       return x;
    }
 
-   public double getY() {
+   public float getY() {
       return y;
    }
 
@@ -140,14 +140,14 @@ public class Arrow implements Shape, Cloneable {
    }
 
    private void calculateArrow() {
-      double d = width * depth;
-      double r = height * rise / 2;
+      float d = width * depth;
+      float r = height * rise / 2;
       GeneralPath head = new GeneralPath();
       head.moveTo( x + d, y );
       head.lineTo( x + d, y + height );
       head.lineTo( x + width, y + (height / 2) );
       head.closePath();
-      arrow = new Area( new Rectangle2D.Double( x, y + (height / 2) - r, d, r * 2 ) );
+      arrow = new Area( new Rectangle2D.Float( x, y + (height / 2) - r, d, r * 2 ) );
       ((Area) arrow).add( new Area( head ) );
 
       if( angle > 0 ){

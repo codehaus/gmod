@@ -27,19 +27,19 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class RegularPolygon implements Shape, Cloneable, Centered {
-   private double angle;
-   private double cx;
-   private double cy;
+   private float angle;
+   private float cx;
+   private float cy;
    private GeneralPath path;
    private Point2D[] points;
-   private double radius;
+   private float radius;
    private int sides;
 
-   public RegularPolygon( double cx, double cy, double radius, int sides ) {
+   public RegularPolygon( float cx, float cy, float radius, int sides ) {
       this( cx, cy, radius, sides, 0 );
    }
 
-   public RegularPolygon( double cx, double cy, double radius, int sides, double angle ) {
+   public RegularPolygon( float cx, float cy, float radius, int sides, float angle ) {
       if( sides < 3 ){
          throw new IllegalArgumentException( "sides can not be less than 3" );
       }
@@ -82,11 +82,11 @@ public class RegularPolygon implements Shape, Cloneable, Centered {
       return path.getBounds2D();
    }
 
-   public double getCx() {
+   public float getCx() {
       return cx;
    }
 
-   public double getCy() {
+   public float getCy() {
       return cy;
    }
 
@@ -102,7 +102,7 @@ public class RegularPolygon implements Shape, Cloneable, Centered {
       return points;
    }
 
-   public double getRadius() {
+   public float getRadius() {
       return radius;
    }
 
@@ -119,14 +119,14 @@ public class RegularPolygon implements Shape, Cloneable, Centered {
    }
 
    private void calculatePath() {
-      double t = 360 / sides;
-      double a = angle;
+      float t = 360 / sides;
+      float a = angle;
       points = new Point2D[sides];
       path = new GeneralPath();
       for( int i = 0; i < sides; i++ ){
-         double ra = Math.toRadians( a );
-         double x = Math.abs( radius * Math.cos( ra ) );
-         double y = Math.abs( radius * Math.sin( ra ) );
+         float ra = (float)Math.toRadians( a );
+         float x = (float) Math.abs( radius * Math.cos( ra ) );
+         float y = (float) Math.abs( radius * Math.sin( ra ) );
          if( a <= 90 ){
             x = cx + x;
             y = cy - y;
@@ -145,7 +145,7 @@ public class RegularPolygon implements Shape, Cloneable, Centered {
          }else{
             path.lineTo( x, y );
          }
-         points[i] = new Point2D.Double( x, y );
+         points[i] = new Point2D.Float( x, y );
          a += t;
          a = a > 360 ? a - 360 : a;
       }

@@ -27,20 +27,20 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Star implements Shape, Cloneable, Centered {
-   private double angle;
+   private float angle;
    private int count;
-   private double cx;
-   private double cy;
-   private double ir;
-   private double or;
+   private float cx;
+   private float cy;
+   private float ir;
+   private float or;
    private GeneralPath path;
    private Point2D[] points;
 
-   public Star( double cx, double cy, double or, double ir, int count ) {
+   public Star( float cx, float cy, float or, float ir, int count ) {
       this( cx, cy, or, ir, count, 0 );
    }
 
-   public Star( double cx, double cy, double or, double ir, int count, double angle ) {
+   public Star( float cx, float cy, float or, float ir, int count, float angle ) {
       if( angle < 0 || angle > 360 ){
          throw new IllegalArgumentException(
                "'angle' can not be less than 0 or greater than 360 [angle=" + angle + "]" );
@@ -98,11 +98,11 @@ public class Star implements Shape, Cloneable, Centered {
       return count;
    }
 
-   public double getCx() {
+   public float getCx() {
       return cx;
    }
 
-   public double getCy() {
+   public float getCy() {
       return cy;
    }
 
@@ -118,7 +118,7 @@ public class Star implements Shape, Cloneable, Centered {
       return points;
    }
 
-   public double getRadius() {
+   public float getRadius() {
       return or;
    }
 
@@ -131,15 +131,15 @@ public class Star implements Shape, Cloneable, Centered {
    }
 
    private void calculatePath() {
-      double t = 360 / count;
-      double a = angle + 90;
-      double b = angle + 90 + (t / 2);
+      float t = 360 / count;
+      float a = angle + 90;
+      float b = angle + 90 + (t / 2);
       points = new Point2D[count * 2];
       path = new GeneralPath();
       for( int i = 0; i < count; i++ ){
-         double ra = Math.toRadians( a );
-         double ox = Math.abs( or * Math.cos( ra ) );
-         double oy = Math.abs( or * Math.sin( ra ) );
+         float ra = (float) Math.toRadians( a );
+         float ox = (float) Math.abs( or * Math.cos( ra ) );
+         float oy = (float) Math.abs( or * Math.sin( ra ) );
          if( a <= 90 ){
             ox = cx + ox;
             oy = cy - oy;
@@ -154,9 +154,9 @@ public class Star implements Shape, Cloneable, Centered {
             oy = cy + oy;
          }
 
-         double rb = Math.toRadians( b );
-         double ix = Math.abs( ir * Math.cos( rb ) );
-         double iy = Math.abs( ir * Math.sin( rb ) );
+         float rb = (float) Math.toRadians( b );
+         float ix = (float) Math.abs( ir * Math.cos( rb ) );
+         float iy = (float) Math.abs( ir * Math.sin( rb ) );
          if( b <= 90 ){
             ix = cx + ix;
             iy = cy - iy;
@@ -178,8 +178,8 @@ public class Star implements Shape, Cloneable, Centered {
             path.lineTo( ox, oy );
             path.lineTo( ix, iy );
          }
-         points[2 * i] = new Point2D.Double( ox, oy );
-         points[(2 * i) + 1] = new Point2D.Double( ix, iy );
+         points[2 * i] = new Point2D.Float( ox, oy );
+         points[(2 * i) + 1] = new Point2D.Float( ix, iy );
          a += t;
          a = a > 360 ? a - 360 : a;
          b += t;

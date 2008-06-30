@@ -28,24 +28,24 @@ import java.awt.geom.Rectangle2D;
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
 public class Rays implements Shape, Cloneable, Centered {
-   private double angle;
-   private double cx;
-   private double cy;
+   private float angle;
+   private float cx;
+   private float cy;
    private GeneralPath path;
-   private double radius;
+   private float radius;
    private int rays;
-   private double extent;
+   private float extent;
    private boolean rounded;
 
-   public Rays( double cx, double cy, double radius, int rays ) {
-      this( cx, cy, radius, rays, 0, 0.5, false );
+   public Rays( float cx, float cy, float radius, int rays ) {
+      this( cx, cy, radius, rays, 0, 0.5f, false );
    }
 
-   public Rays( double cx, double cy, double radius, int rays, double extent ) {
+   public Rays( float cx, float cy, float radius, int rays, float extent ) {
       this( cx, cy, radius, rays, 0, extent, false );
    }
 
-   public Rays( double cx, double cy, double radius, int rays, double angle, double extent,
+   public Rays( float cx, float cy, float radius, int rays, float angle, float extent,
          boolean rounded ) {
       if( rays < 2 ){
          throw new IllegalArgumentException( "rays can not be less than 2" );
@@ -86,7 +86,7 @@ public class Rays implements Shape, Cloneable, Centered {
       return path.contains( r );
    }
 
-   public double getAngle() {
+   public float getAngle() {
       return angle;
    }
 
@@ -98,11 +98,11 @@ public class Rays implements Shape, Cloneable, Centered {
       return path.getBounds2D();
    }
 
-   public double getCx() {
+   public float getCx() {
       return cx;
    }
 
-   public double getCy() {
+   public float getCy() {
       return cy;
    }
 
@@ -114,7 +114,7 @@ public class Rays implements Shape, Cloneable, Centered {
       return path.getPathIterator( at, flatness );
    }
 
-   public double getRadius() {
+   public float getRadius() {
       return radius;
    }
 
@@ -131,19 +131,19 @@ public class Rays implements Shape, Cloneable, Centered {
    }
 
    private void calculatePath() {
-      double sides = rays * 2;
-      double t = 360 / sides;
-      double a = angle;
-      double e = (extent * t * 2) - t;
-      double[][] points = new double[rays * 2][];
-      double[] angles = new double[rays * 2];
+      float sides = rays * 2;
+      float t = 360 / sides;
+      float a = angle;
+      float e = (extent * t * 2) - t;
+      float[][] points = new float[rays * 2][];
+      float[] angles = new float[rays * 2];
       for( int i = 0; i < sides; i++ ){
-         double r = i % 2 == 0 ? a : a + e;
+         float r = i % 2 == 0 ? a : a + e;
          r = r < 0 ? 360 + r : r;
          // r = r > 360 ? r - 360 : r;
-         double ra = Math.toRadians( r );
-         double x = Math.abs( radius * Math.cos( ra ) );
-         double y = Math.abs( radius * Math.sin( ra ) );
+         float ra = (float)Math.toRadians( r );
+         float x = (float) Math.abs( radius * Math.cos( ra ) );
+         float y = (float) Math.abs( radius * Math.sin( ra ) );
          if( r <= 90 || r > 360 ){
             x = cx + x;
             y = cy - y;
@@ -157,7 +157,7 @@ public class Rays implements Shape, Cloneable, Centered {
             x = cx + x;
             y = cy + y;
          }
-         points[i] = new double[] { x, y };
+         points[i] = new float[] { x, y };
          angles[i] = r;
          a += t;
          a = a > 360 ? a - 360 : a;
@@ -168,7 +168,7 @@ public class Rays implements Shape, Cloneable, Centered {
          path.moveTo( cx, cy );
          path.lineTo( points[(2 * i)][0], points[(2 * i)][1] );
          if( rounded ){
-            path.append( new Arc2D.Double( cx - radius, cy - radius, radius * 2, radius * 2,
+            path.append( new Arc2D.Float( cx - radius, cy - radius, radius * 2, radius * 2,
                   angles[(2 * i)], t + e, Arc2D.OPEN ), true );
          }else{
             path.lineTo( points[(2 * i) + 1][0], points[(2 * i) + 1][1] );

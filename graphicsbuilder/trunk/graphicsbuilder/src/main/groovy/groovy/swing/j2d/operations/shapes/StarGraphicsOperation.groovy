@@ -57,11 +57,11 @@ public class StarGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
     
     private void calculateStar() {
-       star = new Star( cx as double,
-                        cy as double,
-                        or as double,
-                        ir as double,
+       star = new Star( cx as float,
+                        cy as float,
+                        or as float,
+                        ir as float,
                         count as int,
-                        angle as double )
+                        angle as float )
     }
 }

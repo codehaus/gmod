@@ -34,23 +34,23 @@ public class Triangle implements Shape, Cloneable, Centered {
    public static final int ISOSCELES = 1;
    public static final int RIGHT = 2;
 
-   private double angle;
+   private float angle;
    private int anglePosition;
-   private double cx;
-   private double cy;
-   private double height = Double.NaN;
+   private float cx;
+   private float cy;
+   private float height = Float.NaN;
    private boolean rotateAtCenter;
    private Shape triangle;
    private int type;
-   private double width;
-   private double x;
-   private double y;
+   private float width;
+   private float x;
+   private float y;
 
-   public Triangle( double x, double y, double width, double angle ) {
+   public Triangle( float x, float y, float width, float angle ) {
       this( x, y, width, angle, false );
    }
 
-   public Triangle( double x, double y, double width, double angle, boolean rotateAtCenter ) {
+   public Triangle( float x, float y, float width, float angle, boolean rotateAtCenter ) {
       this.x = x;
       this.y = y;
       this.width = width;
@@ -60,11 +60,11 @@ public class Triangle implements Shape, Cloneable, Centered {
       calculateEquilateralTriangle();
    }
 
-   public Triangle( double x, double y, double width, double angle, double height ) {
+   public Triangle( float x, float y, float width, float angle, float height ) {
       this( x, y, width, angle, height, false );
    }
 
-   public Triangle( double x, double y, double width, double angle, double height,
+   public Triangle( float x, float y, float width, float angle, float height,
          boolean rotateAtCenter ) {
       this.x = x;
       this.y = y;
@@ -76,11 +76,11 @@ public class Triangle implements Shape, Cloneable, Centered {
       calculateIsoscelesTriangle();
    }
 
-   public Triangle( double x, double y, double width, double angle, int anglePosition ) {
+   public Triangle( float x, float y, float width, float angle, int anglePosition ) {
       this( x, y, width, angle, anglePosition, false );
    }
 
-   public Triangle( double x, double y, double width, double angle, int anglePosition,
+   public Triangle( float x, float y, float width, float angle, int anglePosition,
          boolean rotateAtCenter ) {
       this.x = x;
       this.y = y;
@@ -92,12 +92,12 @@ public class Triangle implements Shape, Cloneable, Centered {
       calculateRightTriangle();
    }
 
-   public Triangle( double x, double y, double width, double angle, int anglePosition, double height ) {
+   public Triangle( float x, float y, float width, float angle, int anglePosition, float height ) {
       this( x, y, width, angle, anglePosition, height, false );
    }
 
-   public Triangle( double x, double y, double width, double angle, int anglePosition,
-         double height, boolean rotateAtCenter ) {
+   public Triangle( float x, float y, float width, float angle, int anglePosition,
+         float height, boolean rotateAtCenter ) {
       this.x = x;
       this.y = y;
       this.width = width;
@@ -136,7 +136,7 @@ public class Triangle implements Shape, Cloneable, Centered {
       return triangle.contains( r );
    }
 
-   public double getAngle() {
+   public float getAngle() {
       return angle;
    }
 
@@ -152,15 +152,15 @@ public class Triangle implements Shape, Cloneable, Centered {
       return triangle.getBounds2D();
    }
 
-   public double getCx() {
+   public float getCx() {
       return cx;
    }
 
-   public double getCy() {
+   public float getCy() {
       return cy;
    }
 
-   public double getHeight() {
+   public float getHeight() {
       return height;
    }
 
@@ -176,7 +176,7 @@ public class Triangle implements Shape, Cloneable, Centered {
       return type;
    }
 
-   public double getWidth() {
+   public float getWidth() {
       return width;
    }
 
@@ -193,7 +193,7 @@ public class Triangle implements Shape, Cloneable, Centered {
    }
 
    private void calculateEquilateralTriangle() {
-      this.height = Math.abs( Math.sqrt( 3 ) / 2 * width );
+      this.height = (float) Math.abs( Math.sqrt( 3 ) / 2 * width );
       GeneralPath t = new GeneralPath();
       t.moveTo( x, y );
       t.lineTo( x + width, y );
@@ -201,13 +201,13 @@ public class Triangle implements Shape, Cloneable, Centered {
       t.closePath();
       triangle = t;
 
-      rotate( new double[] { width, width, width }, new double[][] { { x, y }, { x + width, y },
+      rotate( new float[] { width, width, width }, new float[][] { { x, y }, { x + width, y },
             { x + (width / 2), y - height } } );
    }
 
    private void calculateIsoscelesTriangle() {
-      this.height = !Double.isNaN( height ) && !Double.isInfinite( height ) ? Math.abs( height )
-            : Math.abs( Math.sqrt( 3 ) / 2 * width );
+      this.height = (float)(!Double.isNaN( height ) && !Double.isInfinite( height ) ? Math.abs( height )
+            : Math.abs( Math.sqrt( 3 ) / 2 * width ));
       GeneralPath t = new GeneralPath();
       t.moveTo( x, y );
       t.lineTo( x + width, y );
@@ -215,15 +215,15 @@ public class Triangle implements Shape, Cloneable, Centered {
       t.closePath();
       triangle = t;
 
-      double d = Math.sqrt( Math.pow( width / 2, 2 ) + Math.pow( height, 2 ) );
-      rotate( new double[] { width, d, d }, new double[][] { { x, y }, { x + width, y },
+      float d = (float) Math.sqrt( Math.pow( width / 2, 2 ) + Math.pow( height, 2 ) );
+      rotate( new float[] { width, d, d }, new float[][] { { x, y }, { x + width, y },
             { x + (width / 2), y - height } } );
    }
 
    private void calculateRightTriangle() {
       this.anglePosition = anglePosition > ANGLE_AT_END ? ANGLE_AT_START : anglePosition;
-      this.height = !Double.isNaN( height ) && !Double.isInfinite( height ) ? Math.abs( height )
-            : Math.abs( Math.sqrt( 3 ) / 2 * width );
+      this.height = (float)(!Double.isNaN( height ) && !Double.isInfinite( height ) ? Math.abs( height )
+            : Math.abs( Math.sqrt( 3 ) / 2 * width ));
       GeneralPath t = new GeneralPath();
       t.moveTo( x, y );
       if( anglePosition == ANGLE_AT_START ){
@@ -236,18 +236,18 @@ public class Triangle implements Shape, Cloneable, Centered {
       t.closePath();
       triangle = t;
 
-      double d = Math.sqrt( Math.pow( width, 2 ) + Math.pow( height, 2 ) );
+      float d = (float) Math.sqrt( Math.pow( width, 2 ) + Math.pow( height, 2 ) );
       if( anglePosition == ANGLE_AT_END ){
-         rotate( new double[] { width, height, d }, new double[][] { { x, y }, { x + width, y },
+         rotate( new float[] { width, height, d }, new float[][] { { x, y }, { x + width, y },
                { x + width, y - height } } );
       }else{
-         rotate( new double[] { width, height, d }, new double[][] { { x + width, y }, { x, y },
+         rotate( new float[] { width, height, d }, new float[][] { { x + width, y }, { x, y },
                { x, y - height } } );
       }
    }
 
-   private void rotate( double[] sides, double[][] points ) {
-      double perimeter = sides[0] + sides[1] + sides[2];
+   private void rotate( float[] sides, float[][] points ) {
+      float perimeter = sides[0] + sides[1] + sides[2];
       cx = ((sides[0] * points[2][0]) + (sides[1] * points[0][0]) + (sides[2] * points[1][0]))
             / perimeter;
       cy = ((sides[0] * points[2][1]) + (sides[1] * points[0][1]) + (sides[2] * points[1][1]))

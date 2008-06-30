@@ -34,23 +34,23 @@ public class Balloon implements Shape, Cloneable {
    public static final int TAB_AT_TOP = 2;
 
    private int anglePosition = -1;
-   private double arc;
+   private float arc;
    private Shape balloon;
-   private double height;
-   private double tabDisplacement;
-   private double tabHeight;
+   private float height;
+   private float tabDisplacement;
+   private float tabHeight;
    private int tabLocation;
-   private double tabWidth;
-   private double width;
-   private double x;
-   private double y;
+   private float tabWidth;
+   private float width;
+   private float x;
+   private float y;
 
    public Balloon() {
-      this( 0, 0, 20, 20, 5, 5, 2.5, TAB_AT_BOTTOM, 0.5 );
+      this( 0, 0, 20, 20, 5, 5, 2.5f, TAB_AT_BOTTOM, 0.5f );
    }
 
-   public Balloon( double x, double y, double width, double height, double arc, double tabWidth,
-         double tabHeight, int tabLocation, double tabDisplacement ) {
+   public Balloon( float x, float y, float width, float height, float arc, float tabWidth,
+         float tabHeight, int tabLocation, float tabDisplacement ) {
       super();
       this.x = x;
       this.y = y;
@@ -64,8 +64,8 @@ public class Balloon implements Shape, Cloneable {
       calculatePath();
    }
 
-   public Balloon( double x, double y, double width, double height, double arc, double tabWidth,
-         double tabHeight, int tabLocation, double tabDisplacement, int anglePosition ) {
+   public Balloon( float x, float y, float width, float height, float arc, float tabWidth,
+         float tabHeight, int tabLocation, float tabDisplacement, int anglePosition ) {
       super();
       this.x = x;
       this.y = y;
@@ -105,7 +105,7 @@ public class Balloon implements Shape, Cloneable {
       return anglePosition;
    }
 
-   public double getArc() {
+   public float getArc() {
       return arc;
    }
 
@@ -117,7 +117,7 @@ public class Balloon implements Shape, Cloneable {
       return balloon.getBounds2D();
    }
 
-   public double getHeight() {
+   public float getHeight() {
       return height;
    }
 
@@ -129,11 +129,11 @@ public class Balloon implements Shape, Cloneable {
       return balloon.getPathIterator( at, flatness );
    }
 
-   public double getTabDisplacement() {
+   public float getTabDisplacement() {
       return tabDisplacement;
    }
 
-   public double getTabHeight() {
+   public float getTabHeight() {
       return tabHeight;
    }
 
@@ -141,19 +141,19 @@ public class Balloon implements Shape, Cloneable {
       return tabLocation;
    }
 
-   public double getTabWidth() {
+   public float getTabWidth() {
       return tabWidth;
    }
 
-   public double getWidth() {
+   public float getWidth() {
       return width;
    }
 
-   public double getX() {
+   public float getX() {
       return x;
    }
 
-   public double getY() {
+   public float getY() {
       return y;
    }
 
@@ -173,32 +173,32 @@ public class Balloon implements Shape, Cloneable {
       }
    }
 
-   public void setArc( double arc ) {
-      double oldValue = this.arc;
+   public void setArc( float arc ) {
+      float oldValue = this.arc;
       this.arc = arc;
       if( oldValue != arc ){
          calculatePath();
       }
    }
 
-   public void setHeight( double height ) {
-      double oldValue = this.height;
+   public void setHeight( float height ) {
+      float oldValue = this.height;
       this.height = height;
       if( oldValue != height ){
          calculatePath();
       }
    }
 
-   public void setTabDisplacement( double tabDisplacement ) {
-      double oldValue = this.tabDisplacement;
+   public void setTabDisplacement( float tabDisplacement ) {
+      float oldValue = this.tabDisplacement;
       this.tabDisplacement = tabDisplacement;
       if( oldValue != tabDisplacement ){
          calculatePath();
       }
    }
 
-   public void setTabHeight( double tabHeight ) {
-      double oldValue = this.tabHeight;
+   public void setTabHeight( float tabHeight ) {
+      float oldValue = this.tabHeight;
       this.tabHeight = tabHeight;
       if( oldValue != tabHeight ){
          calculatePath();
@@ -213,32 +213,32 @@ public class Balloon implements Shape, Cloneable {
       }
    }
 
-   public void setTabWidth( double tabWidth ) {
-      double oldValue = this.tabWidth;
+   public void setTabWidth( float tabWidth ) {
+      float oldValue = this.tabWidth;
       this.tabWidth = tabWidth;
       if( oldValue != tabWidth ){
          calculatePath();
       }
    }
 
-   public void setWidth( double width ) {
-      double oldValue = this.width;
+   public void setWidth( float width ) {
+      float oldValue = this.width;
       this.width = width;
       if( oldValue != width ){
          calculatePath();
       }
    }
 
-   public void setX( double x ) {
-      double oldValue = this.x;
+   public void setX( float x ) {
+      float oldValue = this.x;
       this.x = x;
       if( oldValue != x ){
          calculatePath();
       }
    }
 
-   public void setY( double y ) {
-      double oldValue = this.y;
+   public void setY( float y ) {
+      float oldValue = this.y;
       this.y = y;
       if( oldValue != y ){
          calculatePath();
@@ -246,18 +246,18 @@ public class Balloon implements Shape, Cloneable {
    }
 
    private void calculatePath() {
-      Shape rectangle = new RoundRectangle2D.Double( x, y, width, height, arc, arc );
+      Shape rectangle = new RoundRectangle2D.Float( x, y, width, height, arc, arc );
       Triangle triangle = null;
       AffineTransform at = new AffineTransform();
 
       switch( tabLocation ){
          case TAB_AT_RIGHT:
             if( anglePosition == -1 ){
-               triangle = new Triangle( 0, 0, tabWidth, 270, tabHeight );
+               triangle = new Triangle( 0f, 0f, tabWidth, 270f, tabHeight );
             }else{
-               triangle = new Triangle( 0, 0, tabWidth, 270, calculateAnglePosition(), tabHeight );
+               triangle = new Triangle( 0f, 0f, tabWidth, 270f, calculateAnglePosition(), tabHeight );
             }
-            double a = (tabWidth + arc - height) * tabDisplacement;
+            float a = (tabWidth + arc - height) * tabDisplacement;
             at = AffineTransform.getTranslateInstance( x + width, y + height - tabWidth - (arc / 2)
                   + a );
             break;
@@ -267,7 +267,7 @@ public class Balloon implements Shape, Cloneable {
             }else{
                triangle = new Triangle( 0, 0, tabWidth, 90, calculateAnglePosition(), tabHeight );
             }
-            double b = (height - arc - tabWidth) * tabDisplacement;
+            float b = (height - arc - tabWidth) * tabDisplacement;
             at = AffineTransform.getTranslateInstance( x, y + tabWidth + (arc / 2) + b );
             break;
          case TAB_AT_TOP:
@@ -276,7 +276,7 @@ public class Balloon implements Shape, Cloneable {
             }else{
                triangle = new Triangle( 0, 0, tabWidth, 0, calculateAnglePosition(), tabHeight );
             }
-            double c = (tabWidth + arc - width) * tabDisplacement;
+            float c = (tabWidth + arc - width) * tabDisplacement;
             at = AffineTransform.getTranslateInstance( x + width - tabWidth - (arc / 2) + c, y );
             break;
          default:
@@ -285,7 +285,7 @@ public class Balloon implements Shape, Cloneable {
             }else{
                triangle = new Triangle( 0, 0, tabWidth, 180, calculateAnglePosition(), tabHeight );
             }
-            double d = (width - arc - tabWidth) * tabDisplacement;
+            float d = (width - arc - tabWidth) * tabDisplacement;
             at = AffineTransform.getTranslateInstance( x + tabWidth + (arc / 2) + d, y + height );
       }
 

@@ -86,17 +86,17 @@ public class MultiRoundRectangleGraphicsOperation extends AbstractShapeGraphicsO
        def brh = bottomRightHeight != null ? bottomRightHeight :
                     bottomRightWidth != null ? bottomRightWidth : 0
 
-       roundRect = new MultiRoundRectangle( x as double,
-                                            y as double,
-                                            width as double,
-                                            height as double,
-                                            tlw as double,
-                                            tlh as double,
-                                            trw as double,
-                                            trh as double,
-                                            blw as double,
-                                            blh as double,
-                                            brw as double,
-                                            brh as double )
+       roundRect = new MultiRoundRectangle( x as float,
+                                            y as float,
+                                            width as float,
+                                            height as float,
+                                            tlw as float,
+                                            tlh as float,
+                                            trw as float,
+                                            trh as float,
+                                            blw as float,
+                                            blh as float,
+                                            brw as float,
+                                            brh as float )
     }
 }
