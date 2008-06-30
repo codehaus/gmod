@@ -37,7 +37,7 @@ class FractalFlameFilterProvider extends PropertiesBasedFilterProvider {
    public static optional = PropertiesBasedFilterProvider.optional + ['colorScheme1','colorScheme2']
 
    private fractal
-   private def lastWidth
+   private lastWidth
    private lastHeight
    
    def iterations = 100000
@@ -51,20 +51,22 @@ class FractalFlameFilterProvider extends PropertiesBasedFilterProvider {
    }
    
    public BufferedImage filter( BufferedImage src, BufferedImage dst, Shape clip ){
-	   def width = src.width
-	   def height = src.height
+       def img = dst ?: src
+      
+	   def width = img.width
+	   def height = img.height
 	   
 	   if( !fractal || lastWidth != width || lastHeight != height ){
 	      computeFractal( width, height )
 	   }
 	   
-       def composite = GraphicsBuilderHelper.createCompatibleImage(width,height)
-       def g = composite.createGraphics()
+       //def composite = GraphicsBuilderHelper.createCompatibleImage(width,height)
+       def g = img.createGraphics()
        def b = clip?.bounds ?: new Rectangle(0,0,0,0)
        g.clip = AffineTransform.getTranslateInstance(parent.offset-b.x,parent.offset-b.y).createTransformedShape(clip)
        g.drawImage( fractal, 0, 0, null )
        g.dispose()
-       return composite
+       return img
    }
    
    protected void localPropertyChange( PropertyChangeEvent event ) {
