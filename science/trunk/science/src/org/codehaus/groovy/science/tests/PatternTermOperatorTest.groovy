@@ -234,19 +234,27 @@ class PatternTermOperatorTest extends GroovyTestCase
 	
 	void testMatchesForFailure()
 	{
-		// Make sure that {@code matchesFor} fails when necessary.
+		// Make sure that {@code matchesFor}, {@code firstMatchFor}, and
+		// {@code matchesExistFor} fail when necessary.
 		
 		def dummy = expr( "dummy" );
 		
-		shouldFail( NullPointerException.class, { matchesFor( null, null ) } );
-		shouldFail( NullPointerException.class, { matchesFor( null, dummy ) } );
-		shouldFail( NullPointerException.class, { matchesFor( dummy, null ) } );
+		shouldFail( NullPointerException, { matchesFor( null, null ) } );
+		shouldFail( NullPointerException, { matchesFor( null, dummy ) } );
+		shouldFail( NullPointerException, { matchesFor( dummy, null ) } );
+		shouldFail( NullPointerException, { firstMatchFor( null, null ) } );
+		shouldFail( NullPointerException, { firstMatchFor( null, dummy ) } );
+		shouldFail( NullPointerException, { firstMatchFor( dummy, null ) } );
+		shouldFail( NullPointerException, { matchesExistFor( null, null ) } );
+		shouldFail( NullPointerException, { matchesExistFor( null, dummy ) } );
+		shouldFail( NullPointerException, { matchesExistFor( dummy, null ) } );
 	}
 	
 	void testMatchesFor()
 	{
-		// Test {@code matchesFor} with some complicated pattern expressions,
-		// making sure that it returns the correct match results.
+		// Test {@code matchesFor}, {@code firstMatchFor}, and
+		// {@code matchesExistFor} with some complicated pattern expressions,
+		// making sure that they return the correct match results.
 		
 		def dummy = expr( "dummy" );
 		
@@ -258,7 +266,9 @@ class PatternTermOperatorTest extends GroovyTestCase
 		);
 		
 		def multiNoMatches = matchesFor( multiPattern, dummy ).iterator();
-		assert !multiNoMatches.hasNext();
+		assertFalse( multiNoMatches.hasNext() );
+		assertFalse( matchesExistFor( multiPattern, dummy ) );
+		assertEquals( firstMatchFor( multiPattern, dummy ), null );
 		
 		def multiMatches = matchesFor( multiPattern, dummy + dummy ).iterator();
 		assertEquals( multiMatches.next(), [ a: 1, b: 1 ] );
@@ -266,6 +276,11 @@ class PatternTermOperatorTest extends GroovyTestCase
 		assertEquals( multiMatches.next(), [ a: 1, b: 2 ] );
 		assertEquals( multiMatches.next(), [ a: 2, b: 2 ] );
 		assertFalse( multiMatches.hasNext() );
+		assertTrue( matchesExistFor( multiPattern, dummy + dummy ) );
+		assertEquals(
+			firstMatchFor( multiPattern, dummy + dummy ),
+			[ a: 1, b: 1 ]
+		);
 		
 		
 		def conflictingPattern = (
@@ -282,6 +297,11 @@ class PatternTermOperatorTest extends GroovyTestCase
 		assertEquals( conflictingMatches.next(), [ a: 1, b: 2, c: 2 ] );
 		assertEquals( conflictingMatches.next(), [ a: 2, b: 2, c: 2 ] );
 		assertFalse( conflictingMatches.hasNext() );
+		assertTrue( matchesExistFor( conflictingPattern, dummy + dummy ) );
+		assertEquals(
+			firstMatchFor( conflictingPattern, dummy + dummy ),
+			[ a: 1, b: 1, c: 1 ]
+		);
 	}
 	
 	void testMatchesAnywhereForFailure()
