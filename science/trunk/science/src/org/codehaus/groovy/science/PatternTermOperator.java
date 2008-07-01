@@ -1305,6 +1305,69 @@ if ( !thisResult.containsKey( finalName ) )
 	}
 	
 	/**
+	 * <p>Applies the {@code pattern} expression to the {@code subject}
+	 * expression and returns the first match result, where the order is
+	 * determined by the {@code Iterable} produced by {@code matchesFor}.</p>
+	 * 
+	 * @param pattern  a pattern {@code SymbolicExpression}
+	 * @param subject  a {@code SymbolicExpression} to try to match
+	 * 
+	 * @return  the first match result
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern} or {@code subject} is {@code null}
+	 */
+	public static Map< ?, ? > firstMatchFor(
+		SymbolicExpression pattern,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		Iterator< Map< ?, ? > > matches =
+			matchesFor( pattern, subject ).iterator();
+		
+		if ( matches.hasNext() )
+			return matches.next();
+		
+		return null;
+	}
+	
+	/**
+	 * <p>Applies the {@code pattern} expression to the {@code subject}
+	 * expression and determines whether there are any results.</p>
+	 * 
+	 * @param pattern  a pattern {@code SymbolicExpression}
+	 * @param subject  a {@code SymbolicExpression} to try to match
+	 * 
+	 * @return
+	 *     {@code true} if {@code subject} fits {@code pattern}; {@code false}
+	 *     otherwise
+	 * 
+	 * @throws NullPointerException
+	 *     if {@code pattern} or {@code subject} is {@code null}
+	 */
+	public static boolean matchesExistFor(
+		SymbolicExpression pattern,
+		SymbolicExpression subject
+	)
+	{
+		if (
+			(pattern == null)
+			||
+			(subject == null)
+		)
+			throw new NullPointerException();
+		
+		return matchesFor( pattern, subject ).iterator().hasNext();
+	}
+	
+	/**
 	 * <p>Applies the {@code pattern} expression to every subexpression of the
 	 * {@code subject} expression and returns an {@code Iterable} whose
 	 * {@code Iterator}s will iterate through each of the possible match
