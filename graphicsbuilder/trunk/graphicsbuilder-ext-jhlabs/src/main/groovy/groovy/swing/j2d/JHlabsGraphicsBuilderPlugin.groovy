@@ -329,7 +329,7 @@ class JHlabsGraphicsBuilderPlugin {
       }
 
       ['fastMotionBlur','fmb','circleDistort','kaleidoscope','pinch','sphereDistort',
-       'twirl','water','feedback','shatter','ambientLight'].each { nodeName ->
+       'twirl','water','feedback','shatter','ambientLight','lightRays'].each { nodeName ->
          builder.addShortcut( nodeName, 'centreX', 'cx' )
          builder.addShortcut( nodeName, 'centreY', 'cy' )
       }
@@ -351,6 +351,8 @@ class JHlabsGraphicsBuilderPlugin {
       builder.addShortcut( 'curl', 'width', 'w' )
       builder.addShortcut( 'curl', 'height', 'h' )
       builder.addShortcut( 'scratch', 'width', 'w' )
+      builder.addShortcut( 'mirror', 'centreY', 'cy' )
+      builder.addShortcut( 'mirror', 'opacity', 'o' )
       
       ['ambientLight'].each { nodeName ->
          builder.addShortcut( nodeName, 'color', 'c' )
