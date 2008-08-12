@@ -22,11 +22,14 @@ import groovy.lang.MissingMethodException;
  * a {@code SymbolicExpression} to use as a search-and-replace result or
  * {@code null} to indicate it cannot generate a result expression for that
  * match result. A replacement expression oftentimes includes a
- * {@code ReplacementTermOperator}; if it does not, it only produces itself, no
- * matter what the match result was. Any nullary expression with a
- * {@code ReplacementTermOperator} as its operator, when used as a replacement
- * expression, behaves just like that {@code ReplacementTermOperator}'s own
- * replacer {@code Closure}.</p>
+ * {@code ReplacementTermOperator} or a {@code PatternTermOperator}; if it does
+ * not, it only produces itself, no matter what the match result was. Any
+ * nullary expression with a {@code ReplacementTermOperator} as its operator,
+ * when used as a replacement expression, behaves just like that
+ * {@code ReplacementTermOperator}'s own replacer {@code Closure}. A nullary
+ * expression with a {@code PatternTermOperator} that has a name behaves like a
+ * replacer that retrieves the value associated in the match result with that
+ * name.</p>
  * 
  * @see org.codehaus.groovy.science.SymbolicExpression
  */
@@ -284,6 +287,18 @@ public class ReplacementTermOperator
 				((ReplacementTermOperator)replacementOperator).getReplacer()
 					.call( new Object[]{ matchInformation } )
 			);
+		}
+		
+		if (
+			(replacementOperator instanceof PatternTermOperator)
+			&&
+			(numberOfArguments == 0)
+		)
+		{
+			Object name = ((PatternTermOperator)replacementOperator).getName();
+			
+			if ( name != null )
+				return replacementFor( matchInformation, rTerm( name ) );
 		}
 		
 		

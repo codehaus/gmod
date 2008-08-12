@@ -32,6 +32,17 @@ import groovy.lang.Closure;
  * operator, when used as a pattern expression, behaves just like that
  * {@code PatternTermOperator}'s own matcher {@code Closure}.</p>
  * 
+ * <p>The {@code name} of a {@code PatternTermOperator} can be anything, but it
+ * is intended to be used to signify the object that the pattern term will
+ * associate in the match result with whatever {@code SymbolicExpression} it has
+ * matched.</p>
+ * 
+ * <p>A {@code PatternTermOperator} that is created with no matcher specified
+ * will match anything. If the {@code name} has been specified, it will
+ * associate that name with the matched {@code SymbolicExpression} in its match
+ * results. Otherwise, its match results will store no information about the
+ * match.</p>
+ * 
  * @see org.codehaus.groovy.science.SymbolicExpression
  */
 public class PatternTermOperator
@@ -497,6 +508,11 @@ public class PatternTermOperator
 	
 	
 	/**
+	 * <p>The name of this term, or {@code null} if it has no name.</p>
+	 */
+	private Object name;
+	
+	/**
 	 * <p>The matcher this operator simulates.</p>
 	 * 
 	 * <p>A matcher is a closure that accepts a {@code SymbolicExpression} and
@@ -507,10 +523,34 @@ public class PatternTermOperator
 	 * match using this term; they are not restricted by type.</p>
 	 */
 	private Closure matcher;
+
+	/**
+	 * <p>Creates a {@code PatternTermOperator} with no name that matches
+	 * anything whatsoever.</p>
+	 */
+	public PatternTermOperator()
+	{
+		this( null, null );
+	}
+	
+	/**
+	 * <p>Creates a {@code PatternTermOperator} with the given name that matches
+	 * anything whatsoever.</p>
+	 * 
+	 * @param name
+	 *     the name of this term, which is also the object for the pattern
+	 *     expression to associate with whatever subject expression it is
+	 *     presented with; or {@code null} if it has no name and does not
+	 *     associate anything
+	 */
+	public PatternTermOperator( Object name )
+	{
+		this( name, null );
+	}
 	
 	/**
 	 * <p>Creates a {@code PatternTermOperator} with the given matcher
-	 * behavior.</p>
+	 * behavior and no name.</p>
 	 * 
 	 * <p>A matcher is a closure that accepts a {@code SymbolicExpression} and
 	 * returns either an {@code Iterable} of {@code Map}s, a single {@code Map}
@@ -519,39 +559,95 @@ public class PatternTermOperator
 	 * contain any information that is useful to keep track of in a pattern
 	 * match using this term; they are not restricted by type.</p>
 	 * 
-	 * @param matcher  the matcher this operator should simulate
-	 * 
-	 * @throws NullPointerException  if {@code matcher} is {@code null}
+	 * @param matcher
+	 *     the matcher this operator should simulate, or {@code null} if it
+	 *     should use a matcher that matches anything whatsoever
 	 */
 	public PatternTermOperator( Closure matcher )
 	{
-		if ( matcher == null )
-			throw new NullPointerException();
+		this( null, matcher );
+	}
+	
+	/**
+	 * <p>Creates a {@code PatternTermOperator} with the given matcher
+	 * behavior and name.</p>
+	 * 
+	 * <p>A matcher is a closure that accepts a {@code SymbolicExpression} and
+	 * returns either an {@code Iterable} of {@code Map}s, a single {@code Map}
+	 * (as a synonym of a single-valued {@code Iterable}) or {@code null} (as a
+	 * synonym of an empty {@code Iterable}). The {@code Map}s, meanwhile, can
+	 * contain any information that is useful to keep track of in a pattern
+	 * match using this term; they are not restricted by type.</p>
+	 * 
+	 * @param name     the name of this term, or {@code null} if it has no name
+	 * 
+	 * @param matcher
+	 *     the matcher this operator should simulate, or {@code null} if it
+	 *     should use a matcher that matches anything whatsoever
+	 */
+	public PatternTermOperator( Object name, Closure matcher )
+	{
+		this.name = name;
 		
-		this.matcher = matcher;
+		if ( matcher != null )
+		{
+			this.matcher = matcher;
+			return;
+		}
+		
+		if ( name == null )
+		{
+			this.matcher = new Closure( null ) {
+				
+				@SuppressWarnings("unused")
+				public Map< Object, SymbolicExpression >
+					doCall( SymbolicExpression expression )
+				{
+					if ( expression == null )
+						throw new NullPointerException();
+					
+					return new HashMap< Object, SymbolicExpression >();
+				}
+			};
+			
+			return;
+		}
+		
+		
+		final Object finalName = name;
+		
+		this.matcher = new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+			public Map< Object, SymbolicExpression >
+				doCall( SymbolicExpression expression )
+			{
+				if ( expression == null )
+					throw new NullPointerException();
+				
+				Map< Object, SymbolicExpression > result =
+					new HashMap< Object, SymbolicExpression >();
+				
+				result.put( finalName, expression );
+				
+				return result;
+			}
+		};
 	}
 	
 	
 	/**
-	 * <p>Creates a pattern {@code SymbolicExpression} that uses the given
-	 * matcher (by putting it in a {@code PatternTermOperator}).</p>
+	 * <p>Creates a pattern {@code SymbolicExpression} that matches any
+	 * {@code SymbolicExpression} whatsoever.</p>
 	 * 
-	 * @param matcher
-	 *     the matcher for the {@code SymbolicExpression} to simulate
+	 * <p>This is done by using a {@code PatternTermOperator}.</p>
 	 * 
-	 * @return  a {@code SymbolicExpression} that simulates the given matcher
-	 * 
-	 * @throws NullPointerException  if {@code matcher} is {@code null}
+	 * @return
+	 *     a pattern expression that matches anything
 	 */
-	public static SymbolicExpression pTerm( Closure matcher )
+	public static SymbolicExpression pTerm()
 	{
-		if ( matcher == null )
-			throw new NullPointerException();
-		
-		return new SymbolicExpression(
-			new PatternTermOperator( matcher ),
-			new ArrayList< SymbolicExpression >()
-		);
+		return pTerm( null, null );
 	}
 	
 	/**
@@ -563,40 +659,57 @@ public class PatternTermOperator
 	 * <p>This is done by using a {@code PatternTermOperator}.</p>
 	 * 
 	 * @param name
-	 *     the object for the pattern expression to associate with whatever
-	 *     subject expression it is presented with
+	 *     the name of this term, which is also the object for the pattern
+	 *     expression to associate with whatever subject expression it is
+	 *     presented with; or {@code null} if it has no name and does not
+	 *     associate anything
 	 * 
 	 * @return
 	 *     a pattern expression that matches anything and associates it with the
 	 *     given {@code name}
-	 * 
-	 * @throws NullPointerException  if {@code name} is {@code null}
 	 */
 	public static SymbolicExpression pTerm( Object name )
 	{
-		if ( name == null )
-			throw new NullPointerException();
-		
-		final Object finalName = name;
-		
+		return pTerm( name, null );
+	}
+	
+	/**
+	 * <p>Creates a pattern {@code SymbolicExpression} that uses the given
+	 * matcher (by putting it in a {@code PatternTermOperator}).</p>
+	 * 
+	 * @param matcher
+	 *     the matcher for the {@code SymbolicExpression} to simulate, or
+	 *     {@code null} if it should use a matcher that matches anything
+	 *     whatsoever
+	 * 
+	 * @return  a {@code SymbolicExpression} that simulates the given matcher
+	 */
+	public static SymbolicExpression pTerm( Closure matcher )
+	{
+		return pTerm( null, matcher );
+	}
+	
+	/**
+	 * <p>Creates a pattern {@code SymbolicExpression} with the given name that
+	 * uses the given matcher (by putting it in a
+	 * {@code PatternTermOperator}).</p>
+	 * 
+	 * @param name
+	 *     the name of this term, or {@code null} if it has no name
+	 * 
+	 * @param matcher
+	 *     the matcher for the {@code SymbolicExpression} to simulate, or
+	 *     {@code null} if it should use a matcher that matches anything
+	 *     whatsoever
+	 * 
+	 * @return
+	 *     a pattern expression that simulates the given matcher and has the
+	 *     given name
+	 */
+	public static SymbolicExpression pTerm( Object name, Closure matcher )
+	{
 		return new SymbolicExpression(
-			new PatternTermOperator( new Closure( null ) {
-				
-				@SuppressWarnings("unused")
-				public Map< Object, SymbolicExpression >
-					doCall( SymbolicExpression expression )
-				{
-					if ( expression == null )
-						throw new NullPointerException();
-					
-					Map< Object, SymbolicExpression > result =
-						new HashMap< Object, SymbolicExpression >();
-					
-					result.put( finalName, expression );
-					
-					return result;
-				}
-			} ),
+			new PatternTermOperator( name, matcher ),
 			new ArrayList< SymbolicExpression >()
 		);
 	}
@@ -1408,6 +1521,16 @@ if ( !thisResult.containsKey( finalName ) )
 		return new ConcatenationOfIterables< Map< ?, ? > >( innerIterables );
 	}
 	
+	
+	/**
+	 * @see PatternTermOperator#name
+	 * 
+	 * @return  the name of this term, or {@code null} if it has no name
+	 */
+	public Object getName()
+	{
+		return name;
+	}
 	
 	/**
 	 * @see PatternTermOperator#matcher

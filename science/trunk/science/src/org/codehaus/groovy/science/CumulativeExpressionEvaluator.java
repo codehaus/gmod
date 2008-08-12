@@ -332,6 +332,96 @@ public class CumulativeExpressionEvaluator extends Closure
 	}
 	
 	/**
+	 * <p>Incrementally changes the {@code evaluates} method by registering a
+	 * behavior that will override its present output in certain cases.</p>
+	 * 
+	 * <p>The behavior is specified as a pattern search-and-replace.</p>
+	 * 
+	 * @see ReplacementTermOperator#firstReplacementFor()
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against the
+	 *     {@code SymbolicExpression}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to the first result of matching
+	 *     {@code pattern} against the {@code SymbolicExpression}
+	 */
+	public void setBehavior(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement
+	)
+	{
+		final SymbolicExpression finalPattern = pattern;
+		final SymbolicExpression finalReplacement = replacement;
+		
+		setBehavior( new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+            public Object doCall( SymbolicExpression expression )
+			{
+				SymbolicExpression result =
+					ReplacementTermOperator.firstReplacementFor(
+						finalPattern,
+						finalReplacement,
+						expression
+					);
+				
+				if ( result.equals( expression ) )
+					return null;
+				
+				return result;
+			}
+		} );
+	}
+	
+	/**
+	 * <p>Incrementally changes the {@code evaluates} method by registering a
+	 * behavior that will override its present output in certain cases.</p>
+	 * 
+	 * <p>The behavior is specified as a pattern search-and-replace on each
+	 * subexpression of the input {@code SymbolicExpression}.</p>
+	 * 
+	 * @see ReplacementTermOperator#firstReplacementAnywhereFor()
+	 * 
+	 * @param pattern
+	 *     the pattern expression to match against the subexpressions of the
+	 *     {@code SymbolicExpression}
+	 * 
+	 * @param replacement
+	 *     the replacement expression to apply to the first result of matching
+	 *     {@code pattern} against the subexpressions of the
+	 *     {@code SymbolicExpression}
+	 */
+	public void setBehaviorAnywhere(
+		SymbolicExpression pattern,
+		SymbolicExpression replacement
+	)
+	{
+		final SymbolicExpression finalPattern = pattern;
+		final SymbolicExpression finalReplacement = replacement;
+		
+		setBehavior( new Closure( null ) {
+			
+			@SuppressWarnings("unused")
+            public Object doCall( SymbolicExpression expression )
+			{
+				SymbolicExpression result =
+					ReplacementTermOperator.firstReplacementAnywhereFor(
+						finalPattern,
+						finalReplacement,
+						expression
+					);
+				
+				if ( result.equals( expression ) )
+					return null;
+				
+				return result;
+			}
+		} );
+	}
+	
+	/**
 	 * <p>Evaluates the given expression in the context of this
 	 * {@code CumulativeExpressionEvaluator}.</p>
 	 * 
