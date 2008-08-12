@@ -13,11 +13,11 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 {
 	void testRTermFailure()
 	{
-		// Make sure that {@code rTerm( Closure )} and {@code rTerm( String )}
+		// Make sure that {@code rTerm( Closure )} and {@code rTerm( Object )}
 		// fail when necessary.
 		
 		shouldFail( NullPointerException.class, { rTerm( (Closure)null ) } );
-		shouldFail( NullPointerException.class, { rTerm( (String)null ) } );
+		shouldFail( NullPointerException.class, { rTerm( (Object)null ) } );
 		
 		
 		def dummy = expr( "dummy" );
@@ -35,7 +35,7 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 	
 	void testRTerm()
 	{
-		// Test {@code rTerm( Closure )} and {@code rTerm( String )} by using
+		// Test {@code rTerm( Closure )} and {@code rTerm( Object )} by using
 		// them to make simple replacement expressions and testing those
 		// expressions with {@code replacementFor}.
 		
@@ -166,6 +166,14 @@ class ReplacementTermOperatorTest extends GroovyTestCase
 			replacementFor(
 				[ a: con( 1 ) * con( 2 ), b: con( 3 ) ],
 				rTerm( "a" )
+			),
+			con( 1 ) * con( 2 )
+		);
+		
+		assertEquals(
+			replacementFor(
+				[ a: con( 1 ) * con( 2 ), b: con( 3 ) ],
+				pTerm( "a" )
 			),
 			con( 1 ) * con( 2 )
 		);

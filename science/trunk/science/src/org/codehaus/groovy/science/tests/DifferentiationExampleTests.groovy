@@ -32,6 +32,11 @@ import static org.codehaus.groovy.science.SymbolicExpression.*
 //       practice (at least for me), it's much more intuitive, expressive, and
 //       useful to just give a pattern expression as the template.
 //
+//       (Since this was initially written, I have implemented support for
+//       pattern expressions in {@code CumulativeExpressionValidator} and
+//       {@code CumulativeExpressionEvaluator}, and this example takes advantage
+//       of those methods.)
+//
 //       Meanwhile, pattern search-and-replace things like {@code pJump} and
 //       {@code replaceAll} that let you search every subexpression of something
 //       looked like they could have been useful, but now I think they step a
@@ -56,38 +61,24 @@ class DifferentiationExampleTests extends GroovyTestCase
 	{
 		// Demonstrate how to set up an expression simplifier
 		
-		def addPatternReplace = { evaluator, pattern, replacement ->
-			
-			evaluator.setBehavior( { expression ->
-				
-				def result = firstReplacementAnywhereFor(
-					pattern,
-					replacement,
-					expression
-				);
-				
-				if ( result == expression )
-					return null;
-				
-				return result;
-			} );
-		};
-		
 		def pCase = { condition, name = null ->
 			
-			return pTerm( { candidate ->
-				
-				if ( candidate == null )
-					return null;
-				
-				if ( !(candidate in condition) )
-					return null;
-				
-				if ( name == null )
-					return [:];
-				
-				return [ (name): candidate ];
-			} );
+			return pTerm(
+				name,
+				{ candidate ->
+					
+					if ( candidate == null )
+						return null;
+					
+					if ( !(candidate in condition) )
+						return null;
+					
+					if ( name == null )
+						return [:];
+					
+					return [ (name): candidate ];
+				}
+			);
 		};
 		
 		def pCon = { name = null, condition = { true } -> pCase(
@@ -120,10 +111,6 @@ class DifferentiationExampleTests extends GroovyTestCase
 			name
 		) };
 		
-		def allowAlsoPattern = { validator, pattern ->
-			validator.allowAlso( { matchesExistFor( pattern, it ) } );
-		};
-		
 		def rIf = { condition, ifTrue, ifFalse = { null } ->
 			
 			return rTerm( { matchResult -> replacementFor(
@@ -136,19 +123,19 @@ class DifferentiationExampleTests extends GroovyTestCase
 		
 		def pNum = { name = null -> pCase( numberContext, name ) };
 		
-		numberContext.allowAlso(
-			{ (it in ConstantOperator) && (it.value in Number) },
-			[]
-		);
-		numberContext.allowAlso(
-			identifierOp,
-			[ con( Number ), { it.operator in ConstantOperator } ]
-		);
-		allowAlsoPattern( numberContext, pNum() + pNum() );
-		allowAlsoPattern( numberContext, pNum() - pNum() );
-		allowAlsoPattern( numberContext, pNum() * pNum() );
-		allowAlsoPattern( numberContext, pNum() / pNum() );
-		allowAlsoPattern( numberContext, pNum() ** pNum() );
+		numberContext.allowAlso( pCase( { (
+			(it.operator in ConstantOperator)
+			&&
+			(it.operator.value in Number)
+			&&
+			it.argumentList.isEmpty()
+		) } ) );
+		numberContext.allowAlso( expr( identifierOp, con( Number ), pCon() ) );
+		numberContext.allowAlso( pNum() + pNum() );
+		numberContext.allowAlso( pNum() - pNum() );
+		numberContext.allowAlso( pNum() * pNum() );
+		numberContext.allowAlso( pNum() / pNum() );
+		numberContext.allowAlso( pNum() ** pNum() );
 		
 		def pNonconNum = { name -> pCase(
 			{ (
@@ -161,216 +148,146 @@ class DifferentiationExampleTests extends GroovyTestCase
 		
 		
 		def diffOp = new Object();
-		def sDiff =
+		def D =
 			{ expression, variable -> expr( diffOp, expression, variable ) };
+		
 		
 		def simplify = new CumulativeExpressionEvaluator();
 		
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) + pCNum( "b" ),
+		def aCon = pCNum( "a" );
+		def bCon = pCNum( "b" );
+		def cCon = pCNum( "c" );
+		def aNoncon = pNonconNum( "a" );
+		def bNoncon = pNonconNum( "b" );
+		def a = pNum( "a" );
+		def b = pNum( "b" );
+		def c = pNum( "c" );
+		def x = pINum( "x" );
+		def y = pINum( "y" );
+		def c0 = con( 0 );
+		def c1 = con( 1 );
+		def c2 = con( 2 );
+		def c3 = con( 3 );
+		
+		simplify.setBehaviorAnywhere(
+			aCon + bCon,
 			rTerm( { con( unCon( it.a ) + unCon( it.b ) ) } )
 		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) - pCNum( "b" ),
+		simplify.setBehaviorAnywhere(
+			aCon - bCon,
 			rTerm( { con( unCon( it.a ) - unCon( it.b ) ) } )
 		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) * pCNum( "b" ),
+		simplify.setBehaviorAnywhere(
+			aCon * bCon,
 			rTerm( { con( unCon( it.a ) * unCon( it.b ) ) } )
 		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) / pCNum( "b" ),
+		simplify.setBehaviorAnywhere(
+			aCon / bCon,
 			rTerm( { con( unCon( it.a ) / unCon( it.b ) ) } )
 		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) ** pCNum( "b" ),
+		simplify.setBehaviorAnywhere(
+			aCon ** bCon,
 			rTerm( { con( unCon( it.a ) ** unCon( it.b ) ) } )
 		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) + pNonconNum( "b" ),
-			rTerm( "b" ) + rTerm( "a" )
+		simplify.setBehaviorAnywhere( aCon + bNoncon, b + a );
+		simplify.setBehaviorAnywhere( aNoncon * bCon, b * a );
+		simplify.setBehaviorAnywhere( a + (b + c), a + b + c );
+		simplify.setBehaviorAnywhere( a * (b * c), a * b * c );
+		simplify.setBehaviorAnywhere( a / b / c, a / (b * c) );
+		simplify.setBehaviorAnywhere( a / (b / c), a * c / b );
+		simplify.setBehaviorAnywhere( (a + b) * c, c * (a + b) );
+		simplify.setBehaviorAnywhere( (a - b) * c, c * (a - b) );
+		simplify.setBehaviorAnywhere( c0 * a, c0 );
+		simplify.setBehaviorAnywhere( a + c0, a );
+		simplify.setBehaviorAnywhere( a - c0, a );
+		simplify.setBehaviorAnywhere( c1 * a, a );
+		simplify.setBehaviorAnywhere( a ** c1, a );
+		simplify.setBehaviorAnywhere( aNoncon + a, c2 * a );
+		simplify.setBehaviorAnywhere( a + bNoncon + b, a + c2 * b );
+		simplify.setBehaviorAnywhere( a * bNoncon * b, a * b ** c2 );
+		simplify.setBehaviorAnywhere(
+			aCon * bNoncon + b,
+			rTerm( { con( unCon( it.a ) + 1 ) } ) * b
 		);
-		addPatternReplace(
-			simplify,
-			pNonconNum( "a" ) * pCNum( "b" ),
-			rTerm( "b" ) * rTerm( "a" )
+		simplify.setBehaviorAnywhere(
+			aNoncon + bCon * a,
+			rTerm( { con( unCon( it.b ) + 1 ) } ) * a
 		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) + (pNum( "b" ) + pNum( "c" )),
-			rTerm( "a" ) + rTerm( "b" ) + rTerm( "c" )
+		simplify.setBehaviorAnywhere( a * (b + c), a * b + a * c );
+		simplify.setBehaviorAnywhere( a * (b - c), a * b - a * c );
+		simplify.setBehaviorAnywhere(
+			aCon * b + cCon * b,
+			rTerm( { con( unCon( it.a ) + unCon( it.c ) ) } ) * b
 		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) * (pNum( "b" ) * pNum( "c" )),
-			rTerm( "a" ) * rTerm( "b" ) * rTerm( "c" )
+		simplify.setBehaviorAnywhere( D( aCon, x ), c0 );
+		simplify.setBehaviorAnywhere(
+			D( y, x ),
+			rIf( { it.y == it.x }, c1, c0 )
 		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) / pNum( "b" ) / pNum( "c" ),
-			rTerm( "a" ) / (rTerm( "b" ) * rTerm( "c" ))
+		simplify.setBehaviorAnywhere( D( a + b, x ), D( a, x ) + D( b, x ) );
+		simplify.setBehaviorAnywhere( D( a - b, x ), D( a, x ) - D( b, x ) );
+		simplify.setBehaviorAnywhere(
+			D( a * b, x ),
+			D( a, x ) * b + a * D( b, x )
 		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) / (pNum( "b" ) / pNum( "c" )),
-			rTerm( "a" ) * rTerm( "c" ) / rTerm( "b" )
+		simplify.setBehaviorAnywhere(
+			D( a / b, x ),
+			(D( a, x ) * b - a * D( b, x )) / (b ** c2)
 		);
-		addPatternReplace(
-			simplify,
-			(pNum( "a" ) + pNum( "b" )) * pNum( "c" ),
-			rTerm( "c" ) * (rTerm( "a" ) + rTerm( "b" ))
-		);
-		addPatternReplace(
-			simplify,
-			(pNum( "a" ) - pNum( "b" )) * pNum( "c" ),
-			rTerm( "c" ) * (rTerm( "a" ) - rTerm( "b" ))
-		);
-		addPatternReplace( simplify, con( 0 ) * pNum( "a" ), con( 0 ) );
-		addPatternReplace( simplify, pNum( "a" ) + con( 0 ), rTerm( "a" ) );
-		addPatternReplace( simplify, pNum( "a" ) - con( 0 ), rTerm( "a" ) );
-		addPatternReplace( simplify, con( 1 ) * pNum( "a" ), rTerm( "a" ) );
-		addPatternReplace( simplify, pNum( "a" ) ** con( 1 ), rTerm( "a" ) );
-		addPatternReplace(
-			simplify,
-			pNonconNum( "a" ) + pTerm( "a" ),
-			con( 2 ) * rTerm( "a" )
-		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) + pNonconNum( "b" ) + pTerm( "b" ),
-			rTerm( "a" ) + con( 2 ) * rTerm( "b" )
-		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) * pNonconNum( "b" ) * pTerm( "b" ),
-			rTerm( "a" ) * rTerm( "b" ) ** con( 2 )
-		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) * pNonconNum( "b" ) + pTerm( "b" ),
-			rTerm( { con( unCon( it.a ) + 1 ) } ) * rTerm( "b" )
-		);
-		addPatternReplace(
-			simplify,
-			pNonconNum( "a" ) + pCNum( "b" ) * pTerm( "a" ),
-			rTerm( { con( unCon( it.b ) + 1 ) } ) * rTerm( "a" )
-		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) * (pNum( "b" ) + pNum( "c" )),
-			rTerm( "a" ) * rTerm( "b" ) + rTerm( "a" ) * rTerm( "c" )
-		);
-		addPatternReplace(
-			simplify,
-			pNum( "a" ) * (pNum( "b" ) - pNum( "c" )),
-			rTerm( "a" ) * rTerm( "b" ) - rTerm( "a" ) * rTerm( "c" )
-		);
-		addPatternReplace(
-			simplify,
-			pCNum( "a" ) * pNum( "b" ) + pCNum( "c" ) * pNum( "b" ),
-			rTerm( { con( unCon( it.a ) + unCon( it.c ) ) } ) * rTerm( "b" )
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pCNum( "a" ), pINum( "x" ) ),
-			con( 0 )
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pINum( "y" ), pINum( "x" ) ),
-			rIf( { it.y == it.x }, con( 1 ), con( 0 ) )
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pNum( "a" ) + pNum( "b" ), pINum( "x" ) ),
-			sDiff( rTerm( "a" ), rTerm( "x" ) )
-			+ sDiff( rTerm( "b" ), rTerm( "x" ) )
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pNum( "a" ) - pNum( "b" ), pINum( "x" ) ),
-			sDiff( rTerm( "a" ), rTerm( "x" ) )
-			- sDiff( rTerm( "b" ), rTerm( "x" ) )
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pNum( "a" ) * pNum( "b" ), pINum( "x" ) ),
-			sDiff( rTerm( "a" ), rTerm( "x" ) ) * rTerm( "b" )
-			+ rTerm( "a" ) * sDiff( rTerm( "b" ), rTerm( "x" ) )
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pNum( "a" ) / pNum( "b" ), pINum( "x" ) ),
-			(
-				sDiff( rTerm( "a" ), rTerm( "x" ) ) * rTerm( "b" )
-				- rTerm( "a" ) * sDiff( rTerm( "b" ), rTerm( "x" ) )
-			)
-			/ (rTerm( "b" ) ** con( 2 ))
-		);
-		addPatternReplace(
-			simplify,
-			sDiff( pINum( "x" ) ** pNum( "a" ), pINum( "x" ) ),
-			rTerm( "a" ) * rTerm( "x" ) ** (rTerm( "a" ) - con( 1 ))
-		);
+		simplify.setBehaviorAnywhere( D( x ** a, x ), a * x ** (a - c1) );
 		
 		
 		def diffExprToStringEval = new CumulativeExpressionEvaluator();
 		
-		diffExprToStringEval.setBehavior(
-			filter( OverloadableOperators.Plus ),
-			[ diffExprToStringEval, diffExprToStringEval ],
-			withArgs( inCon { a, b -> "($a + $b)" } )
-		);
-		diffExprToStringEval.setBehavior(
-			filter( OverloadableOperators.Minus ),
-			[ diffExprToStringEval, diffExprToStringEval ],
-			withArgs( inCon { a, b -> "($a - $b)" } )
-		);
-		diffExprToStringEval.setBehavior(
-			filter( OverloadableOperators.Multiply ),
-			[ diffExprToStringEval, diffExprToStringEval ],
-			withArgs( inCon { a, b -> "($a * $b)" } )
-		);
-		diffExprToStringEval.setBehavior(
-			filter( OverloadableOperators.Div ),
-			[ diffExprToStringEval, diffExprToStringEval ],
-			withArgs( inCon { a, b -> "($a / $b)" } )
-		);
-		diffExprToStringEval.setBehavior(
-			filter( OverloadableOperators.Power ),
-			[ diffExprToStringEval, diffExprToStringEval ],
-			withArgs( inCon { a, b -> "($a ** $b)" } )
-		);
-		diffExprToStringEval.setBehavior(
-			filter( diffOp ),
-			[ diffExprToStringEval, diffExprToStringEval ],
-			withArgs( inCon { a, b -> "diff( $a, $b )" } )
-		);
-		diffExprToStringEval.setBehavior( {
-			def match = firstMatchFor( pINum( "a" ), it );
-			
-			if ( match == null )
-				return null;
-			
-			return nameOfINum( match[ "a" ] );
-		} );
-		diffExprToStringEval.setBehavior( {
-			def match = firstMatchFor( pCNum( "a" ), it );
-			
-			if ( match == null )
-				return null;
-			
-			return match[ "a" ];
-		} );
+		def substringTerm = { name -> pTerm(
+			name,
+			{
+				def result = diffExprToStringEval( it );
+				
+				if ( result == null )
+					return null;
+				
+				return [ (name): unCon( result ) ];
+			}
+		) };
 		
-		def diffExprToString =
-			{ unCon( diffExprToStringEval( it ) ).toString() };
+		def substringA = substringTerm( "a" );
+		def substringB = substringTerm( "b" );
+		
+		diffExprToStringEval.setBehavior(
+			substringA + substringB,
+			rTerm( { con( "($it.a + $it.b)" ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			substringA - substringB,
+			rTerm( { con( "($it.a - $it.b)" ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			substringA * substringB,
+			rTerm( { con( "($it.a * $it.b)" ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			substringA / substringB,
+			rTerm( { con( "($it.a / $it.b)" ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			substringA ** substringB,
+			rTerm( { con( "($it.a ** $it.b)" ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			D( substringA, substringB ),
+			rTerm( { con( "D( $it.a, $it.b )" ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			pINum( "a" ),
+			rTerm( { nameOfINum( it.a ) } )
+		);
+		diffExprToStringEval.setBehavior(
+			pCNum( "a" ),
+			rTerm( { con( unCon( it.a ).toString() ) } )
+		);
+		
+		def diffExprToString = { unCon( diffExprToStringEval( it ) ) };
 		
 		
 		def iterateToFixedPoint = { initialValue, closure ->
@@ -390,43 +307,20 @@ class DifferentiationExampleTests extends GroovyTestCase
 		
 		def completelySimplify = { expression ->
 			
-			return iterateToFixedPoint(
-				expression,
-				{
-					def result = simplify( it );
-					return ( (result == null) ? it : result );
-				}
-			);
+			return iterateToFixedPoint( expression, { simplify( it ) ?: it } );
 		};
 		
+		def simpToString = { diffExprToString( completelySimplify( it ) ) };
+		
+		def t = iNum( "t" );
+		
+		assertEquals( simpToString( c1 + c1 ), "2" );
+		assertEquals( simpToString( c1 + t ), "(t + 1)" );
+		assertEquals( simpToString( t + t + t ), "(3 * t)" );
+		assertEquals( simpToString( D( c1 / t, t ) ), "(-1 / (t ** 2))" );
 		assertEquals(
-			diffExprToString( completelySimplify( con( 1 ) + con( 1 ) ) ),
-			"2"
-		);
-		assertEquals(
-			diffExprToString( completelySimplify(
-				con( 1 ) + iNum( "x" )
-			) ),
-			"(x + 1)"
-		);
-		assertEquals(
-			diffExprToString( completelySimplify(
-				iNum( "x" ) + iNum( "x" ) + iNum( "x" )
-			) ),
-			"(3 * x)"
-		);
-		assertEquals(
-			diffExprToString( completelySimplify(
-				sDiff( con( 1 ) / iNum( "x" ), iNum( "x" ) )
-			) ),
-			"(-1 / (x ** 2))"
-		);
-		assertEquals(
-			diffExprToString( completelySimplify( sDiff(
-				iNum( "x" ) ** con( 2 ) * (con( 3 ) * iNum( "x" ) - con( 1 )),
-				iNum( "x" )
-			) ) ),
-			"(((6 * (x ** 2)) - (2 * x)) + (3 * (x ** 2)))"
+			simpToString( D( t ** c2 * (c3 * t - c1), t ) ),
+			"(((6 * (t ** 2)) - (2 * t)) + (3 * (t ** 2)))"
 		);
 	}
 }

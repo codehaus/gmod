@@ -103,13 +103,10 @@ class PatternTermOperatorTest extends GroovyTestCase
 	
 	void testPTermFailure()
 	{
-		// Make sure that {@code pTerm( Closure )} and {@code pTerm( String )}
-		// fail when necessary.
-		
-		shouldFail( NullPointerException.class, { pTerm( (Closure)null ) } );
-		shouldFail( NullPointerException.class, { pTerm( (String)null ) } );
-		
-		
+		// Make sure that {@code pTerm()}, {@code pTerm( Object )},
+		// {@code pTerm( Closure )}, and {@code pTerm( Object, Closure )} fail
+		// when necessary.
+				
 		def dummy = expr( "dummy" );
 		
 		shouldFail(
@@ -123,7 +120,7 @@ class PatternTermOperatorTest extends GroovyTestCase
 	
 	void testPTerm()
 	{
-		// Test {@code pTerm( Closure )} and {@code pTerm( String )} by using
+		// Test {@code pTerm( Closure )} and {@code pTerm( Object )} by using
 		// them to make simple pattern expressions and testing those expressions
 		// with {@code matchesFor}.
 		

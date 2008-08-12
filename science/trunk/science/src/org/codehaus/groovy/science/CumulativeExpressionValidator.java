@@ -163,6 +163,47 @@ public class CumulativeExpressionValidator
 	
 	/**
 	 * <p>Incrementally changes the {@code validates} method by registering a
+	 * filter that will override its present output in certain cases.</p>
+	 * 
+	 * <p>If {@code type} is {@code Restriction}, {@code filterPattern} is a
+	 * pattern expression that the candidate {@code SymbolicExpression}s must
+	 * match in order to validate.</p>
+	 * 
+	 * <p>If {@code type} is {@code Exception}, {@code filterPattern} is a
+	 * pattern expression that matches a {@code SymbolicExpression} if it wants
+	 * to allow that expression to bypass earlier restrictions.</p>
+	 * 
+	 * @param type
+	 *     the type of filter that {@code filter} represents
+	 * 
+	 * @param filterPattern
+	 *     an incremental change to the {@code validates} method
+	 */
+	private void addFilter( FilterType type, SymbolicExpression filterPattern )
+	{
+		if ( filterPattern == null )
+			throw new NullPointerException();
+		
+		
+		final SymbolicExpression finalFilterPattern = filterPattern;
+		
+		filters.add( new Object() {
+			
+			@SuppressWarnings("unused")
+            public boolean isCase( SymbolicExpression switchValue )
+			{
+				return PatternTermOperator.matchesExistFor(
+					finalFilterPattern,
+					switchValue
+				);
+			}
+		} );
+		
+		filterTypes.add( type );
+	}
+	
+	/**
+	 * <p>Incrementally changes the {@code validates} method by registering a
 	 * restriction that will narrow the range of expressions that it will
 	 * accept.</p>
 	 * 
@@ -175,21 +216,54 @@ public class CumulativeExpressionValidator
 	{
 		addFilter( FilterType.Restriction, restriction );
 	}
+
+	/**
+	 * <p>Incrementally changes the {@code validates} method by registering a
+	 * restriction that will narrow the range of expressions that it will
+	 * accept.</p>
+	 * 
+	 * @see PatternTermOperator
+	 * 
+	 * @param restrictionPattern
+	 *     a pattern expression that fails to match a {@code SymbolicExpression}
+	 *     if it wants to forbid that expression and matches it otherwise
+	 */
+	public void allowOnly( SymbolicExpression restrictionPattern )
+	{
+		addFilter( FilterType.Restriction, restrictionPattern );
+	}
 	
 	/**
 	 * <p>Incrementally changes the {@code validates} method by registering an
 	 * exception that will expand the range of expressions that it will
 	 * accept.</p>
 	 * 
-	 * @param restriction
+	 * @param exception
 	 *     an object whose {@code isCase} method in Groovy accepts a
 	 *     {@code SymbolicExpression} and returns {@code true} if it wants to
 	 *     allow that expression to bypass earlier restrictions and
 	 *     {@code false} otherwise
 	 */
-	public void allowAlso( Object restriction )
+	public void allowAlso( Object exception )
 	{
-		addFilter( FilterType.Exception, restriction );
+		addFilter( FilterType.Exception, exception );
+	}
+	
+	/**
+	 * <p>Incrementally changes the {@code validates} method by registering an
+	 * exception that will expand the range of expressions that it will
+	 * accept.</p>
+	 * 
+	 * @see PatternTermOperator
+	 * 
+	 * @param exceptionPattern
+	 *     a pattern expression that matches a {@code SymbolicExpression} if it
+	 *     wants to allow that expression to bypass earlier restrictions and
+	 *     doesn't match it otherwise
+	 */
+	public void allowAlso( SymbolicExpression exceptionPattern )
+	{
+		addFilter( FilterType.Exception, exceptionPattern );
 	}
 	
 	/**
