@@ -61,38 +61,18 @@ class DifferentiationExampleTests extends GroovyTestCase
 	{
 		// Demonstrate how to set up an expression simplifier
 		
-		def pCase = { condition, name = null ->
-			
-			return pTerm(
-				name,
-				{ candidate ->
-					
-					if ( candidate == null )
-						return null;
-					
-					if ( !(candidate in condition) )
-						return null;
-					
-					if ( name == null )
-						return [:];
-					
-					return [ (name): candidate ];
-				}
-			);
-		};
-		
 		def pCon = { name = null, condition = { true } -> pCase(
+			name,
 			{ (
 				(it.operator in ConstantOperator)
 				&&
 				it.argumentList.isEmpty()
 				&&
 				(unCon( it ) in condition)
-			) },
-			name
+			) }
 		) };
 		
-		def pCNum = { pCon( it, Number ) };
+		def pCNum = { name = null -> pCon( name, Number ) };
 		
 		def identifierOp = new Object();
 		
@@ -102,13 +82,13 @@ class DifferentiationExampleTests extends GroovyTestCase
 		def nameOfINum = { it.argumentList[ 1 ] };
 		
 		def pINum = { name = null -> pCase(
+			name,
 			{
 				return matchesExistFor(
 					expr( identifierOp, con( Number ), pCon( name ) ),
 					it
 				);
-			},
-			name
+			}
 		) };
 		
 		def rIf = { condition, ifTrue, ifFalse = { null } ->
@@ -119,40 +99,34 @@ class DifferentiationExampleTests extends GroovyTestCase
 			) } );
 		};
 		
-		def numberContext = new CumulativeExpressionValidator( false );
-		
-		def pNum = { name = null -> pCase( numberContext, name ) };
-		
-		numberContext.allowAlso( pCase( { (
-			(it.operator in ConstantOperator)
-			&&
-			(it.operator.value in Number)
-			&&
-			it.argumentList.isEmpty()
-		) } ) );
-		numberContext.allowAlso( expr( identifierOp, con( Number ), pCon() ) );
-		numberContext.allowAlso( pNum() + pNum() );
-		numberContext.allowAlso( pNum() - pNum() );
-		numberContext.allowAlso( pNum() * pNum() );
-		numberContext.allowAlso( pNum() / pNum() );
-		numberContext.allowAlso( pNum() ** pNum() );
-		
-		def pNonconNum = { name -> pCase(
-			{ (
-				(it in numberContext)
-				&&
-				!matchesExistFor( pCNum( "a" ), it )
-			) },
-			name
-		) };
-		
 		
 		def diffOp = new Object();
 		def D =
 			{ expression, variable -> expr( diffOp, expression, variable ) };
 		
 		
-		def simplify = new CumulativeExpressionEvaluator();
+		def numberContext = new CumulativeExpressionValidator( false );
+		
+		def pNum = { name = null -> pCase( name, numberContext ) };
+		
+		numberContext.allowAlso( pCNum() );
+		numberContext.allowAlso( pINum() );
+		numberContext.allowAlso( pNum() + pNum() );
+		numberContext.allowAlso( pNum() - pNum() );
+		numberContext.allowAlso( pNum() * pNum() );
+		numberContext.allowAlso( pNum() / pNum() );
+		numberContext.allowAlso( pNum() ** pNum() );
+		numberContext.allowAlso( D( pNum(), pINum() ) );
+		
+		def pNonconNum = { name = null -> pCase(
+			name,
+			{ (
+				matchesExistFor( pNum(), it )
+				&&
+				!matchesExistFor( pCNum(), it )
+			) }
+		) };
+		
 		
 		def aCon = pCNum( "a" );
 		def bCon = pCNum( "b" );
@@ -168,6 +142,8 @@ class DifferentiationExampleTests extends GroovyTestCase
 		def c1 = con( 1 );
 		def c2 = con( 2 );
 		def c3 = con( 3 );
+		
+		def simplify = new CumulativeExpressionEvaluator();
 		
 		simplify.setBehaviorAnywhere(
 			aCon + bCon,
@@ -234,7 +210,10 @@ class DifferentiationExampleTests extends GroovyTestCase
 			D( a / b, x ),
 			(D( a, x ) * b - a * D( b, x )) / (b ** c2)
 		);
-		simplify.setBehaviorAnywhere( D( x ** a, x ), a * x ** (a - c1) );
+		simplify.setBehaviorAnywhere(
+			D( a ** b, x ),
+			b * D( a, x ) * a ** (b - c1)
+		);
 		
 		
 		def diffExprToStringEval = new CumulativeExpressionEvaluator();

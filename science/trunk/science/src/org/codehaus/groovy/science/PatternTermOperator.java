@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.codehaus.groovy.runtime.InvokerHelper;
+
 import groovy.lang.Closure;
 
 
@@ -711,6 +713,85 @@ public class PatternTermOperator
 		return new SymbolicExpression(
 			new PatternTermOperator( name, matcher ),
 			new ArrayList< SymbolicExpression >()
+		);
+	}
+	
+	/**
+	 * <p>Creates a nameless pattern {@code SymbolicExpression} that matches any
+	 * of a certain set of {@code SymbolicExpression}s and returns empty match
+	 * results when it matches. The {@code SymbolicExpression}s accepted are
+	 * those that satisfy the given {@code caseValue} object's Groovy
+	 * {@code isCase} method.</p>
+	 * 
+	 * @param caseValue
+	 *     an object whose {@code isCase} method will determine whether this
+	 *     pattern term will match a particular {@code SymbolicExpression}
+	 * 
+	 * @return
+	 *     a pattern expression that matches everything that satisfies the
+	 *     {@code caseValue}
+	 * 
+	 * @throws NullPointerException  if {@code caseValue} is {@code null}
+	 */
+	public static SymbolicExpression pCase( Object caseValue )
+	{
+		return pCase( null, caseValue );
+	}
+	
+	/**
+	 * <p>Creates a pattern {@code SymbolicExpression} with the given name that
+	 * matches any of a certain set of {@code SymbolicExpression}s and
+	 * associates that name with them in the match result. The
+	 * {@code SymbolicExpression}s accepted are those that satisfy the given
+	 * {@code caseValue} object's Groovy {@code isCase} method.</p>
+	 * 
+	 * @param name
+	 *     the name of this term, or {@code null} if it has no name
+	 * 
+	 * @param caseValue
+	 *     an object whose {@code isCase} method will determine whether this
+	 *     pattern term will match a particular {@code SymbolicExpression}
+	 * 
+	 * @return
+	 *     a pattern expression with the given name that matches everything that
+	 *     satisfies the {@code caseValue}
+	 * 
+	 * @throws NullPointerException  if {@code caseValue} is {@code null}
+	 */
+	public static SymbolicExpression pCase( Object name, Object caseValue )
+	{
+		if ( caseValue == null )
+			throw new NullPointerException();
+		
+		final Object finalName = name;
+		final Object finalCaseValue = caseValue;
+		
+		return pTerm(
+			name,
+			new Closure( null )
+			{
+				@SuppressWarnings("unused")
+				public Iterable< Map< ?, ? > >
+					doCall( SymbolicExpression expression )
+				{
+					if ( ((Boolean)InvokerHelper.invokeMethod(
+						finalCaseValue,
+						"isCase",
+						new Object[]{ expression }
+					)).booleanValue() )
+					{
+						Map< Object, Object > result =
+							new HashMap< Object, Object >();
+						
+						if ( finalName != null )
+							result.put( finalName, expression );
+						
+						return Arrays.asList( new Map< ?, ? >[]{ result } );
+					}
+					
+					return new ArrayList< Map< ?, ? > >();
+				}
+			}
 		);
 	}
 	
