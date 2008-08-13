@@ -430,6 +430,8 @@ public class CumulativeExpressionEvaluator extends Closure
 	 * @return
 	 *     the value the expression evaluates to, or {@code null} if no result
 	 *     can be determined
+	 * 
+	 * @throws NullPointerException  if {@code expression} is {@code null}
 	 */
 	public SymbolicExpression evaluate( SymbolicExpression expression )
 	{
@@ -446,6 +448,46 @@ public class CumulativeExpressionEvaluator extends Closure
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * <p>Evaluates the given expression in the context of this
+	 * {@code CumulativeExpressionEvaluator} over and over until a fixed point
+	 * has been found. If this evaluator fails to have a result at any point
+	 * along the way, its result is assumed to be the same as its argument, and
+	 * so that value will be immediately returned.</p>
+	 * 
+	 * <p>This method might loop forever under certain circumstances.</p>
+	 * 
+	 * @param expression  the expression to evaluate repeatedly
+	 * 
+	 * @return
+	 *     the value the expression ultimately evaluates to
+	 * 
+	 * @throws NullPointerException  if {@code expression} is {@code null}
+	 */
+	public SymbolicExpression evaluateRepeatedly(
+		SymbolicExpression expression
+	)
+	{
+		if ( expression == null )
+			throw new NullPointerException();
+		
+		SymbolicExpression oldExpression = expression;
+		
+		while( true )
+		{
+			SymbolicExpression newExpression = evaluate( oldExpression );
+			
+			if (
+				(newExpression == null)
+				||
+				newExpression.equals( oldExpression )
+			)
+				return oldExpression;
+			
+			oldExpression = newExpression;
+		}
 	}
 	
 	/**
