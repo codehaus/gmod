@@ -290,27 +290,8 @@ class DifferentiationExampleTests extends GroovyTestCase
 		def diffExprToString = { unCon( diffExprToStringEval( it ) ) };
 		
 		
-		def iterateToFixedPoint = { initialValue, closure ->
-			
-			def thisValue = initialValue;
-			
-			while ( true )
-			{
-				def nextValue = closure( thisValue );
-				
-				if ( thisValue == nextValue )
-					return thisValue;
-				
-				thisValue = nextValue;
-			}
-		};
-		
-		def completelySimplify = { expression ->
-			
-			return iterateToFixedPoint( expression, { simplify( it ) ?: it } );
-		};
-		
-		def simpToString = { diffExprToString( completelySimplify( it ) ) };
+		def simpToString =
+			{ diffExprToString( simplify.evaluateRepeatedly( it ) ) };
 		
 		def t = iNum( "t" );
 		
