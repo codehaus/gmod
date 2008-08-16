@@ -18,7 +18,7 @@ package groovy.swing.j2d.operations.shapes
 import java.awt.Shape
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.geom.RegularPolygon
+import org.kordamp.jsilhouette.geom.RegularPolygon
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>

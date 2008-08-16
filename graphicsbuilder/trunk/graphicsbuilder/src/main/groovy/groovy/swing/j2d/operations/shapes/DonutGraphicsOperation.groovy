@@ -16,92 +16,52 @@
 package groovy.swing.j2d.operations.shapes
 
 import java.awt.Shape
-import java.awt.geom.Area
-import java.awt.geom.Ellipse2D
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.geom.RegularPolygon
+import org.kordamp.jsilhouette.geom.Donut
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-final class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
-   public static required = AbstractShapeGraphicsOperation.required + ['cx','cy','or','ir']
-   public static optional = AbstractShapeGraphicsOperation.optional + ['sides','angle']
+public class DonutGraphicsOperation extends AbstractShapeGraphicsOperation {
+    public static required = AbstractShapeGraphicsOperation.required + ['cx','cy','or','ir']
+    public static optional = AbstractShapeGraphicsOperation.optional + ['angle','sides']
 
-   // properties
-   def cx = 20
-   def cy = 20
-   def or = 20
-   def ir = 10
-   def sides
-   def angle
+    private Donut star
 
-   private Shape shape
+    def cx = 5
+    def cy = 5
+    def or = 8
+    def ir = 3
+    def sides = 0
+    def angle = 0
 
-   DonutGraphicsOperation(){
-      super("donut")
-   }
+    public DonutGraphicsOperation() {
+        super( "star" )
+    }
 
-   public Shape getShape( GraphicsContext context ){
-      if( !shape ){ calculateShape(context) }
-      shape
-   }
+    protected void localPropertyChange( PropertyChangeEvent event ){
+       super.localPropertyChange( event )
+       star = null
+    }
 
-   public boolean hasCenter() {
-      true
-   }
-   
-   protected void localPropertyChange( PropertyChangeEvent event ){
-      super.localPropertyChange( event )
-      shape = null
-   }
+    public Shape getShape( GraphicsContext context ) {
+       if( star == null ){
+          calculateDonut()
+       }
+       return star
+    }
 
-   private void calculateShape( GraphicsContext context ){
-      if( ir >= or ){
-         throw new IllegalArgumentException("donut.ir can not be greater or equal than donut.or")
-      }
-      if( ir <= 0 || or <= 0 ){
-         throw new IllegalArgumentException("donut.[ir|or] can not be equal or less than zero")
-      }
-
-      def outerShape
-      def innerShape
-
-      if( sides ){
-         if( angle != null ){
-            outerShape = new RegularPolygon( cx as float,
-                                             cy as float,
-                                             or as float,
-                                             sides as int,
-                                             angle as float )
-            innerShape = new RegularPolygon( cx as float,
-                                             cy as float,
-                                             ir as float,
-                                             sides as int,
-                                             angle as float )
-         }else{
-            outerShape = new RegularPolygon( cx as float,
-                                             cy as float,
-                                             or as float,
-                                             sides as int )
-            innerShape = new RegularPolygon( cx as float,
-                                             cy as float,
-                                             ir as float,
-                                             sides as int )
-         }
-      }else{
-         outerShape = new Ellipse2D.Double( (cx - or) as double,
-                                            (cy - or) as double,
-                                            (or * 2) as double,
-                                            (or * 2) as double )
-         innerShape = new Ellipse2D.Double( (cx - ir) as double,
-                                            (cy - ir) as double,
-                                            (ir * 2) as double,
-                                            (ir * 2) as double )
-      }
-
-      shape = new Area(outerShape)
-      shape.subtract(new Area(innerShape))
-   }
+    public boolean hasCenter() {
+       true
+    }
+    
+    private void calculateDonut() {
+       star = new Donut( cx as float,
+                        cy as float,
+                        or as float,
+                        ir as float,
+                        sides as int,
+                        angle as float )
+    }
 }

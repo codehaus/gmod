@@ -329,18 +329,18 @@ class GraphicsPad extends Binding implements CaretListener {
         }else{
            runThread = Thread.start {
               try {
-                  SwingUtilities.invokeLater {
+                 SwingUtilities.invokeLater {
                      status.text = 'Running Script...'
-                     showRunWaitDialog()
                      error.text = ""
                      view.removeAll()
+                     showRunWaitDialog()
                   }
                   def binding = [source:inputArea.text]
                   def template = templateEngine.createTemplate(simple_script_source).make(binding)
                   def script = template.toString()
                   def go = gb.group( new GroovyShell().evaluate(script) )
                   if( go.operations.size() == 0 ){
-                     throw new RuntimeException("An operation is not recognized. Please check the code.")
+                     throw new RuntimeException("An operation is not recognized. Please check your code.")
                   }
                   SwingUtilities.invokeLater { finishNormal(go) }
               } catch (Throwable t) {
