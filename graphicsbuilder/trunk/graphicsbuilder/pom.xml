@@ -45,6 +45,13 @@
          <groupId>org.codehaus.groovy</groupId>
          <artifactId>groovy-all</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.kordamp.jsilhouette</groupId>
+         <artifactId>jsilhouette-geom</artifactId>
+         <version>0.2</version>
+         <scope>system</scope>
+         <systemPath>${basedir}/src/lib/jsilhouette-geom-0.2.jar</systemPath>
+      </dependency>
    </dependencies>
 
 </project>

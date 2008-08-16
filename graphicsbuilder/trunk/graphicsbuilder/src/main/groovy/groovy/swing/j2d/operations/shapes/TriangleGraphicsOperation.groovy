@@ -19,7 +19,7 @@ import java.awt.Shape
 import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.geom.Triangle
+import org.kordamp.jsilhouette.geom.Triangle
 
 import static java.lang.Math.*
 

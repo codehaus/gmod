@@ -22,7 +22,6 @@ import java.awt.image.AffineTransformOp
 
 import groovy.swing.factory.BindFactory
 import groovy.swing.factory.ModelFactory
-import groovy.swing.j2d.geom.*
 import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.misc.*
 import groovy.swing.j2d.operations.outlines.*
@@ -31,6 +30,7 @@ import groovy.swing.j2d.operations.shapes.*
 import groovy.swing.j2d.operations.shapes.path.*
 import groovy.swing.j2d.operations.strokes.*
 import groovy.swing.j2d.operations.transformations.*
+import org.kordamp.jsilhouette.geom.*
 
 import groovy.swing.SwingBuilder
 
@@ -214,6 +214,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
         variables['off'] = false
         variables['no'] = false
 
+        variables['angleNone'] = Triangle.NONE
         variables['angleAtStart'] = Triangle.ANGLE_AT_START
         variables['angleAtEnd'] = Triangle.ANGLE_AT_END
 

@@ -19,8 +19,7 @@ import java.awt.Shape
 import java.awt.geom.GeneralPath
 import java.beans.PropertyChangeEvent
 import groovy.swing.j2d.GraphicsContext
-import groovy.swing.j2d.geom.Balloon
-import groovy.swing.j2d.geom.Triangle
+import org.kordamp.jsilhouette.geom.Balloon
 
 import static java.lang.Math.*
 
@@ -42,7 +41,7 @@ final class BalloonGraphicsOperation extends AbstractShapeGraphicsOperation {
     def tabHeight
     def tabLocation = Balloon.TAB_AT_BOTTOM
     def tabDisplacement = 0.5
-    def anglePosition
+    def anglePosition = Balloon.NONE
 
     public BalloonGraphicsOperation() {
         super( "balloon" )
@@ -97,17 +96,17 @@ final class BalloonGraphicsOperation extends AbstractShapeGraphicsOperation {
     }
 
     private def getAnglePosition(){
-       if( anglePosition == null ) return -1
+       if( anglePosition == null ) return Balloon.NONE
        if( anglePosition instanceof Number ){
           return anglePosition.intValue()
        }
        if( anglePosition instanceof String ){
           switch( anglePosition ){
-             case "start": return Triangle.ANGLE_AT_START
-             case "end": return Triangle.ANGLE_AT_END
-             default: return -1
+             case "start": return Balloon.ANGLE_AT_START
+             case "end": return Balloon.ANGLE_AT_END
+             default: return Balloon.NONE
           }
        }
-       return -1
+       return Balloon.NONE
     }
 }
