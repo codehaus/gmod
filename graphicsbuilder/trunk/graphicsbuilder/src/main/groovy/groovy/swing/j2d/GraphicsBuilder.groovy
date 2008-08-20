@@ -21,7 +21,7 @@ import java.awt.Component
 import java.awt.image.AffineTransformOp
 
 import groovy.swing.factory.BindFactory
-import groovy.swing.factory.ModelFactory
+import groovy.swing.factory.BindProxyFactory
 import groovy.swing.j2d.factory.*
 import groovy.swing.j2d.operations.misc.*
 import groovy.swing.j2d.operations.outlines.*
@@ -39,13 +39,19 @@ import groovy.swing.SwingBuilder
  */
 class GraphicsBuilder extends FactoryBuilderSupport {
     private Map shortcuts = [:]
+    
+    public static final String DELEGATE_PROPERTY_OBJECT_ID = "_delegateProperty:id";
+    public static final String DEFAULT_DELEGATE_PROPERTY_OBJECT_ID = "id";
 
     public GraphicsBuilder( boolean registerExtensions = true ) {
         GraphicsBuilderHelper.extendShapes()
         GraphicsBuilderHelper.extendColor()
         GraphicsBuilderHelper.extendBasicStroke()
+        
         registerOperations()
         registerShortcuts()
+        
+        this[DELEGATE_PROPERTY_OBJECT_ID] = DEFAULT_DELEGATE_PROPERTY_OBJECT_ID
 
         if( registerExtensions ){
            def plugins = ["Jdk6","SwingX","JHlabs","Animation","Batik","Substance"]
@@ -54,6 +60,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
                  Class pluginClass = Class.forName("groovy.swing.j2d.${plugin}GraphicsBuilderPlugin")
                  pluginClass.registerOperations( this )
               }catch( Throwable t ){
+                 //t.printStackTrace();
                  System.err.println("GraphicsBuilder: could not register ${plugin}GraphicsBuilderPlugin. Cause $t")
               }
            }
@@ -61,8 +68,8 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     }
 
     public def swingView( SwingBuilder builder = new SwingBuilder(), Closure closure ) {
-        builder.addAttributeDelegate(this.&swingAttributeDelegate)
-        builder.addPostNodeCompletionDelegate(this.&swingPostNodeCompletionDelegate)
+        builder.addAttributeDelegate(GraphicsBuilder.&swingAttributeDelegate)
+        builder.addPostNodeCompletionDelegate(GraphicsBuilder.&swingPostNodeCompletionDelegate)
 
         def go = null
         def proxyBuilderRef = getProxyBuilder()
@@ -97,17 +104,22 @@ class GraphicsBuilder extends FactoryBuilderSupport {
     }
 
     private void registerOperations() {
-        addAttributeDelegate(this.&idAttributeDelegate)
-        addAttributeDelegate(this.&interpolationAttributeDelegate)
-        addAttributeDelegate(this.&alphaCompositeAttributeDelegate)
+        addAttributeDelegate(GraphicsBuilder.&objectIDAttributeDelegate)
+        addAttributeDelegate(GraphicsBuilder.&interpolationAttributeDelegate)
+        addAttributeDelegate(GraphicsBuilder.&alphaCompositeAttributeDelegate)
 
         registerFactory( "draw", new DrawFactory() )
         registerFactory( "font", new FontFactory() )
         registerGraphicsOperationBeanFactory( "group", GroupGraphicsOperation )
         registerGraphicsOperationBeanFactory( "renderingHint", RenderingHintGraphicsOperation, true )
         registerFactory( "shape", new ShapeFactory() )
-        registerFactory( "bind", new BindFactory() )
-        addAttributeDelegate( BindFactory.&bindingAttributeDelegate )
+        
+        // binding related classes
+        BindFactory bindFactory = new BindFactory()
+        registerFactory("bind", bindFactory)
+        addAttributeDelegate(bindFactory.&bindingAttributeDelegate)
+        registerFactory("bindProxy", new BindProxyFactory())
+        
         registerFactory( "image", new ImageFactory() )
         registerFactory( "color", new ColorFactory() )
         registerFactory( "rgba", factories.color )
@@ -305,7 +317,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
 
     private void registerShortcutHandler() {
        addAttributeDelegate {builder, node, attributes ->
-          def shortcutList = builder.shortcuts[builder.currentName]
+          def shortcutList = builder?.shortcuts[builder.currentName]
           if (shortcutList) {
                shortcutList.each {entry ->
                   if (attributes[entry.key] != null) {
@@ -318,24 +330,25 @@ class GraphicsBuilder extends FactoryBuilderSupport {
        }
    }
 
-    private void idAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
-       def id = attributes.remove("id")
-       if( id && node ){
-           builder.setVariable( id, node )
+    public static objectIDAttributeDelegate(def builder, def node, def attributes) {
+       def idAttr = builder.getAt(DELEGATE_PROPERTY_OBJECT_ID) ?: DEFAULT_DELEGATE_PROPERTY_OBJECT_ID
+       def theID = attributes.remove(idAttr)
+       if (theID) {
+           builder.setVariable(theID, node)
        }
     }
 
-    private void interpolationAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
+    public static interpolationAttributeDelegate( def builder, def node, def attributes ) {
        def interpolation = attributes.remove("interpolation")
        switch( interpolation ){
-          case "bicubic": interpolation = AffineTransformOp.TYPE_BICUBIC; break;
+          case "bicubic":  interpolation = AffineTransformOp.TYPE_BICUBIC; break;
           case "bilinear": interpolation = AffineTransformOp.TYPE_BILINEAR; break;
-          case "nearest": interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR; break;
+          case "nearest":  interpolation = AffineTransformOp.TYPE_NEAREST_NEIGHBOR; break;
        }
        if( interpolation != null ) node.interpolation = interpolation
     }
 
-    private void alphaCompositeAttributeDelegate( FactoryBuilderSupport builder, Object node, Map attributes ){
+    public static alphaCompositeAttributeDelegate( def builder, def node, def attributes ) {
        def alphaComposite = attributes.remove("alphaComposite")
        if( alphaComposite ){
           if( alphaComposite instanceof AlphaComposite ){
@@ -352,9 +365,9 @@ class GraphicsBuilder extends FactoryBuilderSupport {
        }
     }
 
-    private void swingAttributeDelegate( FactoryBuilderSupport fbs, Object node, Map attrs ) {
-       fbs.context.x = attrs.remove("x")
-       fbs.context.y = attrs.remove("y")
+    public static swingAttributeDelegate( def builder, def node, def attrs ) {
+       builder.context.x = attrs.remove("x")
+       builder.context.y = attrs.remove("y")
        ['foreground','background'].each { prop ->
           def value = attrs.remove(prop)
           if( value ){
@@ -363,12 +376,12 @@ class GraphicsBuilder extends FactoryBuilderSupport {
              }
           }
        }
-       if( attrs.id ) setVariable( attrs.id, node )
+       if( attrs.id ) builder.setVariable( attrs.id, node )
     }
 
-    private void swingPostNodeCompletionDelegate( FactoryBuilderSupport fbs, Object parent, Object node ) {
-       def x = fbs.context.x
-       def y = fbs.context.y
+    public static swingPostNodeCompletionDelegate( def builder, def parent, def node ) {
+       def x = builder.context.x
+       def y = builder.context.y
        if( x != null && y != null ){
            def size = node.preferredSize
            node.bounds = [x,y,size.width as int,size.height as int] as Rectangle
