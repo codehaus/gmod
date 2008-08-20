@@ -338,7 +338,9 @@ class GraphicsPad extends Binding implements CaretListener {
                   def binding = [source:inputArea.text]
                   def template = templateEngine.createTemplate(simple_script_source).make(binding)
                   def script = template.toString()
-                  def go = gb.group( new GroovyShell().evaluate(script) )
+                  binding = new Binding()
+                  def output = new GroovyShell(binding).evaluate(script)
+                  def go = gb.group( output )
                   if( go.operations.size() == 0 ){
                      throw new RuntimeException("An operation is not recognized. Please check your code.")
                   }
