@@ -64,10 +64,7 @@
       <module>graphicsbuilder-ext-swingx</module>
       <module>graphicsbuilder-ext-jhlabs</module>
       <module>graphicsbuilder-ext-animation</module>
-<!--
-      <module>graphicsbuilder-doc</module>
-      <module>graphicsbuilder-demo</module>
--->
+      <module>graphicsbuilder-ext-substance</module>
    </modules>
 
    <dependencyManagement>
@@ -88,18 +85,6 @@
             <artifactId>graphicsbuilder</artifactId>
             <version>${graphicsbuilder-version}</version>
          </dependency>
-         <!--
-         <dependency>
-            <groupId>org.codehaus.groovy.maven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
-            <version>${groovy-maven-plugin-version}</version>
-         </dependency>
-         <dependency>
-            <groupId>org.codehaus.groovy.maven.runtime</groupId>
-            <artifactId>gmaven-runtime-1.6</artifactId>
-            <version>${groovy-maven-plugin-version}</version>
-         </dependency>
-         -->
       </dependencies>
    </dependencyManagement>
 
@@ -173,17 +158,14 @@
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>cobertura-maven-plugin</artifactId>
-<!--
-            <version>2.0</version>
--->
          </plugin>
       </plugins>
    </reporting>
 
    <properties>
-      <graphicsbuilder-version>0.6-SNAPSHOT</graphicsbuilder-version>
-      <groovy-version>1.5.6</groovy-version>
-      <groovy-maven-plugin-version>1.0-rc-2</groovy-maven-plugin-version>
+      <graphicsbuilder-version>0.7-SNAPSHOT</graphicsbuilder-version>
+      <groovy-version>1.6-beta-2-SNAPSHOT</groovy-version>
+      <groovy-maven-plugin-version>1.0-rc-3</groovy-maven-plugin-version>
    </properties>
 
 </project>
