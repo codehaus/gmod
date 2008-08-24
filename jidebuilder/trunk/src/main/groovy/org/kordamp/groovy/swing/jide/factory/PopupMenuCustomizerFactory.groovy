@@ -16,22 +16,18 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import com.jidesoft.swing.TristateCheckBox
+import com.jidesoft.swing.JideMenu
+import org.kordamp.groovy.swing.jide.impl.DefaultPopupMenuCustomizer
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-class TristateCheckBoxFactory extends AbstractJideComponentFactory {
-   public TristateCheckBoxFactory() {
-      super( TristateCheckBox )
-   }
+class PopupMenuCustomizerFactory extends AbstractJideComponentFactory {
+    public PopupMenuCustomizerFactory() {
+       super( DefaultPopupMenuCustomizer )
+    }
 
-   public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
-      FactoryBuilderSupport.checkValueIsNull(value, name)
-      def text = properties.remove("text")
-      def icon = properties.remove("icon")
-      def initial = properties.remove("initial")
-      if( initial == null ) initial = TristateCheckBox.DONT_CARE
-      return new TristateCheckBox( text, icon, initial )
+   public void setParent( FactoryBuilderSupport builder, Object parent, Object child ) {
+      if( parent instanceof JideMenu ) parent.popupMenuCustomizer = child
    }
 }

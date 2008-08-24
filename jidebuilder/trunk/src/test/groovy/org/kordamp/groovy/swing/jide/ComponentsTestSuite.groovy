@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,17 +29,7 @@ import com.jidesoft.swing.*
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-public class ComponentsTest extends GroovyTestCase {
-
-   private boolean isHeadless() {
-      try {
-         new JFrame("testing")
-         return false
-      } catch (java.awt.HeadlessException he) {
-         return true
-      }
-   }
-
+public class ComponentsTestSuite extends GroovySwingTestCase {
    void testNamedWidgetCreation() {
       if (isHeadless()) return
 
@@ -119,7 +109,7 @@ public class ComponentsTest extends GroovyTestCase {
       ]
       def jide = new JideBuilder()
       widgets.each{ name, expectedClass ->
-         def frame = jide.frame(){
+         def frame = jide.frame() {
             "$name"(id:"${name}Id".toString())
          }
          assert jide."${name}Id".class == expectedClass
@@ -130,8 +120,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         comboBoxSearchable( id: "comboBox", items: [1,2,3] )
+      jide.panel {
+         jide.comboBoxSearchable( id: "comboBox", items: [1,2,3] )
       }
       assertNotNull jide.comboBox
       assertNotNull jide.comboBox_searchable
@@ -143,8 +133,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         comboBoxSearchable( id: "comboBox", items: [1,2,3], overlayable: true )
+      jide.panel {
+         jide.comboBoxSearchable( id: "comboBox", items: [1,2,3], overlayable: true )
       }
       assertNotNull jide.comboBox
       assertNotNull jide.comboBox_searchable
@@ -156,9 +146,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         comboBox( id: "combo", items: [1,2,3] )
-         comboBoxSearchable( id: "comboBox", comboBox: combo )
+      jide.panel {
+         jide.comboBox( id: "combo", items: [1,2,3] )
+         jide.comboBoxSearchable( id: "comboBox", comboBox: combo )
       }
       assertNotNull jide.comboBox
       assertNotNull jide.comboBox_searchable
@@ -171,8 +161,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         listSearchable( id: "list", listData: [1,2,3] )
+      jide.panel {
+         jide.listSearchable( id: "list", listData: [1,2,3] )
       }
       assertNotNull jide.list
       assertNotNull jide.list_searchable
@@ -184,9 +174,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         list( id: "srclist", listData: [1,2,3] as Object[] )
-         listSearchable( id: "list", list: srclist )
+      jide.panel {
+         jide.list( id: "srclist", listData: [1,2,3] as Object[] )
+         jide.listSearchable( id: "list", list: srclist )
       }
       assertNotNull jide.list
       assertNotNull jide.list_searchable
@@ -199,8 +189,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         textComponentSearchable( id: "text", text: "text" )
+      jide.panel {
+         jide.textComponentSearchable( id: "text", text: "text" )
       }
       assertNotNull jide.text
       assertNotNull jide.text_searchable
@@ -213,8 +203,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         textComponentSearchable( id: "text", text: "text", overlayable: true )
+      jide.panel {
+         jide.textComponentSearchable( id: "text", text: "text", overlayable: true )
       }
       assertNotNull jide.text
       assertNotNull jide.text_searchable
@@ -227,9 +217,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         textField( id: "srctext", text: "text" )
-         textComponentSearchable( id: "text", textComponent: srctext )
+      jide.panel {
+         jide.textField( id: "srctext", text: "text" )
+         jide.textComponentSearchable( id: "text", textComponent: srctext )
       }
       assertNotNull jide.text
       assertNotNull jide.text_searchable
@@ -243,9 +233,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         comboBoxSearchable( id: "combo", items: [1,2,3] )
-         searchableBar( id: "searchBar", searchable: combo_searchable )
+      jide.panel {
+         jide.comboBoxSearchable( id: "combo", items: [1,2,3] )
+         jide.searchableBar( id: "searchBar", searchable: combo_searchable )
       }
       assertNotNull jide.combo_searchable
       assertNotNull jide.searchBar
@@ -256,9 +246,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         textField( id: "textComponent", text: "text" )
-         fileIntelliHints( id: "hints", textComponent: textComponent, folderOnly: true )
+      jide.panel {
+         jide.textField( id: "textComponent", text: "text" )
+         jide.fileIntelliHints( id: "hints", textComponent: textComponent, folderOnly: true )
       }
       assertNotNull jide.textComponent
       assertNotNull jide.hints
@@ -273,9 +263,9 @@ public class ComponentsTest extends GroovyTestCase {
 
       def completionList = [1,2,3]
       def jide = new JideBuilder()
-      jide.panel(){
-         textField( id: "textComponent", text: "text" )
-         listDataIntelliHints( id: "hints", textComponent: textComponent, completionList: completionList )
+      jide.panel {
+         jide.textField( id: "textComponent", text: "text" )
+         jide.listDataIntelliHints( id: "hints", textComponent: textComponent, completionList: completionList )
       }
       assertNotNull jide.textComponent
       assertNotNull jide.hints
@@ -324,8 +314,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         autoCompletion( id: "auto", list: ["a","b","c"], text: "text" )
+      jide.panel {
+         jide.autoCompletion( id: "auto", list: ["a","b","c"], text: "text" )
       }
       assertNotNull jide.auto
       assertNotNull jide.auto_autocompletion
@@ -337,8 +327,8 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         autoCompletion( id: "auto", list: ["a","b","c"], text: "text", overlayable: true )
+      jide.panel {
+         jide.autoCompletion( id: "auto", list: ["a","b","c"], text: "text", overlayable: true )
       }
       assertNotNull jide.auto
       assertNotNull jide.auto_autocompletion
@@ -350,9 +340,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         listSearchable( id: "list", listData: [1,2,3] )
-         autoCompletion( id: "auto", searchable: list_searchable, text: "3" )
+      jide.panel {
+         jide.listSearchable( id: "list", listData: [1,2,3] )
+         jide.autoCompletion( id: "auto", searchable: list_searchable, text: "3" )
       }
       assertNotNull jide.auto
       assertNotNull jide.auto_autocompletion
@@ -365,9 +355,9 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         textField( id: "textComponent", text: "text" )
-         autoCompletion( id: "auto", textComponent: textComponent, list: ["a","b","c"] )
+      jide.panel {
+         jide.textField( id: "textComponent", text: "text" )
+         jide.autoCompletion( id: "auto", textComponent: textComponent, list: ["a","b","c"] )
       }
       assertNotNull jide.auto
       assertNotNull jide.auto_autocompletion
@@ -379,10 +369,10 @@ public class ComponentsTest extends GroovyTestCase {
       if (isHeadless()) return
 
       def jide = new JideBuilder()
-      jide.panel(){
-         textField( id: "textComponent", text: "text" )
-         listSearchable( id: "list", listData: [1,2,3] )
-         autoCompletion( id: "auto", searchable: list_searchable, textComponent: textComponent )
+      jide.panel {
+         jide.textField( id: "textComponent", text: "text" )
+         jide.listSearchable( id: "list", listData: [1,2,3] )
+         jide.autoCompletion( id: "auto", searchable: list_searchable, textComponent: textComponent )
       }
       assertNotNull jide.auto
       assertNotNull jide.auto_autocompletion
@@ -405,9 +395,9 @@ public class ComponentsTest extends GroovyTestCase {
       ] as AnimatorListener
 
       def jide = new JideBuilder()
-      jide.panel(){
-         button(id: "button")
-         animator(id: "animator", source: button,
+      jide.panel {
+         jide.button(id: "button")
+         jide.animator(id: "animator", source: button,
                  totalSteps: 9, animatorListener: animatorListener )
       }
       jide.animator.start()

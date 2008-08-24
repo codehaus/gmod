@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.FactoryBuilderSupport
 import groovy.swing.factory.BindFactory
 import groovy.swing.factory.ComponentFactory
 
@@ -37,6 +36,7 @@ abstract class AbstractJideComponentFactory extends ComponentFactory {
 
     protected void setWidgetAttributes( FactoryBuilderSupport builder, Object widget, Map attributes,
           boolean skipMissingProperty ) {
+       // TODO revisit binding code
        Iterator iter = attributes.entrySet().iterator()
        while (iter.hasNext()) {
            def entry = iter.next()
@@ -67,10 +67,8 @@ abstract class AbstractJideComponentFactory extends ComponentFactory {
        }
     }
 
-    /*
     protected void handleWidgetDelegate( FactoryBuilderSupport builder, Object widgetDelegate, String name ) {
        BindFactory.bindingAttributeDelegate( builder, widgetDelegate, attributes )
        builder.setNodeAttributes( widgetDelegate, attributes )
     }
-    */
 }
