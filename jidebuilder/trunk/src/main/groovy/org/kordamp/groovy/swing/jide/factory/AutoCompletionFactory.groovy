@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import javax.swing.JComboBox
 import javax.swing.JTextField
 import javax.swing.text.JTextComponent
 
-import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.AutoCompletion
 import com.jidesoft.swing.AutoCompletionComboBox
 import com.jidesoft.swing.OverlayTextField

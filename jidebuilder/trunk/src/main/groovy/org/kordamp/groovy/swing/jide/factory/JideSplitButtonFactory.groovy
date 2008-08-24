@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.FactoryBuilderSupport
 import groovy.swing.factory.RichActionWidgetFactory
 import org.kordamp.groovy.swing.jide.impl.DefaultPopupMenuCustomizer
 import com.jidesoft.swing.JideSplitButton
@@ -29,13 +28,11 @@ class JideSplitButtonFactory extends RichActionWidgetFactory {
       super( JideSplitButton )
    }
 
-   public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
-      Closure customize = properties.remove("customize")
-      Object widget = super.newInstance( builder, name, value, properties )
+   public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ) {
+      Closure customize = attributes.remove("customize")
       if( customize ){
-         widget.setPopupMenuCustomizer(
-            new DefaultPopupMenuCustomizer(closure:customize) )
+         node.setPopupMenuCustomizer(new DefaultPopupMenuCustomizer(closure:customize) )
       }
-      return widget
+      return true
    }
 }

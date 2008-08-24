@@ -6,7 +6,7 @@
    <groupId>org.codehaus.groovy-contrib</groupId>
    <artifactId>jidebuilder</artifactId>
    <packaging>jar</packaging>
-   <version>1.0</version>
+   <version>${jidebuilder-version}</version>
    <name>JideBuilder</name>
 
    <url>http://groovy.codehaus.org/JideBuilder</url>
@@ -38,7 +38,7 @@
          <name>Andres Almiray</name>
          <id>aalmiray</id>
          <email>aalmiray@users.sourceforge.net</email>
-         <timezone>-7</timezone>
+         <timezone>-8</timezone>
          <roles>
             <role>Groovy Developer</role>
          </roles>
@@ -54,13 +54,13 @@
       </dependency>
       <dependency>
          <groupId>org.codehaus.groovy</groupId>
-         <artifactId>groovy-all-minimal</artifactId>
-         <version>1.5.0</version>
+         <artifactId>groovy-all</artifactId>
+         <version>${groovy-version}</version>
       </dependency>
       <dependency>
          <groupId>com.jidesoft</groupId>
          <artifactId>jide-oss</artifactId>
-         <version>2.2.1</version>
+         <version>${jideoss-version}</version>
       </dependency>
       <dependency>
          <groupId>com.kitfox.svg</groupId>
@@ -77,7 +77,7 @@
    </dependencies>
 
    <prerequisites>
-      <maven>2.0.7</maven>
+      <maven>2.0.9</maven>
    </prerequisites>
 
    <build>
@@ -114,16 +114,17 @@
             </configuration>
          </plugin>
          <plugin>
-            <groupId>org.codehaus.mojo.groovy</groupId>
-            <artifactId>groovy-maven-plugin</artifactId>
+            <groupId>org.codehaus.groovy.maven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>${groovy-maven-plugin-version}</version>
+            <configuration>
+               <targetBytecode>1.4</targetBytecode>
+            </configuration>
             <executions>
                <execution>
                   <goals>
                      <goal>compile</goal>
                      <goal>testCompile</goal>
-<!--
-                     <goal>groovydoc</goal>
--->
                   </goals>
                </execution>
             </executions>
@@ -144,7 +145,6 @@
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>cobertura-maven-plugin</artifactId>
-            <version>2.0</version>
          </plugin>
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -168,5 +168,12 @@
          <layout>default</layout>
       </repository>
    </repositories>
+
+   <properties>
+      <jidebuilder-version>1.1-SNAPSHOT</jidebuilder-version>
+      <jideoss-version>2.2.9.01</jideoss-version>
+      <groovy-version>1.6-beta-2-SNAPSHOT</groovy-version>
+      <groovy-maven-plugin-version>1.0-rc-3</groovy-maven-plugin-version>
+   </properties>
 
 </project>

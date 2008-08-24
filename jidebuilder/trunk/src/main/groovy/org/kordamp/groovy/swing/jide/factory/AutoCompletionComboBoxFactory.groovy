@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.kordamp.groovy.swing.jide.factory
 
-import groovy.util.FactoryBuilderSupport
 import com.jidesoft.swing.AutoCompletionComboBox
 
 /**
@@ -26,8 +25,9 @@ class AutoCompletionComboBoxFactory extends AbstractJideComponentFactory {
    public AutoCompletionComboBoxFactory() {
       super( AutoCompletionComboBox )
    }
-    public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
-       FactoryBuilderSupport.checkValueIsNull(value, name)
+
+   public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map properties) throws InstantiationException, IllegalAccessException {
+      FactoryBuilderSupport.checkValueIsNull(value, name)
       Object items = properties.remove("items")
       if( items instanceof Vector){
          return new AutoCompletionComboBox((Vector) items)
