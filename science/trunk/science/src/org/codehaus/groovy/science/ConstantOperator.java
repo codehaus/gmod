@@ -73,16 +73,34 @@ public class ConstantOperator< T >
 		if ( expression == null )
 			throw new NullPointerException();
 		
-		Object operator = expression.getOperator();
-		
-		if (
-			!(operator instanceof ConstantOperator)
-			||
-			!expression.getArgumentList().isEmpty()
-		)
+		if ( !isCon( expression ) )
 			throw new IllegalArgumentException();
 		
-		return ((ConstantOperator< ? >)operator).getValue();
+		return ((ConstantOperator< ? >)expression.getOperator()).getValue();
+	}
+	
+	/**
+	 * <p>Returns {@code true} if the given {@code SymbolicExpression} is a
+	 * nullary expression using {@code ConstantOperator}.</p>
+	 * 
+	 * @param expression  the expression to check
+	 * 
+	 * @return
+	 *     {@code true} if the given expression is nullary and uses
+	 *     {@code ConstantOperator}; {@code false} otherwise
+	 * 
+	 * @throws NullPointerException  if {@code expression} is {@code null}
+	 */
+	public static boolean isCon( SymbolicExpression expression )
+	{
+		if ( expression == null )
+			throw new NullPointerException();
+		
+		return (
+			(expression.getOperator() instanceof ConstantOperator)
+			&&
+			expression.getArgumentList().isEmpty()
+		);
 	}
 	
 	/**
