@@ -26,14 +26,15 @@ class ConstantOperatorTests extends GroovyTestCase
 	
 	void testCon()
 	{
-		// Make sure that {@code con}, {@code unCon}, and {@code inCon} work
-		// properly.
+		// Make sure that {@code con}, {@code unCon}, {@code isCon}, and
+		// {@code inCon} work properly.
 		
 		def dummy = new SymbolicExpression( "dummy", [] );
 		
 		
 		shouldFail( NullPointerException, { con( null ) } );
 		shouldFail( NullPointerException, { unCon( null ) } );
+		shouldFail( NullPointerException, { isCon( null ) } );
 		shouldFail( NullPointerException, { inCon( null ) } );
 		
 		shouldFail( IllegalArgumentException, { unCon( dummy ); } );
@@ -44,6 +45,9 @@ class ConstantOperatorTests extends GroovyTestCase
 		);
 		
 		assertEquals( unCon( con( [ 3, "P", 0 ] ) ), [ 3, "P", 0 ] );
+		
+		assertTrue( isCon( con( 1 ) ) );
+		assertFalse( isCon( con( 1 ) + con( 2 ) ) );
 		
 		assertEquals(
 			inCon( { a, b -> a + b } )( con( 1 ), con( 2 ) ),
