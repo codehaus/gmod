@@ -41,8 +41,8 @@ import com.jidesoft.swing.*
 public class JideBuilder extends SwingBuilder {
    private Logger log = Logger.getLogger(getClass().getName())
 
-   public JideBuilder() {
-      super()
+   public JideBuilder( boolean init = true ) {
+      super( init )
    }
 
    public void registerSVGAlias( String alias, String path ) {
