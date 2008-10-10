@@ -27,13 +27,13 @@ import org.w3c.dom.DOMImplementation
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.net>
  */
-final class SVGRenderer {    
+final class SVGRenderer {
     private GraphicsBuilder gb
-    
+
     public SVGRenderer(){
        gb = new GraphicsBuilder()
     }
-    
+
     /**
      * Writes an svg document to a string.<br>
      *
@@ -46,7 +46,7 @@ final class SVGRenderer {
     public String render( int width, int height, Closure closure ) {
        return render( width, height, gb.group(closure) )
     }
-    
+
     /**
      * Writes an svg document to a string.<br>
      *
@@ -61,7 +61,7 @@ final class SVGRenderer {
        renderToWriter( sw, width, height, go )
        return sw.buffer
     }
-    
+
     /**
      * Writes an svg document to a writer.<br>
      *
@@ -75,7 +75,7 @@ final class SVGRenderer {
     public void renderToWriter( Writer writer, int width, int height, Closure closure ) {
        renderToWriter( writer, width, height, gb.group(closure) )
     }
-    
+
     /**
      * Writes an svg document to a writer.<br>
      *
@@ -90,7 +90,7 @@ final class SVGRenderer {
        def svgGenerator = createGraphics( width, height, go )
        svgGenerator.stream( writer )
     }
-    
+
     /**
      * Writes an svg document to a stream.<br>
      *
@@ -104,7 +104,7 @@ final class SVGRenderer {
     public void renderToStream( OutputStream stream, int width, int height, Closure closure ) {
        renderToStream( stream, width, height, gb.group(closure) )
     }
-    
+
     /**
      * Writes an svg document to a stream.<br>
      *
@@ -119,7 +119,7 @@ final class SVGRenderer {
        def svgGenerator = createGraphics( width, height, go )
        svgGenerator.stream( new OutputStreamWriter(stream,"UTF-8") )
     }
-    
+
     /**
      * Writes an svg document to a file.<br>
      * Assumes that the filename follows the unix conventions ("/" as file separator)
@@ -146,9 +146,9 @@ final class SVGRenderer {
      *
      * @throws IOException if the file can't be created and writen to.
      */
-    public File renderToFile( String filename, int width, int height, GraphicsOperation go ) {     
+    public File renderToFile( String filename, int width, int height, GraphicsOperation go ) {
        assert filename : "Must define a value for filename"
-        
+
        filename -= ".svg"
        def parentDir = null
        def fileSeparator = "/"
@@ -158,12 +158,12 @@ final class SVGRenderer {
           parentDir = new File(dirs)
           parentDir.mkdirs()
        }
-       
+
        def file = new File(filename+".svg")
        renderToStream( new FileOutputStream(file), width, height, go )
        return file
     }
-     
+
     private SVGGraphics2D createGraphics( int width, int height, GraphicsOperation go ) {
        // Get a DOMImplementation.
        DOMImplementation domImpl = SVGDOMImplementation.getDOMImplementation()

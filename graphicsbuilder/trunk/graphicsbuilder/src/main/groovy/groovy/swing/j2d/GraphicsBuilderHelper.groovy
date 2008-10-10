@@ -62,7 +62,7 @@ class GraphicsBuilderHelper {
              if( props.green == null ) props.green = props.remove("g")
              if( props.blue == null ) props.blue = props.remove("b")
              if( props.alpha == null ) props.alpha = props.remove("a")
-          
+
              def red = props.red != null ? props.red: delegate.red
              def green = props.green != null ? props.green: delegate.green
              def blue = props.blue != null ? props.blue: delegate.blue
@@ -155,11 +155,11 @@ class GraphicsBuilderHelper {
        }
        throw new IllegalArgumentException( "'join' value is not a String nor an int" )
    }
-   
+
    public static BufferedImage createCompatibleImage( int width, int height ) {
       return createCompatibleImage( width, height, false )
    }
-   
+
    public static BufferedImage createCompatibleImage( int width, int height, boolean withAlpha ) {
       if( GraphicsEnvironment.isHeadless() ){
          return new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB )

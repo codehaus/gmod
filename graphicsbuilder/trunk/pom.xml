@@ -163,8 +163,8 @@
    </reporting>
 
    <properties>
-      <graphicsbuilder-version>0.7-SNAPSHOT</graphicsbuilder-version>
-      <groovy-version>1.6-beta-2-SNAPSHOT</groovy-version>
+      <graphicsbuilder-version>0.6.1</graphicsbuilder-version>
+      <groovy-version>1.6-beta-2</groovy-version>
       <groovy-maven-plugin-version>1.0-rc-3</groovy-maven-plugin-version>
    </properties>
 
