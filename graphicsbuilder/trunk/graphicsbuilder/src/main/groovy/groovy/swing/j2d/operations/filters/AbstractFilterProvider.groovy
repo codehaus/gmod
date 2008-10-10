@@ -92,12 +92,12 @@ abstract class AbstractFilterProvider extends ObservableSupport implements Filte
              break;
           case String:
              if( newvalue instanceof Boolean ) return oldvalue != (newvalue as String)
-             if( newvalue instanceof Color ) return ColorCache.getInstance().getColor(oldvalue) != newvalue
+             if( newvalue instanceof Color ) return ColorCache.getColor(oldvalue) != newvalue
              return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
           case Color:
              if( newvalue instanceof Boolean ) return true
-             if( newvalue instanceof String ) return oldvalue != ColorCache.getInstance().getColor(newvalue)
+             if( newvalue instanceof String ) return oldvalue != ColorCache.getColor(newvalue)
              return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
        }
@@ -109,12 +109,12 @@ abstract class AbstractFilterProvider extends ObservableSupport implements Filte
              break;
           case String:
              if( oldvalue instanceof Boolean ) return newvalue != (oldvalue as String)
-             if( oldvalue instanceof Color ) return ColorCache.getInstance().getColor(newvalue) != oldvalue
+             if( oldvalue instanceof Color ) return ColorCache.getColor(newvalue) != oldvalue
              return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
           case Color:
              if( oldvalue instanceof Boolean ) return true
-             if( oldvalue instanceof String ) return newvalue != ColorCache.getInstance().getColor(oldvalue)
+             if( oldvalue instanceof String ) return newvalue != ColorCache.getColor(oldvalue)
              return /*oldvalue != newvalue*/ !oldvalue.equals(newvalue)
              break;
        }

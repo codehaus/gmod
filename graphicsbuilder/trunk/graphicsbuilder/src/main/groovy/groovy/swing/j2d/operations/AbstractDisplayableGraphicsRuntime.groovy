@@ -59,7 +59,7 @@ abstract class AbstractDisplayableGraphicsRuntime extends BasicGraphicsRuntime {
             borderColor = null
          }else{
             if( borderColor instanceof String ){
-               borderColor = ColorCache.getInstance().getColor(borderColor)
+               borderColor = ColorCache.getColor(borderColor)
             }
             if( !borderColor ){
                borderColor = context?.g?.color
@@ -120,7 +120,7 @@ abstract class AbstractDisplayableGraphicsRuntime extends BasicGraphicsRuntime {
          }else if( fill ){
             switch( fill ){
                case String:
-                  fill = ColorCache.getInstance().getColor(fill)
+                  fill = ColorCache.getColor(fill)
                   break
                case PaintProvider:
                   fill = fill.runtime(context).paint

@@ -35,7 +35,7 @@ final class ColorPaintGraphicsOperation extends AbstractPaintingGraphicsOperatio
 
     public Paint getPaint( GraphicsContext context, Rectangle2D bounds ) {
        if( color instanceof String ){
-          return ColorCache.getInstance().getColor( color )
+          return ColorCache.getColor( color )
        }else if( color instanceof Color ){
           return color
        }

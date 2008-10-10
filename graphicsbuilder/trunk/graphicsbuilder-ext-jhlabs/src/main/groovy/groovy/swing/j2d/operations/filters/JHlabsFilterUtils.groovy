@@ -29,7 +29,7 @@ import com.jhlabs.math.Function3D
 class JHlabsFilterUtils extends FilterUtils {
    static getColor( value ){
       if( value instanceof String || value instanceof Color ){
-         return ColorCache.getInstance().getColor(value).rgb()
+         return ColorCache.getColor(value).rgb()
       }
       return value as int
    }

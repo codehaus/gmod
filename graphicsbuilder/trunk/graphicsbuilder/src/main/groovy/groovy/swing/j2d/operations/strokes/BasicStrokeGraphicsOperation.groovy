@@ -44,7 +44,7 @@ public class BasicStrokeGraphicsOperation extends AbstractStrokeGraphicsOperatio
 
     protected void doExecute( GraphicsContext context ) {
         if( asStroke ) return
-        def c = ColorCache.getInstance().getColor(color)
+        def c = ColorCache.getColor(color)
         if( opacity != null ){
            c = c.derive(alpha:opacity)
         }

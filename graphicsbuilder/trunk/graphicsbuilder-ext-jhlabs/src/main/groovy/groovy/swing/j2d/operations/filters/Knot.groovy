@@ -36,7 +36,7 @@ public class Knot extends ObservableSupport {
     }
 
     int getRealColor(){
-       Color c = ColorCache.getInstance().getColor( color )
+       Color c = ColorCache.getColor( color )
        if( opacity != null ) c = c.derive(alpha:opacity)
        return c.getRGB()
     }

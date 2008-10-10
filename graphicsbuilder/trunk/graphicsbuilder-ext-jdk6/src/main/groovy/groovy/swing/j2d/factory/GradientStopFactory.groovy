@@ -61,7 +61,7 @@ public class GradientStopFactory extends AbstractFactory {
 
       Object color = attributes.get( "color" )
       if( color != null && color instanceof String ){
-         attributes.put( "color", ColorCache.getInstance().getColor( color ) )
+         attributes.put( "color", ColorCache.getColor( color ) )
       }
 
       return true

@@ -164,7 +164,7 @@ final class SWFRenderer {
     }
     
     private def color( clr ) {
-       clr = ColorCache.getInstance().getColor(clr)
+       clr = ColorCache.getColor(clr)
        return new FSColor( clr.red, clr.green, clr.blue, clr.alpha )
     }
     

@@ -29,7 +29,7 @@ public class ColorPaintFactory extends AbstractGraphicsOperationFactory {
        ColorPaintGraphicsOperation go = new ColorPaintGraphicsOperation();
         if( value != null && value instanceof Color || value instanceof String ){
             // workaround because properties may be read-only
-            builder.context.color = ColorCache.getInstance().getColor( value )
+            builder.context.color = ColorCache.getColor( value )
         }
         return go
     }
@@ -61,7 +61,7 @@ public class ColorPaintFactory extends AbstractGraphicsOperationFactory {
        Object color = attributes.get( "color" )
 
        if( color != null && color instanceof String ){
-          attributes.put( "color", ColorCache.getInstance().getColor( color ) )
+          attributes.put( "color", ColorCache.getColor( color ) )
        }
 
        color = attributes.get("color")

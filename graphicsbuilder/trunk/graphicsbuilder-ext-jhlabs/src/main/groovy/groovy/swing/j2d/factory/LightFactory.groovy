@@ -32,7 +32,7 @@ public class LightFactory extends GraphicsOperationBeanFactory {
 
    public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ){
       def color = attributes.remove("color")
-      if( color != null ) node.color = ColorCache.getInstance().getColor(color).getRGB()
+      if( color != null ) node.color = ColorCache.getColor(color).getRGB()
       return true
    }
 
