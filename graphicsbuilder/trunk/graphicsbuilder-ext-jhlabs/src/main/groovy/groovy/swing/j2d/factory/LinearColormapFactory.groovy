@@ -31,8 +31,8 @@ class LinearColormapFactory extends ColormapFactory {
    public boolean onHandleNodeAttributes( FactoryBuilderSupport builder, Object node, Map attributes ){
       def color1 = attributes.remove("color1")
       def color2 = attributes.remove("color2")
-      if( color1 != null ) node.color1 = ColorCache.getInstance().getColor(color1).getRGB()
-      if( color2 != null ) node.color2 = ColorCache.getInstance().getColor(color2).getRGB()
+      if( color1 != null ) node.color1 = ColorCache.getColor(color1).getRGB()
+      if( color2 != null ) node.color2 = ColorCache.getColor(color2).getRGB()
       return true
    }
 }

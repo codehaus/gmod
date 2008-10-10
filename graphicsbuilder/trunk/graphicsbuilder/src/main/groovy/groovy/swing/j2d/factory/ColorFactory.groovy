@@ -29,7 +29,7 @@ public class ColorFactory extends AbstractGraphicsOperationFactory {
             if( Color.class.isAssignableFrom( value.getClass() ) ){
                 return value
             }else{
-                return ColorCache.getInstance().getColor( value )
+                return ColorCache.getColor( value )
             }
         }
 

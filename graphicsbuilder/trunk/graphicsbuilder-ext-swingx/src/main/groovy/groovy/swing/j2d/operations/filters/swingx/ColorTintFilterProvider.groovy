@@ -44,6 +44,6 @@ class ColorTintFilterProvider extends PropertiesBasedFilterProvider {
    }
    
    protected void setFilterProperty( name, value ){
-       filter = new ColorTintFilter( ColorCache.getInstance().getColor(mixColor), mixValue as float )
+       filter = new ColorTintFilter( ColorCache.getColor(mixColor), mixValue as float )
    }
 }

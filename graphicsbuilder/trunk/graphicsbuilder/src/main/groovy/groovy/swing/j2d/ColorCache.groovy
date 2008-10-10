@@ -27,14 +27,23 @@ public class ColorCache {
     private static final ColorCache instance
     static{
         instance = new ColorCache()
+        /*
+        ColorCache.metaClass.'static'.propertyMissing = { String name, Object value ->
+           setColor(name,value)
+        }
+        */
+        ColorCache.metaClass.'static'.propertyMissing << { String name ->
+           getColor(name)
+        }
     }
 
-    /**
+    /*
      * Returns the singleton instance.
-     */
+     *
     public static ColorCache getInstance() {
         return instance
     }
+    */
 
     private Map customColors = new TreeMap()
     private Map standardColors = new TreeMap()
@@ -42,7 +51,7 @@ public class ColorCache {
     private ColorCache() {
         initStandardColors()
     }
-
+    
     /**
      * Retrieves a Color from the cache.<br>
      * It will look first into the user-defined custom colors, if not found then
@@ -51,7 +60,38 @@ public class ColorCache {
      * @param name the name of the color to retrieve
      * @return the named color, null if not found
      */
-    public Color getColor( String name ) {
+    public static Color getColor( String name ) {
+       return instance._getColor(name)
+    }
+    
+    public static Color getColor( Color color ) {
+       return instance._getColor(color)
+    }
+    
+    public static Color getColor( Number value ) {
+       return instance._getColor(value)
+    }
+    
+    /**
+     * Stores a color on the cache.<br>
+     * It will override any existing custom color with the same name.
+     *
+     * @param name the name of the color to store
+     * @param color the Color to store
+     */
+    public static void setColor( String name, Color color ) {
+       instance._setColor(name,color)
+    }
+     
+    def propertyMissing( String name ) {
+       return getColor(name)
+    }
+    
+    void propertyMissing( String name, value ) {
+       setColor( name, value )
+    }
+
+    private Color _getColor( String name ) {
         Color color = customColors[name]
         if( color == null ){
             color = standardColors[name]
@@ -73,22 +113,15 @@ public class ColorCache {
         return color
     }
 
-    public Color getColor( Color color ){
+    private Color _getColor( Color color ){
        return color
     }
 
-    public Color getColor( Number value ){
+    private Color _getColor( Number value ){
        return new Color( value.intValue(), true )
     }
 
-    /**
-     * Stores a color on the cache.<br>
-     * It will override any existing custom color with the same name.
-     *
-     * @param name the name of the color to store
-     * @param color the Color to store
-     */
-    public void setColor( String name, Color color ) {
+    private void _setColor( String name, Color color ) {
         customColors[name] = color
     }
 

@@ -372,7 +372,7 @@ class GraphicsBuilder extends FactoryBuilderSupport {
           def value = attrs.remove(prop)
           if( value ){
              if( node.metaClass.hasProperty(node,prop) ){
-                node."$prop" = ColorCache.getInstance().getColor(value)
+                node."$prop" = ColorCache.getColor(value)
              }
           }
        }

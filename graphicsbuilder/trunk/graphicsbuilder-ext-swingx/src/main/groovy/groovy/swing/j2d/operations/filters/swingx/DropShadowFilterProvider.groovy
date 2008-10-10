@@ -55,7 +55,7 @@ class DropShadowFilterProvider extends PropertiesBasedFilterProvider {
    protected def convertValue( property, value ){
       switch( property ){
          case "color":
-            return ColorCache.getInstance().getColor(value)
+            return ColorCache.getColor(value)
          default:
             return super.convertValue(property,value)
       }
