@@ -1,18 +1,9 @@
 package groovy.jms
 
-import org.apache.activemq.broker.BrokerService
-import javax.jms.ConnectionFactory
-import org.apache.activemq.ActiveMQConnectionFactory
-import javax.jms.MessageListener
-import javax.jms.Message
-import javax.jms.Session
-import javax.jms.Destination
-import javax.jms.Queue
-import groovy.jms.provider.JMSProvider
 import groovy.jms.provider.ActiveMQJMSProvider
+import javax.jms.*
 
 class JMSCategoryTest extends GroovyTestCase {
-    static final String brokerUrl = "vm://localhost"
     ActiveMQJMSProvider provider;
     ConnectionFactory jms; //simulate injection
 
