@@ -9,7 +9,7 @@ import javax.jms.Session
 import javax.jms.Destination
 import javax.jms.Queue
 
-class JMSTest extends GroovyTestCase {
+class JMSCategoryTest extends GroovyTestCase {
     static final String brokerUrl = "vm://localhost"
     BrokerService broker;
 
@@ -22,6 +22,15 @@ class JMSTest extends GroovyTestCase {
 
     void tearDown() { broker?.stop() }
 
+    void testSimple(){
+        JMSCategory jms = new JMSCategory(){
+            println "do sth"
+        }
+        println jms
+    }
+
+
+
     void testJMSSetup() {
         ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         assertNotNull("ActiveMQ is not available", jms)
@@ -31,7 +40,7 @@ class JMSTest extends GroovyTestCase {
         ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "this is the message to send"
         String messageToCheck;
-        use(JMS) {
+        use(JMSCategory) {
             jms.session().topic("testTopic0").subscribe({Message m -> messageToCheck = m.text} as MessageListener)
             jms.topic("testTopic0").send(messageToSend); jms.close();
         }
@@ -43,7 +52,7 @@ class JMSTest extends GroovyTestCase {
         ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "this is the message to send", messageToCheck;
         List<Message> messages
-        use(JMS) {
+        use(JMSCategory) {
             Session session = jms.session(); session.queue("testQueue0").send(messageToSend);
             sleep(100); messages = session.queue("testQueue0").receiveAll(); session.close();
         }
@@ -55,8 +64,8 @@ class JMSTest extends GroovyTestCase {
         ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "this is the message to send", messageToCheck;
         List<Message> messages;
-        use(JMS) {Session session = jms.session(); session.queue("testQueue0").send(messageToSend); session.close()}
-        use(JMS) {messages = jms.queue("testQueue0").receiveAll(1000); jms.close()}
+        use(JMSCategory) {Session session = jms.session(); session.queue("testQueue0").send(messageToSend); session.close()}
+        use(JMSCategory) {messages = jms.queue("testQueue0").receiveAll(1000); jms.close()}
         assertEquals("message size incorrect", 1, messages?.size())
         assertEquals("callback message doesn't match", messageToSend, messages[0].text)
     }
@@ -65,18 +74,18 @@ class JMSTest extends GroovyTestCase {
         ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "passphase", messageToCheck;
         Queue replyQueue;
-        use(JMS) {
+        use(JMSCategory) {
             replyQueue = jms.session().createQueue("replyQueue")
             jms.session().queue("testQueue0").send(messageToSend, [JMSCorrelationID: 'unittest', JMSReplyTo: replyQueue])
             jms.close();
         }
-        use(JMS) {
+        use(JMSCategory) {
             Message message = jms.connect().queue("testQueue0").receive(1000); jms.close();
             String replyText = message.text + "ABC";
             assertNotNull(message.JMSReplyTo)
             jms.connect(); message.JMSReplyTo.send(replyText, [JMSCorrelationID: 'unittest']); jms.close();
         }
-        use(JMS) {
+        use(JMSCategory) {
             jms.connect(); messageToCheck = replyQueue.receive(1000).text; jms.close();
         }
         assertEquals("passphase hash doesn't match", messageToSend + "ABC", messageToCheck)
@@ -86,16 +95,16 @@ class JMSTest extends GroovyTestCase {
         ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "passphase";
         Queue replyQueue;
-        use(JMS) {
+        use(JMSCategory) {
             replyQueue = jms.session().createQueue("replyQueue")
             jms.session().queue("testQueue0").send(messageToSend, [JMSCorrelationID: 'unittest', JMSReplyTo: replyQueue])
             jms.close();
         }
-        use(JMS) {
+        use(JMSCategory) {
             jms.queue("testQueue0").receive(1000).with{it.reply(it.text + "ABC")}; jms.close();
         }
         Message messageToCheck;
-        use(JMS) {
+        use(JMSCategory) {
             jms.connect(); messageToCheck = replyQueue.receive(1000); jms.close();
         }
         assertEquals("passphase hash doesn't match", messageToSend + "ABC", messageToCheck.text)
