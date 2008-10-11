@@ -8,36 +8,23 @@ import javax.jms.Message
 import javax.jms.Session
 import javax.jms.Destination
 import javax.jms.Queue
+import groovy.jms.provider.JMSProvider
+import groovy.jms.provider.ActiveMQJMSProvider
 
 class JMSCategoryTest extends GroovyTestCase {
     static final String brokerUrl = "vm://localhost"
-    BrokerService broker;
+    ActiveMQJMSProvider provider;
+    ConnectionFactory jms; //simulate injection
 
-    void setUp() {
-//        broker = new BrokerService();
-//        broker.setBrokerName("fred");
-//        broker.addConnector(brokerUrl);
-//        broker.start();
-    }
+    void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
 
-    void tearDown() { broker?.stop() }
+    void tearDown() { provider.broker?.stop() }
 
-    void testSimple(){
-        JMSCategory jms = new JMSCategory(){
-            println "do sth"
-        }
-        println jms
-    }
-
-
-
-    void testJMSSetup() {
-        ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
-        assertNotNull("ActiveMQ is not available", jms)
+    void testDefaultConnFactory() {
+        assertNotNull("default conn factory is not available", provider.getConnectionFactory())
     }
 
     void testTopic() {
-        ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "this is the message to send"
         String messageToCheck;
         use(JMSCategory) {
@@ -49,7 +36,6 @@ class JMSCategoryTest extends GroovyTestCase {
     }
 
     void testQueueInTheSameSession() {
-        ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "this is the message to send", messageToCheck;
         List<Message> messages
         use(JMSCategory) {
@@ -61,7 +47,6 @@ class JMSCategoryTest extends GroovyTestCase {
     }
 
     void testQueueInTheDiffConn() {
-        ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "this is the message to send", messageToCheck;
         List<Message> messages;
         use(JMSCategory) {Session session = jms.session(); session.queue("testQueue0").send(messageToSend); session.close()}
@@ -71,7 +56,6 @@ class JMSCategoryTest extends GroovyTestCase {
     }
 
     void testTempQueuSyncReply() {
-        ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "passphase", messageToCheck;
         Queue replyQueue;
         use(JMSCategory) {
@@ -92,7 +76,6 @@ class JMSCategoryTest extends GroovyTestCase {
     }
 
     void testReplyWithReplyMethod() {
-        ConnectionFactory jms = new ActiveMQConnectionFactory(brokerURL: brokerUrl);
         String messageToSend = "passphase";
         Queue replyQueue;
         use(JMSCategory) {
@@ -101,7 +84,7 @@ class JMSCategoryTest extends GroovyTestCase {
             jms.close();
         }
         use(JMSCategory) {
-            jms.queue("testQueue0").receive(1000).with{it.reply(it.text + "ABC")}; jms.close();
+            jms.queue("testQueue0").receive(1000).with {it.reply(it.text + "ABC")}; jms.close();
         }
         Message messageToCheck;
         use(JMSCategory) {
