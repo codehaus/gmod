@@ -30,8 +30,8 @@ import java.lang.reflect.Method
  *  - otherwise, use the caller type as return type
  * remove those List<Message>.commit(), use session.close instead.
  */
-class JMS {
-    static Logger logger = Logger.getLogger(JMS.class)
+class JMSCategory {
+    static Logger logger = Logger.getLogger(JMSCategory.class)
     static final ThreadLocal<Connection> connection = new ThreadLocal<Connection>();
     static final ThreadLocal<Session> session = new ThreadLocal<Session>();
     static final clientIdPrefix;
@@ -48,20 +48,20 @@ class JMS {
     //Remarks: it's hardcoded to reuse session per thread
     private static Connection establishConnection(ConnectionFactory factory, String clientId = null) {
         if (!factory) throw new IllegalStateException("factory must not be null")
-        if (JMS.connection.get()) return JMS.connection.get();
+        if (JMSCategory.connection.get()) return JMSCategory.connection.get();
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
         Connection conn = factory.createConnection();
         conn.setClientID(clientId ?: clientIdPrefix + ':' + System.currentTimeMillis());
         conn.setExceptionListener({JMSException e -> logger.error("JMS Exception", e)} as ExceptionListener);
-        JMS.connection.set(conn);
+        JMSCategory.connection.set(conn);
         conn.start();
         return conn;
     }
 
     private static Session establishSession(Connection conn) {
-        if (JMS.session.get()) return JMS.session.get();
+        if (JMSCategory.session.get()) return JMSCategory.session.get();
         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        JMS.session.set(session);
+        JMSCategory.session.set(session);
         return session;
     }
 
@@ -71,14 +71,14 @@ class JMS {
      ***************************************************************************************************************** */
     //this method doesn't create session
     static Connection connect(ConnectionFactory factory, String clientId = null) {
-        if (JMS.connection.get()) return JMS.connection.get();
+        if (JMSCategory.connection.get()) return JMSCategory.connection.get();
         Connection connection = establishConnection(factory, clientId)
         if (logger.isTraceEnabled()) logger.trace("connect() - return connection: $connection, clientId: $clientId")
         return connection;
     }
 
     static Session session(ConnectionFactory factory, String clientId = null) {
-        if (JMS.session.get()) return JMS.session.get();
+        if (JMSCategory.session.get()) return JMSCategory.session.get();
         Connection conn = connect(factory, clientId)
         Session session = establishSession(conn);
         if (logger.isTraceEnabled()) logger.trace("session() - return session: $session")
@@ -86,20 +86,20 @@ class JMS {
     }
 
     static Session session(Connection connection) {
-        if (JMS.session.get()) return JMS.session.get();
+        if (JMSCategory.session.get()) return JMSCategory.session.get();
         Session session = establishSession(connection);
         if (logger.isTraceEnabled()) logger.trace("session() - return session: $session")
         return session;
     }
 
     static start(ConnectionFactory target) {
-        if (!JMS.connection.get()) throw new IllegalStateException("not existing connection to start")
-        start(JMS.connection.get());
+        if (!JMSCategory.connection.get()) throw new IllegalStateException("not existing connection to start")
+        start(JMSCategory.connection.get());
     }
 
     static final Method connectionStart = Connection.methods.find { it.name == 'start'};
 
-    static start(Connection target) { connectionStart.invoke(JMS.connection.get(), null); }
+    static start(Connection target) { connectionStart.invoke(JMSCategory.connection.get(), null); }
 
     static close(ConnectionFactory target) { cleanupThreadLocalVariables(target, true) }
 
@@ -111,10 +111,10 @@ class JMS {
 
     static cleanupThreadLocalVariables(target, boolean close = false) {
         if (logger.isTraceEnabled()) logger.trace("cleanupThreadLocalVariables() - class: ${target.getClass()}")
-        if (close) JMS.connection.get().start();
-        JMS.session.set(null);
-        if (close) connectionClose.invoke(JMS.connection.get(), null)
-        JMS.connection.set(null);
+        if (close) JMSCategory.connection.get().start();
+        JMSCategory.session.set(null);
+        if (close) connectionClose.invoke(JMSCategory.connection.get(), null)
+        JMSCategory.connection.set(null);
     }
 
     /** *****************************************************************************************************************
@@ -182,8 +182,8 @@ class JMS {
     }
 
     private static Object sendMessage(Destination dest, message, Map cfg = null) {
-        if (!JMS.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMS.session.get()) JMS.session.set(session(JMS.connection.get()))
+        if (!JMSCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMSCategory.session.get()) JMSCategory.session.set(session(JMSCategory.connection.get()))
         MessageProducer producer = session.get().createProducer(dest);
         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
         Message jmsMessage;
@@ -202,17 +202,17 @@ class JMS {
 
     // subscribe to a topic
     static Topic subscribe(Topic topic, MessageListener listener, String subscriptionName = null) {
-        if (!JMS.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMS.session.get()) JMS.session.set(session(JMS.connection.get()))
-        TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName ?: JMS.connection.get().clientID)
+        if (!JMSCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMSCategory.session.get()) JMSCategory.session.set(session(JMSCategory.connection.get()))
+        TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName ?: JMSCategory.connection.get().clientID)
         subscriber.setMessageListener(listener);
         if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: $listener")
         return topic;
     }
 
     static Message receive(Queue dest, Integer waitTime = null) {
-        if (!JMS.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMS.session.get()) JMS.session.set(session(JMS.connection.get()))
+        if (!JMSCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMSCategory.session.get()) JMSCategory.session.set(session(JMSCategory.connection.get()))
         MessageConsumer consumer = session.get().createConsumer(dest);
         Message message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
         consumer.close();
@@ -221,8 +221,8 @@ class JMS {
     }
 
     static List<Message> receiveAll(Queue dest, Integer waitTime = null) {
-        if (!JMS.connection.get()) throw new IllegalStateException("No connection. Call JMS.connect() first.")
-        if (!JMS.session.get()) JMS.session.set(session(JMS.connection.get()))
+        if (!JMSCategory.connection.get()) throw new IllegalStateException("No connection. Call JMS.connect() first.")
+        if (!JMSCategory.session.get()) JMSCategory.session.set(session(JMSCategory.connection.get()))
         MessageConsumer consumer = session.get().createConsumer(dest);
         List<Message> messages = [];
         boolean first = true;
