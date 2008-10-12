@@ -152,20 +152,20 @@ class JMSCoreCategory {
         Connection connection = connect(factory);
         Session session = session(connection);
         Queue queue = session.createQueue(dest);
-        if (logger.isTraceEnabled()) logger.trace("topic() - return queue: $queue")
+        if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
         return queue;
     }
 
     static Queue queue(Connection connection, String dest) {
         Session session = session(connection);
         Queue queue = session.createQueue(dest);
-        if (logger.isTraceEnabled()) logger.trace("topic() - return queue: $queue")
+        if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
         return queue;
     }
 
     static Queue queue(Session session, String dest) {
         Queue queue = session.createQueue(dest);
-        if (logger.isTraceEnabled()) logger.trace("topic() - return queue: $queue")
+        if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
         return queue;
     }
 
