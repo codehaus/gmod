@@ -4,7 +4,23 @@ import javax.jms.*
 
 class JMSCategory extends JMSCoreCategory {
 
+    static Map toMap(MapMessage mapMessage) {
+        def result = [:]
+        mapMessage.mapNames.each {result.put(it, mapMessage.getObject(it))}
+        return result;
+    }
+
+
+    static receive(String dest, Map cfg = null) {
+        int timeout = (cfg?.within && cfg?.within.isInteger()) ? cfg.within.toInteger() : 0
+        return JMSCoreCategory.session.get().queue(dest).receive(timeout);
+    }
+
     static Queue send(String dest, String message) {
+        return JMSCoreCategory.session.get().queue(dest).send(message);
+    }
+
+    static Queue send(String dest, Map message) {
         return JMSCoreCategory.session.get().queue(dest).send(message);
     }
 
