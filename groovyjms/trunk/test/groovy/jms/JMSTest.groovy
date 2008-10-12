@@ -19,9 +19,9 @@ public class JMSTest extends GroovyTestCase {
     }
 
     void testSimple() {
-        String result;
+        String result,result2;
         new JMS() {
-            subscribeTo:"greetingroom" with { result = it.text}
+            subscribeTo("greetingroom").with { result = it.text}
             "how are you?".publishTo "greetingroom"
         }
         sleep(1000)
