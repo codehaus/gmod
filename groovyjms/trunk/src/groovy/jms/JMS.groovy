@@ -18,16 +18,20 @@ class JMS {
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
 
     JMS(connArg = null, sessArg = null, Closure c) {
-        if (connArg && connArg instanceof ConnectionFactory) { factory = connArg; connection = factory.createConnection() }
-        else if (connArg && connArg instanceof Connection) { connection = connArg;}
-        else if (!connArg) {
-            synchronized (ActiveMQJMSProvider) { provider = provider ?: new ActiveMQJMSProvider(); }
-            factory = provider.connectionFactory; connection = factory.createConnection()
-        } else { throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")}
+        if (connArg && (connArg instanceof ConnectionFactory || connArg instanceof Connection))
+            throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")
 
-        session = sessArg ?: session ?: connection.createSession(false, Session.AUTO_ACKNOWLEDGE); //TODO make args configurable
+        use(JMSCategory) {
+            if (!connArg) {
+                synchronized (ActiveMQJMSProvider) { provider = provider ?: new ActiveMQJMSProvider(); }
+                factory = provider.connectionFactory;
+                connection = factory.connect();
+                session = factory.session();
+            }
 
-        use(JMSCategory) {c()}
+            //todo add try catch and close connection
+            c()
+        }
     }
 
     String toString() { return "JMS { session: $session, connection: $connection, factory: $factory, provider: $provider}"}

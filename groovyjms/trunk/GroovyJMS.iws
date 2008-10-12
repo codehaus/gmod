@@ -16,11 +16,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy" afterPath="$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy" afterPath="$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/groovy/jms/JMS.groovy" afterPath="$PROJECT_DIR$/src/groovy/jms/JMS.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/groovy/jms/provider/ActiveMQJMSProvider.groovy" afterPath="$PROJECT_DIR$/src/groovy/jms/provider/ActiveMQJMSProvider.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GroovyJMS.ipr" afterPath="$PROJECT_DIR$/GroovyJMS.ipr" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/groovy/jms/JMS.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GroovyJMS.iws" afterPath="$PROJECT_DIR$/GroovyJMS.iws" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/groovy/jms/JMSCategoryTest.groovy" afterPath="$PROJECT_DIR$/test/groovy/jms/JMSCategoryTest.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/log4j.xml" afterPath="$PROJECT_DIR$/src/log4j.xml" />
     </list>
     <ignored path="GroovyJMS.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -83,10 +85,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="JMS.groovy" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="JMSTest.groovy" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="17" column="4" selection-start="502" selection-end="502" vertical-scroll-proportion="0.51166964">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="JMS.groovy" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMS.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="37" selection-start="1040" selection-end="1040" vertical-scroll-proportion="0.46678966">
+            <state line="31" column="53" selection-start="1348" selection-end="1348" vertical-scroll-proportion="0.84317344">
               <folding />
             </state>
           </provider>
@@ -95,16 +106,16 @@
       <file leaf-file-name="JMSCategoryTest.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSCategoryTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="49" selection-start="809" selection-end="809" vertical-scroll-proportion="0.6714542">
+            <state line="20" column="23" selection-start="630" selection-end="641" vertical-scroll-proportion="0.61041296">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JMSTest.groovy" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy">
+      <file leaf-file-name="JMSCategory.groovy" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="31" selection-start="643" selection-end="643" vertical-scroll-proportion="0.6032316">
+            <state line="56" column="30" selection-start="2369" selection-end="2369" vertical-scroll-proportion="0.80258304">
               <folding />
             </state>
           </provider>
@@ -252,54 +263,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="GroovyJMS" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="GroovyJMS" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms\src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms\src\groovy\jms" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="GroovyJMS" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="GroovyJMS" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms\src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms\src\groovy\jms" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="PsiDirectory:H:\projects\intellij\groovyjms\src\groovy\jms\provider" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -322,24 +285,26 @@
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
+    <property name="RunManagerConfig.showSettingsBeforeRunnig" value="false" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
+    <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
   </component>
-  <component name="RunManager" selected="JUnit.JMSCategoryTest.testTopic">
-    <tempConfiguration default="false" name="JMSCategoryTest.testTopic" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.JMSTest.testSimple">
+    <tempConfiguration default="false" name="JMSTest.testSimple" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="groovy.jms.*" />
       <module name="GroovyJMS" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="groovy.jms" />
-      <option name="MAIN_CLASS_NAME" value="groovy.jms.JMSCategoryTest" />
-      <option name="METHOD_NAME" value="testTopic" />
+      <option name="MAIN_CLASS_NAME" value="groovy.jms.JMSTest" />
+      <option name="METHOD_NAME" value="testSimple" />
       <option name="TEST_OBJECT" value="method" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
       <option name="ADDITIONAL_CLASS_PATH" />
@@ -347,6 +312,11 @@
         <value defaultName="wholeProject" />
       </option>
       <envs />
+      <RunnerSettings RunnerId="JProfiler">
+        <option name="WINDOW" value="false" />
+        <option name="JVMPI" value="false" />
+        <option name="INTERPRETED" value="false" />
+      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
       <method>
@@ -437,7 +407,7 @@
       <envs />
     </configuration>
     <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.JMSCategoryTest.testTopic" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.JMSTest.testSimple" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -500,6 +470,7 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" order="1" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="1" />
+      <window_info id="IntelliJad Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919955" order="-1" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" order="3" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="8" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" order="3" />
@@ -531,7 +502,7 @@
     <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactored test case to use JMSProvider" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored and added JMSTest" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -545,6 +516,7 @@
     <MESSAGE value="aded JMSProvider" />
     <MESSAGE value="renamed JMS to JMSCategory" />
     <MESSAGE value="refactored test case to use JMSProvider" />
+    <MESSAGE value="refactored and added JMSTest" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -585,13 +557,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/log4j.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="30" selection-start="797" selection-end="797" vertical-scroll-proportion="0.3939745">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/groovy/jms/provider/JMSProvider.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="4" column="28" selection-start="84" selection-end="95" vertical-scroll-proportion="0.12208258">
@@ -613,13 +578,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="31" selection-start="2727" selection-end="2727" vertical-scroll-proportion="0.4889299">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/GroovyJMS.iws">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -627,30 +585,72 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/activemq-all-5.3-SNAPSHOT.jar!/javax/jms/Session.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="intellijad://intellijad/javax/jms/Session.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/activemq-all-5.3-SNAPSHOT.jar!/org/apache/activemq/ActiveMQSession.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="intellijad://intellijad/org/apache/activemq/ActiveMQSession.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/log4j.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="30" selection-start="697" selection-end="697" vertical-scroll-proportion="0.47574627">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/groovy/jms/provider/ActiveMQJMSProvider.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="6" selection-start="221" selection-end="221" vertical-scroll-proportion="0.21364452">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSCategoryTest.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="49" selection-start="809" selection-end="809" vertical-scroll-proportion="0.6714542">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMS.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="37" selection-start="1040" selection-end="1040" vertical-scroll-proportion="0.46678966">
+        <state line="18" column="58" selection-start="824" selection-end="824" vertical-scroll-proportion="0.54937166">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="31" selection-start="643" selection-end="643" vertical-scroll-proportion="0.6032316">
+        <state line="17" column="4" selection-start="502" selection-end="502" vertical-scroll-proportion="0.51166964">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="30" selection-start="2369" selection-end="2369" vertical-scroll-proportion="0.80258304">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSCategoryTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="23" selection-start="630" selection-end="641" vertical-scroll-proportion="0.61041296">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMS.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="31" column="53" selection-start="1348" selection-end="1348" vertical-scroll-proportion="0.84317344">
           <folding />
         </state>
       </provider>

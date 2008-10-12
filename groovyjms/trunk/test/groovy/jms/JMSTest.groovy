@@ -13,16 +13,17 @@ public class JMSTest extends GroovyTestCase {
 
     void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
 
-    void tearDown() { provider.broker?.stop() }
+    void tearDown() {
+        //try{provider.broker?.stop()}catch(e){}
+    }
 
     void testSimple() {
-        String messageToSend = "this is the message to send"
-        String messageToCheck;
+        String result;
         new JMS() {
-            jms.session().topic("testTopic0").subscribe({Message m -> messageToCheck = m.text} as MessageListener)
-            jms.topic("testTopic0").send(messageToSend); jms.close();
+            subscribeTo("greetingroom").with { result = it.text}
+            "how are you?".publishTo "greetingroom"
         }
         sleep(1000)
-        assertEquals("callback message doesn't match", messageToSend, messageToCheck)
+        assertEquals("how are you?", result)
     }
 }
