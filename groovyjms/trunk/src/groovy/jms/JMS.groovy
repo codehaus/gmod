@@ -19,21 +19,33 @@ class JMS {
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
 
     JMS(connArg = null, sessArg = null, Closure c) {
-        if (connArg && (connArg instanceof ConnectionFactory || connArg instanceof Connection))
+        if (connArg && !(connArg instanceof ConnectionFactory || connArg instanceof Connection))
             throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")
 
         try {
-            use(JMSCategory) {
-                if (!connArg) {
-                    synchronized (SYSTEM_PROP_JMSPROVIDER) {
-                        String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: ActiveMQJMSProvider.class.name
-                        provider = provider ?: Class.forName(className).newInstance();
-                    }
-                    factory = provider.connectionFactory;
-                    connection = factory.connect();
-                    session = factory.session();
-                }
 
+            if (!connArg) {
+                synchronized (SYSTEM_PROP_JMSPROVIDER) {
+                    String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: ActiveMQJMSProvider.class.name
+                    provider = provider ?: Class.forName(className).newInstance();
+                }
+                factory = provider.connectionFactory;
+                connection = JMSCategory.establishConnection(factory);
+            } else {
+                if (connArg instanceof ConnectionFactory) {
+                    factory = connArg;
+                    connection = JMSCategory.establishConnection(factory);
+                } else if (connArg instanceof Connection) {
+                    this.connection = connArg;
+                    JMSCategory.connection.set(connection)
+                }
+            }
+
+            if (sessArg) { JMSCategory.session.set(sessArg); session = sessArg }
+            else {
+                session = JMSCategory.establishSession(connection);
+            }
+            use(JMSCategory) {
                 //todo add try catch and close connection
                 c()
             }

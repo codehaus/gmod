@@ -29,6 +29,7 @@ import java.lang.reflect.Method
  *  - for createXXX, return XXX
  *  - otherwise, use the caller type as return type
  * remove those List<Message>.commit(), use session.close instead.
+ * - remove the dependency to connectionFactory, user may supply connection and connectionFactory may be null
  */
 class JMSCategory {
     static Logger logger = Logger.getLogger(JMSCategory.class)
@@ -59,6 +60,10 @@ class JMSCategory {
         sendMessage(topic, textMessage, cfg);
     }
 
+    static Connection getConnection(subject) { return connection.get() }
+
+    static Session getSession(subject) { return session.get() }
+
 
     /** *****************************************************************************************************************
      * TOP LEVEL PRIVATE METHOD for establish Connection and Session
@@ -67,7 +72,7 @@ class JMSCategory {
     //TODO consider to set a timeout to handle uncommitted JMS thread
     //TODO consider to add a parameter to enable/disable transaction
     //Remarks: it's hardcoded to reuse session per thread
-    private static Connection establishConnection(ConnectionFactory factory, String clientId = null) {
+    static Connection establishConnection(ConnectionFactory factory, String clientId = null) {
         if (!factory) throw new IllegalStateException("factory must not be null")
         if (JMSCategory.connection.get()) return JMSCategory.connection.get();
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
@@ -79,7 +84,7 @@ class JMSCategory {
         return conn;
     }
 
-    private static Session establishSession(Connection conn) {
+    static Session establishSession(Connection conn) {
         if (JMSCategory.session.get()) return JMSCategory.session.get();
         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
         JMSCategory.session.set(session);
