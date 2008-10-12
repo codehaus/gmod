@@ -13,7 +13,7 @@
     </appender>
 
     <category name="groovy.jms" additivity="false">
-        <priority value="DEBUG"/>
+        <priority value="TRACE"/>
         <appender-ref ref="CONSOLE"/>
     </category>
 

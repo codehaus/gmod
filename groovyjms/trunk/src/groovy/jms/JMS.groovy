@@ -7,11 +7,12 @@ import groovy.jms.provider.JMSProvider
 import groovy.jms.provider.ActiveMQJMSProvider
 
 class JMS {
-    static Logger logger = Logger.getLogger(JMS.class)
+    static Logger logger = Logger.getLogger(JMS.class.name)
     static final clientIdPrefix;
     static {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
+    public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
     private static JMSProvider provider; //no need to recreate
     private ConnectionFactory factory;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
@@ -21,16 +22,23 @@ class JMS {
         if (connArg && (connArg instanceof ConnectionFactory || connArg instanceof Connection))
             throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")
 
-        use(JMSCategory) {
-            if (!connArg) {
-                synchronized (ActiveMQJMSProvider) { provider = provider ?: new ActiveMQJMSProvider(); }
-                factory = provider.connectionFactory;
-                connection = factory.connect();
-                session = factory.session();
-            }
+        try {
+            use(JMSCategory) {
+                if (!connArg) {
+                    synchronized (SYSTEM_PROP_JMSPROVIDER) {
+                        String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: ActiveMQJMSProvider.class.name
+                        provider = provider ?: Class.forName(className).newInstance();
+                    }
+                    factory = provider.connectionFactory;
+                    connection = factory.connect();
+                    session = factory.session();
+                }
 
-            //todo add try catch and close connection
-            c()
+                //todo add try catch and close connection
+                c()
+            }
+        } catch (ClassNotFoundException cnfe) {
+            System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
         }
     }
 
