@@ -1,11 +1,7 @@
-package groovy.jms;
+package groovy.jms
 
-import groovy.util.GroovyTestCase;
-import groovy.jms.provider.ActiveMQJMSProvider;
-
-import javax.jms.ConnectionFactory
-import javax.jms.MessageListener
-import javax.jms.Message;
+import groovy.jms.provider.ActiveMQJMSProvider
+import javax.jms.ConnectionFactory;
 
 public class JMSTest extends GroovyTestCase {
     ActiveMQJMSProvider provider;
@@ -17,10 +13,15 @@ public class JMSTest extends GroovyTestCase {
         //try{provider.broker?.stop()}catch(e){}
     }
 
+    void testJMSProviderSystemProperty(){
+       System.setProperty(JMS.SYSTEM_PROP_JMSPROVIDER, "groovy.jms.provider.ActiveMQJMSProviderNOTEXISTED")
+        assertNull( new JMS(){}.provider)
+    }
+
     void testSimple() {
         String result;
         new JMS() {
-            subscribeTo("greetingroom").with { result = it.text}
+            subscribeTo:"greetingroom" with { result = it.text}
             "how are you?".publishTo "greetingroom"
         }
         sleep(1000)
