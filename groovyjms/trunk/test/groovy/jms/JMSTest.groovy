@@ -7,9 +7,9 @@ import static groovy.jms.JMS.jms;
 
 public class JMSTest extends GroovyTestCase {
     ActiveMQJMSProvider provider;
-    ConnectionFactory jms; //simulate injection
+    ConnectionFactory factory; //simulate injection
 
-    void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
+    void setUp() { provider = new ActiveMQJMSProvider(); factory = provider.getConnectionFactory() }
 
     void tearDown() {
         //try{provider.broker?.stop()}catch(e){}
@@ -21,7 +21,7 @@ public class JMSTest extends GroovyTestCase {
     }
 
     void testGetConnectionSession() {
-        Connection c = jms.createConnection()
+        Connection c = factory.createConnection()
         new JMS(c) {  //read-only connection and session are automatically available in the JMS closure scope
             assertEquals c, connection
             assertNotNull session
@@ -66,19 +66,19 @@ public class JMSTest extends GroovyTestCase {
             assertEquals("testdata", "testqueue".receive().text)
         }
 
-        jms(jms) {
+        jms(factory) {
             "testqueue".send("testdata1")
             sleep(500)
             assertEquals("testdata1", "testqueue".receive().text)
         }
     }
 
-    void testEachMessage() {
+    /*void testEachMessage() {
         def jms = new JMS()
         jms.send(toQueue: 'testQueue', 'message': 'hello')
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
-
-    }
+        jms.eachMessage{  }
+    }*/
 
 
 }
