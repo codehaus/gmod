@@ -48,13 +48,17 @@ class JMSCoreCategory {
     /** *****************************************************************************************************************
      * TOP LEVEL PRIVATE METHOD for establish Connection and Session
      ***************************************************************************************************************** */
+    static Connection establishConnection(ConnectionFactory factory, boolean force = false) {
+        return establishConnection(factory, null, force)
+    }
 
     //TODO consider to set a timeout to handle uncommitted JMS thread
     //TODO consider to add a parameter to enable/disable transaction
     //Remarks: it's hardcoded to reuse session per thread
-    static Connection establishConnection(ConnectionFactory factory, String clientId = null) {
+    static Connection establishConnection(ConnectionFactory factory, String clientId = null, boolean force = false) {
         if (!factory) throw new IllegalStateException("factory must not be null")
-        if (JMSCoreCategory.connection.get()) return JMSCoreCategory.connection.get();
+        if (force && connection.get()) cleanupThreadLocalVariables(null, true)
+        if (connection.get()) return connection.get();
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
         Connection conn = factory.createConnection();
         conn.setClientID(clientId ?: clientIdPrefix + ':' + System.currentTimeMillis());
@@ -117,9 +121,9 @@ class JMSCoreCategory {
 
     static cleanupThreadLocalVariables(target, boolean close = false) {
         if (logger.isTraceEnabled()) logger.trace("cleanupThreadLocalVariables() - class: ${target.getClass()}")
-        if (close) JMSCoreCategory.connection.get().start();
+        if (close) JMSCoreCategory.connection.get()?.start();
         JMSCoreCategory.session.set(null);
-        if (close) connectionClose.invoke(JMSCoreCategory.connection.get(), null)
+        if (close && JMSCoreCategory.connection.get()) connectionClose.invoke(JMSCoreCategory.connection.get(), null)
         JMSCoreCategory.connection.set(null);
     }
 

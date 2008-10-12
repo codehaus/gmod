@@ -36,11 +36,11 @@ class JMS {
                     provider = provider ?: Class.forName(className).newInstance();
                 }
                 factory = provider.connectionFactory;
-                connection = JMSCoreCategory.establishConnection(factory);
+                connection = JMSCoreCategory.establishConnection(factory, true);
             } else {
                 if (connArg instanceof ConnectionFactory) {
                     factory = connArg;
-                    connection = JMSCoreCategory.establishConnection(factory);
+                    connection = JMSCoreCategory.establishConnection(factory, true);
                 } else if (connArg instanceof Connection) {
                     this.connection = connArg;
                     JMSCoreCategory.connection.set(connection)
@@ -52,11 +52,14 @@ class JMS {
                 session = JMSCoreCategory.establishSession(connection);
             }
             if (c) {
+                this.autoClose = false
                 use(JMSCategory) {
                     //todo add try catch and close connection
+                    if (!session) throw new IllegalStateException("session was not available")
                     c()
                     //connection.close();
                 }
+                this.close()
             }
         } catch (ClassNotFoundException cnfe) {
             System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
@@ -69,6 +72,7 @@ class JMS {
 
     void eachMessage(String queueName, Map cfg = null, Closure c) {
         use(JMSCoreCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
             session.queue(queueName).receiveAll(cfg).each {m -> c(m)}
             cleanupThreadLocalVariables()
         }
@@ -76,6 +80,7 @@ class JMS {
 
     def firstMessage(String queueName, Map cfg = null, Closure c) {
         use(JMSCoreCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
             c(session.queue(queueName).receive(cfg))
             cleanupThreadLocalVariables()
         }
@@ -87,13 +92,14 @@ class JMS {
         // within: Integer as ms 
     }
 
-    def send(Map params) {  
+    def send(Map params) {
         //validate
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
         //dest: toQueue, toTopic ; handle String or List<String>
         //replyTo: queueName or [destName: type];
         use(JMSCoreCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
             def toQueue = params.'toQueue', toTopic = params.'toTopics'
             if (toQueue) {
                 if (toQueue instanceof Collection) {
@@ -112,6 +118,10 @@ class JMS {
             }
             if (autoClose) cleanupThreadLocalVariables()
         }
+    }
+
+    def static close() {
+        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
     }
 
 
