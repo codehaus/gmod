@@ -14,7 +14,8 @@ class JMS {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
-    private static JMSProvider provider; //no need to recreate
+    public static String DEFAULT_JMSPROVIDER = ActiveMQJMSProvider.class.name
+     static JMSProvider provider; //no need to recreate
     private ConnectionFactory factory;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
@@ -32,7 +33,7 @@ class JMS {
 
             if (!connArg) {
                 synchronized (SYSTEM_PROP_JMSPROVIDER) {
-                    String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: ActiveMQJMSProvider.class.name
+                    String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: DEFAULT_JMSPROVIDER
                     provider = provider ?: Class.forName(className).newInstance();
                 }
                 factory = provider.connectionFactory;
@@ -52,14 +53,12 @@ class JMS {
                 session = JMSCoreCategory.establishSession(connection);
             }
             if (c) {
-                this.autoClose = false
                 use(JMSCategory) {
                     //todo add try catch and close connection
                     if (!session) throw new IllegalStateException("session was not available")
                     c()
-                    //connection.close();
                 }
-                this.close()
+                if(autoClose) this.close()
             }
         } catch (ClassNotFoundException cnfe) {
             System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
