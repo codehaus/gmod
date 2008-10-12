@@ -17,7 +17,6 @@
   <component name="ChangeListManager">
     <list default="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy" afterPath="$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/groovy/jms/JMS.groovy" afterPath="$PROJECT_DIR$/src/groovy/jms/JMS.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy" afterPath="$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GroovyJMS.iws" afterPath="$PROJECT_DIR$/GroovyJMS.iws" />
     </list>
@@ -82,19 +81,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="JMSTest.groovy" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="JMSTest.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="34" selection-start="756" selection-end="756" vertical-scroll-proportion="0.42429906">
+            <state line="36" column="12" selection-start="1126" selection-end="1126" vertical-scroll-proportion="0.78727275">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JMS.groovy" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="JMS.groovy" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMS.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="45" column="67" selection-start="2056" selection-end="2056" vertical-scroll-proportion="0.9775701">
+            <state line="49" column="47" selection-start="2179" selection-end="2179" vertical-scroll-proportion="0.6280374">
               <folding />
             </state>
           </provider>
@@ -103,7 +102,7 @@
       <file leaf-file-name="JMSCategory.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="64" column="63" selection-start="2788" selection-end="2788" vertical-scroll-proportion="0.33271027">
+            <state line="53" column="18" selection-start="2341" selection-end="2341" vertical-scroll-proportion="0.5233645">
               <folding />
             </state>
           </provider>
@@ -280,15 +279,15 @@
     <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="MemberChooser.copyJavadoc" value="false" />
   </component>
-  <component name="RunManager" selected="JUnit.JMSTest.testGetConnectionSession">
-    <tempConfiguration default="false" name="JMSTest.testGetConnectionSession" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
+  <component name="RunManager" selected="JUnit.JMSTest.testSimple">
+    <tempConfiguration default="false" name="JMSTest.testSimple" type="JUnit" factoryName="JUnit" enabled="false" merge="false">
       <pattern value="groovy.jms.*" />
       <module name="GroovyJMS" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="groovy.jms" />
       <option name="MAIN_CLASS_NAME" value="groovy.jms.JMSTest" />
-      <option name="METHOD_NAME" value="testGetConnectionSession" />
+      <option name="METHOD_NAME" value="testSimple" />
       <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
@@ -390,7 +389,7 @@
       <envs />
     </configuration>
     <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.JMSTest.testGetConnectionSession" />
+      <item index="0" class="java.lang.String" itemvalue="JUnit.JMSTest.testSimple" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -621,23 +620,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="12" selection-start="1126" selection-end="1126" vertical-scroll-proportion="0.78727275">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMSCategory.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="64" column="63" selection-start="2788" selection-end="2788" vertical-scroll-proportion="0.33271027">
+        <state line="53" column="18" selection-start="2341" selection-end="2341" vertical-scroll-proportion="0.5233645">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/groovy/jms/JMS.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="67" selection-start="2056" selection-end="2056" vertical-scroll-proportion="0.9775701">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/groovy/jms/JMSTest.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="34" selection-start="756" selection-end="756" vertical-scroll-proportion="0.42429906">
+        <state line="49" column="47" selection-start="2179" selection-end="2179" vertical-scroll-proportion="0.6280374">
           <folding />
         </state>
       </provider>

@@ -40,18 +40,24 @@ class JMSCategory {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
 
-
-
-    static Topic subscribeTo(target, String dest) { //synonym of topic
-        return session.get().createTopic(dest);
+    /*static Topic subscribe(String dest) {
+        return session.get().topic(dest);
     }
 
-    static void with(Topic topic, Closure listener) {
-        with(topic, listener as MessageListener)
+    static Topic with(Topic topic, Closure listener) {
+        with(topic, listener as MessageListener);
     }
 
-    static void with(Topic topic, MessageListener listener) {
+    static Topic with(Topic topic, MessageListener listener) {
         topic.subscribe(listener)
+    }
+*/
+    static Topic subscribe(String dest, Closure listener) {
+        return session.get().topic(dest).with(listener);
+    }
+
+    static Topic subscribe(String dest, MessageListener listener) {
+        return session.get().topic(dest).with(listener);
     }
 
     static void publishTo(String textMessage, String dest, Map cfg = null) {

@@ -24,6 +24,8 @@ public class JMSTest extends GroovyTestCase {
         new JMS(c) {  //read-only connection and session are automatically available in the JMS closure scope
             assertEquals c, connection
             assertNotNull session
+            println connection
+            println session
         }
 
     }
@@ -31,8 +33,7 @@ public class JMSTest extends GroovyTestCase {
     void testSimple() {
         String result, result2;
         new JMS() {
-            subscribeTo("greetingroom").with { result = it.text} // subscribeTo("greetingroom") is the same as getConnection().topic("greetingroom")
-
+            "greetingroom".subscribe{ result = it.text}
             "how are you?".publishTo "greetingroom"
         }
         sleep(1000)
