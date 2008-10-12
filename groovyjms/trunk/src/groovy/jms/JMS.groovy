@@ -57,8 +57,8 @@ class JMS {
         }
     }
 
-    static void jms(Closure c) {
-        new JMS(null, null, c)
+    static void jms(connArgs = null, sessionArg = null, Closure c) {
+        new JMS(connArgs, sessionArg, c)
     }
 
     void eachMessage(String queueName, Map cfg = null, Closure c) {
