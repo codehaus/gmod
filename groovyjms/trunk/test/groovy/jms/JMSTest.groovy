@@ -65,13 +65,12 @@ public class JMSTest extends GroovyTestCase {
         jms {
             "testqueue".send("testdata")
             sleep(500)
-            assertEquals("testdata", "testqueue".receive().text)
+            assertEquals("testdata", "testqueue".receive(within:200).text)
         }
 
         jms(factory) {
             "testqueue".send("testdata1")
-            sleep(500)
-            assertEquals("testdata1", "testqueue".receive().text)
+            assertEquals("testdata1", "testqueue".receive(within:200).text)
         }
     }
 
