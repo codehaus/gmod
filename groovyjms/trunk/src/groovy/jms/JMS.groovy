@@ -30,20 +30,20 @@ class JMS {
                     provider = provider ?: Class.forName(className).newInstance();
                 }
                 factory = provider.connectionFactory;
-                connection = JMSCategory.establishConnection(factory);
+                connection = JMSCoreCategory.establishConnection(factory);
             } else {
                 if (connArg instanceof ConnectionFactory) {
                     factory = connArg;
-                    connection = JMSCategory.establishConnection(factory);
+                    connection = JMSCoreCategory.establishConnection(factory);
                 } else if (connArg instanceof Connection) {
                     this.connection = connArg;
-                    JMSCategory.connection.set(connection)
+                    JMSCoreCategory.connection.set(connection)
                 }
             }
 
-            if (sessArg) { JMSCategory.session.set(sessArg); session = sessArg }
+            if (sessArg) { JMSCoreCategory.session.set(sessArg); session = sessArg }
             else {
-                session = JMSCategory.establishSession(connection);
+                session = JMSCoreCategory.establishSession(connection);
             }
             use(JMSCategory) {
                 //todo add try catch and close connection
