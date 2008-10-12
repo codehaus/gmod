@@ -1,10 +1,11 @@
 package groovy.jms
 
-import javax.jms.*
-import org.apache.log4j.Logger
-import java.lang.reflect.Method
-import groovy.jms.provider.JMSProvider
 import groovy.jms.provider.ActiveMQJMSProvider
+import groovy.jms.provider.JMSProvider
+import javax.jms.Connection
+import javax.jms.ConnectionFactory
+import javax.jms.Session
+import org.apache.log4j.Logger
 
 class JMS {
     static Logger logger = Logger.getLogger(JMS.class.name)
@@ -17,6 +18,7 @@ class JMS {
     private ConnectionFactory factory;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
+    boolean autoClose = true; //TODO implements a nested handling mechanism and change the autoClose to a ThreadScope tx strategy
 
     JMS(connArg = null, Closure c) {
         this(connArg, null, c);
@@ -85,7 +87,7 @@ class JMS {
         // within: Integer as ms 
     }
 
-    def send(Map params, boolean autoclose = true) {  //TODO implements a nested handling mechanism and remove the autoclose parameter
+    def send(Map params) {  
         //validate
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
@@ -108,7 +110,7 @@ class JMS {
                     session.topic(toTopic).send(params.'message')
                 }
             }
-            if (autoclose) cleanupThreadLocalVariables()
+            if (autoClose) cleanupThreadLocalVariables()
         }
     }
 
