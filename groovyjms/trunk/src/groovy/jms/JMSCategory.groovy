@@ -16,7 +16,16 @@ class JMSCategory extends JMSCoreCategory {
         return JMSCoreCategory.session.get().queue(dest).receive(timeout);
     }
 
+    static receiveAll(String dest, Map cfg = null) {
+        int timeout = (cfg?.within && cfg?.within.isInteger()) ? cfg.within.toInteger() : 0
+        return JMSCoreCategory.session.get().queue(dest).receiveAll(timeout);
+    }
+
     static Queue send(String dest, String message) {
+        return JMSCoreCategory.session.get().queue(dest).send(message);
+    }
+
+    static Queue sendTo(Map message, String dest) {
         return JMSCoreCategory.session.get().queue(dest).send(message);
     }
 

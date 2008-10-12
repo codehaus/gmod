@@ -41,15 +41,20 @@ public class JMSTest extends GroovyTestCase {
     }
 
     void testMapMessage() {
-        Map data = ['int': 100, 'double': 100000000d, 'string': 'string', 'character': 'd' as char], result;
+        Map data = ['int': 100, 'double': 100000000d, 'string': 'string', 'character': 'd' as char];
+        def results = []
         new JMS() {
             "testqueue".send(data)
+            data.sendTo("testqueue")
             sleep(1000);
-              result = "testqueue".receive().toMap()
+            results = "testqueue".receiveAll().collect{it.toMap()}
         }
-        assertEquals data.'int', result.'int'
-        assertEquals data.'double', result.'double'
-        assertEquals data.'string', result.'string'
-        assertEquals data.'character', result.'character'
+
+        results.each {Map result ->
+            assertEquals data.'int', result.'int'
+            assertEquals data.'double', result.'double'
+            assertEquals data.'string', result.'string'
+            assertEquals data.'character', result.'character'
+        }
     }
 }
