@@ -18,6 +18,10 @@ class JMS {
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
 
+    JMS(connArg=null, Closure c) {
+        this(connArg, null, c);
+    }
+
     JMS(connArg = null, sessArg = null, Closure c = null) {
         if (connArg && !(connArg instanceof ConnectionFactory || connArg instanceof Connection))
             throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")
