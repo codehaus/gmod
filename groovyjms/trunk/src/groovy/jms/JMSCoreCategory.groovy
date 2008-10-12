@@ -197,6 +197,20 @@ class JMSCoreCategory {
             jmsMessage = message;
         } else if (message instanceof String) {
             jmsMessage = session.get().createTextMessage((String) message);
+        } else if (message instanceof Map) {
+            jmsMessage = session.get().createMapMessage();
+            message.each {k, v -> //TODO find a better way to implement this
+                if (v instanceof Boolean) jmsMessage.setBoolean(k, v);
+                else if (v instanceof Byte) jmsMessage.setByte(k, v);
+                else if (v instanceof Character) jmsMessage.setChar(k, v);
+                else if (v instanceof Double) jmsMessage.setDouble(k, v);
+                else if (v instanceof Float) jmsMessage.setFloat(k, v);
+                else if (v instanceof Long) jmsMessage.setLong(k, v);
+                else if (v instanceof Integer) jmsMessage.setInt(k, v);
+                else if (v instanceof Short) jmsMessage.setShort(k, v);
+                else if (v instanceof String) jmsMessage.setString(k, v);
+                else jmsMessage.setObject(k, v);
+            }
         } else {
             throw new UnsupportedOperationException("only text message is implemented")
         }
