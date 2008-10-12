@@ -40,7 +40,7 @@ class JMSCategory {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
 
-    /*static Topic subscribe(String dest) {
+    static Topic subscribe(String dest) {
         return session.get().topic(dest);
     }
 
@@ -51,7 +51,7 @@ class JMSCategory {
     static Topic with(Topic topic, MessageListener listener) {
         topic.subscribe(listener)
     }
-*/
+
     static Topic subscribe(String dest, Closure listener) {
         return session.get().topic(dest).with(listener);
     }
