@@ -18,7 +18,7 @@ class JMS {
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
 
-    JMS(connArg=null, Closure c) {
+    JMS(connArg = null, Closure c) {
         this(connArg, null, c);
     }
 
@@ -85,7 +85,7 @@ class JMS {
         // within: Integer as ms 
     }
 
-    def send(Map params) {
+    def send(Map params, boolean autoclose = true) {  //TODO implements a nested handling mechanism and remove the autoclose parameter
         //validate
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
@@ -108,7 +108,7 @@ class JMS {
                     session.topic(toTopic).send(params.'message')
                 }
             }
-            cleanupThreadLocalVariables()
+            if (autoclose) cleanupThreadLocalVariables()
         }
     }
 
