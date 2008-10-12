@@ -236,7 +236,7 @@ class JMSCoreCategory {
         MessageConsumer consumer = session.get().createConsumer(dest);
         Message message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
         consumer.close();
-        if (logger.isTraceEnabled() && message) logger.trace("get() - from $dest - return $message");
+        if (logger.isTraceEnabled() && message) logger.trace("receive() - from $dest - return $message");
         return message;
     }
 
@@ -253,7 +253,7 @@ class JMSCoreCategory {
             first = false;
         }
         consumer.close();
-        if (logger.isTraceEnabled() && messages?.size()) logger.trace("getAll() - from $dest - return size(): ${messages.size()}, messages: $messages");
+        if (logger.isTraceEnabled() && messages?.size()) logger.trace("receiveAll() - from $dest - return size(): ${messages.size()}, messages: $messages");
         return messages;
     }
 
