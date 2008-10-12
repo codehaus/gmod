@@ -39,6 +39,27 @@ class JMSCategory {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
 
+
+
+    static Topic subscribeTo(target, String dest) { //synonym of topic
+        return session.get().createTopic(dest);
+    }
+
+    static void with(Topic topic, Closure listener) {
+        with(topic, listener as MessageListener)
+    }
+
+    static void with(Topic topic, MessageListener listener) {
+        topic.subscribe(listener)
+    }
+
+    static void publishTo(String textMessage, String dest, Map cfg = null) {
+        if (!session.get()) throw new IllegalStateException("ThreadLocal session is not available")
+        Topic topic = session.get().topic(dest);
+        sendMessage(topic, textMessage, cfg);
+    }
+
+
     /** *****************************************************************************************************************
      * TOP LEVEL PRIVATE METHOD for establish Connection and Session
      ***************************************************************************************************************** */

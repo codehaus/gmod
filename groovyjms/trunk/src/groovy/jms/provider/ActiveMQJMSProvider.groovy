@@ -6,7 +6,7 @@ import org.apache.activemq.broker.BrokerRegistry
 import org.apache.activemq.broker.BrokerService
 
 class ActiveMQJMSProvider implements JMSProvider {
-    public static final String BROKER_NAME = "groovy.jms.provider.ActiveMQJMSProvider"
+    public static final String BROKER_NAME = "groovy.jms.provider.ActiveMQJMSProvider.broker"
     public static final String CONNECTOR_URL = "vm://localhost"
     BrokerService broker;
     ConnectionFactory connectionFactory;
@@ -15,7 +15,8 @@ class ActiveMQJMSProvider implements JMSProvider {
         try {
             if (!broker) {
                 BrokerRegistry registry = BrokerRegistry.getInstance();
-                broker = registry.findFirst() ?: new BrokerService(persistent: false, transportConnectorURIs: [CONNECTOR_URL])
+                broker = registry.findFirst() ?: new BrokerService(brokerName: BROKER_NAME, useJmx: false,
+                        persistent: false, useShutdownHook: false,  transportConnectorURIs: [CONNECTOR_URL])
                 if (!broker.transportConnectorURIs.find {it == CONNECTOR_URL}) broker.addConnector(CONNECTOR_URL)
             }
             if (!broker.isStarted()) broker.start()
