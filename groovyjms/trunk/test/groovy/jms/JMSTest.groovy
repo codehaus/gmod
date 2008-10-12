@@ -3,6 +3,7 @@ package groovy.jms
 import groovy.jms.provider.ActiveMQJMSProvider
 import javax.jms.ConnectionFactory
 import javax.jms.Connection;
+import static groovy.jms.JMS.jms;
 
 public class JMSTest extends GroovyTestCase {
     ActiveMQJMSProvider provider;
@@ -47,7 +48,7 @@ public class JMSTest extends GroovyTestCase {
             "testqueue".send(data)
             data.sendTo("testqueue")
             sleep(1000);
-            results = "testqueue".receiveAll().collect{it.toMap()}
+            results = "testqueue".receiveAll().collect {it.toMap()}
         }
 
         results.each {Map result ->
@@ -57,4 +58,21 @@ public class JMSTest extends GroovyTestCase {
             assertEquals data.'character', result.'character'
         }
     }
+
+    void testStaticClosure() {
+        jms {
+            "testqueue".send("testdata")
+            sleep(500)
+            assertEquals("testdata", "testqueue".receive().text)
+        }
+    }
+
+    void testEachMessage() {
+        def jms = new JMS()
+        jms.send(toQueue: 'testQueue', 'message': 'hello')
+        jms.send(toQueue: 'testQueue', 'message': 'hello2')
+
+    }
+
+
 }
