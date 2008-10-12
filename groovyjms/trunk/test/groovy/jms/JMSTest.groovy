@@ -73,12 +73,14 @@ public class JMSTest extends GroovyTestCase {
         }
     }
 
-    /*void testEachMessage() {
+    void testEachMessage() {
         def jms = new JMS()
-        jms.send(toQueue: 'testQueue', 'message': 'hello')
-        jms.send(toQueue: 'testQueue', 'message': 'hello2')
-        jms.eachMessage{  }
-    }*/
+        jms.send(toQueue: 'testQueue', 'message': 'hello', false)
+        jms.send(toQueue: 'testQueue', 'message': 'hello2', false)
+        jms.eachMessage("testQueue") {m ->
+            assertTrue(m.text?.startsWith("hello"))
+        }
+    }
 
 
 }
