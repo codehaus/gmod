@@ -48,6 +48,7 @@ class JMS {
             use(JMSCategory) {
                 //todo add try catch and close connection
                 c()
+                //connection.close();
             }
         } catch (ClassNotFoundException cnfe) {
             System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
