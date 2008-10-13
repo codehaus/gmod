@@ -91,11 +91,11 @@ public class JMSTest extends GroovyTestCase {
         def jms = new JMS()
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
-        jms.send(toQueue: 'testQueue', 'message': 'hello2')
+        jms.send(toQueue: 'testQueue', 'message': [key:'value'])
         def result = []
-        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it.text}) // only support receiveAll
+        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it}) // only support receiveAll
         assertEquals 2, result.size()
-        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it.text}) // no more message
+        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it}) // no more message
         assertEquals 0, result.size()
 
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
