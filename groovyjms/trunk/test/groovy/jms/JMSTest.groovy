@@ -65,16 +65,16 @@ public class JMSTest extends GroovyTestCase {
         jms {
             "testqueue".send("testdata")
             sleep(500)
-            assertEquals("testdata", "testqueue".receive(within:200).text)
+            assertEquals("testdata", "testqueue".receive(within: 200).text)
         }
 
         jms(factory) {
             "testqueue".send("testdata1")
-            assertEquals("testdata1", "testqueue".receive(within:200).text)
+            assertEquals("testdata1", "testqueue".receive(within: 200).text)
         }
     }
 
-    void XtestEachMessage() {
+    void testEachMessage() {
         def jms = new JMS()
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
@@ -84,4 +84,20 @@ public class JMSTest extends GroovyTestCase {
         }
     }
 
+    void testReceive() {
+        def jms = new JMS()
+        jms.setAutoClose(false)
+        jms.send(toQueue: 'testQueue', 'message': 'hello')
+        jms.send(toQueue: 'testQueue', 'message': 'hello2')
+        def result = []
+        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it.text}) // only support receiveAll
+        assertEquals 2, result.size()
+        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it.text}) // no more message
+        assertEquals 0, result.size()
+
+        jms.send(toQueue: 'testQueue', 'message': 'hello2')
+        result = []
+        jms.receive(fromQueue: 'testQueue', within:500) {result = it.text} // put closure at the end
+        assertEquals 1, result.size()
+    }
 }

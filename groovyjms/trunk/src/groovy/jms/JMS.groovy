@@ -15,7 +15,7 @@ class JMS {
     }
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
     public static String DEFAULT_JMSPROVIDER = ActiveMQJMSProvider.class.name
-     static JMSProvider provider; //no need to recreate
+    static JMSProvider provider; //no need to recreate
     private ConnectionFactory factory;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
@@ -58,7 +58,7 @@ class JMS {
                     if (!session) throw new IllegalStateException("session was not available")
                     c()
                 }
-                if(autoClose) this.close()
+                if (autoClose) this.close()
             }
         } catch (ClassNotFoundException cnfe) {
             System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
@@ -86,20 +86,44 @@ class JMS {
 
     }
 
-    def receive(Map params) {
-        // from: queueName
-        // within: Integer as ms 
+    def receive(Map params, Closure with = null) {
+        if (!(params.containsKey('fromQueue') || params.containsKey('fromTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
+        if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
+
+        def fromQueue = params.'fromQueue', fromTopic = params.'fromTopic'
+        with = (with) ?: params.'with'
+
+        use(JMSCoreCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
+
+            if (fromQueue) {
+                int timeout = (params.'within') ? Integer.valueOf(params.'within') : 0
+                if (fromQueue instanceof Collection) {
+                    with(fromQueue.collect {q -> session.queue(q).receiveAll(timeout)})
+                } else {
+                    with(session.queue(fromQueue).receiveAll(timeout))
+                }
+            }
+
+            if (fromTopic) {
+                if (fromTopic instanceof Collection) {
+                    fromTopic.each {t -> session.topic(t).subscribe(with)}
+                } else {
+                    session.topic(fromTopic).subscribe(with)
+                }
+            }
+            if (autoClose) cleanupThreadLocalVariables()
+        }
     }
 
     def send(Map params) {
-        //validate
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
         //dest: toQueue, toTopic ; handle String or List<String>
         //replyTo: queueName or [destName: type];
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            def toQueue = params.'toQueue', toTopic = params.'toTopics'
+            def toQueue = params.'toQueue', toTopic = params.'toTopic'
             if (toQueue) {
                 if (toQueue instanceof Collection) {
                     toQueue.each {q -> session.queue(q).send(params.'message')}
