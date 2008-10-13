@@ -82,7 +82,7 @@ class JMSCoreCategory {
     //this method doesn't create session
     static Connection connect(ConnectionFactory factory, String clientId = null) {
         if (JMSCoreCategory.connection.get()) return JMSCoreCategory.connection.get();
-        Connection connection = establishConnection(factory, clientId)
+        Connection connection = establishConnection(factory, (clientId)?clientId:'')
         if (logger.isTraceEnabled()) logger.trace("connect() - return connection: $connection, clientId: $clientId")
         return connection;
     }
