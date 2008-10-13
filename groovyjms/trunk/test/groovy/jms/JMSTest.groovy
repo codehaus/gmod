@@ -102,5 +102,18 @@ public class JMSTest extends GroovyTestCase {
         result = []
         jms.receive(fromQueue: 'testQueue', within:500) {result = it.text} // put closure at the end
         assertEquals 1, result.size()
+        jms.close();
+    }
+
+    void testNewInstance(){
+        def jms = JMS.newInstance()
+        jms.setAutoClose(false)
+        assertNotNull jms
+        def result = []
+        jms.send toQueue:'queue0',message:'newinstance'
+        jms.receive fromQueue:'queue0', within:1000, with:{result = it}
+        assertNotNull result
+        assertEquals 1, result.size()
+        jms.close();
     }
 }
