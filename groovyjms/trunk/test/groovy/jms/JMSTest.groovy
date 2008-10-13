@@ -79,9 +79,12 @@ public class JMSTest extends GroovyTestCase {
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
+        int count=0
         jms.eachMessage("testQueue") {m ->
+            count++
             assertTrue(m.text?.startsWith("hello"))
         }
+        assertEquals 2, count
     }
 
     void testReceive() {
