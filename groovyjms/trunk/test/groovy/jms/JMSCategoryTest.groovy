@@ -85,5 +85,12 @@ class JMSCategoryTest extends GroovyTestCase {
         assertEquals("JMSCorrelationID doesn't match", 'unittest', messageToCheck.JMSCorrelationID)
     }
 
+    void testJMS(){
+        use(JMSCategory){
+            jms.session()
+            "queue".send("message")
+            assertNotNull("queue".receive(waitTime:100))
+        }
+    }
 
 }
