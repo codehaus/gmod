@@ -1,0 +1,7 @@
+TODO list
+
+1. add a build file
+ - either ant or gant (preferred, hope it's not too complex)
+
+2. generate GroovyDoc in the build
+
