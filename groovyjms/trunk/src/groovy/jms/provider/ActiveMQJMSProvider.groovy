@@ -10,7 +10,7 @@ class ActiveMQJMSProvider implements JMSProvider {
     public static final String BROKER_NAME = "groovy.jms.provider.ActiveMQJMSProvider.broker"
     public static final String CONNECTOR_URL = "vm://localhost"
     BrokerService broker;
-    ConnectionFactory connectionFactory;
+    ConnectionFactory factory;
 
     synchronized protected startBroker() {
         if (!broker) {
@@ -24,9 +24,9 @@ class ActiveMQJMSProvider implements JMSProvider {
 
     public ConnectionFactory getConnectionFactory() {
         try {
-            startBroker();
-            connectionFactory = (connectionFactory) ?: new ActiveMQConnectionFactory(CONNECTOR_URL)
-            return connectionFactory;
+            if (this.broker?.isStarted()) startBroker();
+            factory = factory ?: new ActiveMQConnectionFactory(CONNECTOR_URL);
+            return factory;
         } catch (NoClassDefFoundError e) {
             throw new ClassNotFoundException("Cannot find ActiveMQ library, please put ActiveMQ jar in the classpath. e: ${e.message}");
         }

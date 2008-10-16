@@ -18,12 +18,12 @@ class ActiveMQPooledJMSProvider extends ActiveMQJMSProvider {
 
     public ConnectionFactory getConnectionFactory() {
         try {
-            startBroker();
-            connectionFactory = (connectionFactory) ?: new PooledConnectionFactory(CONNECTOR_URL)
-            connectionFactoryConfig.each {k, v -> connectionFactory.'$k' = v}
-            return connectionFactory;
+            if (this.broker?.isStarted()) startBroker();
+            factory = factory ?: new PooledConnectionFactory(CONNECTOR_URL);
+            connectionFactoryConfig.each {k, v -> factory[k] = v}
+            return factory;
         } catch (NoClassDefFoundError e) {
-            throw new ClassNotFoundException("Cannot find ActiveMQ Pool library, please put ActiveMQ jar in the classpath. e: ${e.message}");
+            throw new ClassNotFoundException("Cannot find ActiveMQ library, please put ActiveMQ jar in the classpath. e: ${e.message}");
         }
     }
 }
