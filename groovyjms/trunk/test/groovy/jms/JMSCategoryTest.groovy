@@ -10,7 +10,7 @@ class JMSCategoryTest extends GroovyTestCase {
     void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
 
     void tearDown() { //provider.broker?.stop()
-         }
+    }
 
     void testDefaultConnFactory() {
         assertNotNull("default conn factory is not available", provider.getConnectionFactory())
@@ -28,12 +28,35 @@ class JMSCategoryTest extends GroovyTestCase {
     }
 
     void testTopicSubscriber() {
-       use(JMSCategory) {
+        use(JMSCategory) {
             MessageListener listener = {m -> println m} as MessageListener
             TopicSubscriber subscriber = jms.session().topic("testTopic0").subscribe(listener)
-           assertNotNull subscriber
-           assertNotNull subscriber.messageListener
-           close()
+            assertNotNull subscriber
+            assertNotNull subscriber.messageListener
+            close()
+        }
+    }
+
+    void testCoreAPIListenToQueue() { //test core api
+        use(JMSCategory) {
+            MessageListener listener = {m -> println m} as MessageListener
+            QueueReceiver receiver = jms.session().queue("testCoreAPIListenToQueue").listen(listener)
+            assertNotNull receiver
+            assertNotNull receiver.messageListener
+            close()
+        }
+    }
+
+    void testStringQueueListen() {
+        use(JMSCategory) {
+            def result = []
+            jms.session()
+            "testStringQueueListen".listen {m -> result << m} 
+            "testStringQueueListen".send("message0")
+            "testStringQueueListen".send("message1")
+            sleep(500)
+            assertEquals 2, result.size()
+            close()
         }
     }
 
@@ -100,7 +123,7 @@ class JMSCategoryTest extends GroovyTestCase {
         use(JMSCategory) {
             jms.session()
             "queue".send("message")
-            assertNotNull("queue".receive(waitTime: 100))
+            assertNotNull("queue".receive(waitTime:1000))
         }
     }
 

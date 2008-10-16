@@ -224,6 +224,16 @@ class JMSCoreCategory {
         return dest;
     }
 
+
+    static QueueReceiver listen(Queue queue, MessageListener listener, String messageSelector = null) {
+        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
+        QueueReceiver receiver = session.get().createReceiver(queue)
+        receiver.setMessageListener(listener)
+        if (logger.isTraceEnabled()) logger.trace("listen() - queue: $queue, listener: ${listener}, messageSelector: $messageSelector")
+        return receiver;
+    }
+
     // subscribe to a topic
     static TopicSubscriber subscribe(Topic topic, MessageListener listener, String subscriptionName = null, String messageSelector = null, boolean noLocal = false) {
         if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
@@ -238,7 +248,7 @@ class JMSCoreCategory {
         TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
 
-        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, subscriptionName: $subscriptionName")
+        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, subscriptionName: $subscriptionName, messageSelector: $messageSelector, noLocal: $noLocal")
         return subscriber;
     }
 

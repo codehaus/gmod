@@ -8,8 +8,10 @@ import javax.jms.Session
 import org.apache.log4j.Logger
 import javax.jms.MessageListener
 import javax.jms.Topic
+import javax.jms.Queue
 import javax.jms.MessageConsumer
 import javax.jms.TopicSubscriber
+import javax.jms.QueueReceiver
 
 class JMS {
     static Logger logger = Logger.getLogger(JMS.class.name)
@@ -110,14 +112,21 @@ class JMS {
                     throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
                 }
                 def subscriber = topic.subscribe(listener)
-                messageConsumers.put(subscriber, topic);
-                if (logger.isTraceEnabled()) logger.trace("onMessage() - dest: $dest, messageConsumers: $messageConsumers")
+                messageConsumers.put(subscriber, topic);  //TODO no need to put value
             }
 
             if (dest.containsKey('queue')) {
-                throw new UnsupportedOperationException("queue listening is not implemented")
+                def queueDest = dest.get('queue')
+                Queue queue;
+                if (queueDest instanceof String) {
+                    queue = session.queue(queueDest);
+                } else {
+                    throw new IllegalArgumentException("unimplemented")
+                }
+                QueueReceiver receiver = queue.listen(listener)
+                messageConsumers.put(receiver, queue);//TODO no need to put value
             }
-
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - dest: $dest, cfg: $cfg, messageConsumers(updated): $messageConsumers")
 
             if (autoClose) this.close()
         }
@@ -133,7 +142,7 @@ class JMS {
                 if (topicDest instanceof String) {
                     def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof TopicSubscriber && c.topic.topicName == topicDest}
                     consumers.each {MessageConsumer c ->
-                        Topic topic =c.topic;
+                        Topic topic = c.topic;
                         c.setMessageListener(null)
                         c.close()
                         topic.unsubscribe();
@@ -142,13 +151,32 @@ class JMS {
                     }
                 } else if (topicDest instanceof Topic) {
                     topic = topicDest;                  //TODO: refactor this to one line
+                    throw new UnsupportedOperationException("not implemented yet")
                 } else if (topicDest instanceof Collection) {
                     throw new UnsupportedOperationException("collection of topics is not implemented yet")
                 } else {
                     throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
                 }
-            } else {
-                throw new UnsupportedOperationException("unsubscribe from queue is not implemented")
+            }
+            if (dest.containsKey('queue')) {
+                def queueDest = dest.get('queue')
+                if (queueDest instanceof String) {
+                    def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof QueueReceiver && c.queue.queueName == queueDest}
+                    consumers.each {MessageConsumer c ->
+                        Queue queue = c.queue;
+                        c.setMessageListener(null)
+                        c.close()
+                        if (logger.isTraceEnabled()) logger.trace("stopMessage() - dest: $dest, consumer: $c")
+                        messageConsumers.remove(c)
+                    }
+                } else if (queueDest instanceof Queue) {
+                    queue = queueDest;                  //TODO: refactor this to one line
+                    throw new UnsupportedOperationException("not implemented yet")
+                } else if (queueDest instanceof Collection) {
+                    throw new UnsupportedOperationException("collection of topics is not implemented yet")
+                } else {
+                    throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
+                }
             }
 
         }
