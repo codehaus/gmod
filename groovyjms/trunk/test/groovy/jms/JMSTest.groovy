@@ -3,7 +3,10 @@ package groovy.jms
 import groovy.jms.provider.ActiveMQJMSProvider
 import javax.jms.ConnectionFactory
 import javax.jms.Connection;
-import static groovy.jms.JMS.jms;
+import static groovy.jms.JMS.jms
+import javax.jms.MapMessage
+import javax.jms.MessageListener
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class JMSTest extends GroovyTestCase {
     ActiveMQJMSProvider provider;
@@ -79,7 +82,7 @@ public class JMSTest extends GroovyTestCase {
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
-        int count=0
+        int count = 0
         jms.eachMessage("testQueue") {m ->
             count++
             assertTrue(m.text?.startsWith("hello"))
@@ -87,31 +90,67 @@ public class JMSTest extends GroovyTestCase {
         assertEquals 2, count
     }
 
+    void testSubscriptionEMC() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testTopic", result = [] as CopyOnWriteArrayList
+        def listener = {MapMessage m -> result << m} as MessageListener
+        jms.onMessage("myTopic", listener)
+        assertNotNull(listener.subscriptionName)
+        jms.close()
+    }
+
+    void testOnMessageStopMessage() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testTopic", result = [] as CopyOnWriteArrayList
+
+        // 1 - listen with Closure
+        def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
+        jms.onMessage(topic, listener)
+        println listener.subscriptionName
+        jms.send toTopic: topic, message: [key0: 'value0']
+        println listener.subscriptionName
+        sleep(500)
+        println listener.subscriptionName
+        assertEquals 1, result.size()
+        assertEquals 'value0', result[0]
+        result.clear()
+        println listener.subscriptionName
+        jms.stopMessage(listener)
+
+        // 2 -listen with anonymous closure
+        jms.onMessage(topic) {MapMessage m -> result << m.getString('key0')}
+        jms.send toTopic: topic, message: [key0: 'value1']
+        sleep(500)
+        assertEquals("fail to unsubscribe", 1, result.size())
+        assertEquals 'value1', result[0]
+        result.clear()
+
+        jms.close()
+    }
+
     void testReceive() {
         def jms = new JMS()
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
-        jms.send(toQueue: 'testQueue', 'message': [key:'value'])
+        jms.send(toQueue: 'testQueue', 'message': [key: 'value'])
         def result = []
-        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it}) // only support receiveAll
+        jms.receive(fromQueue: 'testQueue', within: 500, with: {result = it}) // only support receiveAll
         assertEquals 2, result.size()
-        jms.receive(fromQueue: 'testQueue', within:500, with: {result = it}) // no more message
+        jms.receive(fromQueue: 'testQueue', within: 500, with: {result = it}) // no more message
         assertEquals 0, result.size()
 
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
         result = []
-        jms.receive(fromQueue: 'testQueue', within:500) {result = it.text} // put closure at the end
+        jms.receive(fromQueue: 'testQueue', within: 500) {result = it.text} // put closure at the end
         assertEquals 1, result.size()
         jms.close();
     }
 
-    void testNewInstance(){
+    void testNewInstance() {
         def jms = JMS.newInstance()
         jms.setAutoClose(false)
         assertNotNull jms
         def result = []
-        jms.send toQueue:'queue0',message:'newinstance'
-        jms.receive fromQueue:'queue0', within:1000, with:{result = it}
+        jms.send toQueue: 'queue0', message: 'newinstance'
+        jms.receive fromQueue: 'queue0', within: 1000, with: {result = it}
         assertNotNull result
         assertEquals 1, result.size()
         jms.close();
