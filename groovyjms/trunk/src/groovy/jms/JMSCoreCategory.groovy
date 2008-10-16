@@ -82,7 +82,7 @@ class JMSCoreCategory {
     //this method doesn't create session
     static Connection connect(ConnectionFactory factory, String clientId = null) {
         if (JMSCoreCategory.connection.get()) return JMSCoreCategory.connection.get();
-        Connection connection = establishConnection(factory, (clientId)?clientId:'')
+        Connection connection = establishConnection(factory, (clientId) ? clientId : '')
         if (logger.isTraceEnabled()) logger.trace("connect() - return connection: $connection, clientId: $clientId")
         return connection;
     }
@@ -225,13 +225,26 @@ class JMSCoreCategory {
     }
 
     // subscribe to a topic
-    static Topic subscribe(Topic topic, MessageListener listener, String subscriptionName = null) {
+    static Topic subscribe(Topic topic, MessageListener listener, String subscriptionName = null, String messageSelector = null, boolean noLocal = false) {
         if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName ?: JMSCoreCategory.connection.get().clientID)
+        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.connection.get().clientID
+        if (!listener.getClass().fields.find {it.name == "subscriptionName"}) {
+            listener.getClass().metaClass.subscriptionName = null
+        }
+        listener.subscriptionName = subscriptionName
+
+        TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
         if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: $listener")
         return topic;
+    }
+
+    static Topic unsubscribe(Topic topic, target) {
+        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
+        String subscriptionName = (target instanceof String) ? target : target.subscriptionName
+        session.get().unsubscribe(subscriptionName)
     }
 
     static Message receive(Queue dest, Integer waitTime = null) {

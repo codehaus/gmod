@@ -6,6 +6,8 @@ import javax.jms.Connection
 import javax.jms.ConnectionFactory
 import javax.jms.Session
 import org.apache.log4j.Logger
+import javax.jms.MessageListener
+import javax.jms.Topic
 
 class JMS {
     static Logger logger = Logger.getLogger(JMS.class.name)
@@ -73,7 +75,7 @@ class JMS {
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             session.queue(queueName).receiveAll(cfg).each {m -> c(m)}
-            cleanupThreadLocalVariables()
+            if (autoClose) this.close()
         }
     }
 
@@ -81,9 +83,32 @@ class JMS {
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             c(session.queue(queueName).receive(cfg))
-            cleanupThreadLocalVariables()
+            if (autoClose) this.close()
         }
+    }
 
+    def onMessage(String dest, Map cfg = null, Object target) {
+        use(JMSCoreCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
+            if (target instanceof Closure)
+                session.topic(dest).subscribe(target as MessageListener)
+            else if (target instanceof MessageListener)
+                session.topic(dest).subscribe(target)
+            else {
+                throw new UnsupportedOperationException("to hande this case")
+            }
+            if (autoClose) this.close()
+        }
+    }
+
+    def stopMessage(listener) {
+        use(JMSCoreCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
+            println    listener
+            println listener.subscriptionName
+            session.unsubscribe(listener.subscriptionName)
+            if (autoClose) this.close()
+        }
     }
 
     def receive(Map params, Closure with = null) {
