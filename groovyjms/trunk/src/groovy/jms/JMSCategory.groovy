@@ -14,7 +14,6 @@ class JMSCategory extends JMSCoreCategory {
         JMSCoreCategory.cleanupThreadLocalVariables(null, true)
     }
 
-
     static receive(String dest, Map cfg = null) {
         int timeout = (cfg?.within) ? Integer.valueOf(cfg.within) : 0
         return JMSCoreCategory.session.get().queue(dest).receive(timeout);
@@ -37,9 +36,10 @@ class JMSCategory extends JMSCoreCategory {
         return JMSCoreCategory.session.get().queue(dest).send(message);
     }
 
-    static TopicSubscriber subscribe(String dest) {
+    static Topic subscribe(String dest) {
         return JMSCoreCategory.session.get().topic(dest);
     }
+
 
     static TopicSubscriber with(Topic topic, Closure listener) {
         with(topic, listener as MessageListener);
@@ -61,5 +61,27 @@ class JMSCategory extends JMSCoreCategory {
         if (!JMSCoreCategory.session.get()) throw new IllegalStateException("ThreadLocal session is not available")
         Topic topic = JMSCoreCategory.session.get().topic(dest);
         sendMessage(topic, textMessage, cfg);
+    }
+
+
+    static Queue listen(String dest) {
+        return JMSCoreCategory.session.get().queue(dest);
+    }
+
+
+    static QueueReceiver with(Queue dest, Closure listener) {
+        with(dest, listener as MessageListener);
+    }
+
+    static QueueReceiver with(Queue dest, MessageListener listener) {
+        dest.listen(listener)
+    }
+
+    static QueueReceiver listen(String dest, Closure listener) {
+        return JMSCoreCategory.session.get().queue(dest).with(listener);
+    }
+
+    static QueueReceiver listen(String dest, MessageListener listener) {
+        return JMSCoreCategory.session.get().queue(dest).with(listener);
     }
 }

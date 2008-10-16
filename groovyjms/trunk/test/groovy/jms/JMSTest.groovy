@@ -6,6 +6,7 @@ import javax.jms.Connection;
 import static groovy.jms.JMS.jms
 import javax.jms.MapMessage
 import javax.jms.MessageListener
+import javax.jms.Queue
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.jms.JMSException;
 
@@ -84,6 +85,7 @@ public class JMSTest extends GroovyTestCase {
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
+        sleep(500)
         int count = 0
         jms.eachMessage("testQueue") {m ->
             count++
@@ -92,8 +94,8 @@ public class JMSTest extends GroovyTestCase {
         assertEquals 2, count
     }
 
-    void testOnMessageStopMessage() {
-        def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testTopic", result = [] as CopyOnWriteArrayList
+    void testOnMessageForTopic() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testOnMessageForTopic", result = [] as CopyOnWriteArrayList
 
         // 1 - listen with Closure
         def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
@@ -104,7 +106,7 @@ public class JMSTest extends GroovyTestCase {
         assertEquals 'value0', result[0]
         result.clear()
 
-        jms.stopMessage(topic:topic)
+        jms.stopMessage(topic: topic)
 
         // 2 -listen with anonymous closure
         try {
@@ -113,6 +115,62 @@ public class JMSTest extends GroovyTestCase {
             sleep(500)
             assertEquals("fail to unsubscribe", 1, result.size())
             assertEquals 'value1', result[0]
+            result.clear()
+        } catch (JMSException e) {
+            fail("possibly fail to unsubscribe")
+        }
+        jms.close()
+    }
+
+    void testOnMessageForQueue() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, dest = "testOnMessageForQueue", result = [] as CopyOnWriteArrayList
+
+        // 1 - listen with Closure
+        def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
+        jms.onMessage(queue: dest, listener)
+        jms.send toQueue: dest, message: [key0: 'value0']
+        sleep(500)
+        assertEquals 1, result.size()
+        assertEquals 'value0', result[0]
+        result.clear()
+
+        jms.stopMessage(queue: dest)
+
+        // 2 -listen with anonymous closure
+        try {
+            jms.onMessage(queue: dest) {MapMessage m -> result << m.getString('key0')}
+            jms.send toQueue: dest, message: [key0: 'value1']
+            sleep(500)
+            assertEquals("fail to unsubscribe", 1, result.size())
+            assertEquals 'value1', result[0]
+            result.clear()
+        } catch (JMSException e) {
+            fail("possibly fail to unsubscribe")
+        }
+        jms.close()
+    }
+
+    void testOnMessageForQueueAndTopic() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, queue = "testQueue", topic = "testTopic", result = [] as CopyOnWriteArrayList
+
+        // 1 - listen with Closure
+        def listener = {MapMessage m -> result << m} as MessageListener
+        jms.onMessage(queue: queue, topic: topic, listener)
+        jms.send toQueue: queue, message: [key0: 'queue message']
+        jms.send toTopic: topic, message: [key0: 'topic message']
+        sleep(500)
+        assertEquals 2, result.size()
+        result.clear()
+
+        jms.stopMessage(queue: queue, topic: topic)
+
+        // 2 -listen with anonymous closure
+        try {
+            jms.onMessage(queue: queue, topic: topic) {MapMessage m -> result << m.getString('key0')}
+            jms.send toQueue: queue, message: [key0: 'queue message1']
+            jms.send toTopic: topic, message: [key0: 'topic message1']
+            sleep(500)
+            assertEquals("fail to unsubscribe", 2, result.size())
             result.clear()
         } catch (JMSException e) {
             fail("possibly fail to unsubscribe")
