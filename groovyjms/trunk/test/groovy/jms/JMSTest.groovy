@@ -85,7 +85,7 @@ public class JMSTest extends GroovyTestCase {
         jms.setAutoClose(false)
         jms.send(toQueue: 'testQueue', 'message': 'hello')
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
-        sleep(500)
+        sleep(1000)
         int count = 0
         jms.eachMessage("testQueue") {m ->
             count++

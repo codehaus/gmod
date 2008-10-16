@@ -22,60 +22,70 @@ class JMS {
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
     public static String DEFAULT_JMSPROVIDER = ActiveMQJMSProvider.class.name
     static JMSProvider provider; //no need to recreate
-    private ConnectionFactory factory;
+    protected ConnectionFactory factory;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
     boolean autoClose = true; //TODO implements a nested handling mechanism and change the autoClose to a ThreadScope tx strategy
+    boolean initialized = false;
 
     JMS(connArg = null, Closure c) {
         this(connArg, null, c);
     }
 
-    JMS(connArg = null, sessArg = null, Closure c = null) {
+    JMS(connArg = null, Session sessionArg = null, Closure c = null) {
         if (connArg && !(connArg instanceof ConnectionFactory || connArg instanceof Connection))
             throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")
 
         try {
+            if (connArg instanceof Connection) {
+                this.connection = connArg;
+            } else if (connArg instanceof ConnectionFactory) {
+                factory = connArg;
+            }
+            if (sessionArg) session = sessionArg;
 
-            if (!connArg) {
-                synchronized (SYSTEM_PROP_JMSPROVIDER) {
-                    String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: DEFAULT_JMSPROVIDER
-                    provider = provider ?: Class.forName(className).newInstance();
-                }
-                factory = provider.connectionFactory;
-                connection = JMSCoreCategory.establishConnection(factory, true);
-            } else {
-                if (connArg instanceof ConnectionFactory) {
-                    factory = connArg;
-                    connection = JMSCoreCategory.establishConnection(factory, true);
-                } else if (connArg instanceof Connection) {
-                    this.connection = connArg;
-                    JMSCoreCategory.connection.set(connection)
-                }
-            }
-
-            if (sessArg) { JMSCoreCategory.session.set(sessArg); session = sessArg }
-            else {
-                session = JMSCoreCategory.establishSession(connection);
-            }
-            if (c) {
-                use(JMSCategory) {
-                    //todo add try catch and close connection
-                    if (!session) throw new IllegalStateException("session was not available")
-                    c()
-                }
-                if (autoClose) this.close()
-            }
+            if (c) { run(c) }
         } catch (ClassNotFoundException cnfe) {
             System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
         }
     }
+
+    synchronized ConnectionFactory getDefaultConnectionFactory() {
+        synchronized (SYSTEM_PROP_JMSPROVIDER) {
+            String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: DEFAULT_JMSPROVIDER
+            provider = provider ?: Class.forName(className).newInstance();
+        }
+        factory = provider.connectionFactory;
+    }
+
+    synchronized init() {
+        if (initialized) return;
+        if (!connection) {
+            factory = factory ?: getDefaultConnectionFactory()
+            connection = JMSCoreCategory.establishConnection(factory, true);
+        } else {
+            JMSCoreCategory.connection.set(connection)
+        }
+        if (session) { JMSCoreCategory.session.set(session)} else { JMSCoreCategory.establishSession(connection)};
+    }
+
+    def run(Closure c) {
+        if (!initialized){init()}
+        use(JMSCategory) {
+            //todo add try catch and close connection
+            if (!session) throw new IllegalStateException("session was not available")
+            c()
+        }
+        if (autoClose) this.close()
+    }
+
 
     static void jms(connArgs = null, sessionArg = null, Closure c) {
         new JMS(connArgs, sessionArg, c)
     }
 
     void eachMessage(String queueName, Map cfg = null, Closure c) {
+        if (!initialized){init()}
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             session.queue(queueName).receiveAll(cfg).each {m -> c(m)}
@@ -84,6 +94,7 @@ class JMS {
     }
 
     def firstMessage(String queueName, Map cfg = null, Closure c) {
+        if (!initialized){init()}
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             c(session.queue(queueName).receive(cfg))
@@ -94,6 +105,7 @@ class JMS {
     Map messageConsumers = Collections.synchronizedMap(new WeakHashMap());
 
     def onMessage(Map dest, Map cfg = null, Object target) {
+        if (!initialized){init()}
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
@@ -133,6 +145,7 @@ class JMS {
     }
 
     def stopMessage(Map dest) {
+        if (!initialized){init()}
         if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
         use(JMSCoreCategory) {
@@ -183,6 +196,7 @@ class JMS {
     }
 
     def receive(Map params, Closure with = null) {
+        if (!initialized){init()}
         if (!(params.containsKey('fromQueue') || params.containsKey('fromTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
 
@@ -213,6 +227,7 @@ class JMS {
     }
 
     def send(Map params) {
+        if (!initialized){init()}
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
         //dest: toQueue, toTopic ; handle String or List<String>
