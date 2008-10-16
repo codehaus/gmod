@@ -15,6 +15,10 @@ Project structure
 
 Until the project becomes more mature and provide a build file, you are recommended to import the project to your favorite IDE and run the test case(s). Intellij IDEA project files are included in the repository.
 
+Dependency
+----------
+ - refer to lib/readme.txt
+
 License
 -------
 This project adopts the same license as Groovy, refer to http://groovy.codehaus.org/faq.html#licence

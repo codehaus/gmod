@@ -5,4 +5,11 @@ TODO list
 
 2. generate GroovyDoc in the build
 
-3. do a simple benchmark and profiling 
+3. do a simple benchmark and profiling
+
+
+
+
+Dependency
+
+1. Remove Jencks source code from this project
