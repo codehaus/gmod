@@ -9,7 +9,8 @@ class JMSCategoryTest extends GroovyTestCase {
 
     void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
 
-    void tearDown() { provider.broker?.stop() }
+    void tearDown() { //provider.broker?.stop()
+         }
 
     void testDefaultConnFactory() {
         assertNotNull("default conn factory is not available", provider.getConnectionFactory())
@@ -26,12 +27,22 @@ class JMSCategoryTest extends GroovyTestCase {
         assertEquals("callback message doesn't match", messageToSend, messageToCheck)
     }
 
+    void testTopicSubscriber() {
+       use(JMSCategory) {
+            MessageListener listener = {m -> println m} as MessageListener
+            TopicSubscriber subscriber = jms.session().topic("testTopic0").subscribe(listener)
+           assertNotNull subscriber
+           assertNotNull subscriber.messageListener
+           close()
+        }
+    }
+
     void testQueueInTheSameSession() {
         String messageToSend = "this is the message to send", messageToCheck;
         List<Message> messages
         use(JMSCategory) {
-            Session session = jms.session(); session.queue("testQueue0").send(messageToSend);
-            sleep(100); messages = session.queue("testQueue0").receiveAll(); session.close();
+            Session session = jms.session(); session.queue("testQueueInTheSameSession").send(messageToSend);
+            sleep(100); messages = session.queue("testQueueInTheSameSession").receiveAll(); session.close();
         }
         assertEquals("message size incorrect", 1, messages?.size())
         assertEquals("callback message doesn't match", messageToSend, messages[0].text)
@@ -40,8 +51,8 @@ class JMSCategoryTest extends GroovyTestCase {
     void testQueueInTheDiffConn() {
         String messageToSend = "this is the message to send", messageToCheck;
         List<Message> messages;
-        use(JMSCategory) {Session session = jms.session(); session.queue("testQueue0").send(messageToSend); session.close()}
-        use(JMSCategory) {messages = jms.queue("testQueue0").receiveAll(1000); jms.close()}
+        use(JMSCategory) {Session session = jms.session(); session.queue("testQueueInTheDiffConn").send(messageToSend); session.close()}
+        use(JMSCategory) {messages = jms.queue("testQueueInTheDiffConn").receiveAll(1000); jms.close()}
         assertEquals("message size incorrect", 1, messages?.size())
         assertEquals("callback message doesn't match", messageToSend, messages[0].text)
     }
@@ -85,11 +96,11 @@ class JMSCategoryTest extends GroovyTestCase {
         assertEquals("JMSCorrelationID doesn't match", 'unittest', messageToCheck.JMSCorrelationID)
     }
 
-    void testJMS(){
-        use(JMSCategory){
+    void testJMS() {
+        use(JMSCategory) {
             jms.session()
             "queue".send("message")
-            assertNotNull("queue".receive(waitTime:100))
+            assertNotNull("queue".receive(waitTime: 100))
         }
     }
 

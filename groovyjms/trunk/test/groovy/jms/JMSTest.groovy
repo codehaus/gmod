@@ -6,7 +6,8 @@ import javax.jms.Connection;
 import static groovy.jms.JMS.jms
 import javax.jms.MapMessage
 import javax.jms.MessageListener
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArrayList
+import javax.jms.JMSException;
 
 public class JMSTest extends GroovyTestCase {
     ActiveMQJMSProvider provider;
@@ -41,6 +42,7 @@ public class JMSTest extends GroovyTestCase {
         new JMS() {
             "greetingroom".subscribe { result = it.text}
             "how are you?".publishTo "greetingroom"
+            sleep(500)
         }
 
         assertEquals("how are you?", result)
@@ -90,56 +92,48 @@ public class JMSTest extends GroovyTestCase {
         assertEquals 2, count
     }
 
-    void testSubscriptionEMC() {
-        def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testTopic", result = [] as CopyOnWriteArrayList
-        def listener = {MapMessage m -> result << m} as MessageListener
-        jms.onMessage("myTopic", listener)
-        assertNotNull(listener.subscriptionName)
-        jms.close()
-    }
-
     void testOnMessageStopMessage() {
         def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testTopic", result = [] as CopyOnWriteArrayList
 
         // 1 - listen with Closure
         def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
-        jms.onMessage(topic, listener)
-        println listener.subscriptionName
+        jms.onMessage(topic: topic, listener)
         jms.send toTopic: topic, message: [key0: 'value0']
-        println listener.subscriptionName
         sleep(500)
-        println listener.subscriptionName
         assertEquals 1, result.size()
         assertEquals 'value0', result[0]
         result.clear()
-        println listener.subscriptionName
-        jms.stopMessage(listener)
+
+        jms.stopMessage(topic:topic)
 
         // 2 -listen with anonymous closure
-        jms.onMessage(topic) {MapMessage m -> result << m.getString('key0')}
-        jms.send toTopic: topic, message: [key0: 'value1']
-        sleep(500)
-        assertEquals("fail to unsubscribe", 1, result.size())
-        assertEquals 'value1', result[0]
-        result.clear()
-
+        try {
+            jms.onMessage(topic: topic) {MapMessage m -> result << m.getString('key0')}
+            jms.send toTopic: topic, message: [key0: 'value1']
+            sleep(500)
+            assertEquals("fail to unsubscribe", 1, result.size())
+            assertEquals 'value1', result[0]
+            result.clear()
+        } catch (JMSException e) {
+            fail("possibly fail to unsubscribe")
+        }
         jms.close()
     }
 
     void testReceive() {
         def jms = new JMS()
         jms.setAutoClose(false)
-        jms.send(toQueue: 'testQueue', 'message': 'hello')
-        jms.send(toQueue: 'testQueue', 'message': [key: 'value'])
+        jms.send(toQueue: 'testReceiveQueue', 'message': 'hello')
+        jms.send(toQueue: 'testReceiveQueue', 'message': [key: 'value'])
         def result = []
-        jms.receive(fromQueue: 'testQueue', within: 500, with: {result = it}) // only support receiveAll
+        jms.receive(fromQueue: 'testReceiveQueue', within: 500, with: {result = it}) // only support receiveAll
         assertEquals 2, result.size()
-        jms.receive(fromQueue: 'testQueue', within: 500, with: {result = it}) // no more message
+        jms.receive(fromQueue: 'testReceiveQueue', within: 500, with: {result = it}) // no more message
         assertEquals 0, result.size()
 
-        jms.send(toQueue: 'testQueue', 'message': 'hello2')
+        jms.send(toQueue: 'testReceiveQueue', 'message': 'hello2')
         result = []
-        jms.receive(fromQueue: 'testQueue', within: 500) {result = it.text} // put closure at the end
+        jms.receive(fromQueue: 'testReceiveQueue', within: 500) {result = it.text} // put closure at the end
         assertEquals 1, result.size()
         jms.close();
     }

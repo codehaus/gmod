@@ -10,6 +10,10 @@ class JMSCategory extends JMSCoreCategory {
         return result;
     }
 
+    static void close(target) {
+        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
+    }
+
 
     static receive(String dest, Map cfg = null) {
         int timeout = (cfg?.within) ? Integer.valueOf(cfg.within) : 0
@@ -33,23 +37,23 @@ class JMSCategory extends JMSCoreCategory {
         return JMSCoreCategory.session.get().queue(dest).send(message);
     }
 
-    static Topic subscribe(String dest) {
+    static TopicSubscriber subscribe(String dest) {
         return JMSCoreCategory.session.get().topic(dest);
     }
 
-    static Topic with(Topic topic, Closure listener) {
+    static TopicSubscriber with(Topic topic, Closure listener) {
         with(topic, listener as MessageListener);
     }
 
-    static Topic with(Topic topic, MessageListener listener) {
+    static TopicSubscriber with(Topic topic, MessageListener listener) {
         topic.subscribe(listener)
     }
 
-    static Topic subscribe(String dest, Closure listener) {
+    static TopicSubscriber subscribe(String dest, Closure listener) {
         return JMSCoreCategory.session.get().topic(dest).with(listener);
     }
 
-    static Topic subscribe(String dest, MessageListener listener) {
+    static TopicSubscriber subscribe(String dest, MessageListener listener) {
         return JMSCoreCategory.session.get().topic(dest).with(listener);
     }
 

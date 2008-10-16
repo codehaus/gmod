@@ -225,25 +225,29 @@ class JMSCoreCategory {
     }
 
     // subscribe to a topic
-    static Topic subscribe(Topic topic, MessageListener listener, String subscriptionName = null, String messageSelector = null, boolean noLocal = false) {
+    static TopicSubscriber subscribe(Topic topic, MessageListener listener, String subscriptionName = null, String messageSelector = null, boolean noLocal = false) {
         if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.connection.get().clientID
-        if (!listener.getClass().fields.find {it.name == "subscriptionName"}) {
+        //subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.connection.get().clientID
+        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
+        /*if (!listener.getClass().fields.find {it.name == "subscriptionName"}) {
             listener.getClass().metaClass.subscriptionName = null
         }
-        listener.subscriptionName = subscriptionName
+        listener.subscriptionName = subscriptionName*/
 
         TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
-        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: $listener")
-        return topic;
+
+        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, subscriptionName: $subscriptionName")
+        return subscriber;
     }
 
-    static Topic unsubscribe(Topic topic, target) {
+    static Topic unsubscribe(Topic topic, String subscriptionName = null) {
         if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        String subscriptionName = (target instanceof String) ? target : target.subscriptionName
+
+        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
+        if (logger.isTraceEnabled()) logger.trace("unsubscribe() - topic: $topic, subscriptionName: $subscriptionName")
         session.get().unsubscribe(subscriptionName)
     }
 
