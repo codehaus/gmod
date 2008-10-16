@@ -22,9 +22,9 @@ public class JMSTest extends GroovyTestCase {
 
     void testJMSProviderSystemProperty() {
         System.setProperty(JMS.SYSTEM_PROP_JMSPROVIDER, "groovy.jms.provider.ActiveMQJMSProviderNOTEXISTED")
-        JMS.provider = null
-        assertNull(new JMS().provider)
-        System.setProperty(JMS.SYSTEM_PROP_JMSPROVIDER, JMS.DEFAULT_JMSPROVIDER)
+        def jms = new JMS()
+        jms.provider = null
+        System.properties.remove(JMS.SYSTEM_PROP_JMSPROVIDER)
     }
 
     void testGetConnectionSession() {

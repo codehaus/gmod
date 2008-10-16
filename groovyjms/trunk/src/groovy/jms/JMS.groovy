@@ -20,8 +20,8 @@ class JMS {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
-    public static String DEFAULT_JMSPROVIDER = ActiveMQJMSProvider.class.name
-    static JMSProvider provider; //no need to recreate
+    String defaultJMSProviderClass = ActiveMQJMSProvider.class.name
+    protected JMSProvider provider; //no need to recreate
     protected ConnectionFactory factory;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
@@ -52,7 +52,7 @@ class JMS {
 
     synchronized ConnectionFactory getDefaultConnectionFactory() {
         synchronized (SYSTEM_PROP_JMSPROVIDER) {
-            String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: DEFAULT_JMSPROVIDER
+            String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: this.defaultJMSProviderClass
             provider = provider ?: Class.forName(className).newInstance();
         }
         factory = provider.connectionFactory;

@@ -15,14 +15,14 @@ import groovy.jms.provider.ActiveMQPooledJMSProvider
  *
  */
 class JMSPool extends JMS {
-    public static String DEFAULT_JMSPROVIDER = ActiveMQPooledJMSProvider.class.name
     private static final defaultCfg = [:]
 
     JMSPool(Closure c) {
-        super(null, null, c)      
+        super(null, null, c)
+        this.provider = new ActiveMQPooledJMSProvider();
+        this.factory = provider.getConnectionFactory()
     }
 
-    def init(){
-        println "do nth in init"
-    }
+    def init() {}
+
 }
