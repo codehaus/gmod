@@ -8,6 +8,8 @@ import javax.jms.Session
 import org.apache.log4j.Logger
 import javax.jms.MessageListener
 import javax.jms.Topic
+import javax.jms.MessageConsumer
+import javax.jms.TopicSubscriber
 
 class JMS {
     static Logger logger = Logger.getLogger(JMS.class.name)
@@ -87,27 +89,68 @@ class JMS {
         }
     }
 
-    def onMessage(String dest, Map cfg = null, Object target) {
+    Map messageConsumers = Collections.synchronizedMap(new WeakHashMap());
+
+    def onMessage(Map dest, Map cfg = null, Object target) {
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            if (target instanceof Closure)
-                session.topic(dest).subscribe(target as MessageListener)
-            else if (target instanceof MessageListener)
-                session.topic(dest).subscribe(target)
-            else {
-                throw new UnsupportedOperationException("to hande this case")
+            if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
+
+            MessageListener listener = target instanceof MessageListener ? target : target as MessageListener
+            if (dest.containsKey('topic')) {
+                def topicDest = dest.get('topic')
+                Topic topic
+                if (topicDest instanceof String) {
+                    topic = session.topic(topicDest);
+                } else if (topicDest instanceof Topic) {
+                    topic = topicDest;                  //TODO: refactor this to one line
+                } else if (topicDest instanceof Collection) {
+                    throw new UnsupportedOperationException("collection of topics is not implemented yet")
+                } else {
+                    throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
+                }
+                def subscriber = topic.subscribe(listener)
+                messageConsumers.put(subscriber, topic);
+                if (logger.isTraceEnabled()) logger.trace("onMessage() - dest: $dest, messageConsumers: $messageConsumers")
             }
+
+            if (dest.containsKey('queue')) {
+                throw new UnsupportedOperationException("queue listening is not implemented")
+            }
+
+
             if (autoClose) this.close()
         }
     }
 
-    def stopMessage(listener) {
+    def stopMessage(Map dest) {
+        if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
+
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            println    listener
-            println listener.subscriptionName
-            session.unsubscribe(listener.subscriptionName)
-            if (autoClose) this.close()
+            if (dest.containsKey('topic')) {
+                def topicDest = dest.get('topic')
+                if (topicDest instanceof String) {
+                    def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof TopicSubscriber && c.topic.topicName == topicDest}
+                    consumers.each {MessageConsumer c ->
+                        Topic topic =c.topic;
+                        c.setMessageListener(null)
+                        c.close()
+                        topic.unsubscribe();
+                        if (logger.isTraceEnabled()) logger.trace("stopMessage() - dest: $dest, consumer: $c")
+                        messageConsumers.remove(c)
+                    }
+                } else if (topicDest instanceof Topic) {
+                    topic = topicDest;                  //TODO: refactor this to one line
+                } else if (topicDest instanceof Collection) {
+                    throw new UnsupportedOperationException("collection of topics is not implemented yet")
+                } else {
+                    throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
+                }
+            } else {
+                throw new UnsupportedOperationException("unsubscribe from queue is not implemented")
+            }
+
         }
     }
 
