@@ -84,6 +84,15 @@ class JMS {
         new JMS(connArgs, sessionArg, c)
     }
 
+    static void run(Closure c) {
+        if (!initialized) {init()}
+        use(JMSCategory) {
+            if (!session) throw new IllegalStateException("session was not available")
+            c()
+        }
+        if (autoClose) this.close()
+    }
+
     void eachMessage(String queueName, Map cfg = null, Closure c) {
         if (!initialized) {init()}
         use(JMSCoreCategory) {
