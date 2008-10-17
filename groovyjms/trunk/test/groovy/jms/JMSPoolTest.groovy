@@ -1,6 +1,7 @@
 package groovy.jms
 
 import org.apache.activemq.pool.PooledConnectionFactory
+import java.util.concurrent.Future
 
 
 class JMSPoolTest extends GroovyTestCase {
@@ -12,7 +13,14 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testOnMessage() {
-        def pool = new JMSPool()
-        pool.onMessage(topic: 'testTopic', threads: 10)
+        def jms = new JMSPool()
+        jms.onMessage(topic: 'testTopic', threads: 1) {m ->
+            println m
+        }
+        sleep(5000)
+        jms.futures.eachWithIndex {Future f, i ->
+            println "$i\t${f?.isDone()}"
+        }
+          sleep(5000)
     }
 }

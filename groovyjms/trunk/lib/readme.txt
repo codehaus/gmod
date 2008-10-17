@@ -10,5 +10,5 @@ ActiveMQ and dependency
  
  
 Optional: activemq pool
- - activemq-pool-5.3, require commons-pool-1.4.jar
-                                                      s
+ - commons-pool
+ - generonimo-jta*.jar
