@@ -70,7 +70,7 @@ class JMS {
     }
 
     def run(Closure c) {
-        if (!initialized){init()}
+        if (!initialized) {init()}
         use(JMSCategory) {
             //todo add try catch and close connection
             if (!session) throw new IllegalStateException("session was not available")
@@ -85,7 +85,7 @@ class JMS {
     }
 
     void eachMessage(String queueName, Map cfg = null, Closure c) {
-        if (!initialized){init()}
+        if (!initialized) {init()}
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             session.queue(queueName).receiveAll(cfg).each {m -> c(m)}
@@ -94,7 +94,7 @@ class JMS {
     }
 
     def firstMessage(String queueName, Map cfg = null, Closure c) {
-        if (!initialized){init()}
+        if (!initialized) {init()}
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             c(session.queue(queueName).receive(cfg))
@@ -104,15 +104,15 @@ class JMS {
 
     Map messageConsumers = Collections.synchronizedMap(new WeakHashMap());
 
-    def onMessage(Map dest, Map cfg = null, Object target) {
-        if (!initialized){init()}
+    def onMessage(Map cfg, Object target) {
+        if (!initialized) {init()}
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
+            if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
             MessageListener listener = target instanceof MessageListener ? target : target as MessageListener
-            if (dest.containsKey('topic')) {
-                def topicDest = dest.get('topic')
+            if (cfg.containsKey('topic')) {
+                def topicDest = cfg.get('topic')
                 Topic topic
                 if (topicDest instanceof String) {
                     topic = session.topic(topicDest);
@@ -127,8 +127,8 @@ class JMS {
                 messageConsumers.put(subscriber, topic);  //TODO no need to put value
             }
 
-            if (dest.containsKey('queue')) {
-                def queueDest = dest.get('queue')
+            if (cfg.containsKey('queue')) {
+                def queueDest = cfg.get('queue')
                 Queue queue;
                 if (queueDest instanceof String) {
                     queue = session.queue(queueDest);
@@ -138,14 +138,14 @@ class JMS {
                 QueueReceiver receiver = queue.listen(listener)
                 messageConsumers.put(receiver, queue);//TODO no need to put value
             }
-            if (logger.isTraceEnabled()) logger.trace("onMessage() - dest: $dest, cfg: $cfg, messageConsumers(updated): $messageConsumers")
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - cfg: $cfg, messageConsumers(updated): $messageConsumers")
 
             if (autoClose) this.close()
         }
     }
 
     def stopMessage(Map dest) {
-        if (!initialized){init()}
+        if (!initialized) {init()}
         if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
         use(JMSCoreCategory) {
@@ -196,7 +196,7 @@ class JMS {
     }
 
     def receive(Map params, Closure with = null) {
-        if (!initialized){init()}
+        if (!initialized) {init()}
         if (!(params.containsKey('fromQueue') || params.containsKey('fromTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
 
@@ -227,7 +227,7 @@ class JMS {
     }
 
     def send(Map params) {
-        if (!initialized){init()}
+        if (!initialized) {init()}
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
         //dest: toQueue, toTopic ; handle String or List<String>
