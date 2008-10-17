@@ -8,7 +8,7 @@ import org.apache.activemq.pool.PooledConnectionFactory;
 
 class ActiveMQJMSProvider implements JMSProvider {
     public static final String BROKER_NAME = "groovy.jms.provider.ActiveMQJMSProvider.broker"
-    public static final String CONNECTOR_URL = "vm://localhost"
+    public static final String CONNECTOR_URL = "vm://localhost"//?broker.persistent=false
     BrokerService broker;
     ConnectionFactory factory;
 

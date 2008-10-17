@@ -1,29 +1,28 @@
 package groovy.jms
 
-import groovy.jms.provider.ActiveMQJMSProvider
-import javax.jms.ConnectionFactory
-import javax.jms.Connection;
 import static groovy.jms.JMS.jms
-import javax.jms.MapMessage
-import javax.jms.MessageListener
-import javax.jms.Queue
+import groovy.jms.provider.ActiveMQJMSProvider
 import java.util.concurrent.CopyOnWriteArrayList
-import javax.jms.JMSException;
+import javax.jms.*
 
 public class JMSTest extends GroovyTestCase {
-    ActiveMQJMSProvider provider;
     ConnectionFactory factory; //simulate injection
+    def provider;
 
-    void setUp() { provider = new ActiveMQJMSProvider(); factory = provider.getConnectionFactory() }
+    void setUp() { provider = new ActiveMQJMSProvider(); factory = provider.getConnectionFactory(); }
 
     void tearDown() {
-       try{provider.broker?.stop()}catch(e){}
+        JMSCoreCategory.cleanupThreadLocalVariables(null,true)
+        try {provider.broker?.stop()} catch (e) {}
     }
 
     void testJMSProviderSystemProperty() {
         System.setProperty(JMS.SYSTEM_PROP_JMSPROVIDER, "groovy.jms.provider.ActiveMQJMSProviderNOTEXISTED")
-        def jms = new JMS()
-        jms.provider = null
+        try {
+            def jms = new JMS()
+            fail()
+        } catch (e) { }
+        assertTrue(true)
         System.properties.remove(JMS.SYSTEM_PROP_JMSPROVIDER)
     }
 
@@ -86,12 +85,11 @@ public class JMSTest extends GroovyTestCase {
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
         sleep(1000)
         int count = 0
-        jms.eachMessage("testQueue") {m ->
+        jms.eachMessage("testQueue", [within:1000]) {m ->
             count++
             assertTrue(m.text?.startsWith("hello"))
         }
         assertEquals 2, count
-        jms.close()
     }
 
     void testOnMessageForTopic() {
@@ -119,7 +117,6 @@ public class JMSTest extends GroovyTestCase {
         } catch (JMSException e) {
             fail("possibly fail to unsubscribe")
         }
-        jms.close()
     }
 
     void testOnMessageForQueue() {
@@ -147,7 +144,6 @@ public class JMSTest extends GroovyTestCase {
         } catch (JMSException e) {
             fail("possibly fail to unsubscribe")
         }
-        jms.close()
     }
 
     void testOnMessageForQueueAndTopic() {
@@ -175,7 +171,6 @@ public class JMSTest extends GroovyTestCase {
         } catch (JMSException e) {
             fail("possibly fail to unsubscribe")
         }
-        jms.close()
     }
 
     void testReceive() {
@@ -193,7 +188,6 @@ public class JMSTest extends GroovyTestCase {
         result = []
         jms.receive(fromQueue: 'testReceiveQueue', within: 500) {result = it.text} // put closure at the end
         assertEquals 1, result.size()
-        jms.close();
     }
 
     void testNewInstance() {
@@ -205,6 +199,5 @@ public class JMSTest extends GroovyTestCase {
         jms.receive fromQueue: 'queue0', within: 1000, with: {result = it}
         assertNotNull result
         assertEquals 1, result.size()
-        jms.close();
     }
 }

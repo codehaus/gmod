@@ -29,15 +29,17 @@ class JMSPool extends JMS {
     ExecutorService pool;
     int poolSize = 10;
 
-    JMSPool(Map cfg = null, Closure c = null) {
-        super(null, null, c)
-        this.provider = new ActiveMQPooledJMSProvider(cfg)
-        this.factory = provider.getConnectionFactory()
+    JMSPool(Map cfg = null, Closure exec = null) { this(getDefaultConnectionFactory(cfg), cfg, exec); }
+
+    JMSPool(ConnectionFactory f, Map cfg = null, Closure exec = null) {
+        super(f, exec);
         poolSize = cfg?.'poolSize' ?: poolSize
         pool = Executors.newFixedThreadPool(poolSize);
     }
 
-    def init() {} // TODO refactor JMS and JMSPool to the same level using a new parent class
+    synchronized ConnectionFactory getDefaultConnectionFactory(Map cfg) {
+        return new ActiveMQPooledJMSProvider(cfg).getConnectionFactory()
+    }
 
     List<Future> futures = []
 
@@ -48,14 +50,19 @@ class JMSPool extends JMS {
 
         int threads = cfg?.'threads' ?: 1
         final String reqQueue = cfg.'queue' //assume to be a single dest, no collection
+        final ConnectionFactory f = this.factory;
         threads.times {
             final var = it;
             futures << pool.submit({
-                def jms = new JMS();
+                Connection connection = f.createConnection().with {it.clientID = JMSPool.class.name + Thread.currentThread().id; it};
+                Session session = c.createSession(false, Session.AUTO_ACKNOWLEDGE)
+                def jms = new JMS(connection, session);
                 jms.setAutoClose false
                 jms.onMessage(cfg, target);
-                
-               /* Connection connection = factory.createConnection().with {it.clientID = JMSPool.class.name + Thread.currentThread().id; it};
+                while (true) {
+                    sleep(10);
+                }
+                /* Connection connection = factory.createConnection().with {it.clientID = JMSPool.class.name + Thread.currentThread().id; it};
                 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
                 if (reqQueue) {
                     Queue queue = session.createQueue(reqQueue)

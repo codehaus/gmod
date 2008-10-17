@@ -13,108 +13,114 @@ import javax.jms.MessageConsumer
 import javax.jms.TopicSubscriber
 import javax.jms.QueueReceiver
 
+/**
+ * Connection and session is either provided to constructor, or be created in the construction. In either case, connection
+ * will not be re-created.
+ *
+ * when connection and session are provided, autoClose is set to false, otherwise, it's true
+ */
 class JMS {
     static Logger logger = Logger.getLogger(JMS.class.name)
-    static final clientIdPrefix;
+    static final hostName;
     static {
-        try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
+        try {hostName = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
-    String defaultJMSProviderClass = ActiveMQJMSProvider.class.name
-    protected JMSProvider provider; //no need to recreate
-    protected ConnectionFactory factory;
+    public static final int DEFAULT_SESSION_ACK = Session.AUTO_ACKNOWLEDGE; //TODO consider to add support for other ack mode
+    boolean autoClose = false;
+    boolean initialized = false;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
-    boolean autoClose = true; //TODO implements a nested handling mechanism and change the autoClose to a ThreadScope tx strategy
-    boolean initialized = false;
 
-    JMS(connArg = null, Closure c) {
-        this(connArg, null, c);
+    JMS() {this(getDefaultConnectionFactory(), null)}
+
+    JMS(Closure exec) {this(getDefaultConnectionFactory(), exec)}
+
+    JMS(ConnectionFactory f) {this(f, null)}
+
+    JMS(ConnectionFactory f, Closure exec) { this(getConnectionWithDefaultClientID(f), exec) }
+
+    JMS(Connection c, Closure exec) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), true, exec)}
+
+    JMS(Connection c, Session s, boolean ac, Closure exec) {
+        if (!c || !s) throw new IllegalArgumentException("ConnectionFactory and Execution closure must not be null")
+        if (!c.clientID) c.clientID = "$hostName:${System.currentTimeMillis()}"; org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+        connection = c; session = s; autoClose = ac; if (exec) run(exec);
     }
 
-    JMS(connArg = null, Session sessionArg = null, Closure c = null) {
-        if (connArg && !(connArg instanceof ConnectionFactory || connArg instanceof Connection))
-            throw new IllegalArgumentException("input arguments are not valid. check docs for correct usage")
-
-        try {
-            if (connArg instanceof Connection) {
-                this.connection = connArg;
-            } else if (connArg instanceof ConnectionFactory) {
-                factory = connArg;
-            }
-            if (sessionArg) session = sessionArg;
-
-            if (c) { run(c) }
-        } catch (ClassNotFoundException cnfe) {
-            System.err.println("cannot find the JMS Provider class: \"${System.getProperty(SYSTEM_PROP_JMSPROVIDER)}\", please ensure it is in the classpath")
-        }
+    synchronized static ConnectionFactory getDefaultConnectionFactory() {
+        String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER)
+        JMSProvider provider = className ? Class.forName(className)?.newInstance() : new ActiveMQJMSProvider();
+        return provider.connectionFactory;
     }
 
-    synchronized ConnectionFactory getDefaultConnectionFactory() {
-        synchronized (SYSTEM_PROP_JMSPROVIDER) {
-            String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER) ?: this.defaultJMSProviderClass
-            provider = provider ?: Class.forName(className).newInstance();
-        }
-        factory = provider.connectionFactory;
+    static Connection getConnectionWithDefaultClientID(ConnectionFactory f) {
+        Connection c = f.createConnection(); c.setClientID(hostName + ":" + System.currentTimeMillis())
+        return c;
     }
 
-    synchronized init() {
-        if (initialized) return;
-        if (!connection) {
-            factory = factory ?: getDefaultConnectionFactory()
-            connection = JMSCoreCategory.establishConnection(factory, true);
-        } else {
-            JMSCoreCategory.connection.set(connection)
-        }
-        if (session) { JMSCoreCategory.session.set(session)} else { JMSCoreCategory.establishSession(connection)};
+    static void jms(Closure exec) { jms(getDefaultConnectionFactory(), exec)}
+
+    static void jms(ConnectionFactory f, Closure exec) {
+        if (!exec || !f) throw new IllegalArgumentException("ConnectionFactory and Execution closure must not be null")
+        def jms = new JMS(f, exec)
     }
 
-    def run(Closure c) {
-        if (!initialized) {init()}
+    static void jms(Connection c, Session s = null, Closure exec) {
+        if (!c || !exec) throw new IllegalArgumentException("Connection and Execution closure must not be null")
+        def jms = (s) ? new JMS(c, s, exec) : new JMS(c, exec)
+    }
+
+    boolean started = false;
+
+    synchronized void start() {
+        if (logger.isTraceEnabled()) logger.trace("start()")
+        connection.start()
+        JMSCoreCategory.connection.set(connection)
+        JMSCoreCategory.session.set(session)
+        started = true;
+    }
+
+    void run(Closure c) {
+        if (!started) start();
         use(JMSCategory) {
-            //todo add try catch and close connection
-            if (!session) throw new IllegalStateException("session was not available")
-            c()
+            //delegate.set(); //set JMS to Category ThreadLocal
+            c(); //TODO consider to set sth to the closure
         }
-        if (autoClose) this.close()
+        if (autoClose && !closed) close();
     }
 
+    boolean closed = false;
 
-    static void jms(connArgs = null, sessionArg = null, Closure c) {
-        new JMS(connArgs, sessionArg, c)
-    }
-
-    static void run(Closure c) {
-        if (!initialized) {init()}
-        use(JMSCategory) {
-            if (!session) throw new IllegalStateException("session was not available")
-            c()
-        }
-        if (autoClose) this.close()
+    void close() {
+        if (logger.isTraceEnabled()) logger.trace("stop()")
+        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
+        //connection.close()
+        closed = true;
     }
 
     void eachMessage(String queueName, Map cfg = null, Closure c) {
-        if (!initialized) {init()}
+        if (!started) start();
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            session.queue(queueName).receiveAll(cfg).each {m -> c(m)}
-            if (autoClose) this.close()
+            session.queue(queueName).receiveAll(cfg?.'within' ?: null).each {m -> c(m)}
         }
+        if (autoClose && !closed) close();
     }
 
     def firstMessage(String queueName, Map cfg = null, Closure c) {
-        if (!initialized) {init()}
+        if (!started) start();
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            c(session.queue(queueName).receive(cfg))
-            if (autoClose) this.close()
+            c(session.queue(queueName).receive(cfg?.'within' ?: null))
         }
+        if (autoClose && !closed) close();
     }
 
     Map messageConsumers = Collections.synchronizedMap(new WeakHashMap());
 
     def onMessage(Map cfg, Object target) {
-        if (!initialized) {init()}
+        if (!started) start();
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
@@ -148,13 +154,12 @@ class JMS {
                 messageConsumers.put(receiver, queue);//TODO no need to put value
             }
             if (logger.isTraceEnabled()) logger.trace("onMessage() - cfg: $cfg, messageConsumers(updated): $messageConsumers")
-
-            if (autoClose) this.close()
         }
+        if (autoClose && !closed) close();
     }
 
     def stopMessage(Map dest) {
-        if (!initialized) {init()}
+        if (!started) throw new IllegalStateException("jms is not started yet")
         if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
         use(JMSCoreCategory) {
@@ -202,10 +207,11 @@ class JMS {
             }
 
         }
+        if (autoClose && !closed) close();
     }
 
     def receive(Map params, Closure with = null) {
-        if (!initialized) {init()}
+        if (!started) start();
         if (!(params.containsKey('fromQueue') || params.containsKey('fromTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
 
@@ -231,12 +237,12 @@ class JMS {
                     session.topic(fromTopic).subscribe(with)
                 }
             }
-            if (autoClose) cleanupThreadLocalVariables()
         }
+        if (autoClose && !closed) close();
     }
 
     def send(Map params) {
-        if (!initialized) {init()}
+        if (!started) start();
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
         //dest: toQueue, toTopic ; handle String or List<String>
@@ -259,15 +265,11 @@ class JMS {
                     session.topic(toTopic).send(params.'message')
                 }
             }
-            if (autoClose) cleanupThreadLocalVariables()
         }
-    }
-
-    def static close() {
-        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
+        if (autoClose && !closed) close();
     }
 
 
-    String toString() { return "JMS { session: $session, connection: $connection, factory: $factory, provider: $provider}"}
+    String toString() { return "JMS { session: $session, connection: $connection, factory: $factory"}
 
 }

@@ -9,7 +9,7 @@ class JMSCategoryTest extends GroovyTestCase {
 
     void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
 
-    void tearDown() { //provider.broker?.stop()
+    void tearDown() { //provider.broker?.close()
     }
 
     void testDefaultConnFactory() {
@@ -109,7 +109,7 @@ class JMSCategoryTest extends GroovyTestCase {
             jms.close();
         }
         use(JMSCategory) {
-            jms.queue("testQueue0").receive(1000).with {it.reply(it.text + "ABC")}; jms.close();
+            jms.queue("testQueue0").receive(1000).with {it.reply(it?.text + "ABC")}; jms.close();
         }
         Message messageToCheck;
         use(JMSCategory) {
