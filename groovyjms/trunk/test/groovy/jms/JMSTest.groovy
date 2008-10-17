@@ -17,7 +17,7 @@ public class JMSTest extends GroovyTestCase {
     void setUp() { provider = new ActiveMQJMSProvider(); factory = provider.getConnectionFactory() }
 
     void tearDown() {
-        //try{provider.broker?.stop()}catch(e){}
+       try{provider.broker?.stop()}catch(e){}
     }
 
     void testJMSProviderSystemProperty() {
@@ -35,7 +35,6 @@ public class JMSTest extends GroovyTestCase {
             println connection
             println session
         }
-        c.close()
     }
 
     void testSimple() {
@@ -92,6 +91,7 @@ public class JMSTest extends GroovyTestCase {
             assertTrue(m.text?.startsWith("hello"))
         }
         assertEquals 2, count
+        jms.close()
     }
 
     void testOnMessageForTopic() {
