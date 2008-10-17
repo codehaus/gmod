@@ -33,6 +33,7 @@ import java.lang.reflect.Method
  */
 class JMSCoreCategory {
     static Logger logger = Logger.getLogger(JMSCoreCategory.class)
+    //static final ThreadLocal<JMS> jms = new ThreadLocal<JMS>();
     static final ThreadLocal<Connection> connection = new ThreadLocal<Connection>();
     static final ThreadLocal<Session> session = new ThreadLocal<Session>();
     static final clientIdPrefix;
@@ -44,6 +45,7 @@ class JMSCoreCategory {
 
     static Session getSession(subject) { return session.get() }
 
+    //static void set(JMS jms) { JMSCoreCategory.jms.set(jms)}
 
     /** *****************************************************************************************************************
      * TOP LEVEL PRIVATE METHOD for establish Connection and Session
@@ -83,7 +85,7 @@ class JMSCoreCategory {
     static Connection connect(ConnectionFactory factory, String clientId = null) {
         if (JMSCoreCategory.connection.get()) return JMSCoreCategory.connection.get();
         Connection connection = establishConnection(factory, (clientId) ? clientId : '')
-        if (logger.isTraceEnabled()) logger.trace("connect() - return connection: $connection, clientId: $clientId")
+        if (logger.isTraceEnabled()) logger.trace("connect() - return connection: $connection (${connection.clientID}), clientId: $clientId")
         return connection;
     }
 
@@ -220,6 +222,7 @@ class JMSCoreCategory {
         }
         cfg?.each {k, v -> jmsMessage[k] = v}
         producer.send(jmsMessage);
+        connection.get().start()
         if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
         return dest;
     }
@@ -274,17 +277,20 @@ class JMSCoreCategory {
     static List<Message> receiveAll(Queue dest, Integer waitTime = null) {
         if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call JMS.connect() first.")
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        MessageConsumer consumer = session.get().createConsumer(dest);
         List<Message> messages = [];
-        boolean first = true;
-        Message message;
-        while (first || message) {
-            message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
-            if (message) { messages << message;}
-            first = false;
-        }
-        consumer.close();
-        if (logger.isTraceEnabled() && messages?.size()) logger.trace("receiveAll() - from $dest - return size(): ${messages.size()}, messages: $messages");
+        try {
+            MessageConsumer consumer = session.get().createConsumer(dest);
+            boolean first = true;
+            Message message;
+            while (first || message) {
+                message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
+                if (message) { messages << message;}
+                first = false;
+            }
+            consumer.close();
+            if (logger.isTraceEnabled() && messages?.size()) logger.trace("receiveAll() - from $dest - return size(): ${messages.size()}, messages: $messages");
+        } catch (e) {logger.error(e.message, e)}
+
         return messages;
     }
 
