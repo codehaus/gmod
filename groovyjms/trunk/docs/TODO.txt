@@ -13,3 +13,9 @@ TODO list
 Dependency
 
 1. Remove Jencks source code from this project
+
+Refactoring Plan
+ - the hierarchy of JMS and JMSPool
+ - store connection and session in a JMS, store the JMS in threadlocal; use of JMSCategory will trigger a creation of
+   JMS instance in the threadlocal
+ - a JMS act as a container that have a start, stop lifecycle

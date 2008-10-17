@@ -5,6 +5,10 @@ import groovy.jms.provider.ActiveMQPooledJMSProvider
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import javax.jms.Session
+import javax.jms.MessageListener
+import javax.jms.QueueReceiver
+import javax.jms.Connection
 
 /**
  * JMSPool extends JMS and provided configurable JMS Pooling. Unlike the "raw" JMS, you don't need to provide a connection
@@ -25,11 +29,11 @@ class JMSPool extends JMS {
     ExecutorService pool;
     int poolSize = 10;
 
-    JMSPool(Map cfg = null, Closure c) {
+    JMSPool(Map cfg = null, Closure c = null) {
         super(null, null, c)
         this.provider = new ActiveMQPooledJMSProvider(cfg)
         this.factory = provider.getConnectionFactory()
-        poolSize = cfg.'poolSize' ?: poolSize
+        poolSize = cfg?.'poolSize' ?: poolSize
         pool = Executors.newFixedThreadPool(poolSize);
     }
 
@@ -37,16 +41,30 @@ class JMSPool extends JMS {
 
     List<Future> futures = []
 
-    def onMessage(Map dest, Map cfg = null, Object target) {
+    def onMessage(Map cfg = null, final Object target) {
         if (cfg && !cfg.containsKey('threads')) {
             return super.onMessage(dest, cfg, target)
         }
 
-        cfg.'threads'.times { i ->
-            println i
-
+        int threads = cfg?.'threads' ?: 1
+        final String reqQueue = cfg.'queue' //assume to be a single dest, no collection
+        threads.times {
+            final var = it;
+            futures << pool.submit({
+                def jms = new JMS();
+                jms.setAutoClose false
+                jms.onMessage(cfg, target);
+                
+               /* Connection connection = factory.createConnection().with {it.clientID = JMSPool.class.name + Thread.currentThread().id; it};
+                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+                if (reqQueue) {
+                    Queue queue = session.createQueue(reqQueue)
+                    QueueReceiver receiver = session.createConsumer(queue)
+                    receiver.setMessageListener((target instanceof MessageListener) ? target : target as MessageListener)
+                    connection.start()
+                }*/
+            })
         }
-
     }
 
 }
