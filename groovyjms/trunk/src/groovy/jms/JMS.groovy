@@ -38,6 +38,8 @@ class JMS {
 
     JMS(ConnectionFactory f) {this(f, null)}
 
+    JMS(Connection c) {this(c, null)}
+
     JMS(ConnectionFactory f, Closure exec) { this(getConnectionWithDefaultClientID(f), exec) }
 
     JMS(Connection c, Closure exec) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), true, exec)}
@@ -272,6 +274,6 @@ class JMS {
     }
 
 
-    String toString() { return "JMS { session: $session, connection: $connection, factory: $factory"}
+    String toString() { return "JMS { ${super.toString()}, session: $session, connection: $connection"}
 
 }

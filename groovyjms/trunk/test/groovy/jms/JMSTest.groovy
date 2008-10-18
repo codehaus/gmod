@@ -6,14 +6,13 @@ import java.util.concurrent.CopyOnWriteArrayList
 import javax.jms.*
 
 public class JMSTest extends GroovyTestCase {
+    def provider = new ActiveMQJMSProvider(); // all test shares the same Broker for performance; shutdown hook is enabled by default
     ConnectionFactory factory; //simulate injection
-    def provider;
 
-    void setUp() { provider = new ActiveMQJMSProvider(); factory = provider.getConnectionFactory(); }
+    void setUp() { factory = provider.getConnectionFactory(); }
 
     void tearDown() {
         JMSCoreCategory.cleanupThreadLocalVariables(null,true)
-        try {provider.broker?.stop()} catch (e) {}
     }
 
     void testJMSProviderSystemProperty() {

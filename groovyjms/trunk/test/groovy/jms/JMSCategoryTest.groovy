@@ -4,13 +4,12 @@ import groovy.jms.provider.ActiveMQJMSProvider
 import javax.jms.*
 
 class JMSCategoryTest extends GroovyTestCase {
-    ActiveMQJMSProvider provider;
+    def provider = new ActiveMQJMSProvider(); // all test shares the same Broker for performance; shutdown hook is enabled by default
     ConnectionFactory jms; //simulate injection
 
-    void setUp() { provider = new ActiveMQJMSProvider(); jms = provider.getConnectionFactory() }
+    void setUp() { jms = provider.getConnectionFactory() }
 
-    void tearDown() { //provider.broker?.close()
-    }
+    void tearDown() { JMSCoreCategory.cleanupThreadLocalVariables(null, true) }
 
     void testDefaultConnFactory() {
         assertNotNull("default conn factory is not available", provider.getConnectionFactory())
@@ -51,7 +50,7 @@ class JMSCategoryTest extends GroovyTestCase {
         use(JMSCategory) {
             def result = []
             jms.session()
-            "testStringQueueListen".listen {m -> result << m} 
+            "testStringQueueListen".listen {m -> result << m}
             "testStringQueueListen".send("message0")
             "testStringQueueListen".send("message1")
             sleep(500)
@@ -123,7 +122,7 @@ class JMSCategoryTest extends GroovyTestCase {
         use(JMSCategory) {
             jms.session()
             "queue".send("message")
-            assertNotNull("queue".receive(waitTime:1000))
+            assertNotNull("queue".receive(waitTime: 1000))
         }
     }
 
