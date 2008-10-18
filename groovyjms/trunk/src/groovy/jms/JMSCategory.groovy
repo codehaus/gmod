@@ -20,7 +20,7 @@ class JMSCategory extends JMSCoreCategory {
     }
 
     static receiveAll(String dest, Map cfg = null) {
-        int timeout = (cfg?.within && cfg?.within.isInteger()) ? cfg.within.toInteger() : 0
+        int timeout = (cfg?.'within') ? Integer.valueOf(cfg.'within') : 0
         return JMSCoreCategory.session.get().queue(dest).receiveAll(timeout);
     }
 
