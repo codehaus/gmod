@@ -20,7 +20,7 @@ class JMSPoolTest extends GroovyTestCase {
 
     void testStopRunningPool() {
         def jms = new JMSPool()
-        jms.onMessage(topic: 'testTopic', threads: 1) {m ->            println m        }
+        jms.onMessage(topic: 'testTopic', threads: 1) {m -> println m}
         sleep(500)
         assertTrue(jms.futures?.size() > 0)
         jms.futures.eachWithIndex {Future f, i -> assertFalse("test job(s) is/are not running", f.isDone())}
@@ -31,5 +31,9 @@ class JMSPoolTest extends GroovyTestCase {
             //println "$i\t${f?.isDone()}\t$f"
             assertTrue(f.isDone())
         }
+    }
+
+    void testJMSConnector(){
+        
     }
 }
