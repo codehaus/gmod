@@ -87,7 +87,8 @@ class JMSPool extends ThreadPoolExecutor {
 
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-//        JMSThread.jms.set(null);  // thread will be cleaned in the interrpution event
+        JMSThread.jms.get().close();
+        JMSThread.jms.set(null);  // thread will be cleaned in the interrpution event
         if (logger.isTraceEnabled()) logger.trace("afterExecute() - runnable: $r, throwable: $t")
     }
 
@@ -111,6 +112,7 @@ class JMSPool extends ThreadPoolExecutor {
         Future sendJob = submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             JMSThread.jms.get().send(spec)
+            JMSThread.jms.get().connect()
         } as Runnable)
         //TODO review return value
     }

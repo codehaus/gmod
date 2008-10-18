@@ -85,6 +85,10 @@ class JMS {
         started = true;
     }
 
+    void connect() { // connection.start()
+        connection.start()
+    }
+
     void run(Closure c) {
         if (!started) start();
         use(JMSCategory) {

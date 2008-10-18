@@ -31,19 +31,19 @@ class JMSPoolTest extends GroovyTestCase {
         pool.shutdown()
     }
 
-    void testQueueOnMessageWithMultipleThreads() { // just to prove message could be sent
-        def pool = new JMSPool(), result = [], counter = 0   , count = 5
-        pool.onMessage(topic: 'testQueueOnMessageWithMultipleThreads', threads: 5) {m -> result << m}
+    void testMultipleSenderSingleReceiverOnQueue() { // just to prove message could be sent
+        def pool = new JMSPool(), result = [], counter = 0, count = 20, queueName = "testMultipleSenderSingleReceiverOnQueue"
+        //pool.onMessage(topic: 'testQueueOnMessageWithMultipleThreads', threads: 5) {m -> result << m}
         sleep(500)
         count.times {
-            pool.send(toQueue: 'testQueueOnMessageWithMultipleThreads', message: 'message #' + it)
+            pool.send(toQueue: queueName, message: 'message #' + it)
         }
-        sleep(500)
+        sleep(1000)
 
         jms(pool.connectionFactory) {
-            result += "testQueueOnMessageWithMultipleThreads".receiveAll(within: 0)
+            result += queueName.receiveAll(within: 2000)
         }
-        println result
+        result?.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(count, result.size())
 
         sleep(5000)
