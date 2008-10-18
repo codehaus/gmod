@@ -59,9 +59,9 @@ class JMSPool {
     boolean started = false
 
     def start() {
-        println "pool is being started"
         stopped = false;
         started = true;
+        if (logger.isInfoEnabled()) logger.info("JMSPool is set to start - this: ${this}")
     }
 
     boolean stopped = false;
@@ -76,8 +76,11 @@ class JMSPool {
 
         def outstandings = futures.findAll {Future f -> !f.isDone()}
 
-        if (outstandings.size() == 0) { return true; } else {
-            logger.warn("${futures.size()} thread(s) fail to cancel within ${timeout}ms")
+        if (outstandings.size() == 0) {
+            logger.info("JMSPool is stopped in ${System.currentTimeMillis()-startTime}ms - this: ${this}")
+            return true;
+        } else {
+            logger.warn("${futures.size()} thread(s) fail to cancel within ${timeout}ms - this: ${this}")
             return false;
         }
 
