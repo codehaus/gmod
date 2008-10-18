@@ -31,7 +31,7 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
 
-    void testStopRunningPool() {
+    void testTopicOnMessage() {
         def jms = new JMSPool()
         def result = []
         jms.onMessage([topic: 'testTopic', threads: 1]) {m -> logger.debug("testStopRunningPool() - m: ${m}"); result << m}
@@ -50,11 +50,18 @@ class JMSPoolTest extends GroovyTestCase {
             //println "$i\tisCancelled? ${f?.isCancelled()}\tisDone? ${f?.isDone()}\t$f";
             assertTrue(f.isCancelled())
         }
-        result.each{ println it}
+        result.each { println it}
         assertEquals(1, result.size())
     }
 
-    void testJMSConnector() {
-
+    void testQueueSendMessage() {
+        def jms = new JMSPool();
+        def result = []
+        jms.send(toQueue: 'testQueue', message: 'message 1')
+        //jms.send(toQueue: 'testQueue', message: 'message 2')
+        assertEquals 0, jms.jobs.size()
+        jms.receive(fromQueue: 'testQueue', within: 0) {m -> result += m}
+        assertNotNull(result)
+        assertEquals(1, result?.size())
     }
 }

@@ -219,6 +219,7 @@ class JMS {
         if (!(params.containsKey('fromQueue') || params.containsKey('fromTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
         if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
 
+        def result = [];
         def fromQueue = params.'fromQueue', fromTopic = params.'fromTopic'
         with = (with) ?: params.'with'
 
@@ -228,11 +229,18 @@ class JMS {
             if (fromQueue) {
                 int timeout = (params.'within') ? Integer.valueOf(params.'within') : 0
                 if (fromQueue instanceof Collection) {
-                    with(fromQueue.collect {q -> session.queue(q).receiveAll(timeout)})
+                    def r = fromQueue.collect {q ->
+                        session.queue(q).receiveAll(timeout)
+                        with(r)
+                        result += r
+                    }
                 } else {
-                    with(session.queue(fromQueue).receiveAll(timeout))
+                    def r = session.queue(fromQueue).receiveAll(timeout)
+                    with(r)
+                    result += r
                 }
             }
+
 
             if (fromTopic) {
                 if (fromTopic instanceof Collection) {
@@ -241,6 +249,7 @@ class JMS {
                     session.topic(fromTopic).subscribe(with)
                 }
             }
+            return result;
         }
         if (autoClose && !closed) close();
     }
