@@ -44,7 +44,7 @@ class JMS {
 
     JMS(Connection c, Session s, boolean ac, Closure exec) {
         if (!c || !s) throw new IllegalArgumentException("ConnectionFactory and Execution closure must not be null")
-        if (!c.clientID) c.clientID = "$hostName:${System.currentTimeMillis()}"; org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+        if (!c.clientID) c.clientID = getDefaultClientID(); org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
         connection = c; session = s; autoClose = ac; if (exec) run(exec);
     }
 
@@ -54,8 +54,10 @@ class JMS {
         return provider.connectionFactory;
     }
 
+    static String getDefaultClientID() { return "$hostName:${System.currentTimeMillis()}" }
+
     static Connection getConnectionWithDefaultClientID(ConnectionFactory f) {
-        Connection c = f.createConnection(); c.setClientID(hostName + ":" + System.currentTimeMillis())
+        Connection c = f.createConnection(); c.setClientID(getDefaultClientID())
         return c;
     }
 

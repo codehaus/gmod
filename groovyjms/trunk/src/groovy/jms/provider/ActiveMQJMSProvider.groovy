@@ -9,10 +9,10 @@ import org.apache.activemq.pool.PooledConnectionFactory;
 class ActiveMQJMSProvider implements JMSProvider {
     public static final String BROKER_NAME = "groovy.jms.provider.ActiveMQJMSProvider.broker"
     public static final String CONNECTOR_URL = "vm://localhost"//?broker.persistent=false
-    BrokerService broker;
+    static BrokerService broker;
     ConnectionFactory factory;
 
-    synchronized protected startBroker() {
+    synchronized static protected startBroker() {
         if (!broker) {
             BrokerRegistry registry = BrokerRegistry.getInstance();
             broker = registry.findFirst() ?: new BrokerService(brokerName: BROKER_NAME, useJmx: false,
