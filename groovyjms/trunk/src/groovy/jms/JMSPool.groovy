@@ -31,7 +31,7 @@ import java.util.concurrent.Future
  */
 class JMSPool extends ThreadPoolExecutor {
     static Logger logger = Logger.getLogger(JMSPool.class.name)
-    private static final defaultCorePoolSize = 20, defaultMaximumPoolSize = 20, defaultKeepAliveTime = 1000, defaultUnit = TimeUnit.MILLISECONDS
+    private static final defaultCorePoolSize = 10, defaultMaximumPoolSize = 10, defaultKeepAliveTime = 1000, defaultUnit = TimeUnit.MILLISECONDS
     def connectionFactory, config;
 
     JMSPool() {this(getDefaultConnectionFactory(), null, null)}
@@ -106,9 +106,13 @@ class JMSPool extends ThreadPoolExecutor {
     }
 
     def send(Map spec) {
-        if (!spec.containsKey('threads')) {
-            new JMS(connectionFactory).send(spec)
-        }
+        if (isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
+        if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec")
+        Future sendJob = submit({
+            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
+            JMSThread.jms.get().send(spec)
+        } as Runnable)
+        //TODO review return value
     }
 
     def receive(Map spec, Closure with = null) {     // spec.'timeout'

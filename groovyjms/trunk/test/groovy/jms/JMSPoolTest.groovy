@@ -4,6 +4,7 @@ import groovy.jms.provider.ActiveMQPooledJMSProvider
 import java.util.concurrent.Future
 import org.apache.activemq.pool.PooledConnectionFactory
 import org.apache.log4j.Logger
+import static groovy.jms.JMS.jms
 
 class JMSPoolTest extends GroovyTestCase {
     static Logger logger = Logger.getLogger(JMSPoolTest.class.name)
@@ -30,6 +31,28 @@ class JMSPoolTest extends GroovyTestCase {
         pool.shutdown()
     }
 
+    void testQueueOnMessageWithMultipleThreads() { // just to prove message could be sent
+        def pool = new JMSPool(), result = [], counter = 0
+        pool.onMessage(topic: 'testQueueOnMessageWithMultipleThreads', threads: 5) {m -> result << m}
+        sleep(500)
+        20.times {
+            pool.send(toQueue: 'testQueueOnMessageWithMultipleThreads', message: 'message #' + it)
+        }
+        sleep(500)
+
+        jms(provider.getConnectionFactory()) {
+            result += "testQueueOnMessageWithMultipleThreads".receiveAll(within: 0)
+        }
+        println result
+        assertEquals(20, result.size())
+
+        sleep(5000)
+        pool.shutdown()
+
+        //use stable non-Pool JMS to retreive and verify results
+
+
+    }
 
     void testTopicOnMessage() {
         def jms = new JMSPool()
