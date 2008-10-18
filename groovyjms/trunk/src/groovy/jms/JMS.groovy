@@ -27,7 +27,7 @@ class JMS {
     }
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
     public static final int DEFAULT_SESSION_ACK = Session.AUTO_ACKNOWLEDGE; //TODO consider to add support for other ack mode
-    boolean autoClose = false;
+    boolean autoClose = true;
     boolean initialized = false;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
@@ -38,11 +38,11 @@ class JMS {
 
     JMS(ConnectionFactory f) {this(f, null)}
 
-    JMS(Connection c) {this(c, null)}
+    JMS(Connection c) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), false, null)}
 
     JMS(ConnectionFactory f, Closure exec) { this(getConnectionWithDefaultClientID(f), exec) }
 
-    JMS(Connection c, Closure exec) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), true, exec)}
+    JMS(Connection c, Closure exec) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), false, exec)}
 
     JMS(Connection c, Session s, boolean ac, Closure exec) {
         if (!c || !s) throw new IllegalArgumentException("ConnectionFactory and Execution closure must not be null")
@@ -274,6 +274,6 @@ class JMS {
     }
 
 
-    String toString() { return "JMS { ${super.toString()}, session: $session, connection: $connection"}
+    String toString() { return "JMS { ${super.toString()}, session: $session, connection: $connection, autoClose: $autoClose"}
 
 }
