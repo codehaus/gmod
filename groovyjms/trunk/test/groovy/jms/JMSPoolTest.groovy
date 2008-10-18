@@ -32,19 +32,19 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testQueueOnMessageWithMultipleThreads() { // just to prove message could be sent
-        def pool = new JMSPool(), result = [], counter = 0
+        def pool = new JMSPool(), result = [], counter = 0   , count = 5
         pool.onMessage(topic: 'testQueueOnMessageWithMultipleThreads', threads: 5) {m -> result << m}
         sleep(500)
-        20.times {
+        count.times {
             pool.send(toQueue: 'testQueueOnMessageWithMultipleThreads', message: 'message #' + it)
         }
         sleep(500)
 
-        jms(provider.getConnectionFactory()) {
+        jms(pool.connectionFactory) {
             result += "testQueueOnMessageWithMultipleThreads".receiveAll(within: 0)
         }
         println result
-        assertEquals(20, result.size())
+        assertEquals(count, result.size())
 
         sleep(5000)
         pool.shutdown()
