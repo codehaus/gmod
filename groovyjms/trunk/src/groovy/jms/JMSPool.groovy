@@ -11,6 +11,8 @@ import javax.jms.ConnectionFactory
 import javax.jms.Session
 import org.apache.log4j.Logger
 import javax.jms.MessageListener
+import java.util.concurrent.Callable
+import java.util.concurrent.Future
 
 /**
  * JMSPool extends JMS and provided configurable JMS Pooling. Unlike the "raw" JMS, you don't need to provide a connection
@@ -97,7 +99,7 @@ class JMSPool extends ThreadPoolExecutor {
         jobs << submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - threadlocal jms: ${JMSThread.jms.get()}")
-            JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener)?target:target as MessageListener);
+            JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener) ? target : target as MessageListener);
             while (true) {}
         } as Runnable)
 
@@ -106,6 +108,22 @@ class JMSPool extends ThreadPoolExecutor {
     def send(Map spec) {
         if (!spec.containsKey('threads')) {
             new JMS(connectionFactory).send(spec)
+        }
+    }
+
+    def receive(Map spec, Closure with = null) {     // spec.'timeout'
+        if (isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
+        if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec, with: $with}")
+        Future receiveJob = submit({
+            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
+            def result = JMSThread.jms.get().receive(spec, with);
+            if (logger.isTraceEnabled()) logger.trace("receive() - executed job - result: $result, thread-jms: ${JMSThread.jms.get()}")
+            return result;
+        } as Callable);
+        if (spec.containsKey('timeout')) {
+            return receiveJob.get(spec.'timeout', TimeUnit.MILLISECONDS)
+        } else {
+            return receiveJob.get();
         }
     }
 
