@@ -1,16 +1,16 @@
 package groovy.jms
 
-import javax.jms.ConnectionFactory
+import groovy.jms.pool.JMSThread
 import groovy.jms.provider.ActiveMQPooledJMSProvider
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import javax.jms.Session
-import javax.jms.MessageListener
-import javax.jms.QueueReceiver
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadFactory
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import javax.jms.Connection
+import javax.jms.ConnectionFactory
+import javax.jms.Session
 import org.apache.log4j.Logger
-import java.text.SimpleDateFormat
+import javax.jms.MessageListener
 
 /**
  * JMSPool extends JMS and provided configurable JMS Pooling. Unlike the "raw" JMS, you don't need to provide a connection
@@ -27,11 +27,10 @@ import java.text.SimpleDateFormat
  * 2. there is no support for Transaction and there is no recovery mechanism (yet), use Spring JMS or Jencks if you need those features
  * 3. JMSPool is implemented as one thread per connection-session
  */
-class JMSPool {
+class JMSPool extends ThreadPoolExecutor {
     static Logger logger = Logger.getLogger(JMSPool.class.name)
-    ExecutorService pool;
-    int poolSize = 10;
-    ConnectionFactory factory;
+    private static final defaultCorePoolSize = 20, defaultMaximumPoolSize = 20, defaultKeepAliveTime = 1000, defaultUnit = TimeUnit.MILLISECONDS
+    def connectionFactory, config;
 
     JMSPool() {this(getDefaultConnectionFactory(), null, null)}
 
@@ -46,77 +45,67 @@ class JMSPool {
     JMSPool(ConnectionFactory f, Map cfg) {this(f, cfg, null)}
 
     JMSPool(ConnectionFactory f, Map cfg, Closure exec) {
-        factory = f; poolSize = cfg?.'poolSize' ?: poolSize
-        pool = Executors.newFixedThreadPool(poolSize);
+        super(cfg?.'corePoolSize' ?: defaultCorePoolSize, cfg?.'maximumPoolSize' ?: defaultMaximumPoolSize,
+                    cfg?.'keepAliveTime' ?: defaultKeepAliveTime, cfg?.'unit' ?: defaultUnit, new LinkedBlockingQueue(),
+                getJMSThreadFactory())
+        connectionFactory = f; config = cfg;
+        org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
+        if (logger.isTraceEnabled()) logger.trace("constructed JMSPool. this: ${this}")
     }
+
 
     synchronized static ConnectionFactory getDefaultConnectionFactory(Map cfg = null) {
         return new ActiveMQPooledJMSProvider(cfg).getConnectionFactory()
     }
 
-    List<Future> futures = []
-
-    boolean started = false
-
-    def start() {
-        stopped = false;
-        started = true;
-        if (logger.isInfoEnabled()) logger.info("JMSPool is set to start - this: ${this}")
+    void shutdown() {
+        super.shutdown();
     }
 
-    boolean stopped = false;
+    List<Runnable> shutdownNow() {
+        return super.shutdownNow();
+    }
 
-    boolean stop(boolean mayInterruptIfRunning = true, int timeout = -1) {
-        long startTime = System.currentTimeMillis()
-        futures.each {Future f -> f.cancel(mayInterruptIfRunning)}
+    void finalize() {
+        super.finalize();
+    }
 
-        while (!futures.every {Future f -> f.isDone()} && (timeout != -1 && (System.currentTimeMillis() - startTime < timeout))) {
-            sleep(100)
-        }
 
-        def outstandings = futures.findAll {Future f -> !f.isDone()}
+    static final getJMSThreadFactory() {
+        return {Runnable r -> return new JMSThread(r)} as ThreadFactory
+    }
 
-        if (outstandings.size() == 0) {
-            logger.info("JMSPool is stopped in ${System.currentTimeMillis()-startTime}ms - this: ${this}")
-            return true;
-        } else {
-            logger.warn("${futures.size()} thread(s) fail to cancel within ${timeout}ms - this: ${this}")
-            return false;
-        }
+    protected void beforeExecute(Thread t, Runnable r) {
+        if (logger.isTraceEnabled()) logger.trace("beforeExecute() - tread: $r, runnable: $t")
+        Connection connection = connectionFactory.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
+        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+        JMSThread.jms.set(new JMS(connection, session, false, null));
+        super.beforeExecute(t, r);
+    }
+
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+//        JMSThread.jms.set(null);  // thread will be cleaned in the interrpution event
+        if (logger.isTraceEnabled()) logger.trace("afterExecute() - runnable: $r, throwable: $t")
+    }
+
+    def jobs = [];
+
+    def onMessage(Map cfg = null, final target) {
+        if (isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
+        if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, jobs.size(): ${jobs.size()}, cfg: $cfg, target: $target (${target?.getClass()}")
+        jobs << submit({
+            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - threadlocal jms: ${JMSThread.jms.get()}")
+            JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener)?target:target as MessageListener);
+            while (true) {}
+        } as Runnable)
 
     }
 
-    def onMessage(Map cfg = null, final Object target) {
-        if (!started) start();
-        int threads = cfg?.'threads' ?: 1
-        final String reqQueue = cfg.'queue' //assume to be a single dest, no collection
-        final ConnectionFactory f = this.factory;
-        final JMSPool jmsPool = this;
-        threads.times {
-            final var = it;
-            futures << pool.submit({
-                try {
-                    Connection connection = f.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
-                    Session session = c.createSession(false, Session.AUTO_ACKNOWLEDGE)
-                    def jms = new JMS(connection, session);
-                    println "autoClose: ${jms.autoClose}"
-                    jms.onMessage(cfg, target);
-                    while (jmsPool.stopped) {
-                        println("running, time: ${new SimpleDateFormat('yyyy-MM-dd HH:mm:ss')}")
-                        sleep(1000);
-                    }
-                } catch (e) {
-                    logger("thread failure [${Thread.currentThread().id}]", e)
-                }
-                /* Connection connection = factory.createConnection().with {it.clientID = JMSPool.class.name + Thread.currentThread().id; it};
-                Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-                if (reqQueue) {
-                    Queue queue = session.createQueue(reqQueue)
-                    QueueReceiver receiver = session.createConsumer(queue)
-                    receiver.setMessageListener((target instanceof MessageListener) ? target : target as MessageListener)
-                    connection.start()
-                }*/
-            })
+    def send(Map spec) {
+        if (!spec.containsKey('threads')) {
+            new JMS(connectionFactory).send(spec)
         }
     }
 

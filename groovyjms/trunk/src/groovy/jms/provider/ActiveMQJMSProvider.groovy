@@ -15,7 +15,6 @@ class ActiveMQJMSProvider implements JMSProvider {
     ConnectionFactory factory;
 
     synchronized static protected startBroker() {
-        println "startBroker() - broker: $broker"
         if (!broker) {
             BrokerRegistry registry = BrokerRegistry.getInstance();
             broker = registry.findFirst() ?: new BrokerService(brokerName: BROKER_NAME, useJmx: false,
