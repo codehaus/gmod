@@ -218,10 +218,18 @@ class JMS {
         if (autoClose && !closed) close();
     }
 
+    /**
+     * jms.receive(){ messages-> }* jms.receive(with:{messages->})
+     * def result = jms.receive()
+     *
+     * a topic doesn't support synchronous retrieval, any specified topic will be subscribed instead.
+     *
+     * @return if 'with' is specified, there will be no return value; otherwise, return an arraylist of messages
+     */
     def receive(Map params, Closure with = null) {
         if (!started) start();
         if (!(params.containsKey('fromQueue') || params.containsKey('fromTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
-        if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
+        //if (!with && !params.containsKey('with')) throw new IllegalArgumentException("receive message must provide a \"with\"")
 
         def result = [];
         def fromQueue = params.'fromQueue', fromTopic = params.'fromTopic'
@@ -233,18 +241,11 @@ class JMS {
             if (fromQueue) {
                 int timeout = (params.'within') ? Integer.valueOf(params.'within') : 0
                 if (fromQueue instanceof Collection) {
-                    def r = fromQueue.collect {q ->
-                        session.queue(q).receiveAll(timeout)
-                        with(r)
-                        result += r
-                    }
+                    result += fromQueue.collect {q -> session.queue(q).receiveAll(timeout)}
                 } else {
-                    def r = session.queue(fromQueue).receiveAll(timeout)
-                    with(r)
-                    result += r
+                    result += session.queue(fromQueue).receiveAll(timeout)
                 }
             }
-
 
             if (fromTopic) {
                 if (fromTopic instanceof Collection) {
@@ -253,9 +254,9 @@ class JMS {
                     session.topic(fromTopic).subscribe(with)
                 }
             }
-            return result;
         }
         if (autoClose && !closed) close();
+        if (with) { with(result) } else { return result; }
     }
 
     def send(Map params) {
