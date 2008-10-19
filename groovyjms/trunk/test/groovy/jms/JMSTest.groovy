@@ -169,7 +169,24 @@ public class JMSTest extends GroovyTestCase {
         }
     }
 
-    void testReceive() {
+    void testReceiveWithoutWith(){
+              def jms = new JMS()
+        jms.setAutoClose(false)
+        jms.send(toQueue: 'testReceiveQueue', 'message': 'hello')
+        jms.send(toQueue: 'testReceiveQueue', 'message': [key: 'value'])
+        def result = jms.receive(fromQueue: 'testReceiveQueue', within: 500) // only support receiveAll
+        assertEquals 2, result.size()
+        result = jms.receive(fromQueue: 'testReceiveQueue', within: 500) // no more message
+        assertEquals 0, result.size()
+
+        jms.send(toQueue: 'testReceiveQueue', 'message': 'hello2')
+        result = []
+        result = jms.receive(fromQueue: 'testReceiveQueue', within: 500) // put closure at the end
+        assertEquals 1, result.size()
+    }
+
+
+    void testReceiveWith() {
         def jms = new JMS()
         jms.setAutoClose(false)
         jms.send(toQueue: 'testReceiveQueue', 'message': 'hello')

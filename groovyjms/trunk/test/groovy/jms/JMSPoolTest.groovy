@@ -85,6 +85,7 @@ class JMSPoolTest extends GroovyTestCase {
         assertEquals 0, jms.jobs.size()
         jms.receive(fromQueue: 'testQueue', within: 0) {m -> result += m}
         assertNotNull(result)
+        result.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(1, result?.size())
     }
 }
