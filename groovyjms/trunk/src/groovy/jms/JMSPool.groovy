@@ -104,7 +104,7 @@ class JMSPool extends ThreadPoolExecutor {
 
     def onMessage(Map cfg = null, final target) {
         if (isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
-        if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, jobs.size(): ${jobs.size()}, cfg: $cfg, target: $target (${target?.getClass()}")
+        if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, jobs.size(): ${jobs.size()}, cfg: $cfg, target? ${target!=null} (${target?.getClass()}")
         jobs << submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
@@ -132,7 +132,7 @@ class JMSPool extends ThreadPoolExecutor {
 
     def receive(Map spec, Closure with = null) {     // spec.'timeout'
         if (isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
-        if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec, with: $with}")
+        if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec, with? ${with!=null}")
         Future receiveJob = submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             if (logger.isTraceEnabled()) logger.trace("receive() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
