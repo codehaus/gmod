@@ -257,6 +257,7 @@ class JMS {
         }
         if (autoClose && !closed) close();
         if (with) { with(result) } else { return result; }
+        return result;
     }
 
     def send(Map params) {
