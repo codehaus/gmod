@@ -72,7 +72,7 @@ class JMSPoolTest extends GroovyTestCase {
         jms.jobs.eachWithIndex {Future f, i ->
             //println "$i\tisCancelled? ${f?.isCancelled()}\tisDone? ${f?.isDone()}\t$f";
             assertTrue(f.isCancelled())
-        }
+        }                                                   
         result.each { println it}
         assertEquals(1, result.size())
     }
