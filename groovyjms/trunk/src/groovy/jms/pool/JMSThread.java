@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 class JMSThread extends Thread {
     private Logger logger = Logger.getLogger(JMSThread.class) ;
     static ThreadLocal<JMS> jms = new ThreadLocal<JMS>();
-
+    //TODO add thread group
     public JMSThread(Runnable r) {
         super(r);
     }

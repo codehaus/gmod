@@ -77,6 +77,7 @@ class JMSPool extends ThreadPoolExecutor {
         return {Runnable r -> return new JMSThread(r)} as ThreadFactory
     }
 
+/*
     protected void beforeExecute(Thread t, Runnable r) {
         if (logger.isTraceEnabled()) logger.trace("beforeExecute() - tread: $r, runnable: $t")
         Connection connection = connectionFactory.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
@@ -91,6 +92,13 @@ class JMSPool extends ThreadPoolExecutor {
         JMSThread.jms.set(null);  // thread will be cleaned in the interrpution event
         if (logger.isTraceEnabled()) logger.trace("afterExecute() - runnable: $r, throwable: $t")
     }
+*/
+    // this method is expected to be called by a sprawned thread
+    private JMS getJMS() {
+        Connection connection = connectionFactory.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
+        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+        JMSThread.jms.set(new JMS(connection, session, false, null));
+    }
 
     def jobs = [];
 
@@ -99,7 +107,8 @@ class JMSPool extends ThreadPoolExecutor {
         if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, jobs.size(): ${jobs.size()}, cfg: $cfg, target: $target (${target?.getClass()}")
         jobs << submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
-            if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - threadlocal jms: ${JMSThread.jms.get()}")
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
+            if (!JMSThread.jms.get()) { getJMS() }
             JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener) ? target : target as MessageListener);
             while (true) {}
         } as Runnable)
@@ -108,13 +117,17 @@ class JMSPool extends ThreadPoolExecutor {
 
     def send(Map spec) {
         if (isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
-        if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec")
+        if (logger.isTraceEnabled()) logger.trace("send() - spec: $spec")
         Future sendJob = submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
+            if (logger.isTraceEnabled()) logger.trace("send() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
+            if (!JMSThread.jms.get()) { getJMS() }
+
             JMSThread.jms.get().send(spec)
             JMSThread.jms.get().connect()
         } as Runnable)
         //TODO review return value
+        //TODO after sending one, check the queue to process the next message
     }
 
     def receive(Map spec, Closure with = null) {     // spec.'timeout'
@@ -122,6 +135,8 @@ class JMSPool extends ThreadPoolExecutor {
         if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec, with: $with}")
         Future receiveJob = submit({
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
+            if (logger.isTraceEnabled()) logger.trace("receive() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
+            if (!JMSThread.jms.get()) { getJMS() }
             def result = JMSThread.jms.get().receive(spec, with);
             if (logger.isTraceEnabled()) logger.trace("receive() - executed job - result: $result, thread-jms: ${JMSThread.jms.get()}")
             return result;
