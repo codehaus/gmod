@@ -12,15 +12,12 @@ public class JMSTest extends GroovyTestCase {
     void setUp() { factory = provider.getConnectionFactory(); }
 
     void tearDown() {
-        JMSCoreCategory.cleanupThreadLocalVariables(null,true)
+        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
     }
 
     void testJMSProviderSystemProperty() {
         System.setProperty(JMS.SYSTEM_PROP_JMSPROVIDER, "groovy.jms.provider.ActiveMQJMSProviderNOTEXISTED")
-        try {
-            def jms = new JMS()
-            fail()
-        } catch (e) { }
+        try { def jms = new JMS(); fail() } catch (e) { }
         assertTrue(true)
         System.properties.remove(JMS.SYSTEM_PROP_JMSPROVIDER)
     }
@@ -84,7 +81,7 @@ public class JMSTest extends GroovyTestCase {
         jms.send(toQueue: 'testQueue', 'message': 'hello2')
         sleep(1000)
         int count = 0
-        jms.eachMessage("testQueue", [within:1000]) {m ->
+        jms.eachMessage("testQueue", [within: 1000]) {m ->
             count++
             assertTrue(m.text?.startsWith("hello"))
         }
