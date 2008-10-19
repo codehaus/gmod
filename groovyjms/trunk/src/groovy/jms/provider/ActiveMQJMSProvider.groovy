@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 class ActiveMQJMSProvider implements JMSProvider {
     static Logger logger = Logger.getLogger(ActiveMQJMSProvider.class.name)
     public static final String BROKER_NAME = "groovy.jms.provider.ActiveMQJMSProvider.broker"
-    public static final String CONNECTOR_URL = "vm://localhost"//?broker.persistent=false
+    public static final String CONNECTOR_URL = "vm://localhost?broker.persistent=false"//
     static BrokerService broker;
     ConnectionFactory factory;
 
