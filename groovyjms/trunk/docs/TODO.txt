@@ -1,5 +1,6 @@
 TODO list
 
+Project
 1. add a build file
  - either ant or gant (preferred, hope it's not too complex)
 
@@ -8,6 +9,9 @@ TODO list
 3. do a simple benchmark and profiling
 
 
+Application
+ - fix close and autoclose, do not close if there is running listener
+ - implement a JMSPool
 
 
 Dependency
