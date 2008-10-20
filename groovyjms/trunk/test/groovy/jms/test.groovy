@@ -1,22 +1,22 @@
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import java.util.concurrent.Callable
 
 ExecutorService pool = Executors.newFixedThreadPool(10)
 Future f = pool.submit({
     try {
-        while (true) {
-            // loop forever
-        }
+     sleep(5000)
+        return "done"
     } catch (InterruptedException e) {
         e.printStackTrace()
     }
-} as Runnable)
+} as Callable)
 
 sleep(100)
 println "isDone? " + f.isDone()
 
-f.cancel(true)
+println f.get()
 
 sleep(1000)
 println "isDone? " + f.isDone()
