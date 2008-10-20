@@ -25,9 +25,9 @@ import org.apache.log4j.Logger
  */
 class JMSPool extends AbstractJMS {
     static Logger logger = Logger.getLogger(JMSPool.class.name)
-    private static final defaultCorePoolSize = 10, defaultMaximumPoolSize = 10, defaultKeepAliveTime = 1000, defaultUnit = TimeUnit.MILLISECONDS
-    static def connectionFactory, config;
+    def connectionFactory, config;
     def ThreadPoolExecutor threadPool;
+    def ThreadGroup threadGroup = new ThreadGroup(super.toString());
 
     JMSPool() {this(getDefaultConnectionFactory(), null, null)}
 
@@ -42,35 +42,24 @@ class JMSPool extends AbstractJMS {
     JMSPool(ConnectionFactory f, Map cfg) {this(f, cfg, null)}
 
     JMSPool(ConnectionFactory f, Map cfg, Closure exec) {
-        threadPool = new JMSThreadPoolExecutor(cfg?.'corePoolSize' ?: defaultCorePoolSize, cfg?.'maximumPoolSize' ?: defaultMaximumPoolSize,
-                    cfg?.'keepAliveTime' ?: defaultKeepAliveTime, cfg?.'unit' ?: defaultUnit, new LinkedBlockingQueue(), getJMSThreadFactory());
+        threadPool = new JMSThreadPoolExecutor(f, {Runnable r -> new JMSThread(threadGroup, r, f) } as ThreadFactory, cfg);
         connectionFactory = f; config = cfg;
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
         if (logger.isTraceEnabled()) logger.trace("constructed JMSPool. this: ${this}")
     }
 
-    static final ThreadGroup jmsThreads = new ThreadGroup(JMSPool.class.name)
-
-    static final getJMSThreadFactory() { return {Runnable r -> new JMSThread(jmsThreads, r, connectionFactory) } as ThreadFactory }
-
     synchronized static ConnectionFactory getDefaultConnectionFactory(Map cfg = null) {
         return new ActiveMQPooledJMSProvider(cfg).getConnectionFactory()
     }
 
-    void shutdown() {
-        threadPool.shutdown();
-    }
+    void shutdown() { threadPool.shutdown(); }
 
-    List<Runnable> shutdownNow() {
-        return threadPool.shutdownNow();
-    }
-
-    def jobs = [];
+    List<Runnable> shutdownNow() { return threadPool.shutdownNow(); }
 
     def onMessage(Map cfg = null, final target) {
         if (threadPool.isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
-        if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, jobs.size(): ${jobs.size()}, cfg: $cfg, target? ${target != null} (${target?.getClass()}")
-        jobs << threadPool.submit({
+        if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, cfg: $cfg, target? ${target != null} (${target?.getClass()}")
+        threadPool.submit({
             if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
             JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener) ? target : target as MessageListener);
             while (true) {}
@@ -82,14 +71,12 @@ class JMSPool extends AbstractJMS {
         if (threadPool.isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
         if (logger.isTraceEnabled()) logger.trace("send() - spec: $spec")
 
-        Future sendJob = threadPool.submit({
+        threadPool.submit({
             if (logger.isTraceEnabled()) logger.trace("send() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
             if (spec.'delay') sleep(spec.'delay')
             JMSThread.jms.get().send(spec)
             JMSThread.jms.get().connect()
         } as Runnable)
-        //TODO review return value
-        //TODO after sending one, check the queue to process the next message
     }
 
     def receive(Map spec, Closure with = null) {     // spec.'timeout'
@@ -109,21 +96,4 @@ class JMSPool extends AbstractJMS {
             return receiveJob.get();
         }
     }
-
-/*
-    protected void beforeExecute(Thread t, Runnable r) {
-        if (logger.isTraceEnabled()) logger.trace("beforeExecute() - tread: $r, runnable: $t")
-        Connection connection = connectionFactory.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
-        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-        JMSThread.jms.set(new JMS(connection, session, false, null));
-        threadPool.beforeExecute(t, r);
-    }
-
-    protected void afterExecute(Runnable r, Throwable t) {
-        threadPool.afterExecute(r, t);
-        JMSThread.jms.get().close();
-        JMSThread.jms.set(null);  // thread will be cleaned in the interrpution event
-        if (logger.isTraceEnabled()) logger.trace("afterExecute() - runnable: $r, throwable: $t")
-    }
-*/
 }

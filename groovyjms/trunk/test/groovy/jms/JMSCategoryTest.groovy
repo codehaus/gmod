@@ -122,7 +122,7 @@ class JMSCategoryTest extends GroovyTestCase {
         use(JMSCategory) {
             jms.session()
             "queue".send("message")
-            assertNotNull("queue".receive(waitTime: 1000))
+            assertNotNull("queue".receive(within: 1000))
         }
     }
 
