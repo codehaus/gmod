@@ -41,7 +41,7 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testMultipleSenderSingleReceiverOnQueue() { // just to prove message could be sent
-        def pool = new JMSPool(), result = [], counter = 0, count = 50, queueName = "testMultipleSenderSingleReceiverOnQueue"
+        def pool = new JMSPool(maximumPoolSize:10), result = [], counter = 0, count = 20, queueName = "testMultipleSenderSingleReceiverOnQueue"
         sleep(100)
         count.times { pool.send(toQueue: queueName, message: 'message #' + it) }
         sleep(500)
@@ -59,26 +59,26 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testTopicOnMessage() {
-        def jms = new JMSPool()
+        def pool = new JMSPool()
         def result = []
-        jms.onMessage([topic: 'testTopic', threads: 1]) {m -> logger.debug("testTopicOnMessage() - received message m: ${m}"); result << m}
+        pool.onMessage([topic: 'testTopic', threads: 1]) {m -> logger.debug("testTopicOnMessage() - received message m: ${m}"); result << m}
         sleep(1000)
-        jms.send(toTopic: 'testTopic', message: 'this is a test')
+        pool.send(toTopic: 'testTopic', message: 'this is a test')
         sleep(1000)
         result.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(1, result.size())
     }
 
     void testQueueSendMessage() {
-        def jms = new JMSPool();
+        def pool = new JMSPool();
         def result = []
-        jms.receive(fromQueue: 'testQueue') {m -> result += m}
+        pool.receive(fromQueue: 'testQueue') {m -> result += m}
         assertNotNull(result)
         assertEquals("there are outstanding message in the previous test case", 0, result?.size())
         result.clear()
-        jms.send(toQueue: 'testQueue', message: 'message 1')
+        pool.send(toQueue: 'testQueue', message: 'message 1')
         //jms.send(toQueue: 'testQueue', message: 'message 2')
-        jms.receive(fromQueue: 'testQueue', within: 2000) {m -> result += m}
+        pool.receive(fromQueue: 'testQueue', within: 2000) {m -> result += m}
         assertNotNull(result)
         result.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(1, result?.size())

@@ -133,35 +133,39 @@ class JMS extends AbstractJMS {
      * support any of topic,queue,fromTopic or fromQueue
      */
     def onMessage(Map cfg, Object target) {
-        if (!started) start();
-        use(JMSCoreCategory) {
-            if (!session) throw new IllegalStateException("session was not available")
-            if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue') || cfg.containsKey('fromTopic') || cfg.containsKey('fromQueue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
+        try {
+            if (!started) start();
+            use(JMSCoreCategory) {
+                if (!session) throw new IllegalStateException("session was not available")
+                if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue') || cfg.containsKey('fromTopic') || cfg.containsKey('fromQueue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
-            MessageListener listener = target instanceof MessageListener ? target : target as MessageListener
-            def topicDest = [], queueDest = []
-            if (cfg.containsKey('topic') || cfg.containsKey('fromTopic')) {
-                def t = cfg.get('topic'), ft = cfg.get('fromTopic')
-                if (t) { if (t instanceof Collection) { topicDest += t} else { topicDest << t} }
-                if (ft) { if (ft instanceof Collection) { topicDest += ft} else { topicDest << ft} }
+                MessageListener listener = target instanceof MessageListener ? target : target as MessageListener
+                def topicDest = [], queueDest = []
+                if (cfg.containsKey('topic') || cfg.containsKey('fromTopic')) {
+                    def t = cfg.get('topic'), ft = cfg.get('fromTopic')
+                    if (t) { if (t instanceof Collection) { topicDest += t} else { topicDest << t} }
+                    if (ft) { if (ft instanceof Collection) { topicDest += ft} else { topicDest << ft} }
 
-                topicDest.each {
-                    Topic topic = it instanceof Topic ? it : session.topic(it)
-                    messageConsumers.put(topic.subscribe(cfg, listener), topic); //TODO no need to put value
+                    topicDest.each {
+                        Topic topic = it instanceof Topic ? it : session.topic(it)
+                        messageConsumers.put(topic.subscribe(cfg, listener), topic); //TODO no need to put value
+                    }
                 }
-            }
 
-            if (cfg.containsKey('queue') || cfg.containsKey('fromQueue')) {
-                def q = cfg.get('queue'), fq = cfg.get('fromQueue')
-                if (q) { if (q instanceof Collection) { queueDest += q} else { queueDest << q} }
-                if (fq) { if (fq instanceof Collection) { queueDest += fq} else { queueDest << fq} }
+                if (cfg.containsKey('queue') || cfg.containsKey('fromQueue')) {
+                    def q = cfg.get('queue'), fq = cfg.get('fromQueue')
+                    if (q) { if (q instanceof Collection) { queueDest += q} else { queueDest << q} }
+                    if (fq) { if (fq instanceof Collection) { queueDest += fq} else { queueDest << fq} }
 
-                queueDest.each {
-                    Queue queue = (it instanceof Queue) ? it : session.queue(it);
-                    messageConsumers.put(queue.listen(listener), queue);//TODO no need to put value
+                    queueDest.each {
+                        Queue queue = (it instanceof Queue) ? it : session.queue(it);
+                        messageConsumers.put(queue.listen(listener), queue);//TODO no need to put value
+                    }
                 }
+                if (logger.isTraceEnabled()) logger.trace("onMessage() - subscribed to ${topicDest.size()} topic(s) and ${queueDest.size()} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
             }
-            if (logger.isTraceEnabled()) logger.trace("onMessage() - subscribed to ${topicDest.size()} topic(s) and ${queueDest.size()} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
+        } catch (e) {
+            logger.error("onMessage() - exception - cfg: $cfg", e);
         }
         if (autoClose && !closed) close();
     }

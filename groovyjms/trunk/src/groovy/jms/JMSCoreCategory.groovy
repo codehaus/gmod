@@ -33,7 +33,6 @@ import java.lang.reflect.Method
  */
 class JMSCoreCategory {
     static Logger logger = Logger.getLogger(JMSCoreCategory.class)
-    //static final ThreadLocal<JMS> jms = new ThreadLocal<JMS>();
     static final ThreadLocal<Connection> connection = new ThreadLocal<Connection>();
     static final ThreadLocal<Session> session = new ThreadLocal<Session>();
     static final clientIdPrefix;
@@ -111,7 +110,7 @@ class JMSCoreCategory {
 
     static final Method connectionStart = Connection.methods.find { it.name == 'start'};
 
-    static start(Connection target) { connectionStart.invoke(JMSCoreCategory.connection.get(), null); }
+    static start(Connection target) { if(JMSCoreCategory.connection.get()) connectionStart.invoke(JMSCoreCategory.connection.get(), null); }
 
     static close(ConnectionFactory target) { cleanupThreadLocalVariables(target, true) }
 
@@ -245,7 +244,7 @@ class JMSCoreCategory {
         def messageSelector = cfg?.'messageSelector', noLocal = cfg?.'noLocal' ?: false
         def durable = (cfg && !cfg.'durable') ? false : true, session = session.get()
         TopicSubscriber subscriber = (durable) ? session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal) :
-            session.createSubscriber(topic, subscriptionName, messageSelector, noLocal)
+            session.createSubscriber(topic, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
 
         if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, durable: $durable, subscriptionName: $subscriptionName, messageSelector: $messageSelector, noLocal: $noLocal")
