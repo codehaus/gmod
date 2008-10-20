@@ -232,7 +232,7 @@ class JMSCoreCategory {
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
         QueueReceiver receiver = session.get().createReceiver(queue)
         receiver.setMessageListener(listener)
-        if (logger.isTraceEnabled()) logger.trace("listen() - queue: $queue, listener: ${listener}, messageSelector: $messageSelector")
+        if (logger.isTraceEnabled()) logger.trace("listen() - queue: \"$queue\", messageSelector: \"$messageSelector\", listener: ${listener}")
         return receiver;
     }
 
@@ -242,12 +242,12 @@ class JMSCoreCategory {
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
         def subscriptionName = cfg?.'subscriptionName' ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
         def messageSelector = cfg?.'messageSelector', noLocal = cfg?.'noLocal' ?: false
-        def durable = (cfg && !cfg.'durable') ? false : true, session = session.get()
+        def durable = (cfg?.containsKey('durable') && !cfg.'durable') ? false : true, session = session.get()
         TopicSubscriber subscriber = (durable) ? session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal) :
             session.createSubscriber(topic, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
 
-        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, durable: $durable, subscriptionName: $subscriptionName, messageSelector: $messageSelector, noLocal: $noLocal")
+        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: \"$topic\", durable: $durable, subscriptionName: \"$subscriptionName\", messageSelector: \"$messageSelector\", noLocal: $noLocal, listener: ${listener}")
         return subscriber;
         /*if (!listener.getClass().fields.find {it.name == "subscriptionName"}) {
           listener.getClass().metaClass.subscriptionName = null

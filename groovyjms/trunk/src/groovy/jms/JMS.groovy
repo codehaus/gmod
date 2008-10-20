@@ -140,9 +140,9 @@ class JMS extends AbstractJMS {
                 if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue') || cfg.containsKey('fromTopic') || cfg.containsKey('fromQueue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
                 MessageListener listener = target instanceof MessageListener ? target : target as MessageListener
-                def topicDest = [], queueDest = []
+                int statsTopicSubscribed = 0, statsQueueSubscribed = 0;
                 if (cfg.containsKey('topic') || cfg.containsKey('fromTopic')) {
-                    def t = cfg.get('topic'), ft = cfg.get('fromTopic')
+                    def topicDest = [], t = cfg.get('topic'), ft = cfg.get('fromTopic')
                     if (t) { if (t instanceof Collection) { topicDest += t} else { topicDest << t} }
                     if (ft) { if (ft instanceof Collection) { topicDest += ft} else { topicDest << ft} }
 
@@ -150,10 +150,11 @@ class JMS extends AbstractJMS {
                         Topic topic = it instanceof Topic ? it : session.topic(it)
                         messageConsumers.put(topic.subscribe(cfg, listener), topic); //TODO no need to put value
                     }
+                    statsTopicSubscribed = topicDest.size()
                 }
 
                 if (cfg.containsKey('queue') || cfg.containsKey('fromQueue')) {
-                    def q = cfg.get('queue'), fq = cfg.get('fromQueue')
+                    def queueDest = [], q = cfg.get('queue'), fq = cfg.get('fromQueue')
                     if (q) { if (q instanceof Collection) { queueDest += q} else { queueDest << q} }
                     if (fq) { if (fq instanceof Collection) { queueDest += fq} else { queueDest << fq} }
 
@@ -161,8 +162,9 @@ class JMS extends AbstractJMS {
                         Queue queue = (it instanceof Queue) ? it : session.queue(it);
                         messageConsumers.put(queue.listen(listener), queue);//TODO no need to put value
                     }
+                    statsQueueSubscribed = queueDest.size()
                 }
-                if (logger.isTraceEnabled()) logger.trace("onMessage() - subscribed to ${topicDest.size()} topic(s) and ${queueDest.size()} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
+                if (logger.isTraceEnabled()) logger.trace("onMessage() - subscribed to ${statsTopicSubscribed} topic(s) and ${statsQueueSubscribed} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
             }
         } catch (e) {
             logger.error("onMessage() - exception - cfg: $cfg", e);
@@ -170,54 +172,56 @@ class JMS extends AbstractJMS {
         if (autoClose && !closed) close();
     }
 
-    def stopMessage(Map dest) {
-        if (!started) throw new IllegalStateException("jms is not started yet")
-        if (!dest || !(dest.containsKey('topic') || dest.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
+    def stopMessage(Map cfg) {
+        try {
+            if (!started) throw new IllegalStateException("jms is not started yet")
+            if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
-        use(JMSCoreCategory) {
-            if (!session) throw new IllegalStateException("session was not available")
-            if (dest.containsKey('topic')) {
-                def topicDest = dest.get('topic')
-                if (topicDest instanceof String) {
-                    def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof TopicSubscriber && c.topic.topicName == topicDest}
-                    consumers.each {MessageConsumer c ->
-                        Topic topic = c.topic;
-                        c.setMessageListener(null)
-                        c.close()
-                        topic.unsubscribe();
-                        if (logger.isTraceEnabled()) logger.trace("stopMessage() - dest: $dest, consumer: $c")
-                        messageConsumers.remove(c)
-                    }
-                } else if (topicDest instanceof Topic) {
-                    topic = topicDest;                  //TODO: refactor this to one line
-                    throw new UnsupportedOperationException("not implemented yet")
-                } else if (topicDest instanceof Collection) {
-                    throw new UnsupportedOperationException("collection of topics is not implemented yet")
-                } else {
-                    throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
-                }
-            }
-            if (dest.containsKey('queue')) {
-                def queueDest = dest.get('queue')
-                if (queueDest instanceof String) {
-                    def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof QueueReceiver && c.queue.queueName == queueDest}
-                    consumers.each {MessageConsumer c ->
-                        Queue queue = c.queue;
-                        c.setMessageListener(null)
-                        c.close()
-                        if (logger.isTraceEnabled()) logger.trace("stopMessage() - dest: $dest, consumer: $c")
-                        messageConsumers.remove(c)
-                    }
-                } else if (queueDest instanceof Queue) {
-                    queue = queueDest;                  //TODO: refactor this to one line
-                    throw new UnsupportedOperationException("not implemented yet")
-                } else if (queueDest instanceof Collection) {
-                    throw new UnsupportedOperationException("collection of topics is not implemented yet")
-                } else {
-                    throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
-                }
-            }
+            use(JMSCoreCategory) {
+                if (!session) throw new IllegalStateException("session was not available")
+                int statsTopicSubscribed = 0, statsQueueSubscribed = 0;
+                if (cfg.containsKey('topic') || cfg.containsKey('fromTopic')) {
+                    def topicDest = []
+                    def t = cfg.get('topic'), ft = cfg.get('fromTopic')
+                    if (t) { if (t instanceof Collection) { topicDest += t} else { topicDest << t} }
+                    if (ft) { if (ft instanceof Collection) { topicDest += ft} else { topicDest << ft} }
 
+                    topicDest.each {String topicName ->
+                        def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof TopicSubscriber && c.topic.topicName == topicName}
+                        consumers.each {MessageConsumer c ->
+                            Topic topic = c.topic;
+                            c.setMessageListener(null)
+                            c.close()
+                            topic.unsubscribe();
+                            if (logger.isTraceEnabled()) logger.trace("stopMessage() - dest: $cfg, consumer: $c")
+                            messageConsumers.remove(c)
+                        }
+                    }
+                    statsTopicSubscribed = topicDest.size()
+                }
+
+                if (cfg.containsKey('queue') || cfg.containsKey('fromQueue')) {
+                    def queueDest = []
+                    def q = cfg.get('queue'), fq = cfg.get('fromQueue')
+                    if (q) { if (q instanceof Collection) { queueDest += q} else { queueDest << q} }
+                    if (fq) { if (fq instanceof Collection) { queueDest += fq} else { queueDest << fq} }
+
+                    queueDest.each {String queueName ->
+                        def consumers = messageConsumers.keySet().findAll {MessageConsumer c -> c instanceof QueueReceiver && c.queue.queueName == queueName}
+                        consumers.each {MessageConsumer c ->
+                            Queue queue = c.queue;
+                            c.setMessageListener(null)
+                            c.close()
+                            if (logger.isTraceEnabled()) logger.trace("stopMessage() - dest: $cfg, consumer: $c")
+                            messageConsumers.remove(c)
+                        }
+                    }
+                    statsQueueSubscribed = queueDest.size()
+                }
+                if (logger.isTraceEnabled()) logger.trace("stopMessage() - unsubscribed to ${statsTopicSubscribed} topic(s) and ${statsQueueSubscribed} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
+            }
+        } catch (e) {
+            logger.error("stopMessage() - exception - dest: $cfg", e);
         }
         if (autoClose && !closed) close();
     }
