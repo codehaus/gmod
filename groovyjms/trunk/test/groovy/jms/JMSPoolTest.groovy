@@ -22,6 +22,7 @@ class JMSPoolTest extends GroovyTestCase {
         def pool = new JMSPool()
         assertNotNull pool?.connectionFactory
         assertTrue(pool?.connectionFactory instanceof PooledConnectionFactory)
+        println pool
         pool.shutdown()
     }
 

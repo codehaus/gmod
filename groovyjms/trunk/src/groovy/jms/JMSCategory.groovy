@@ -36,25 +36,18 @@ class JMSCategory extends JMSCoreCategory {
         return JMSCoreCategory.session.get().queue(dest).send(message);
     }
 
-    static Topic subscribe(String dest) {
-        return JMSCoreCategory.session.get().topic(dest);
+    static Topic subscribe(String dest) { return JMSCoreCategory.session.get().topic(dest); } //TODO consider to remove this
+
+    static TopicSubscriber with(Topic topic, Map cfg = null, Closure l) { with(topic, cfg, l as MessageListener); } //TODO consider to remove this
+
+    static TopicSubscriber with(Topic topic, Map cfg = null, MessageListener l) { topic.subscribe(cfg, l) } //TODO consider to remove this
+
+    static TopicSubscriber subscribe(String dest, Map cfg = null, Closure listener) {
+        return JMSCoreCategory.session.get().topic(dest).with(cfg, listener);
     }
 
-
-    static TopicSubscriber with(Topic topic, Closure listener) {
-        with(topic, listener as MessageListener);
-    }
-
-    static TopicSubscriber with(Topic topic, MessageListener listener) {
-        topic.subscribe(listener)
-    }
-
-    static TopicSubscriber subscribe(String dest, Closure listener) {
-        return JMSCoreCategory.session.get().topic(dest).with(listener);
-    }
-
-    static TopicSubscriber subscribe(String dest, MessageListener listener) {
-        return JMSCoreCategory.session.get().topic(dest).with(listener);
+    static TopicSubscriber subscribe(String dest, Map cfg = null, MessageListener listener) {
+        return JMSCoreCategory.session.get().topic(dest).with(cfg, listener);
     }
 
     static void publishTo(String textMessage, String dest, Map cfg = null) {

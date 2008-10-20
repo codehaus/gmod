@@ -48,6 +48,10 @@ class JMSPool extends AbstractJMS {
         if (logger.isTraceEnabled()) logger.trace("constructed JMSPool. this: ${this}")
     }
 
+    String toString() {
+        return "JMSPool:{ connectionFactory: $connectionFactory, config: $config, threadGroup.activeCount(): ${threadGroup?.activeCount()} }"
+    }
+
     synchronized static ConnectionFactory getDefaultConnectionFactory(Map cfg = null) {
         return new ActiveMQPooledJMSProvider(cfg).getConnectionFactory()
     }

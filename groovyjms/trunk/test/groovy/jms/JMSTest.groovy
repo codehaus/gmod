@@ -88,10 +88,23 @@ public class JMSTest extends GroovyTestCase {
         assertEquals 2, count
     }
 
+    void testOnMessageNonDurableTopic(){
+        def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testOnMessageNonDurableTopic", result = [] as CopyOnWriteArrayList
+        // 1 - listen with Closure for a single topic, with 'topic'
+        def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
+        jms.onMessage([topic: topic, durable:false], listener)
+        jms.send toTopic: topic, message: [key0: 'value0']
+        sleep(500)
+        assertEquals 1, result.size()
+        assertEquals 'value0', result[0]
+        result.clear()
+        //TODO THIS TEST CASE DOESN'T TEST DURABLE!!!
+    }
+
     void testOnMessageForTopic() {
         def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testOnMessageForTopic", result = [] as CopyOnWriteArrayList
 
-        // 1 - listen with Closure
+        // 1 - listen with Closure for a single topic, with 'topic'
         def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
         jms.onMessage(topic: topic, listener)
         jms.send toTopic: topic, message: [key0: 'value0']
@@ -102,9 +115,9 @@ public class JMSTest extends GroovyTestCase {
 
         jms.stopMessage(topic: topic)
 
-        // 2 -listen with anonymous closure
+        // 2 -listen with anonymous closure for two topics, with 'fromTopic'
         try {
-            jms.onMessage(topic: topic) {MapMessage m -> result << m.getString('key0')}
+            jms.onMessage(fromTopic: [topic,'anotherTopic']) {MapMessage m -> result << m.getString('key0')}
             jms.send toTopic: topic, message: [key0: 'value1']
             sleep(500)
             assertEquals("fail to unsubscribe", 1, result.size())
@@ -118,7 +131,7 @@ public class JMSTest extends GroovyTestCase {
     void testOnMessageForQueue() {
         def jms = new JMS().with {it.setAutoClose(false); it}, dest = "testOnMessageForQueue", result = [] as CopyOnWriteArrayList
 
-        // 1 - listen with Closure
+        // 1 - listen with Closure for a single queue with 'queue'
         def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
         jms.onMessage(queue: dest, listener)
         jms.send toQueue: dest, message: [key0: 'value0']
@@ -129,9 +142,9 @@ public class JMSTest extends GroovyTestCase {
 
         jms.stopMessage(queue: dest)
 
-        // 2 -listen with anonymous closure
+        // 2 -listen with anonymous closure, for two queues, with 'fromQueue'
         try {
-            jms.onMessage(queue: dest) {MapMessage m -> result << m.getString('key0')}
+            jms.onMessage(fromQueue: [dest,'anyQueue']) {MapMessage m -> result << m.getString('key0')}
             jms.send toQueue: dest, message: [key0: 'value1']
             sleep(500)
             assertEquals("fail to unsubscribe", 1, result.size())

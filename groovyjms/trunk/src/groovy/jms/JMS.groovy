@@ -19,7 +19,7 @@ import javax.jms.QueueReceiver
  *
  * when connection and session are provided, autoClose is set to false, otherwise, it's true
  */
-class JMS extends AbstractJMS{
+class JMS extends AbstractJMS {
     static Logger logger = Logger.getLogger(JMS.class.name)
     static final hostName;
     static {
@@ -29,6 +29,7 @@ class JMS extends AbstractJMS{
     public static final int DEFAULT_SESSION_ACK = Session.AUTO_ACKNOWLEDGE; //TODO consider to add support for other ack mode
     boolean autoClose = true;
     boolean initialized = false;
+    static JMSProvider provider;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
 
@@ -51,6 +52,7 @@ class JMS extends AbstractJMS{
     }
 
     synchronized static ConnectionFactory getDefaultConnectionFactory() {
+        if (provider) return provider.getConnectionFactory()
         String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER)
         JMSProvider provider = className ? Class.forName(className)?.newInstance() : new ActiveMQJMSProvider();
         return provider.connectionFactory;
@@ -127,41 +129,39 @@ class JMS extends AbstractJMS{
 
     Map messageConsumers = Collections.synchronizedMap(new WeakHashMap());
 
+    /**
+     * support any of topic,queue,fromTopic or fromQueue
+     */
     def onMessage(Map cfg, Object target) {
         if (!started) start();
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
+            if (!cfg || !(cfg.containsKey('topic') || cfg.containsKey('queue') || cfg.containsKey('fromTopic') || cfg.containsKey('fromQueue'))) throw new IllegalArgumentException("first argument of onMessage must have a Map with 'queue' or 'topic' key")
 
             MessageListener listener = target instanceof MessageListener ? target : target as MessageListener
-            if (cfg.containsKey('topic')) {
-                def topicDest = cfg.get('topic')
-                Topic topic
-                if (topicDest instanceof String) {
-                    topic = session.topic(topicDest);
-                } else if (topicDest instanceof Topic) {
-                    topic = topicDest;                  //TODO: refactor this to one line
-                } else if (topicDest instanceof Collection) {
-                    throw new UnsupportedOperationException("collection of topics is not implemented yet")
-                } else {
-                    throw new IllegalArgumentException("topic value is not supported. class: ${topicDest.getClass()}")
+            def topicDest = [], queueDest = []
+            if (cfg.containsKey('topic') || cfg.containsKey('fromTopic')) {
+                def t = cfg.get('topic'), ft = cfg.get('fromTopic')
+                if (t) { if (t instanceof Collection) { topicDest += t} else { topicDest << t} }
+                if (ft) { if (ft instanceof Collection) { topicDest += ft} else { topicDest << ft} }
+
+                topicDest.each {
+                    Topic topic = it instanceof Topic ? it : session.topic(it)
+                    messageConsumers.put(topic.subscribe(cfg, listener), topic); //TODO no need to put value
                 }
-                def subscriber = topic.subscribe(listener)
-                messageConsumers.put(subscriber, topic);  //TODO no need to put value
             }
 
-            if (cfg.containsKey('queue')) {
-                def queueDest = cfg.get('queue')
-                Queue queue;
-                if (queueDest instanceof String) {
-                    queue = session.queue(queueDest);
-                } else {
-                    throw new IllegalArgumentException("unimplemented")
+            if (cfg.containsKey('queue') || cfg.containsKey('fromQueue')) {
+                def q = cfg.get('queue'), fq = cfg.get('fromQueue')
+                if (q) { if (q instanceof Collection) { queueDest += q} else { queueDest << q} }
+                if (fq) { if (fq instanceof Collection) { queueDest += fq} else { queueDest << fq} }
+
+                queueDest.each {
+                    Queue queue = (it instanceof Queue) ? it : session.queue(it);
+                    messageConsumers.put(queue.listen(listener), queue);//TODO no need to put value
                 }
-                QueueReceiver receiver = queue.listen(listener)
-                messageConsumers.put(receiver, queue);//TODO no need to put value
             }
-            if (logger.isTraceEnabled()) logger.trace("onMessage() - cfg: $cfg, messageConsumers.size: ${messageConsumers?.size()}, messageConsumers: $messageConsumers")
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - subscribed to ${topicDest.size()} topic(s) and ${queueDest.size()} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
         }
         if (autoClose && !closed) close();
     }

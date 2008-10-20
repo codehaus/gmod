@@ -12,6 +12,12 @@
         </layout>
     </appender>
 
+
+    <category name="groovy.jms.JMSCoreCategory" additivity="false">
+        <priority value="INFO"/>
+        <appender-ref ref="CONSOLE"/>
+    </category>
+
     <category name="groovy.jms" additivity="false">
         <priority value="TRACE"/>
         <appender-ref ref="CONSOLE"/>

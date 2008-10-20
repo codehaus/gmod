@@ -2,6 +2,7 @@ package groovy.jms.provider
 
 import javax.jms.ConnectionFactory
 import org.apache.activemq.pool.PooledConnectionFactory
+import groovy.jms.JMSPool
 
 class ActiveMQPooledJMSProvider extends ActiveMQJMSProvider {
     /**
@@ -18,7 +19,7 @@ class ActiveMQPooledJMSProvider extends ActiveMQJMSProvider {
 
     public ConnectionFactory getConnectionFactory() {
         try {
-            if (this.broker?.isStarted()) startBroker();
+            if (JMSPool.enableAutoBroker && this.broker?.isStarted()) startBroker();
             factory = factory ?: new PooledConnectionFactory(CONNECTOR_URL);
             connectionFactoryConfig.each {k, v -> factory[k] = v}
             return factory;
