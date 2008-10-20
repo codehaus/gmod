@@ -294,6 +294,6 @@ class JMSCoreCategory {
         return messages;
     }
 
-    static Map toMap(MapMessage mm) { return JMSUtils.extractMapFromMapMessage(mm); }
+    static Map toMap(MapMessage mm) { return JMSUtils.toMap(mm); } //TODO could change to use @delegate
 
 }

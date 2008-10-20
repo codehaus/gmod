@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Enumeration;
 
 public class JMSUtils {
-    public static Map extractMapFromMapMessage(MapMessage mm) throws JMSException {
+    
+    public static Map toMap(MapMessage mm) throws JMSException {
         if (mm == null) return null;
         Map m = new HashMap();
         Enumeration mmFields = mm.getMapNames();
