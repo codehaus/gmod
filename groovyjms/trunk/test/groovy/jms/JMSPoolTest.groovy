@@ -29,8 +29,6 @@ class JMSPoolTest extends GroovyTestCase {
         def pool = new JMSPool()
         pool.onMessage(topic: 'testTopic', threads: 1) {m -> println m}
         sleep(500)
-        assertEquals(1, pool.jobs.size())
-        assertFalse(pool.jobs[0].isDone())
         pool.shutdown()
     }
 
@@ -65,22 +63,10 @@ class JMSPoolTest extends GroovyTestCase {
     void testTopicOnMessage() {
         def jms = new JMSPool()
         def result = []
-        jms.onMessage([topic: 'testTopic', threads: 1]) {m -> logger.debug("testStopRunningPool() - m: ${m}"); result << m}
+        jms.onMessage([topic: 'testTopic', threads: 1]) {m -> logger.debug("testTopicOnMessage() - received message m: ${m}"); result << m}
         sleep(1000)
         jms.send(toTopic: 'testTopic', message: 'this is a test')
-        assertTrue(jms.jobs?.size() > 0)
-        jms.jobs.eachWithIndex {Future f, i ->
-            //println "$i\tisCancelled? ${f?.isCancelled()}\tisDone? ${f?.isDone()}\t$f";
-            assertFalse("test job(s) is cancelled", f.isCancelled());
-            f.cancel(true)
-        }
-        sleep(500)
-        //assertTrue jms.stop(true, 2000)
-        sleep(500)
-        jms.jobs.eachWithIndex {Future f, i ->
-            //println "$i\tisCancelled? ${f?.isCancelled()}\tisDone? ${f?.isDone()}\t$f";
-            assertTrue(f.isCancelled())
-        }
+        sleep(1000)
         result.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(1, result.size())
     }
@@ -94,7 +80,6 @@ class JMSPoolTest extends GroovyTestCase {
         result.clear()
         jms.send(toQueue: 'testQueue', message: 'message 1')
         //jms.send(toQueue: 'testQueue', message: 'message 2')
-        assertEquals 0, jms.jobs.size()
         jms.receive(fromQueue: 'testQueue', within: 2000) {m -> result += m}
         assertNotNull(result)
         result.eachWithIndex {it, i -> println "$i\t$it"}

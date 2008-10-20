@@ -161,7 +161,7 @@ class JMS extends AbstractJMS{
                 QueueReceiver receiver = queue.listen(listener)
                 messageConsumers.put(receiver, queue);//TODO no need to put value
             }
-            if (logger.isTraceEnabled()) logger.trace("onMessage() - cfg: $cfg, messageConsumers(updated): $messageConsumers")
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - cfg: $cfg, messageConsumers.size: ${messageConsumers?.size()}, messageConsumers: $messageConsumers")
         }
         if (autoClose && !closed) close();
     }
