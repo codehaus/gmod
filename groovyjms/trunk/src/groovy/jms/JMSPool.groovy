@@ -1,19 +1,12 @@
 package groovy.jms
 
 import groovy.jms.pool.JMSThread
-import groovy.jms.provider.ActiveMQPooledJMSProvider
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadFactory
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
-import javax.jms.Connection
-import javax.jms.ConnectionFactory
-import javax.jms.Session
-import org.apache.log4j.Logger
-import javax.jms.MessageListener
-import java.util.concurrent.Callable
-import java.util.concurrent.Future
 import groovy.jms.pool.JMSThreadPoolExecutor
+import groovy.jms.provider.ActiveMQPooledJMSProvider
+import java.util.concurrent.*
+import javax.jms.ConnectionFactory
+import javax.jms.MessageListener
+import org.apache.log4j.Logger
 
 /**
  * JMSPool extends JMS and provided configurable JMS Pooling. Unlike the "raw" JMS, you don't need to provide a connection
@@ -78,9 +71,7 @@ class JMSPool extends AbstractJMS {
         if (threadPool.isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
         if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, jobs.size(): ${jobs.size()}, cfg: $cfg, target? ${target != null} (${target?.getClass()}")
         jobs << threadPool.submit({
-            //org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
-            //if (!JMSThread.jms.get()) { getJMS() }
             JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener) ? target : target as MessageListener);
             while (true) {}
         } as Runnable)
@@ -92,10 +83,7 @@ class JMSPool extends AbstractJMS {
         if (logger.isTraceEnabled()) logger.trace("send() - spec: $spec")
 
         Future sendJob = threadPool.submit({
-            //org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             if (logger.isTraceEnabled()) logger.trace("send() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
-            //if (!JMSThread.jms.get()) { getJMS() }
-
             if (spec.'delay') sleep(spec.'delay')
             JMSThread.jms.get().send(spec)
             JMSThread.jms.get().connect()
@@ -108,9 +96,7 @@ class JMSPool extends AbstractJMS {
         if (threadPool.isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
         if (logger.isTraceEnabled()) logger.trace("receive() - spec: $spec, with? ${with != null}")
         Future receiveJob = threadPool.submit({
-            //org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
             if (logger.isTraceEnabled()) logger.trace("receive() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
-            //if (!JMSThread.jms.get()) { getJMS() }
             //TODO break down every destination-selector to a thread
             //TODO handle the 'threads' parameter
             def result = JMSThread.jms.get().receive(spec, with);
