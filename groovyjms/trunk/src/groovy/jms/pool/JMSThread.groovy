@@ -1,10 +1,12 @@
 package groovy.jms.pool
 
 import groovy.jms.JMS
+import groovy.jms.JMSCoreCategory
 import javax.jms.Connection
 import javax.jms.ConnectionFactory
 import javax.jms.Session
-import org.apache.log4j.Logger;
+import org.apache.log4j.Logger
+
 
 class JMSThread extends Thread {
     public static Logger logger = Logger.getLogger(JMSThread.class);
@@ -28,8 +30,11 @@ class JMSThread extends Thread {
                 JMSThread.jms.set(new JMS(connection, session, false, null));
                 if (logger.isTraceEnabled()) logger.trace("run() - created jms - this: " + this.toString());
             }
-            if (logger.isTraceEnabled()) logger.trace("run() - run runnable - this: " + this.toString());
-            this.runnable.run();
+
+            //use(JMSCoreCategory) {
+                if (logger.isTraceEnabled()) logger.trace("run() - run runnable - this: " + this.toString()); // (inside JMSCategory)
+                this.runnable.run();
+            //}
         } catch (Exception e) {
             logger.error("run() - with exception", e);
         } finally {

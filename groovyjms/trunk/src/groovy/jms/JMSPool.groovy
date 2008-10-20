@@ -64,7 +64,7 @@ class JMSPool extends AbstractJMS {
         if (threadPool.isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
         if (logger.isTraceEnabled()) logger.trace("onMessage() - submitted job, cfg: $cfg, target? ${target != null} (${target?.getClass()}")
         threadPool.submit({
-            if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
+            if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}, cfg: $cfg")
             JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener) ? target : target as MessageListener);
             while (true) {}
         } as Runnable)
