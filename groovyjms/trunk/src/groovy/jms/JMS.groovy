@@ -19,7 +19,7 @@ import javax.jms.QueueReceiver
  *
  * when connection and session are provided, autoClose is set to false, otherwise, it's true
  */
-class JMS {
+class JMS extends AbstractJMS{
     static Logger logger = Logger.getLogger(JMS.class.name)
     static final hostName;
     static {

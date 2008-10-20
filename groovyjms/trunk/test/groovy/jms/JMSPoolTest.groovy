@@ -4,7 +4,10 @@ import groovy.jms.provider.ActiveMQPooledJMSProvider
 import java.util.concurrent.Future
 import org.apache.activemq.pool.PooledConnectionFactory
 import org.apache.log4j.Logger
+import javax.jms.Queue
+
 import static groovy.jms.JMS.jms
+import java.util.concurrent.TimeUnit
 
 class JMSPoolTest extends GroovyTestCase {
     static Logger logger = Logger.getLogger(JMSPoolTest.class.name)
@@ -31,6 +34,13 @@ class JMSPoolTest extends GroovyTestCase {
         pool.shutdown()
     }
 
+    void testAbstractGetQueue() {
+        def pool = new JMSPool(corePoolSize: 1, maximumPoolSize: 1, keepAliveTime: 1, unit: TimeUnit.SECONDS)
+        Queue q = pool.createQueue("testAbstractGetQueue")
+        assertNotNull(q)
+        assertEquals("testAbstractGetQueue", q.getQueueName())
+    }
+
     void testMultipleSenderSingleReceiverOnQueue() { // just to prove message could be sent
         def pool = new JMSPool(), result = [], counter = 0, count = 20, queueName = "testMultipleSenderSingleReceiverOnQueue"
         //pool.onMessage(topic: 'testQueueOnMessageWithMultipleThreads', threads: 5) {m -> result << m}
@@ -50,8 +60,6 @@ class JMSPoolTest extends GroovyTestCase {
         pool.shutdown()
 
         //use stable non-Pool JMS to retreive and verify results
-
-
     }
 
     void testTopicOnMessage() {
@@ -80,10 +88,14 @@ class JMSPoolTest extends GroovyTestCase {
     void testQueueSendMessage() {
         def jms = new JMSPool();
         def result = []
+        jms.receive(fromQueue: 'testQueue') {m -> result += m}
+        assertNotNull(result)
+        assertEquals("there are outstanding message in the previous test case", 0, result?.size())
+        result.clear()
         jms.send(toQueue: 'testQueue', message: 'message 1')
         //jms.send(toQueue: 'testQueue', message: 'message 2')
         assertEquals 0, jms.jobs.size()
-        jms.receive(fromQueue: 'testQueue', within: 0) {m -> result += m}
+        jms.receive(fromQueue: 'testQueue', within: 2000) {m -> result += m}
         assertNotNull(result)
         result.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(1, result?.size())
