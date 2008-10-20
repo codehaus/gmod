@@ -238,21 +238,22 @@ class JMSCoreCategory {
     }
 
     // subscribe to a topic
-    static TopicSubscriber subscribe(Topic topic, MessageListener listener, String subscriptionName = null, String messageSelector = null, boolean noLocal = false) {
+    static TopicSubscriber subscribe(Topic topic, Map cfg = null, MessageListener listener) {
         if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        //subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.connection.get().clientID
-        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
-        /*if (!listener.getClass().fields.find {it.name == "subscriptionName"}) {
-            listener.getClass().metaClass.subscriptionName = null
-        }
-        listener.subscriptionName = subscriptionName*/
-
-        TopicSubscriber subscriber = session.get().createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal)
+        def subscriptionName = cfg?.'subscriptionName' ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
+        def messageSelector = cfg?.'messageSelector', noLocal = cfg?.'noLocal' ?: false
+        def durable = (cfg && !cfg.'durable') ? false : true, session = session.get()
+        TopicSubscriber subscriber = (durable) ? session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal) :
+            session.createSubscriber(topic, subscriptionName, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
 
-        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, subscriptionName: $subscriptionName, messageSelector: $messageSelector, noLocal: $noLocal")
+        if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: $topic, listener: ${listener}, durable: $durable, subscriptionName: $subscriptionName, messageSelector: $messageSelector, noLocal: $noLocal")
         return subscriber;
+        /*if (!listener.getClass().fields.find {it.name == "subscriptionName"}) {
+          listener.getClass().metaClass.subscriptionName = null
+      }
+      listener.subscriptionName = subscriptionName*/
     }
 
     static Topic unsubscribe(Topic topic, String subscriptionName = null) {

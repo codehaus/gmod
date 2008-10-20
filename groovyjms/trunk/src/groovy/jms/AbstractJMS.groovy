@@ -11,6 +11,7 @@ import org.apache.log4j.Logger
  */
 abstract class AbstractJMS {
     static Logger logger = Logger.getLogger(AbstractJMS.class.name)
+    static boolean enableAutoBroker = true;
 
     Queue createQueue(String queueName) {
         if (this instanceof JMS) {

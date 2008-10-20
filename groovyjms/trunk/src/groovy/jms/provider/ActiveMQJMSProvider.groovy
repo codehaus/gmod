@@ -4,8 +4,9 @@ import javax.jms.ConnectionFactory
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.BrokerRegistry
 import org.apache.activemq.broker.BrokerService
-import org.apache.activemq.pool.PooledConnectionFactory
-import org.apache.log4j.Logger;
+import org.apache.log4j.Logger
+import groovy.jms.JMSPool
+import groovy.jms.JMS
 
 class ActiveMQJMSProvider implements JMSProvider {
     static Logger logger = Logger.getLogger(ActiveMQJMSProvider.class.name)
@@ -13,6 +14,12 @@ class ActiveMQJMSProvider implements JMSProvider {
     public static final String CONNECTOR_URL = "vm://localhost?broker.persistent=false"//
     static BrokerService broker;
     ConnectionFactory factory;
+
+    public boolean isAvailable() {
+        try {
+            return Class.forName("org.apache.activemq.ActiveMQConnectionFactory") != null
+        } catch (e) { return false; }
+    }
 
     synchronized static protected startBroker() {
         if (!broker) {
@@ -28,12 +35,14 @@ class ActiveMQJMSProvider implements JMSProvider {
     public ConnectionFactory getConnectionFactory() {
         try {
             if (logger.isInfoEnabled()) logger.info("getConnectionFactory() - broker: $broker, broker.isStarted? ${broker?.isStarted()}")
-            if (!broker?.isStarted()) startBroker();
+            if (JMS.enableAutoBroker &&!broker?.isStarted()) startBroker();
+            if (logger.isInfoEnabled()) logger.info("getConnectionFactory() - broker: $broker, broker.isStarted? ${broker?.isStarted()}")
             factory = factory ?: new ActiveMQConnectionFactory(CONNECTOR_URL);
             return factory;
         } catch (NoClassDefFoundError e) {
             throw new ClassNotFoundException("Cannot find ActiveMQ library, please put ActiveMQ jar in the classpath. e: ${e.message}");
         }
     }
+
 
 }
