@@ -40,13 +40,10 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testMultipleSenderSingleReceiverOnQueue() { // just to prove message could be sent
-        def pool = new JMSPool(), result = [], counter = 0, count = 20, queueName = "testMultipleSenderSingleReceiverOnQueue"
-        //pool.onMessage(topic: 'testQueueOnMessageWithMultipleThreads', threads: 5) {m -> result << m}
+        def pool = new JMSPool(), result = [], counter = 0, count = 50, queueName = "testMultipleSenderSingleReceiverOnQueue"
+        sleep(100)
+        count.times { pool.send(toQueue: queueName, message: 'message #' + it) }
         sleep(500)
-        count.times {
-            pool.send(toQueue: queueName, message: 'message #' + it)
-        }
-        sleep(1000)
 
         jms(pool.connectionFactory) {
             result += queueName.receiveAll(within: 2000)
@@ -56,7 +53,7 @@ class JMSPoolTest extends GroovyTestCase {
 
         sleep(5000)
         pool.shutdown()
-
+        sleep(10000)
         //use stable non-Pool JMS to retreive and verify results
     }
 
