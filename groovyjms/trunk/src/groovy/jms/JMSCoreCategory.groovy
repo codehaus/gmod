@@ -295,4 +295,6 @@ class JMSCoreCategory {
         return messages;
     }
 
+    static Map toMap(MapMessage mm) { return JMSUtils.extractMapFromMapMessage(mm); }
+
 }
