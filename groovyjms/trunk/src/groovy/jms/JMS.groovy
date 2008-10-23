@@ -27,8 +27,7 @@ class JMS extends AbstractJMS {
     }
     public static String SYSTEM_PROP_JMSPROVIDER = "groovy.jms.provider"
     public static final int DEFAULT_SESSION_ACK = Session.AUTO_ACKNOWLEDGE; //TODO consider to add support for other ack mode
-    boolean autoClose = true;
-    boolean initialized = false;
+    boolean started = false, closed = false, autoClose = true, initialized = false;
     static JMSProvider provider;
     private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     private Session session; //TODO add @delegate after upgraded to 1.6beta2
@@ -51,18 +50,13 @@ class JMS extends AbstractJMS {
         connection = c; session = s; autoClose = ac; if (exec) run(exec);
     }
 
-    synchronized static ConnectionFactory getDefaultConnectionFactory() {
-        if (provider) return provider.getConnectionFactory()
-        String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER)
-        JMSProvider provider = className ? Class.forName(className)?.newInstance() : new ActiveMQJMSProvider();
-        return provider.connectionFactory;
-    }
-
-    static String getDefaultClientID() { return "$hostName:${System.currentTimeMillis()}" }
-
-    static Connection getConnectionWithDefaultClientID(ConnectionFactory f) {
-        Connection c = f.createConnection(); c.setClientID(getDefaultClientID())
-        return c;
+    void run(Closure c) {
+        if (!started) start();
+        use(JMSCategory) {
+            //delegate.set(); //set JMS to Category ThreadLocal
+            c(); //TODO consider to set sth to the closure
+        }
+        if (autoClose && !closed) close();
     }
 
     static void jms(Closure exec) { jms(getDefaultConnectionFactory(), exec)}
@@ -77,7 +71,6 @@ class JMS extends AbstractJMS {
         def jms = (s) ? new JMS(c, s, exec) : new JMS(c, exec)
     }
 
-    boolean started = false;
 
     synchronized void start() {
         if (logger.isTraceEnabled()) logger.trace("start()")
@@ -91,16 +84,20 @@ class JMS extends AbstractJMS {
         connection.start()
     }
 
-    void run(Closure c) {
-        if (!started) start();
-        use(JMSCategory) {
-            //delegate.set(); //set JMS to Category ThreadLocal
-            c(); //TODO consider to set sth to the closure
-        }
-        if (autoClose && !closed) close();
+    synchronized static ConnectionFactory getDefaultConnectionFactory() {
+        if (provider) return provider.getConnectionFactory()
+        String className = System.getProperty(SYSTEM_PROP_JMSPROVIDER)
+        JMSProvider provider = className ? Class.forName(className)?.newInstance() : new ActiveMQJMSProvider();
+        return provider.connectionFactory;
     }
 
-    boolean closed = false;
+    static String getDefaultClientID() { return "$hostName:${System.currentTimeMillis()}" }
+
+    static Connection getConnectionWithDefaultClientID(ConnectionFactory f) {
+        Connection c = f.createConnection(); c.setClientID(getDefaultClientID())
+        return c;
+    }
+
 
     void close() {
         if (logger.isTraceEnabled()) logger.trace("stop()")
