@@ -11,7 +11,7 @@ import java.lang.reflect.Method
  *  - use(JMS){ jms.queue() or jms.topic() } <br>
  *
  *  In the first time any of the above method is called, a connection and session are established in the thread context.
- * It supports only one connection factory, one connection and one session at a time. The use of connect() or session()
+ * A JMS instance is created to store the connection factory, connection and session. The use of connect() or session()
  * is for obtaining the session or connection for direct JMS usage in case where optimization is needed. The JMS category
  * always re-use the connection/session until close() is called.
  *
@@ -33,16 +33,23 @@ import java.lang.reflect.Method
  */
 class JMSCoreCategory {
     static Logger logger = Logger.getLogger(JMSCoreCategory.class)
-    static final ThreadLocal<Connection> connection = new ThreadLocal<Connection>();
-    static final ThreadLocal<Session> session = new ThreadLocal<Session>();
+    //static final ThreadLocal<Connection> connection = new ThreadLocal<Connection>();
+    //static final ThreadLocal<Session> session = new ThreadLocal<Session>();
     static final clientIdPrefix;
     static {
         try {clientIdPrefix = InetAddress.getLocalHost()?.hostName} catch (e) { logger.error("fail to get local hostname on JMS static init")}
     }
 
-    static Connection getConnection(subject) { return connection.get() }
+    static final Map<String, Method> methodCache = [
+            'JMS.getConnection': JMS.methods.find { it.name == 'getConnection'},
+            'JMS.getSession': JMS.methods.find { it.name == 'getSession'},
+            'Connection.start': Connection.methods.find {it.name == 'start'}
+    ];
 
-    static Session getSession(subject) { return session.get() }
+
+    static Connection getConnection(subject) { return methodCache.'JMS.getConnection'.invoke(JMS.getThreadLocal()) }
+
+    static Session getSession(subject) { return methodCache.'JMS.getSession'.invoke(JMS.getThreadLocal()) }
 
     //static void set(JMS jms) { JMSCoreCategory.jms.set(jms)}
 
@@ -58,21 +65,23 @@ class JMSCoreCategory {
     //Remarks: it's hardcoded to reuse session per thread
     static Connection establishConnection(ConnectionFactory factory, String clientId = null, boolean force = false) {
         if (!factory) throw new IllegalStateException("factory must not be null")
-        if (force && connection.get()) cleanupThreadLocalVariables(null, true)
-        if (connection.get()) return connection.get();
+        if (!JMS.getThreadLocal()) JMS.setThreadLocal(new JMS()); //default JMS instance for JMSCategory usage
+        if (force && JMS.getThreadLocal()?.connection) JMS.clearThreadLocal(true)
+        if (JMS.getThreadLocal()?.connection) return JMS.getThreadLocal().connection;
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
         Connection conn = factory.createConnection();
         conn.setClientID(clientId ?: clientIdPrefix + ':' + System.currentTimeMillis());
         conn.setExceptionListener({JMSException e -> logger.error("JMS Exception", e)} as ExceptionListener);
-        JMSCoreCategory.connection.set(conn);
+        JMS.getThreadLocal()?.connection = conn;
         conn.start();
         return conn;
     }
 
     static Session establishSession(Connection conn) {
-        if (JMSCoreCategory.session.get()) return JMSCoreCategory.session.get();
+        if (!JMS.getThreadLocal()) JMS.setThreadLocal(new JMS()); //default JMS instance for JMSCategory usage
+        if (JMS.getThreadLocal()?.session) return JMS.getThreadLocal().session;
         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        JMSCoreCategory.session.set(session);
+        if (JMS.getThreadLocal()) JMS.getThreadLocal().session = session;
         return session;
     }
 
@@ -82,14 +91,14 @@ class JMSCoreCategory {
      ***************************************************************************************************************** */
     //this method doesn't create session
     static Connection connect(ConnectionFactory factory, String clientId = null) {
-        if (JMSCoreCategory.connection.get()) return JMSCoreCategory.connection.get();
+        if (JMS.getThreadLocal()?.connection) return JMS.getThreadLocal().connection;
         Connection connection = establishConnection(factory, (clientId) ? clientId : '')
         if (logger.isTraceEnabled()) logger.trace("connect() - return connection: $connection (${connection.clientID}), clientId: $clientId")
         return connection;
     }
 
     static Session session(ConnectionFactory factory, String clientId = null) {
-        if (JMSCoreCategory.session.get()) return JMSCoreCategory.session.get();
+        if (JMS.getThreadLocal()?.session) return JMS.getThreadLocal().session;
         Connection conn = connect(factory, clientId)
         Session session = establishSession(conn);
         if (logger.isTraceEnabled()) logger.trace("session() - return session: $session")
@@ -97,35 +106,21 @@ class JMSCoreCategory {
     }
 
     static Session session(Connection connection) {
-        if (JMSCoreCategory.session.get()) return JMSCoreCategory.session.get();
+        if (JMS.getThreadLocal().session) return JMS.getThreadLocal().session;
         Session session = establishSession(connection);
         if (logger.isTraceEnabled()) logger.trace("session() - return session: $session")
         return session;
     }
 
     static start(ConnectionFactory target) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("not existing connection to start")
-        start(JMSCoreCategory.connection.get());
+        if (!JMS.getThreadLocal().connection) throw new IllegalStateException("not existing connection to start")
+        start(JMS.getThreadLocal().connection);
     }
 
-    static final Method connectionStart = Connection.methods.find { it.name == 'start'};
+    static start(Connection target) {
+        if (JMS.getThreadLocal()?.connection) { methodCache.'Connection.start'.invoke(JMS.getThreadLocal().connection, null)}
+        else { methodCache.'Connection.start'.invoke(target, null)}
 
-    static start(Connection target) { if(JMSCoreCategory.connection.get()) connectionStart.invoke(JMSCoreCategory.connection.get(), null); }
-
-    static close(ConnectionFactory target) { cleanupThreadLocalVariables(target, true) }
-
-    static close(Session target) { cleanupThreadLocalVariables(target, true)}
-
-    static close(Connection target) { cleanupThreadLocalVariables(target, true) }
-
-    static final Method connectionClose = Connection.methods.find { it.name == 'close'};
-
-    static cleanupThreadLocalVariables(target, boolean close = false) {
-        if (logger.isTraceEnabled()) logger.trace("cleanupThreadLocalVariables() - class: ${target.getClass()}")
-        if (close) JMSCoreCategory.connection.get()?.start();
-        JMSCoreCategory.session.set(null);
-        if (close && JMSCoreCategory.connection.get()) connectionClose.invoke(JMSCoreCategory.connection.get(), null)
-        JMSCoreCategory.connection.set(null);
     }
 
     /** *****************************************************************************************************************
@@ -193,17 +188,17 @@ class JMSCoreCategory {
     }
 
     private static Object sendMessage(Destination dest, message, Map cfg = null) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        MessageProducer producer = session.get().createProducer(dest);
+        if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
+       if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
         Message jmsMessage;
         if (message instanceof Message) {
             jmsMessage = message;
         } else if (message instanceof String) {
-            jmsMessage = session.get().createTextMessage((String) message);
+            jmsMessage = JMS.getThreadLocal().session.createTextMessage((String) message);
         } else if (message instanceof Map) {
-            jmsMessage = session.get().createMapMessage();
+            jmsMessage = JMS.getThreadLocal().session.createMapMessage();
             message.each {k, v -> //TODO find a better way to implement this
                 if (v instanceof Boolean) jmsMessage.setBoolean(k, v);
                 else if (v instanceof Byte) jmsMessage.setByte(k, v);
@@ -221,16 +216,16 @@ class JMSCoreCategory {
         }
         cfg?.each {k, v -> jmsMessage[k] = v}
         producer.send(jmsMessage);
-        connection.get().start()
+        JMS.getThreadLocal().connection.start()
         if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
         return dest;
     }
 
 
     static QueueReceiver listen(Queue queue, MessageListener listener, String messageSelector = null) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        QueueReceiver receiver = session.get().createReceiver(queue)
+        if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
+       if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        QueueReceiver receiver = JMS.getThreadLocal().session.createReceiver(queue)
         receiver.setMessageListener(listener)
         if (logger.isTraceEnabled()) logger.trace("listen() - queue: \"$queue\", messageSelector: \"$messageSelector\", listener: ${listener}")
         return receiver;
@@ -238,11 +233,11 @@ class JMSCoreCategory {
 
     // subscribe to a topic
     static TopicSubscriber subscribe(Topic topic, Map cfg = null, MessageListener listener) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        def subscriptionName = cfg?.'subscriptionName' ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
+        if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        def subscriptionName = cfg?.'subscriptionName' ?: topic.topicName + ':' + JMS.getThreadLocal().session.toString()
         def messageSelector = cfg?.'messageSelector', noLocal = cfg?.'noLocal' ?: false
-        def durable = (cfg?.containsKey('durable') && !cfg.'durable') ? false : true, session = session.get()
+        def durable = (cfg?.containsKey('durable') && !cfg.'durable') ? false : true, session = JMS.getThreadLocal().session
         TopicSubscriber subscriber = (durable) ? session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal) :
             session.createSubscriber(topic, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
@@ -256,18 +251,18 @@ class JMSCoreCategory {
     }
 
     static Topic unsubscribe(Topic topic, String subscriptionName = null) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
+        if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
 
-        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMSCoreCategory.session.get().toString()
+        subscriptionName = subscriptionName ?: topic.topicName + ':' + JMS.getThreadLocal().session.toString()
         if (logger.isTraceEnabled()) logger.trace("unsubscribe() - topic: $topic, subscriptionName: $subscriptionName")
-        session.get().unsubscribe(subscriptionName)
+        JMS.getThreadLocal().session.unsubscribe(subscriptionName)
     }
 
     static Message receive(Queue dest, Integer waitTime = null) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call connect() or session() first.")
-        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
-        MessageConsumer consumer = session.get().createConsumer(dest);
+        if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
+        if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        MessageConsumer consumer = JMS.getThreadLocal().session.createConsumer(dest);
         Message message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
         consumer.close();
         if (logger.isTraceEnabled() && message) logger.trace("receive() - from $dest - return $message");
@@ -275,11 +270,11 @@ class JMSCoreCategory {
     }
 
     static List<Message> receiveAll(Queue dest, Integer waitTime = null) {
-        if (!JMSCoreCategory.connection.get()) throw new IllegalStateException("No connection. Call JMS.connect() first.")
-        if (!JMSCoreCategory.session.get()) JMSCoreCategory.session.set(session(JMSCoreCategory.connection.get()))
+        if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call JMS.connect() first.")
+        if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         List<Message> messages = [];
         try {
-            MessageConsumer consumer = session.get().createConsumer(dest);
+            MessageConsumer consumer = JMS.getThreadLocal().session.createConsumer(dest);
             boolean first = true;
             Message message;
             while (first || message) {

@@ -29,8 +29,8 @@ class JMS extends AbstractJMS {
     public static final int DEFAULT_SESSION_ACK = Session.AUTO_ACKNOWLEDGE; //TODO consider to add support for other ack mode
     boolean started = false, closed = false, autoClose = true, initialized = false;
     static JMSProvider provider;
-    private Connection connection;//TODO add @delegate after upgraded to 1.6beta2
-    private Session session; //TODO add @delegate after upgraded to 1.6beta2
+    Connection connection;//TODO add @delegate after upgraded to 1.6beta2
+    Session session; //TODO add @delegate after upgraded to 1.6beta2
 
     JMS() {this(getDefaultConnectionFactory(), null)}
 
@@ -75,8 +75,7 @@ class JMS extends AbstractJMS {
     synchronized void start() {
         if (logger.isTraceEnabled()) logger.trace("start()")
         connection.start()
-        JMSCoreCategory.connection.set(connection)
-        JMSCoreCategory.session.set(session)
+        JMS.setThreadLocal(this)
         started = true;
     }
 
@@ -91,7 +90,7 @@ class JMS extends AbstractJMS {
         return provider.connectionFactory;
     }
 
-    static String getDefaultClientID() { return "$hostName:${System.currentTimeMillis()}" }
+    static String getDefaultClientID() { return "$hostName:${Thread.currentThread().id}:${System.currentTimeMillis()}" }
 
     static Connection getConnectionWithDefaultClientID(ConnectionFactory f) {
         Connection c = f.createConnection(); c.setClientID(getDefaultClientID())
@@ -99,11 +98,11 @@ class JMS extends AbstractJMS {
     }
 
 
-    void close() {
-        if (logger.isTraceEnabled()) logger.trace("stop()")
-        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
-        //connection.close()
-        closed = true;
+    static void close() {
+        if (logger.isTraceEnabled()) logger.trace("JMS.close()")
+        def jms = getThreadLocal();
+        jms.closed = true; //TODO review if it is still needed
+        JMS.clearThreadLocal(true)
     }
 
     void eachMessage(String queueName, Map cfg = null, Closure c) {
@@ -294,6 +293,6 @@ class JMS extends AbstractJMS {
     }
 
 
-    String toString() { return "JMS { ${super.toString()}, session: $session, connection: $connection, autoClose: $autoClose"}
+    String toString() { return "JMS { ${super.toString()}, nestLevel: $nestLevel, session: $session, connection: $connection, autoClose: $autoClose"}
 
 }
