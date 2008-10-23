@@ -9,7 +9,7 @@ class JMSCategoryTest extends GroovyTestCase {
 
     void setUp() { jms = provider.getConnectionFactory() }
 
-    void tearDown() { JMSCoreCategory.cleanupThreadLocalVariables(null, true) }
+    void tearDown() {JMS.clearThreadLocal(true) }
 
     void testDefaultConnFactory() {
         assertNotNull("default conn factory is not available", provider.getConnectionFactory())
@@ -20,7 +20,7 @@ class JMSCategoryTest extends GroovyTestCase {
         String messageToCheck;
         use(JMSCategory) {
             jms.session().topic("testTopic0").subscribe({Message m -> messageToCheck = m.text} as MessageListener)
-            jms.topic("testTopic0").send(messageToSend); jms.close();
+            jms.topic("testTopic0").send(messageToSend); JMS.close();
         }
         sleep(1000)
         assertEquals("callback message doesn't match", messageToSend, messageToCheck)
@@ -32,7 +32,7 @@ class JMSCategoryTest extends GroovyTestCase {
             TopicSubscriber subscriber = jms.session().topic("testTopic0").subscribe(listener)
             assertNotNull subscriber
             assertNotNull subscriber.messageListener
-            close()
+            JMS.close();
         }
     }
 
@@ -42,7 +42,7 @@ class JMSCategoryTest extends GroovyTestCase {
             QueueReceiver receiver = jms.session().queue("testCoreAPIListenToQueue").listen(listener)
             assertNotNull receiver
             assertNotNull receiver.messageListener
-            close()
+            JMS.close();
         }
     }
 
@@ -55,7 +55,7 @@ class JMSCategoryTest extends GroovyTestCase {
             "testStringQueueListen".send("message1")
             sleep(500)
             assertEquals 2, result.size()
-            close()
+            JMS.close();
         }
     }
 
@@ -72,10 +72,15 @@ class JMSCategoryTest extends GroovyTestCase {
 
     void testQueueInTheDiffConn() {
         String messageToSend = "this is the message to send", messageToCheck;
-        List<Message> messages;
-        use(JMSCategory) {Session session = jms.session(); session.queue("testQueueInTheDiffConn").send(messageToSend); session.close()}
-        use(JMSCategory) {messages = jms.queue("testQueueInTheDiffConn").receiveAll(1000); jms.close()}
-        assertEquals("message size incorrect", 1, messages?.size())
+        List<Message> messages = [];
+        new Thread() {
+            use(JMSCategory) {Session session = jms.session(); session.queue("testQueueInTheDiffConn").send(messageToSend); JMS.close()}
+        }.start()
+        new Thread() {
+            use(JMSCategory) {messages = jms.queue("testQueueInTheDiffConn").receiveAll(1000); JMS.close()}
+        }.start()
+        sleep(500)
+        assertEquals("message size incorrect", 1, messages.size())
         assertEquals("callback message doesn't match", messageToSend, messages[0].text)
     }
 
@@ -85,16 +90,17 @@ class JMSCategoryTest extends GroovyTestCase {
         use(JMSCategory) {
             replyQueue = jms.session().createQueue("replyQueue")
             jms.session().queue("testQueue0").send(messageToSend, [JMSCorrelationID: 'unittest', JMSReplyTo: replyQueue])
-            jms.close();
+            JMS.close();
         }
         use(JMSCategory) {
-            Message message = jms.connect().queue("testQueue0").receive(1000); jms.close();
+            Message message = jms.connect().queue("testQueue0").receive(1000); JMS.close();
+            assertNotNull("fail to retrieve message", message)
             String replyText = message.text + "ABC";
             assertNotNull(message.JMSReplyTo)
-            jms.connect(); message.JMSReplyTo.send(replyText, [JMSCorrelationID: 'unittest']); jms.close();
+            jms.connect(); message.JMSReplyTo.send(replyText, [JMSCorrelationID: 'unittest']); JMS.close();
         }
         use(JMSCategory) {
-            jms.connect(); messageToCheck = replyQueue.receive(1000).text; jms.close();
+            jms.connect(); messageToCheck = replyQueue.receive(1000).text; JMS.close();
         }
         assertEquals("passphase hash doesn't match", messageToSend + "ABC", messageToCheck)
     }
@@ -105,14 +111,17 @@ class JMSCategoryTest extends GroovyTestCase {
         use(JMSCategory) {
             replyQueue = jms.session().createQueue("replyQueue")
             jms.session().queue("testQueue0").send(messageToSend, [JMSCorrelationID: 'unittest', JMSReplyTo: replyQueue])
-            jms.close();
+            JMS.close();
         }
         use(JMSCategory) {
-            jms.queue("testQueue0").receive(1000).with {it.reply(it?.text + "ABC")}; jms.close();
+            jms.queue("testQueue0").receive(1000).with {
+                assertNotNull("fail to retrieve message", it)
+                it.reply(it.text + "ABC")
+            }; JMS.close();
         }
         Message messageToCheck;
         use(JMSCategory) {
-            jms.connect(); messageToCheck = replyQueue.receive(1000); jms.close();
+            jms.connect(); messageToCheck = replyQueue.receive(1000); JMS.close();
         }
         assertEquals("passphase hash doesn't match", messageToSend + "ABC", messageToCheck.text)
         assertEquals("JMSCorrelationID doesn't match", 'unittest', messageToCheck.JMSCorrelationID)

@@ -14,7 +14,7 @@
 
 
     <category name="groovy.jms.JMSCoreCategory" additivity="false">
-        <priority value="INFO"/>
+        <priority value="TRACE"/>
         <appender-ref ref="CONSOLE"/>
     </category>
 

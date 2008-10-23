@@ -11,9 +11,7 @@ public class JMSTest extends GroovyTestCase {
 
     void setUp() { factory = provider.getConnectionFactory(); }
 
-    void tearDown() {
-        JMSCoreCategory.cleanupThreadLocalVariables(null, true)
-    }
+    void tearDown() {JMS.clearThreadLocal(true) }
 
     void testJMSProviderSystemProperty() {
         System.setProperty(JMS.SYSTEM_PROP_JMSPROVIDER, "groovy.jms.provider.ActiveMQJMSProviderNOTEXISTED")
