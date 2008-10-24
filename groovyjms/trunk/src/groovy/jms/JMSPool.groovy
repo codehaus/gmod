@@ -29,24 +29,21 @@ class JMSPool extends AbstractJMS {
     def ThreadPoolExecutor threadPool;
     def ThreadGroup threadGroup = new ThreadGroup(super.toString());
 
-    JMSPool() {this(getDefaultConnectionFactory(), null, null)}
+    JMSPool() {this(null, null)}
 
-    JMSPool(Map cfg) {this(getDefaultConnectionFactory(), cfg, null)}
+    JMSPool(ConnectionFactory f) {this(f, null)}
 
-    JMSPool(ConnectionFactory f) {this(f, null, null)}
+    JMSPool(Map cfg) {this(null, cfg)}
 
-    JMSPool(Map cfg, Closure exec) {this(getDefaultConnectionFactory(), cfg, exec)}
-
-    JMSPool(ConnectionFactory f, Closure exec) {this(f, null, exec)}
-
-    JMSPool(ConnectionFactory f, Map cfg) {this(f, cfg, null)}
-
-    JMSPool(ConnectionFactory f, Map cfg, Closure exec) {
+    JMSPool(ConnectionFactory f, Map cfg) {
+        f = (f) ?: getDefaultConnectionFactory()
+        org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+        if (logger.isTraceEnabled()) logger.trace("JMSPool() - constructed -  this: ${toString()}, f: $f, cfg: $cfg")
         threadPool = new JMSThreadPoolExecutor(f, {Runnable r -> new JMSThread(threadGroup, r, f) } as ThreadFactory, cfg);
         connectionFactory = f; config = cfg;
-        org.apache.log4j.MDC.put("tid", Thread.currentThread().getId())
         if (logger.isTraceEnabled()) logger.trace("constructed JMSPool. this: ${this}")
     }
+
 
     String toString() {
         return "JMSPool:{ connectionFactory: $connectionFactory, config: $config, threadGroup.activeCount(): ${threadGroup?.activeCount()} }"

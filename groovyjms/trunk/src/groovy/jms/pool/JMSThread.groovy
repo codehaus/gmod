@@ -27,13 +27,13 @@ class JMSThread extends Thread {
             if (jms.get() == null) {
                 Connection connection = connectionFactory.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
                 Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
-                JMSThread.jms.set(new JMS(connection, session, false, null));
+                JMSThread.jms.set(new JMS([connection, session], [autoClose: false]));
                 if (logger.isTraceEnabled()) logger.trace("run() - created jms - this: " + this.toString());
             }
 
             //use(JMSCoreCategory) {
-                if (logger.isTraceEnabled()) logger.trace("run() - run runnable - this: " + this.toString()); // (inside JMSCategory)
-                this.runnable.run();
+            if (logger.isTraceEnabled()) logger.trace("run() - run runnable - this: " + this.toString()); // (inside JMSCategory)
+            this.runnable.run();
             //}
         } catch (Exception e) {
             logger.error("run() - with exception", e);
