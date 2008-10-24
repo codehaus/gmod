@@ -248,17 +248,4 @@ public class JMSTest extends GroovyTestCase {
         assertTrue jms.autoClose
     }
 
-    void testQueueSendReceiveInTwoThreads() {
-        def results = [], jms0, jms1
-        new Thread() {
-            jms0 = new JMS() {
-                "testQueueSendReceiveInTwoThreads".sendTo("testQueueSendReceiveInTwoThreads")
-            }
-
-        }.start()
-        sleep(500)
-        assertNotNull(jms0)
-        assertTrue((boolean) jms0.autoClose)
-        assertNull(jms0.connection)
-    }
 }
