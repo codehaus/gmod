@@ -30,7 +30,7 @@ abstract class AbstractJMS {
     static void clearThreadLocal(boolean close = true) {
         if (nest.get().size() > 1) {logger.warn("clearThreadLocal() - nested jms is detected - jms: ${getThreadLocal()}, nest: ${nest.get()}")}
         def jms = getThreadLocal()
-        if (close && jms) { jms.connection.start(); jms.connection.close(); jms.session = null; jms.connection = null } //flush message and close
+        if (jms && !jms.closed) { jms.connection?.start(); jms.connection?.close(); jms.session = null; jms.connection = null } //flush message and close
         if (nest.get().size() > 0) nest.get().removeLast()
     }
 

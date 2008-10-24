@@ -32,31 +32,64 @@ class JMS extends AbstractJMS {
     Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     Session session; //TODO add @delegate after upgraded to 1.6beta2
 
-    JMS() {this(getDefaultConnectionFactory(), null)}
+    JMS(ConnectionFactory r, Closure exec) { this(r, null, exec) }
 
-    JMS(Closure exec) {this(getDefaultConnectionFactory(), exec)}
+    JMS(Connection r, Closure exec) { this(r, null, exec) }
 
-    JMS(ConnectionFactory f) {this(f, null)}
+    JMS(List r, Closure exec) { this(r, null, exec) }
 
-    JMS(Connection c) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), false, null)}
+    /**
+     * @resource either a single object or an ArrayList, it accepts ConnectionFactory, Connection, and Session. Any
+     * resource must be compatiable.
+     * if both connection and connection factory are specified, the factory is ignored
+     * if Session is specified, the associated Connection is required.
+     * if none are specified, a default ConnectionFactory will be used
+     * Only one resource of each kind shall be used. The first one is taken if there are duplication
+     */
+    JMS(resource = null, Map cfg = null, Closure exec = null) {
+        ConnectionFactory f = (resource instanceof List) ? resource.find {it instanceof ConnectionFactory} : (resource instanceof ConnectionFactory) ? resource : null
+        Connection c = (resource instanceof List) ? resource.find {it instanceof Connection} : (resource instanceof Connection) ? resource : null
+        Session s = (resource instanceof List) ? resource.find {it instanceof Session} : (resource instanceof Session) ? resource : null
 
-    JMS(ConnectionFactory f, Closure exec) { this(getConnectionWithDefaultClientID(f), exec) }
+        //validate
+        if (s && !c) throw new IllegalArgumentException("when Session is provided, it is required to provide a Connection - f: $f, c: $c, s: $s")
 
-    JMS(Connection c, Closure exec) {this(c, c.createSession(false, DEFAULT_SESSION_ACK), false, exec)}
+        if ((!f && !c) || (f && !c)) {
+            this.connection = ((f) ?: getDefaultConnectionFactory()).createConnection()
+            this.connection.clientID = getDefaultClientID()
+            this.session = this.connection.createSession(false, DEFAULT_SESSION_ACK)
+        } else if (c) {
+            if (!f) logger.warn("JMS() - connection and factory are both provided. factory is ignored - f: $f, c: $c, s: $s")
+            this.connection = c;
+            if (!c) this.connection.clientID = getDefaultClientID()
+            this.session = s ?: c.createSession(false, DEFAULT_SESSION_ACK)
+        } else {
+            throw new UnsupportedOperationException("unhandled case - f: $f, c: $c, s: $s")
+        }
 
-    JMS(Connection c, Session s, boolean ac, Closure exec) {
-        if (!c || !s) throw new IllegalArgumentException("ConnectionFactory and Execution closure must not be null")
-        if (!c.clientID) c.clientID = getDefaultClientID(); org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
-        connection = c; session = s; autoClose = ac; if (exec) run(exec);
+        if (cfg?.containsKey('autoClose')) autoClose = cfg.'autoClose'
+
+        org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+        JMS.setThreadLocal(this)
+        if (logger.isTraceEnabled()) logger.trace("JMS() - constructed - this: ${this.toString()}, resource: $resource, cfg: $cfg, exec?: ${exec != null}")
+        if (exec) run(exec);
     }
 
-    void run(Closure c) {
-        if (!started) start();
+    static run(Closure c) {
+        def result;
+        def jms = JMS.getThreadLocal()
+        if (!jms?.started) jms.start();
         use(JMSCategory) {
             //delegate.set(); //set JMS to Category ThreadLocal
-            c(); //TODO consider to set sth to the closure
+            switch (c.parameterTypes.length) {
+                case 0: result = c(); break;
+                case 1: result = c(jms); break;
+                case 2: result = c(jms, jms.connection); break;
+                default: result = c(jms, jms.connection, jms.session); break;
+            }
         }
-        if (autoClose && !closed) close();
+        if (jms?.autoClose && !jms.closed) jms.close();
+        return result;
     }
 
     static void jms(Closure exec) { jms(getDefaultConnectionFactory(), exec)}
@@ -100,8 +133,7 @@ class JMS extends AbstractJMS {
 
     static void close() {
         if (logger.isTraceEnabled()) logger.trace("JMS.close()")
-        def jms = getThreadLocal();
-        jms.closed = true; //TODO review if it is still needed
+        getThreadLocal()?.closed = true; //TODO review if it is still needed
         JMS.clearThreadLocal(true)
     }
 

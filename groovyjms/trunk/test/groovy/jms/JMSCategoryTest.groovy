@@ -9,7 +9,7 @@ class JMSCategoryTest extends GroovyTestCase {
 
     void setUp() { jms = provider.getConnectionFactory() }
 
-    void tearDown() {JMS.clearThreadLocal(true) }
+    void tearDown() {JMS.close();}
 
     void testDefaultConnFactory() {
         assertNotNull("default conn factory is not available", provider.getConnectionFactory())
@@ -20,9 +20,10 @@ class JMSCategoryTest extends GroovyTestCase {
         String messageToCheck;
         use(JMSCategory) {
             jms.session().topic("testTopic0").subscribe({Message m -> messageToCheck = m.text} as MessageListener)
-            jms.topic("testTopic0").send(messageToSend); JMS.close();
+            sleep(500)
+            jms.topic("testTopic0").send(messageToSend);
         }
-        sleep(1000)
+        sleep(500)
         assertEquals("callback message doesn't match", messageToSend, messageToCheck)
     }
 
@@ -64,10 +65,11 @@ class JMSCategoryTest extends GroovyTestCase {
         List<Message> messages
         use(JMSCategory) {
             Session session = jms.session(); session.queue("testQueueInTheSameSession").send(messageToSend);
-            sleep(100); messages = session.queue("testQueueInTheSameSession").receiveAll(); session.close();
+            sleep(100); messages = session.queue("testQueueInTheSameSession").receiveAll(1000); session.close();
         }
         assertEquals("message size incorrect", 1, messages?.size())
         assertEquals("callback message doesn't match", messageToSend, messages[0].text)
+        JMS.close()
     }
 
     void testQueueInTheDiffConn() {
@@ -114,10 +116,10 @@ class JMSCategoryTest extends GroovyTestCase {
             JMS.close();
         }
         use(JMSCategory) {
-            jms.queue("testQueue0").receive(1000).with {
-                assertNotNull("fail to retrieve message", it)
-                it.reply(it.text + "ABC")
-            }; JMS.close();
+            def message = jms.queue("testQueue0").receive(1000)
+            assertNotNull("fail to retrieve message", message)
+            message.reply(message.text + "ABC")
+            JMS.close();
         }
         Message messageToCheck;
         use(JMSCategory) {
