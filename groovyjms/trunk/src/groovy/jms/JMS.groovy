@@ -71,7 +71,7 @@ class JMS extends AbstractJMS {
 
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
         JMS.setThreadLocal(this)
-        if (logger.isTraceEnabled()) logger.trace("JMS() - constructed - this: ${this.toString()}, resource: $resource, cfg: $cfg, exec?: ${exec != null}")
+        if (logger.isTraceEnabled()) logger.trace("JMS() - constructed -  this: ${toString()}, f: $f, c: $c, s: $s, cfg: $cfg, exec?: ${exec != null}  ")
         if (exec) run(exec);
     }
 
