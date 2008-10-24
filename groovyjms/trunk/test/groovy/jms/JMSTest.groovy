@@ -51,9 +51,9 @@ public class JMSTest extends GroovyTestCase {
         String result, result2;
         new JMS() {
             "greetingroom".subscribe { result = it.text}
-            sleep(500)
+            sleep(1000)
             "how are you?".publishTo "greetingroom"
-            sleep(500)
+            sleep(1000)
         }
 
         assertEquals("how are you?", result)
