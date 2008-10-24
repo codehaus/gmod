@@ -28,6 +28,10 @@ class JMSCategory extends JMSCoreCategory {
         return JMS.getThreadLocal().session.queue(dest).send(message);
     }
 
+    static Queue sendTo(String message, String dest) {
+        return JMS.getThreadLocal().session.queue(dest).send(message);
+    }
+
     static Queue send(String dest, Map message) {
         return JMS.getThreadLocal().session.queue(dest).send(message);
     }

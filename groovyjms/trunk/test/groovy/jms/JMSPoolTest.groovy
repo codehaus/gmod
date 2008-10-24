@@ -34,6 +34,7 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testAbstractGetQueue() {
+        fail()
         def pool = new JMSPool(corePoolSize: 1, maximumPoolSize: 1, keepAliveTime: 1, unit: TimeUnit.SECONDS)
         Queue q = pool.createQueue("testAbstractGetQueue")
         assertNotNull(q)
@@ -70,6 +71,7 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testQueueSendMessage() {
+        fail()
         def pool = new JMSPool();
         def result = []
         pool.receive(fromQueue: 'testQueue') {m -> result += m}

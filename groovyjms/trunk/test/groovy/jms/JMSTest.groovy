@@ -20,6 +20,23 @@ public class JMSTest extends GroovyTestCase {
         System.properties.remove(JMS.SYSTEM_PROP_JMSPROVIDER)
     }
 
+    void testConstructors() {
+        def c = factory.createConnection(), s = c.createSession(false, JMS.DEFAULT_SESSION_ACK)
+        def jms = new JMS([factory, c, s], [autoClose: false])
+        assertNotNull(jms); assertSame(c, jms.connection); assertSame(s, jms.session); assertFalse(jms.autoClose)
+        jms = new JMS([c, null, s], [autoClose: false])  // test null in the arraylist
+        assertNotNull(jms); assertSame(c, jms.connection); assertSame(s, jms.session); assertFalse(jms.autoClose)
+        try { jms = new JMS(s); fail("session w/o connection shall throw exception")} catch (e) {}
+    }
+
+    void testConstructorClosureParameters() {
+        def c0 = factory.createConnection(), s0 = c0.createSession(false, JMS.DEFAULT_SESSION_ACK)
+        def jms0, jms1 = new JMS([factory, c0, s0]) {jms, c, s -> jms0 = jms; assertSame(c0, c); assertSame(s0, s)}
+        assertSame(jms1, jms0)
+        jms1 = new JMS([c0, s0]) {jms, c -> jms0 = jms; assertSame(c0, c);}; assertSame(jms1, jms0)
+        jms1 = new JMS([c0, s0]) {jms -> jms0 = jms; }; assertSame(jms1, jms0)
+    }
+
     void testGetConnectionSession() {
         Connection c = factory.createConnection()
         new JMS(c) {  //read-only connection and session are automatically available in the JMS closure scope
@@ -34,6 +51,7 @@ public class JMSTest extends GroovyTestCase {
         String result, result2;
         new JMS() {
             "greetingroom".subscribe { result = it.text}
+            sleep(500)
             "how are you?".publishTo "greetingroom"
             sleep(500)
         }
@@ -86,11 +104,11 @@ public class JMSTest extends GroovyTestCase {
         assertEquals 2, count
     }
 
-    void testOnMessageNonDurableTopic(){
+    void testOnMessageNonDurableTopic() {
         def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testOnMessageNonDurableTopic", result = [] as CopyOnWriteArrayList
         // 1 - listen with Closure for a single topic, with 'topic'
         def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
-        jms.onMessage([topic: topic, durable:false], listener)
+        jms.onMessage([topic: topic, durable: false], listener)
         jms.send toTopic: topic, message: [key0: 'value0']
         sleep(500)
         assertEquals 1, result.size()
@@ -115,7 +133,7 @@ public class JMSTest extends GroovyTestCase {
 
         // 2 -listen with anonymous closure for two topics, with 'fromTopic'
         try {
-            jms.onMessage(fromTopic: [topic,'anotherTopic']) {MapMessage m -> result << m.getString('key0')}
+            jms.onMessage(fromTopic: [topic, 'anotherTopic']) {MapMessage m -> result << m.getString('key0')}
             jms.send toTopic: topic, message: [key0: 'value1']
             sleep(500)
             assertEquals("fail to unsubscribe", 1, result.size())
@@ -142,7 +160,7 @@ public class JMSTest extends GroovyTestCase {
 
         // 2 -listen with anonymous closure, for two queues, with 'fromQueue'
         try {
-            jms.onMessage(fromQueue: [dest,'anyQueue']) {MapMessage m -> result << m.getString('key0')}
+            jms.onMessage(fromQueue: [dest, 'anyQueue']) {MapMessage m -> result << m.getString('key0')}
             jms.send toQueue: dest, message: [key0: 'value1']
             sleep(500)
             assertEquals("fail to unsubscribe", 1, result.size())
@@ -180,8 +198,8 @@ public class JMSTest extends GroovyTestCase {
         }
     }
 
-    void testReceiveWithoutWith(){
-              def jms = new JMS()
+    void testReceiveWithoutWith() {
+        def jms = new JMS()
         jms.setAutoClose(false)
         jms.send(toQueue: 'testReceiveQueue', 'message': 'hello')
         jms.send(toQueue: 'testReceiveQueue', 'message': [key: 'value'])
@@ -223,5 +241,24 @@ public class JMSTest extends GroovyTestCase {
         jms.receive fromQueue: 'queue0', within: 1000, with: {result = it}
         assertNotNull result
         assertEquals 1, result.size()
+    }
+
+    void testDefaultConfig() {
+        def jms = new JMS()
+        assertTrue jms.autoClose
+    }
+
+    void testQueueSendReceiveInTwoThreads() {
+        def results = [], jms0, jms1
+        new Thread() {
+            jms0 = new JMS() {
+                "testQueueSendReceiveInTwoThreads".sendTo("testQueueSendReceiveInTwoThreads")
+            }
+
+        }.start()
+        sleep(500)
+        assertNotNull(jms0)
+        assertTrue((boolean) jms0.autoClose)
+        assertNull(jms0.connection)
     }
 }
