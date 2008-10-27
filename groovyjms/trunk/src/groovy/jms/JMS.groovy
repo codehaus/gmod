@@ -296,28 +296,35 @@ class JMS extends AbstractJMS {
         return result;
     }
 
+    /**
+     * toQueue/toTopic - at least one must be provided. they may be a String or Queue/Topic or a Collection of String/Queue/Topic
+     * message/data - synonym of each other, at least one must be provided. a message/data may be a JMS Message, a
+     * String (Text Message), a Map (Map Message), or any serializable Java object. Stream is not supported yet.
+     */
     def send(Map params) {
         if (!started) start();
         if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
-        if (!params.containsKey('message')) throw new IllegalArgumentException("send message must have a \"message\"")
+        if (!params.containsKey('message') && !params.containsKey('data')) throw new IllegalArgumentException("send message must have a \"message\"")
         //dest: toQueue, toTopic ; handle String or List<String>
         //replyTo: queueName or [destName: type];
+        def message = params.remove('message') ?: params.remove('data')
+
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
             def toQueue = params.remove('toQueue'), toTopic = params.remove('toTopic')
             if (toQueue) {
                 if (toQueue instanceof Collection) {
-                    toQueue.each {q -> session.queue(q).send(params.remove('message'), params)}
+                    toQueue.each {q -> session.queue(q).send(message, params)}
                 } else {
-                    session.queue(toQueue).send(params.remove('message'), params)
+                    session.queue(toQueue).send(message, params)
                 }
             }
 
             if (toTopic) {
                 if (toTopic instanceof Collection) {
-                    toTopic.each {t -> session.topic(t).send(params.remove('message'), params)}
+                    toTopic.each {t -> session.topic(t).send(message, params)}
                 } else {
-                    session.topic(toTopic).send(params.remove('message'), params)
+                    session.topic(toTopic).send(message, params)
                 }
             }
         }

@@ -4,7 +4,6 @@ import static groovy.jms.JMS.jms
 import groovy.jms.provider.ActiveMQJMSProvider
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.jms.*
-import groovy.jms.api.MessageCategory
 
 public class JMSTest extends GroovyTestCase {
     def provider = new ActiveMQJMSProvider(); // all test shares the same Broker for performance; shutdown hook is enabled by default
@@ -184,7 +183,7 @@ public class JMSTest extends GroovyTestCase {
         // 1 - listen with Closure for a single queue with 'queue'
         def listener = {MapMessage m -> result << m.getString('key0')} as MessageListener
         jms.onMessage(queue: dest, listener)
-        jms.send toQueue: dest, message: [key0: 'value0']
+        jms.send toQueue: dest, data: [key0: 'value0'] //Test using 'data' synonym
         sleep(500)
         assertEquals 1, result.size()
         assertEquals 'value0', result[0]
