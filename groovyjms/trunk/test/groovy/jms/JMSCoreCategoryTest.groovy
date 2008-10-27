@@ -26,7 +26,24 @@ class JMSCoreCategoryTest extends GroovyTestCase {
         assertNotNull m1; assertEquals(ActiveMQTextMessage, m1.class);
         assertTrue(JMSUtils.isEnhanced(m1.class)); assertTrue(m1.isEnhanced()) //enhanced by ActiveMQJMSProvider
         assertNotNull m2; assertEquals(ActiveMQObjectMessage, m2.class);
-        assertTrue(JMSUtils.isEnhanced(m2.class)); assertTrue(m2.isEnhanced()) //enhanced by ActiveMQJMSProvider
-
+        assertTrue(JMSUtils.isEnhanced(m2.class)); assertTrue(m2.isEnhanced()) //enhanced by method in JMSCoreCategory
     }
+
+    void testJMSUtilAsMap() {
+        def jms = new JMS(), queue = 'testJMSUtilAsMap', data = [test: 'data']
+        jms.send(toQueue: queue, message: data)
+        def m0 = jms.receive(fromQueue: queue, within: 500)?.get(0)
+        assertNotNull m0; assertEquals(ActiveMQMapMessage, m0.class);
+        assertEquals data, m0 as Map
+    }
+
+    void testJMSUtilGetProperty(){
+        def jms = new JMS(), queue = 'testJMSUtilGetProperty', data = [test: 'data']
+        jms.send(toQueue: queue, message: data, properties:[hello:'world'])
+        def m0 = jms.receive(fromQueue: queue, within: 500)?.get(0)
+        assertNotNull m0; assertEquals(ActiveMQMapMessage, m0.class);
+        assertEquals 'world', m0.'hello'
+        assertEquals 'data', m0.getData('test')
+    }
+    
 }

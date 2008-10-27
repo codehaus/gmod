@@ -3,7 +3,6 @@ package groovy.jms
 import javax.jms.*
 import org.apache.log4j.Logger
 import java.lang.reflect.Method
-import groovy.jms.api.MessageCategory
 
 /**
  * 1. JMS ConnectionFactory, Connection, and Session are top level objects that essentially can be used interchangable.
@@ -220,10 +219,12 @@ class JMSCoreCategory {
             jmsMessage = JMS.getThreadLocal().session.createObjectMessage()
             jmsMessage.setObject(message)
         }
+        if (!JMSUtils.isEnhanced(jmsMessage.getClass())) JMSUtils.enhance(jmsMessage.getClass()) // this may need to be move up in the message creation logic 
+
         if (cfg && cfg.containsKey('properties')) {
             def properties = cfg.remove('properties')
             if (!(properties instanceof Map)) throw new IllegalArgumentException("properties must be a Map")
-            use(MessageCategory) {properties.each {k, v -> jmsMessage.setProperty(k, v) }}
+            properties.each {k, v -> jmsMessage.setProperty(k, v) }
         }
         cfg?.each {k, v -> jmsMessage[k] = v}
         producer.send(jmsMessage);
