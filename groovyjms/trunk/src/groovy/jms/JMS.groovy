@@ -304,20 +304,20 @@ class JMS extends AbstractJMS {
         //replyTo: queueName or [destName: type];
         use(JMSCoreCategory) {
             if (!session) throw new IllegalStateException("session was not available")
-            def toQueue = params.'toQueue', toTopic = params.'toTopic'
+            def toQueue = params.remove('toQueue'), toTopic = params.remove('toTopic')
             if (toQueue) {
                 if (toQueue instanceof Collection) {
-                    toQueue.each {q -> session.queue(q).send(params.'message')}
+                    toQueue.each {q -> session.queue(q).send(params.remove('message'), params)}
                 } else {
-                    session.queue(toQueue).send(params.'message')
+                    session.queue(toQueue).send(params.remove('message'), params)
                 }
             }
 
             if (toTopic) {
                 if (toTopic instanceof Collection) {
-                    toTopic.each {t -> session.topic(t).send(params.'message')}
+                    toTopic.each {t -> session.topic(t).send(params.remove('message'), params)}
                 } else {
-                    session.topic(toTopic).send(params.'message')
+                    session.topic(toTopic).send(params.remove('message'), params)
                 }
             }
         }
