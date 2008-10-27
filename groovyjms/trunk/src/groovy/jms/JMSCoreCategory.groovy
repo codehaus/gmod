@@ -183,13 +183,13 @@ class JMSCoreCategory {
     static Destination reply(Message incoming, message, Map msgCfg = null) {
         if (!incoming.JMSReplyTo) throw new RuntimeException("the incoming message does not contain a reply address")
         if (incoming.JMSCorrelationID)
-            msgCfg = (msgCfg) ? msgCfg.with {it.put('JMSCorrelationID', incoming.JMSCorrelationID); it} : ['JMSCorrelationID': incoming.JMSCorrelationID]
+            msgCfg = (msgCfg && !msgCfg.containsKey('JMSCorrelationID')) ? msgCfg.with {it.put('JMSCorrelationID', incoming.JMSCorrelationID); it} : ['JMSCorrelationID': incoming.JMSCorrelationID]
         return send(incoming.JMSReplyTo, message, msgCfg)
     }
 
     private static Object sendMessage(Destination dest, message, Map cfg = null) {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
-       if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
         Message jmsMessage;
@@ -224,7 +224,7 @@ class JMSCoreCategory {
 
     static QueueReceiver listen(Queue queue, MessageListener listener, String messageSelector = null) {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
-       if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         QueueReceiver receiver = JMS.getThreadLocal().session.createReceiver(queue)
         receiver.setMessageListener(listener)
         if (logger.isTraceEnabled()) logger.trace("listen() - queue: \"$queue\", messageSelector: \"$messageSelector\", listener: ${listener}")
