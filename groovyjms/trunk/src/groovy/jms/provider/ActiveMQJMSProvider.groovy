@@ -7,6 +7,10 @@ import org.apache.activemq.broker.BrokerService
 import org.apache.log4j.Logger
 import groovy.jms.JMSPool
 import groovy.jms.JMS
+import groovy.jms.JMSCoreCategory
+import org.apache.activemq.command.ActiveMQMapMessage
+import groovy.jms.JMSUtils
+import org.apache.activemq.command.ActiveMQTextMessage
 
 class ActiveMQJMSProvider implements JMSProvider {
     static Logger logger = Logger.getLogger(ActiveMQJMSProvider.class.name)
@@ -35,14 +39,21 @@ class ActiveMQJMSProvider implements JMSProvider {
     public ConnectionFactory getConnectionFactory() {
         try {
             if (logger.isInfoEnabled()) logger.info("getConnectionFactory() - broker: $broker, broker.isStarted? ${broker?.isStarted()}")
-            if (JMS.enableAutoBroker &&!broker?.isStarted()) startBroker();
+            if (JMS.enableAutoBroker && !broker?.isStarted()) startBroker();
             if (logger.isInfoEnabled()) logger.info("getConnectionFactory() - broker: $broker, broker.isStarted? ${broker?.isStarted()}")
             factory = factory ?: new ActiveMQConnectionFactory(CONNECTOR_URL);
+            enhanceActiveMQClasses()
             return factory;
         } catch (NoClassDefFoundError e) {
             throw new ClassNotFoundException("Cannot find ActiveMQ library, please put ActiveMQ jar in the classpath. e: ${e.message}");
         }
     }
 
-
+    /**
+     * Perform enhancement in initialization time so it won't slow down the first message
+     */
+    private static enhanceActiveMQClasses() {
+        if (!JMSUtils.isEnhanced(ActiveMQMapMessage.class)) JMSUtils.enhance(ActiveMQMapMessage.class)
+        if (!JMSUtils.isEnhanced(ActiveMQTextMessage.class)) JMSUtils.enhance(ActiveMQTextMessage.class)
+    }
 }

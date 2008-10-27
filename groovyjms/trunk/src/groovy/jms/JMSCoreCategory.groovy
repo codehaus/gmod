@@ -184,13 +184,14 @@ class JMSCoreCategory {
     static Destination reply(Message incoming, message, Map msgCfg = null) {
         if (!incoming.JMSReplyTo) throw new RuntimeException("the incoming message does not contain a reply address")
         if (incoming.JMSCorrelationID)
-            msgCfg = (msgCfg) ? msgCfg.with {if(!it.containsKey('JMSCorrelationID')) it.put('JMSCorrelationID', incoming.JMSCorrelationID); it} : ['JMSCorrelationID': incoming.JMSCorrelationID]
+            msgCfg = (msgCfg) ? msgCfg.with {if (!it.containsKey('JMSCorrelationID')) it.put('JMSCorrelationID', incoming.JMSCorrelationID); it} : ['JMSCorrelationID': incoming.JMSCorrelationID]
         return send(incoming.JMSReplyTo, message, msgCfg)
     }
 
     private static Object sendMessage(Destination dest, message, Map cfg = null) {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
+        if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
         MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
         producer.setDeliveryMode(DeliveryMode.PERSISTENT);
         Message jmsMessage;
@@ -212,8 +213,12 @@ class JMSCoreCategory {
                 else if (v instanceof String) jmsMessage.setString(k, v);
                 else jmsMessage.setObject(k, v);
             }
+        } else if (message instanceof InputStream) {
+            throw new UnsupportedOperationException("stream message is not implemented")
         } else {
-            throw new UnsupportedOperationException("only text message is implemented")
+            if (!(message instanceof Serializable)) throw new IllegalArgumentException("object for object message must be serializable, object.class: ${message.getClass()}")
+            jmsMessage = JMS.getThreadLocal().session.createObjectMessage()
+            jmsMessage.setObject(message)
         }
         if (cfg && cfg.containsKey('properties')) {
             def properties = cfg.remove('properties')
@@ -223,7 +228,6 @@ class JMSCoreCategory {
         cfg?.each {k, v -> jmsMessage[k] = v}
         producer.send(jmsMessage);
         JMS.getThreadLocal().connection.start()
-        if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
         return dest;
     }
 
@@ -247,6 +251,9 @@ class JMSCoreCategory {
         TopicSubscriber subscriber = (durable) ? session.createDurableSubscriber(topic, subscriptionName, messageSelector, noLocal) :
             session.createSubscriber(topic, messageSelector, noLocal)
         subscriber.setMessageListener(listener);
+        //TODO add a messaging wrapper that support enhancement checking
+        // if (!JMSUtils.isEnhanced(message.class)) JMSUtils.enhance(message.class)
+        // TODO 
 
         if (logger.isTraceEnabled()) logger.trace("subscribe() - topic: \"$topic\", durable: $durable, subscriptionName: \"$subscriptionName\", messageSelector: \"$messageSelector\", noLocal: $noLocal, listener: ${listener}")
         return subscriber;
@@ -270,6 +277,7 @@ class JMSCoreCategory {
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         MessageConsumer consumer = JMS.getThreadLocal().session.createConsumer(dest);
         Message message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
+        if (!JMSUtils.isEnhanced(message.class)) JMSUtils.enhance(message.class)
         consumer.close();
         if (logger.isTraceEnabled() && message) logger.trace("receive() - from $dest - return $message");
         return message;
@@ -285,7 +293,10 @@ class JMSCoreCategory {
             Message message;
             while (first || message) {
                 message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
-                if (message) { messages << message;}
+                if (message) {
+                    if (!JMSUtils.isEnhanced(message.getClass())) JMSUtils.enhance(message.getClass())
+                    messages << message;
+                }
                 first = false;
             }
             consumer.close();
@@ -295,6 +306,5 @@ class JMSCoreCategory {
         return messages;
     }
 
-    static Map toMap(MapMessage mm) { return JMSUtils.toMap(mm); } //TODO could change to use @delegate
 
 }

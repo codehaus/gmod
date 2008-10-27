@@ -4,6 +4,7 @@ import static groovy.jms.JMS.jms
 import groovy.jms.provider.ActiveMQJMSProvider
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.jms.*
+import groovy.jms.api.MessageCategory
 
 public class JMSTest extends GroovyTestCase {
     def provider = new ActiveMQJMSProvider(); // all test shares the same Broker for performance; shutdown hook is enabled by default
@@ -59,6 +60,7 @@ public class JMSTest extends GroovyTestCase {
         assertEquals("how are you?", result)
     }
 
+
     void testMapMessage() {
         Map data = ['int': 100, 'double': 100000000d, 'string': 'string', 'character': 'd' as char];
         def results = []
@@ -103,6 +105,38 @@ public class JMSTest extends GroovyTestCase {
         }
         assertEquals 2, count
     }
+
+    /* void testOnMessageWithCategoryMethod() {
+           def jms = new JMS().with {it.setAutoClose(false); it}, queue = "testOnMessageWithCategoryMethod"
+        jms.onMessage(queue: queue) {map, msg ->           // for map message
+            assertNotNull(msg)
+            assertTrue(msg instanceof Message)
+        }
+        jms.send(toQueue: queue, message: queue)
+       }
+
+    void testOnMapMessageWithOneClosureParameters() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, queue = "testOnMapMessageWithOneClosureParameters"
+        jms.onMessage(queue: queue) {map ->           // for map message
+            assertNotNull(map)
+            assertTrue(map instanceof Map)
+            assertEquals(queue, map.'name')
+        }
+        jms.send(toQueue: queue, message: [name: queue])
+    }
+
+
+    void testOnMapMessageWithTwoClosureParameters() {
+        def jms = new JMS().with {it.setAutoClose(false); it}, queue = "testOnMapMessageWithTwoClosureParameters"
+        jms.onMessage(queue: queue) {map, msg ->           // for map message
+            assertNotNull(map)
+            assertTrue(map instanceof Map)
+            assertNotNull(msg)
+            assertTrue(msg instanceof Message)
+            assertEquals(queue, map.'name')
+        }
+        jms.send(toQueue: queue, message: [name: queue])
+    }*/
 
     void testOnMessageNonDurableTopic() {
         def jms = new JMS().with {it.setAutoClose(false); it}, topic = "testOnMessageNonDurableTopic", result = [] as CopyOnWriteArrayList
@@ -230,6 +264,18 @@ public class JMSTest extends GroovyTestCase {
         result = []
         jms.receive(fromQueue: 'testReceiveQueue', within: 500) {result = it.text} // put closure at the end
         assertEquals 1, result.size()
+    }
+
+    void testSendReceiveMapMessageProperties() {
+        def jms = new JMS(), queue = "testSendReceiveMapMessageProperties"
+        jms.send(toQueue: queue, message: [queue: queue], properties: [hello: 'world'])
+        def result = jms.receive(fromQueue: queue, within: 500)
+        assertEquals 1, result.size()
+        use(MessageCategory) {
+            assertEquals queue, result[0].get('queue')
+            assertEquals 'world', result[0].getStringProperty('hello')
+            assertEquals 'world', result[0].getProperty('hello')
+        }
     }
 
     void testNewInstance() {
