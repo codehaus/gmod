@@ -3,6 +3,7 @@ package groovy.jms
 import javax.jms.*
 import org.apache.log4j.Logger
 import java.lang.reflect.Method
+import groovy.jms.api.MessageCategory
 
 /**
  * 1. JMS ConnectionFactory, Connection, and Session are top level objects that essentially can be used interchangable.
@@ -183,7 +184,7 @@ class JMSCoreCategory {
     static Destination reply(Message incoming, message, Map msgCfg = null) {
         if (!incoming.JMSReplyTo) throw new RuntimeException("the incoming message does not contain a reply address")
         if (incoming.JMSCorrelationID)
-            msgCfg = (msgCfg && !msgCfg.containsKey('JMSCorrelationID')) ? msgCfg.with {it.put('JMSCorrelationID', incoming.JMSCorrelationID); it} : ['JMSCorrelationID': incoming.JMSCorrelationID]
+            msgCfg = (msgCfg) ? msgCfg.with {if(!it.containsKey('JMSCorrelationID')) it.put('JMSCorrelationID', incoming.JMSCorrelationID); it} : ['JMSCorrelationID': incoming.JMSCorrelationID]
         return send(incoming.JMSReplyTo, message, msgCfg)
     }
 
@@ -203,16 +204,21 @@ class JMSCoreCategory {
                 if (v instanceof Boolean) jmsMessage.setBoolean(k, v);
                 else if (v instanceof Byte) jmsMessage.setByte(k, v);
                 else if (v instanceof Character) jmsMessage.setChar(k, v);
-                else if (v instanceof Double) jmsMessage.setDouble(k, v);
+                else if (v instanceof Short) jmsMessage.setShort(k, v);
+                else if (v instanceof Integer) jmsMessage.setInt(k, v);
                 else if (v instanceof Float) jmsMessage.setFloat(k, v);
                 else if (v instanceof Long) jmsMessage.setLong(k, v);
-                else if (v instanceof Integer) jmsMessage.setInt(k, v);
-                else if (v instanceof Short) jmsMessage.setShort(k, v);
+                else if (v instanceof Double) jmsMessage.setDouble(k, v);
                 else if (v instanceof String) jmsMessage.setString(k, v);
                 else jmsMessage.setObject(k, v);
             }
         } else {
             throw new UnsupportedOperationException("only text message is implemented")
+        }
+        if (cfg && cfg.containsKey('properties')) {
+            def properties = cfg.remove('properties')
+            if (!(properties instanceof Map)) throw new IllegalArgumentException("properties must be a Map")
+            use(MessageCategory) {properties.each {k, v -> jmsMessage.setProperty(k, v) }}
         }
         cfg?.each {k, v -> jmsMessage[k] = v}
         producer.send(jmsMessage);
