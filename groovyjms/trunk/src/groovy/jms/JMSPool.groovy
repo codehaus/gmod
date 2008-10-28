@@ -63,9 +63,7 @@ class JMSPool extends AbstractJMS {
         threadPool.submit({
             if (logger.isTraceEnabled()) logger.trace("onMessage() - executing submitted job - jms? ${JMSThread.jms.get() != null}, cfg: $cfg")
             JMSThread.jms.get().onMessage(cfg, (target instanceof MessageListener) ? target : target as MessageListener);
-            while (true) {}
         } as Runnable)
-
     }
 
     def send(Map spec) {
