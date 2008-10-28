@@ -7,7 +7,7 @@
         <attribute name="URI" value="/" />
       </containerElement>
     </containerInfo>
-    <setting name="jarUrl" value="file://D:/Temp/searcherProject/searcher.hk/lib/groovyjms-0.2pr1.jar" />
+    <setting name="jarUrl" value="file://$MODULE_DIR$/../searcher.hk/searcher.hk/lib/groovyjms-0.2.jar" />
     <setting name="buildJar" value="true" />
     <setting name="mainClass" value="" />
   </component>

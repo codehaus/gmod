@@ -100,6 +100,7 @@ public class JMSTest extends GroovyTestCase {
         int count = 0
         jms.eachMessage("testQueue", [within: 1000]) {m ->
             count++
+            assertNotNull(m?.text)
             assertTrue(m.text?.startsWith("hello"))
         }
         assertEquals 2, count

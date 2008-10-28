@@ -43,7 +43,9 @@ class JMSCoreCategory {
     static final Map<String, Method> methodCache = [
             'JMS.getConnection': JMS.methods.find { it.name == 'getConnection'},
             'JMS.getSession': JMS.methods.find { it.name == 'getSession'},
-            'Connection.start': Connection.methods.find {it.name == 'start'}
+            'Connection.start': Connection.methods.find {it.name == 'start'},
+            'Session.createConsumer': Session.methods.find {it.name == 'createConsumer'}
+
     ];
 
 
@@ -110,6 +112,12 @@ class JMSCoreCategory {
         Session session = establishSession(connection);
         if (logger.isTraceEnabled()) logger.trace("session() - return session: $session")
         return session;
+    }
+
+    static MessageConsumer createConsumer(Session session) {
+        MessageConsumer consumer = methodCache.'Session.createConsumer'.invoke(session)
+        JMS.getThreadLocal().consumer = consumer
+        return consumer;
     }
 
     static start(ConnectionFactory target) {
@@ -276,7 +284,7 @@ class JMSCoreCategory {
     static Message receive(Queue dest, Integer waitTime = null) {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
-        MessageConsumer consumer = JMS.getThreadLocal().session.createConsumer(dest);
+        MessageConsumer consumer = JMS.getThreadLocal().consumer ?: JMS.getThreadLocal().session.createConsumer(dest);
         Message message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
         if (!JMSUtils.isEnhanced(message.class)) JMSUtils.enhance(message.class)
         consumer.close();
@@ -289,7 +297,7 @@ class JMSCoreCategory {
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         List<Message> messages = [];
         try {
-            MessageConsumer consumer = JMS.getThreadLocal().session.createConsumer(dest);
+            MessageConsumer consumer = JMS.getThreadLocal().consumer ?: JMS.getThreadLocal().session.createConsumer(dest);
             boolean first = true;
             Message message;
             while (first || message) {
