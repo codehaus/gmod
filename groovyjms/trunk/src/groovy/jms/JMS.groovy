@@ -12,6 +12,7 @@ import javax.jms.Queue
 import javax.jms.MessageConsumer
 import javax.jms.TopicSubscriber
 import javax.jms.QueueReceiver
+import javax.jms.MessageProducer
 
 /**
  * Connection and session is either provided to constructor, or be created in the construction. In either case, connection
@@ -31,6 +32,9 @@ class JMS extends AbstractJMS {
     static JMSProvider provider;
     Connection connection;//TODO add @delegate after upgraded to 1.6beta2
     Session session; //TODO add @delegate after upgraded to 1.6beta2
+    MessageProducer producer; // optional, created upon the first use
+    MessageConsumer consumer; // optional, created upon the first use
+
 
     JMS(ConnectionFactory r, Closure exec) { this(r, null, exec) }
 
