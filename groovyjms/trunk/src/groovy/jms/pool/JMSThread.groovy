@@ -33,7 +33,12 @@ class JMSThread extends Thread {
 
             //use(JMSCoreCategory) {
             if (logger.isTraceEnabled()) logger.trace("run() - run runnable - this: " + this.toString()); // (inside JMSCategory)
-            this.runnable.run();
+            if (this.runnable) {
+                this.runnable.run();
+                while (!setToShutdown) {sleep(10)}
+                if (logger.isTraceEnabled()) logger.trace("run() - runnable is being shutdown gracefully - this: " + this.toString());
+            }
+            //TODO handle Callable case without loop
             //}
         } catch (Exception e) {
             logger.error("run() - with exception", e);
@@ -42,6 +47,11 @@ class JMSThread extends Thread {
             JMSThread.jms.set(null);
             if (logger.isTraceEnabled()) logger.trace("run() - end thread, cleanned up resource - this: " + this.toString());
         }
+    }
+
+    public void interrupt() {
+        if (logger.isTraceEnabled()) logger.trace("interrupt() - interrupting thread, set setToShutdown to true - this: " + this.toString());
+        this.setToShutdown = true;
     }
 
     /*  public static void main(args) {

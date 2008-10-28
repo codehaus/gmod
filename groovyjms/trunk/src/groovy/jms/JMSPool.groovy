@@ -28,6 +28,7 @@ class JMSPool extends AbstractJMS {
     def connectionFactory, config;
     def ThreadPoolExecutor threadPool;
     def ThreadGroup threadGroup = new ThreadGroup(super.toString());
+    def final WeakHashMap<JMSThread, Date> threads = [:] as WeakHashMap; //thread and create time
 
     JMSPool() {this(null, null)}
 
@@ -39,21 +40,21 @@ class JMSPool extends AbstractJMS {
         f = (f) ?: getDefaultConnectionFactory()
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
         if (logger.isTraceEnabled()) logger.trace("JMSPool() - constructed -  this: ${toString()}, f: $f, cfg: $cfg")
-        threadPool = new JMSThreadPoolExecutor(f, {Runnable r -> new JMSThread(threadGroup, r, f) } as ThreadFactory, cfg);
+        threadPool = new JMSThreadPoolExecutor(f, {Runnable r -> new JMSThread(threadGroup, r, f).with {threads.put(it, new Date()); it} } as ThreadFactory, cfg);
         connectionFactory = f; config = cfg;
         if (logger.isTraceEnabled()) logger.trace("constructed JMSPool. this: ${this}")
     }
 
 
     String toString() {
-        return "JMSPool:{ connectionFactory: $connectionFactory, config: $config, threadGroup.activeCount(): ${threadGroup?.activeCount()} }"
+        return "JMSPool:{ connectionFactory: $connectionFactory, config: $config, threadGroup.activeCount(): ${threadGroup?.activeCount()}, threadGroup.list(): ${threadGroup.list()}, threads: $threads }"
     }
 
     synchronized static ConnectionFactory getDefaultConnectionFactory(Map cfg = null) {
         return new ActiveMQPooledJMSProvider(cfg).getConnectionFactory()
     }
 
-    void shutdown() { threadPool.shutdown(); }
+    void shutdown() { threads.keySet().each {it.setToShutdown = true}; sleep(500); threadPool.shutdown(); }
 
     List<Runnable> shutdownNow() { return threadPool.shutdownNow(); }
 
