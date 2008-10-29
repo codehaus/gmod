@@ -90,7 +90,8 @@ class JMSPool extends AbstractJMS {
             if (spec.'delay') sleep(spec.'delay')
             JMSThread.jms.get().send(spec)
             JMSThread.jms.get().connect()
-        } as Runnable)
+            return true;
+        } as Callable)
     }
 
     def receive(Map spec, Closure with = null) {     // spec.'timeout'

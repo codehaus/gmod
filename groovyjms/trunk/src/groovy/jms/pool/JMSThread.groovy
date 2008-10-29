@@ -6,6 +6,7 @@ import javax.jms.Connection
 import javax.jms.ConnectionFactory
 import javax.jms.Session
 import org.apache.log4j.Logger
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class JMSThread extends Thread {
@@ -14,15 +15,17 @@ class JMSThread extends Thread {
     public static final ThreadLocal<JMS> jms = new ThreadLocal<JMS>();
     private Runnable runnable;
     private boolean setToShutdown = false;
+    private static AtomicInteger idGen = new AtomicInteger()
 
     public JMSThread(ThreadGroup g, Runnable r, ConnectionFactory f) {
-        super(g, r);
+        super(g, r, "JMSThread-" + idGen.addAndGet(1));
         this.runnable = r;
         this.connectionFactory = f;
     }
 
     public void run() {
         org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+        if (logger.isTraceEnabled()) logger.trace("run() - begin - this: " + this.toString()); // (inside JMSCategory)
         try {
             if (jms.get() == null) {
                 Connection connection = connectionFactory.createConnection().with {it.clientID = JMS.getDefaultClientID() + ":" + Thread.currentThread().id; it};
@@ -31,21 +34,18 @@ class JMSThread extends Thread {
                 if (logger.isTraceEnabled()) logger.trace("run() - created jms - this: " + this.toString());
             }
 
-            //use(JMSCoreCategory) {
-            if (logger.isTraceEnabled()) logger.trace("run() - run runnable - this: " + this.toString()); // (inside JMSCategory)
             if (this.runnable) {
+                //TODO review if it needs to be wrapped with use(JMSCategory){}
                 this.runnable.run();
                 while (!setToShutdown) {sleep(10)}
-                if (logger.isTraceEnabled()) logger.trace("run() - runnable is being shutdown gracefully - this: " + this.toString());
             }
-            //TODO handle Callable case without loop
-            //}
+            if (logger.isTraceEnabled()) logger.trace("run() - end - shutdown gracefully - this: " + this.toString());
         } catch (Exception e) {
             logger.error("run() - with exception", e);
         } finally {
             if (JMSThread.jms.get() != null) JMSThread.jms.get().close();
             JMSThread.jms.set(null);
-            if (logger.isTraceEnabled()) logger.trace("run() - end thread, cleanned up resource - this: " + this.toString());
+            if (logger.isTraceEnabled()) logger.trace("run() - end-finally - unset threadlocal resource - this: " + this.toString());
         }
     }
 

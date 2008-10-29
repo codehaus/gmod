@@ -139,20 +139,20 @@ class JMSCoreCategory {
         Connection connection = connect(factory);
         Session session = session(connection);
         Topic topic = session.createTopic(dest);
-        if (logger.isTraceEnabled()) logger.trace("topic() - return topic: $topic")
+        //if (logger.isTraceEnabled()) logger.trace("topic() - return topic: $topic")
         return topic;
     }
 
     static Topic topic(Connection connection, String dest) {
         Session session = session(connection);
         Topic topic = session.createTopic(dest);
-        if (logger.isTraceEnabled()) logger.trace("topic() - return topic: $topic")
+        //if (logger.isTraceEnabled()) logger.trace("topic() - return topic: $topic")
         return topic;
     }
 
     static Topic topic(Session session, String dest) {
         Topic topic = session.createTopic(dest);
-        if (logger.isTraceEnabled()) logger.trace("topic() - return topic: $topic")
+        //if (logger.isTraceEnabled()) logger.trace("topic() - return topic: $topic")
         return topic;
     }
 
@@ -160,20 +160,20 @@ class JMSCoreCategory {
         Connection connection = connect(factory);
         Session session = session(connection);
         Queue queue = session.createQueue(dest);
-        if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
+        //if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
         return queue;
     }
 
     static Queue queue(Connection connection, String dest) {
         Session session = session(connection);
         Queue queue = session.createQueue(dest);
-        if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
+        //if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
         return queue;
     }
 
     static Queue queue(Session session, String dest) {
         Queue queue = session.createQueue(dest);
-        if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
+        //if (logger.isTraceEnabled()) logger.trace("queue() - return queue: $queue")
         return queue;
     }
 
