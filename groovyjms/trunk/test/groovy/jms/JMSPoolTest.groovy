@@ -8,6 +8,7 @@ import javax.jms.Queue
 
 import static groovy.jms.JMS.jms
 import java.util.concurrent.TimeUnit
+import org.apache.log4j.MDC
 
 class JMSPoolTest extends GroovyTestCase {
     static Logger logger = Logger.getLogger(JMSPoolTest.class.name)
@@ -41,7 +42,7 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testMultipleSenderSingleReceiverOnQueue() { // just to prove message could be sent
-        def pool = new JMSPool(maximumPoolSize:10), result = [], counter = 0, count = 20, queueName = "testMultipleSenderSingleReceiverOnQueue"
+        def pool = new JMSPool(maximumPoolSize: 10), result = [], counter = 0, count = 20, queueName = "testMultipleSenderSingleReceiverOnQueue"
         sleep(100)
         count.times { pool.send(toQueue: queueName, message: 'message #' + it) }
         sleep(500)
@@ -68,6 +69,21 @@ class JMSPoolTest extends GroovyTestCase {
         result.eachWithIndex {it, i -> println "$i\t$it"}
         assertEquals(1, result.size())
     }
+
+    void testQueueOnMessageWithTwoPools() {
+        def results = [], incomingPool = new JMSPool(), outgoingPool = new JMSPool(), queue = "testQueueOnMessageWithTwoPools"
+        new Thread() {
+            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+            incomingPool.onMessage([queue: queue, threads: 1]) {m -> logger.debug("testQueueOnMessage() - received message m: ${m}"); result << m}
+        }.start()
+        new Thread() {
+            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+            outgoingPool.send(toQueue: queue, message: 'this is a test')
+        }.start()
+        sleep(500)
+        assertEquals "fail to receive message", 1, results.size()
+    }
+
 
     void testQueueSendMessage() {
         def pool = new JMSPool();

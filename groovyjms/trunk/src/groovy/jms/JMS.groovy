@@ -196,6 +196,7 @@ class JMS extends AbstractJMS {
                     }
                     statsQueueSubscribed = queueDest.size()
                 }
+                JMS.getThreadLocal().connection.start()
                 if (logger.isTraceEnabled()) logger.trace("onMessage() - subscribed to ${statsTopicSubscribed} topic(s) and ${statsQueueSubscribed} queue(s), cfg: $cfg, registered consumers: ${messageConsumers?.size()}")
             }
         } catch (e) {
