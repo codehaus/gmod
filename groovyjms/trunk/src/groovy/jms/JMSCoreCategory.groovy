@@ -245,7 +245,7 @@ class JMSCoreCategory {
 
             if (cfg && cfg.containsKey('properties')) {
                 def properties = cfg.remove('properties')
-                if (!(properties instanceof Map)) throw new IllegalArgumentException("properties must be a Map")
+                if (!(properties instanceof Map)) throw new IllegalArgumentException("properties must be a Map, properties.class: ${properties?.getClass()}, properties: $properties")
                 properties.each {k, v -> jmsMessage.setProperty(k, v) }
             }
             cfg?.each {k, v -> jmsMessage[k] = v}
