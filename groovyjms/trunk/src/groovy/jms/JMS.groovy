@@ -110,7 +110,7 @@ class JMS extends AbstractJMS {
 
 
     synchronized void start() {
-        if (logger.isTraceEnabled()) logger.trace("start()")
+        //if (logger.isTraceEnabled()) logger.trace("start()")
         connection.start()
         JMS.setThreadLocal(this)
         started = true;

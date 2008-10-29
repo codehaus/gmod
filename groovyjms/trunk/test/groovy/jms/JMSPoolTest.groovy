@@ -71,16 +71,18 @@ class JMSPoolTest extends GroovyTestCase {
     }
 
     void testQueueOnMessageWithTwoPools() {
-        def results = [], incomingPool = new JMSPool(), outgoingPool = new JMSPool(), queue = "testQueueOnMessageWithTwoPools"
+        def results = [], queue = "testQueueOnMessageWithTwoPools"
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
-            incomingPool.onMessage([queue: queue, threads: 1]) {m -> logger.debug("testQueueOnMessage() - received message m: ${m}"); result << m}
+            def incomingPool = new JMSPool()
+            incomingPool.onMessage([queue: queue, threads: 1]) {m -> logger.debug("testQueueOnMessage() - received message m: ${m}"); results << m}
         }.start()
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+            def outgoingPool = new JMSPool()
             outgoingPool.send(toQueue: queue, message: 'this is a test')
         }.start()
-        sleep(500)
+        sleep(2000)
         assertEquals "fail to receive message", 1, results.size()
     }
 
