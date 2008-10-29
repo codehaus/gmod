@@ -47,7 +47,7 @@ class JMSPool extends AbstractJMS {
 
 
     String toString() {
-        return "JMSPool:{ connectionFactory: $connectionFactory, config: $config, threadGroup.activeCount(): ${threadGroup?.activeCount()}, threadGroup.list(): ${threadGroup.list()}, threads: $threads }"
+        return "JMSPool:{ connectionFactory: $connectionFactory, config: $config, threadGroup.activeCount(): ${threadGroup?.activeCount()}, threads: $threads }"//, threadGroup.list(): ${threadGroup.list()}
     }
 
     synchronized static ConnectionFactory getDefaultConnectionFactory(Map cfg = null) {
@@ -57,6 +57,20 @@ class JMSPool extends AbstractJMS {
     void shutdown() { threads.keySet().each {it.setToShutdown = true}; sleep(500); threadPool.shutdown(); }
 
     List<Runnable> shutdownNow() { return threadPool.shutdownNow(); }
+
+    def run(Closure c) {
+        threadPool.submit({
+            use(JMSCategory) {
+                def jms = JMSThread.jms.get()
+                switch (c.parameterTypes.length) {
+                    case 0: result = c(); break;
+                    case 1: result = c(jms); break;
+                    case 2: result = c(jms, jms.connection); break;
+                    default: result = c(jms, jms.connection, jms.session); break;
+                }
+            }
+        } as Runnable);
+    }
 
     def onMessage(Map cfg = null, final target) {
         if (threadPool.isShutdown()) throw new IllegalStateException("JMSPool has been shutdown already")
