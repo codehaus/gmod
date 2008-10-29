@@ -83,7 +83,7 @@ class JMSPoolTest extends GroovyTestCase {
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
             def outgoingPool = new JMSPool(), reply=outgoingPool.createQueue("/reply")
-            outgoingPool.send(toQueue: dest, message:[1:'one'],replyTo:reply)
+            outgoingPool.send(toQueue: dest, message:[1:'one'],replyTo:reply,properties:['hello':'world'])
         }.start()
         sleep(1500)
         assertEquals "fail to receive message", 1, results.size()
