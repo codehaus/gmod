@@ -199,44 +199,60 @@ class JMSCoreCategory {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
-        MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
-        producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-        Message jmsMessage;
-        if (message instanceof Message) {
-            jmsMessage = message;
-        } else if (message instanceof String) {
-            jmsMessage = JMS.getThreadLocal().session.createTextMessage((String) message);
-        } else if (message instanceof Map) {
-            jmsMessage = JMS.getThreadLocal().session.createMapMessage();
-            message.each {k, v -> //TODO find a better way to implement this
-                if (v instanceof Boolean) jmsMessage.setBoolean(k, v);
-                else if (v instanceof Byte) jmsMessage.setByte(k, v);
-                else if (v instanceof Character) jmsMessage.setChar(k, v);
-                else if (v instanceof Short) jmsMessage.setShort(k, v);
-                else if (v instanceof Integer) jmsMessage.setInt(k, v);
-                else if (v instanceof Float) jmsMessage.setFloat(k, v);
-                else if (v instanceof Long) jmsMessage.setLong(k, v);
-                else if (v instanceof Double) jmsMessage.setDouble(k, v);
-                else if (v instanceof String) jmsMessage.setString(k, v);
-                else jmsMessage.setObject(k, v);
+        try {
+            MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            Message jmsMessage;
+            if (message instanceof Message) {
+                jmsMessage = message;
+            } else if (message instanceof String) {
+                jmsMessage = JMS.getThreadLocal().session.createTextMessage((String) message);
+            } else if (message instanceof Map) {
+                jmsMessage = JMS.getThreadLocal().session.createMapMessage();
+                message.each {k, v ->
+                    k = (k instanceof String) ? k : String.valueOf(k)
+                    if (v instanceof Boolean) jmsMessage.setBoolean(k, v);
+                    else if (v instanceof Byte) jmsMessage.setByte(k, v);
+                    else if (v instanceof Character) jmsMessage.setChar(k, v);
+                    else if (v instanceof Short) jmsMessage.setShort(k, v);
+                    else if (v instanceof Integer) jmsMessage.setInt(k, v);
+                    else if (v instanceof Float) jmsMessage.setFloat(k, v);
+                    else if (v instanceof Long) jmsMessage.setLong(k, v);
+                    else if (v instanceof Double) jmsMessage.setDouble(k, v);
+                    else if (v instanceof String) jmsMessage.setString(k, v);
+                    else jmsMessage.setObject(k, v);
+                }
+            } else if (message instanceof InputStream) {
+                throw new UnsupportedOperationException("stream message is not implemented")
+            } else {
+                if (!(message instanceof Serializable)) throw new IllegalArgumentException("object for object message must be serializable, object.class: ${message.getClass()}")
+                jmsMessage = JMS.getThreadLocal().session.createObjectMessage()
+                jmsMessage.setObject(message)
             }
-        } else if (message instanceof InputStream) {
-            throw new UnsupportedOperationException("stream message is not implemented")
-        } else {
-            if (!(message instanceof Serializable)) throw new IllegalArgumentException("object for object message must be serializable, object.class: ${message.getClass()}")
-            jmsMessage = JMS.getThreadLocal().session.createObjectMessage()
-            jmsMessage.setObject(message)
-        }
-        if (!JMSUtils.isEnhanced(jmsMessage.getClass())) JMSUtils.enhance(jmsMessage.getClass()) // this may need to be move up in the message creation logic 
+            if (!JMSUtils.isEnhanced(jmsMessage.getClass())) JMSUtils.enhance(jmsMessage.getClass()) // this may need to be move up in the message creation logic
 
-        if (cfg && cfg.containsKey('properties')) {
-            def properties = cfg.remove('properties')
-            if (!(properties instanceof Map)) throw new IllegalArgumentException("properties must be a Map")
-            properties.each {k, v -> jmsMessage.setProperty(k, v) }
-        }
-        cfg?.each {k, v -> jmsMessage[k] = v}
-        producer.send(jmsMessage);
-        JMS.getThreadLocal().connection.start()
+            //TODO review if there are any missing JMSproperty
+            cfg.remove('replyTo')?.with {jmsMessage.setJMSReplyTo(it)}
+            cfg.remove('timestamp')?.with {jmsMessage.setJMSTimestamp(it)}
+            cfg.remove('priority')?.with {jmsMessage.setJMSPriority(it)}
+            cfg.remove('messageID')?.with {jmsMessage.setJMSMessageID(it)}
+            cfg.remove('deliveryMode')?.with {jmsMessage.setJMSDeliveryMode(it)}
+            cfg.remove('redelivered')?.with {jmsMessage.setJMSRedelivered(it)}
+            cfg.remove('correlationID')?.with {jmsMessage.setJMSCorrelationID(it)}
+            cfg.remove('type')?.with {jmsMessage.setJMSType(it)}
+            cfg.remove('expiration')?.with {jmsMessage.setJMSExpiration(it)}
+            cfg.remove('destination')?.with {jmsMessage.setJMSDestination(it)}
+
+            if (cfg && cfg.containsKey('properties')) {
+                def properties = cfg.remove('properties')
+                if (!(properties instanceof Map)) throw new IllegalArgumentException("properties must be a Map")
+                properties.each {k, v -> jmsMessage.setProperty(k, v) }
+            }
+            cfg?.each {k, v -> jmsMessage[k] = v}
+            producer.send(jmsMessage);
+            JMS.getThreadLocal().connection.start()
+
+        } catch (e) { logger.error("send() - error - dest: $dest, message: $message, cfg: $cfg", e)}
         return dest;
     }
 

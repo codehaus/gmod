@@ -29,7 +29,7 @@ public class JMSUtils {
                 else if (value instanceof Long) delegate.setLongProperty(name, value);
                 else if (value instanceof Double) delegate.setDoubleProperty(name, value);
                 else if (value instanceof String) delegate.setStringProperty(name, value);
-                else delegate.setObjecctProperty(name, value)
+                else delegate.setObjectProperty(name, value)
             }
 
             // for MapMessage

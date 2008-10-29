@@ -9,6 +9,7 @@ import javax.jms.Queue
 import static groovy.jms.JMS.jms
 import java.util.concurrent.TimeUnit
 import org.apache.log4j.MDC
+import javax.jms.Message
 
 class JMSPoolTest extends GroovyTestCase {
     static Logger logger = Logger.getLogger(JMSPoolTest.class.name)
@@ -76,14 +77,15 @@ class JMSPoolTest extends GroovyTestCase {
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
             def incomingPool = new JMSPool()
-            incomingPool.onMessage([queue: dest, threads: 1]) {m -> logger.debug("${dest}() - received message m: ${m}"); results << m}
+            incomingPool.onMessage(fromQueue: dest, threads: 1) {Message m -> logger.debug("${dest}() - received message m: ${m}"); results << m}
         }.start()
+        sleep(500)
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
-            def outgoingPool = new JMSPool()
-            outgoingPool.send(toQueue: dest, message: 'this is a test')
+            def outgoingPool = new JMSPool(), reply=outgoingPool.createQueue("/reply")
+            outgoingPool.send(toQueue: dest, message:[1:'one'],replyTo:reply)
         }.start()
-        sleep(2000)
+        sleep(1500)
         assertEquals "fail to receive message", 1, results.size()
     }
 
