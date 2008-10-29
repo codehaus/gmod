@@ -199,6 +199,7 @@ class JMSCoreCategory {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
+
         try {
             MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
@@ -220,7 +221,7 @@ class JMSCoreCategory {
                     else if (v instanceof Long) jmsMessage.setLong(k, v);
                     else if (v instanceof Double) jmsMessage.setDouble(k, v);
                     else if (v instanceof String) jmsMessage.setString(k, v);
-                    else jmsMessage.setObject(k, v);
+                    else { jmsMessage.setObject(k, (v instanceof Serializable) ? v : v.toString()); }
                 }
             } else if (message instanceof InputStream) {
                 throw new UnsupportedOperationException("stream message is not implemented")
@@ -249,6 +250,7 @@ class JMSCoreCategory {
                 properties.each {k, v -> jmsMessage.setProperty(k, v) }
             }
             cfg?.each {k, v -> jmsMessage[k] = v}
+            if (logger.isTraceEnabled()) logger.trace("sendMessage() - jmsMessage: $jmsMessage")
             producer.send(jmsMessage);
             JMS.getThreadLocal().connection.start()
 
