@@ -13,6 +13,8 @@ import javax.jms.MessageConsumer
 import javax.jms.TopicSubscriber
 import javax.jms.QueueReceiver
 import javax.jms.MessageProducer
+import javax.jms.Destination
+import javax.jms.Message
 
 /**
  * Connection and session is either provided to constructor, or be created in the construction. In either case, connection
@@ -301,39 +303,74 @@ class JMS extends AbstractJMS {
         return result;
     }
 
+
+    static final SEND_DEST_PARAMS = ['toQueue', 'queue', 'toTopic', 'topic', 'toDest', 'dest', 'reply']
+
     /**
      * toQueue/toTopic - at least one must be provided. they may be a String or Queue/Topic or a Collection of String/Queue/Topic
      * message/data - synonym of each other, at least one must be provided. a message/data may be a JMS Message, a
      * String (Text Message), a Map (Map Message), or any serializable Java object. Stream is not supported yet.
      */
-    def send(Map params) {
-        if (!started) start();
-        if (!(params.containsKey('toQueue') || params.containsKey('toTopic'))) throw new IllegalArgumentException("either toQueue or toTopic must present")
-        if (!params.containsKey('message') && !params.containsKey('data')) throw new IllegalArgumentException("send message must have a \"message\"")
-        //dest: toQueue, toTopic ; handle String or List<String>
-        //replyTo: queueName or [destName: type];
-        def message = params.remove('message') ?: params.remove('data')
+    def send(Map spec) {
+        try {
+            if (!started) start();
+            if (!spec) throw new IllegalArgumentException("spec shall not be null")
+            if (!spec.keySet().any {it in JMS.SEND_DEST_PARAMS}) throw new IllegalArgumentException("send() - required dest params is not found. required: ${JMS.SEND_DEST_PARAMS}")
+            if (!spec.containsKey('message') && !spec.containsKey('data')) throw new IllegalArgumentException("send message must have a \"message\"")
+            if (spec.containsKey('reply') && !(spec.'reply' instanceof Message)) throw new IllegalArgumentException("reply must take a JMS Message as value, reply.class: ${reply.getClass()}, reply: $reply")
+            if (spec.containsKey('reply') && !(spec.'reply'.getJMSReplyTo())) throw new IllegalArgumentException("replying message must have a JMSReplyTo destination. reply: $reply")
 
-        use(JMSCoreCategory) {
-            if (!session) throw new IllegalStateException("session was not available")
-            def toQueue = params.remove('toQueue'), toTopic = params.remove('toTopic')
-            if (toQueue) {
-                if (toQueue instanceof Collection) {
-                    toQueue.each {q -> session.queue(q).send(message, params)}
-                } else {
-                    session.queue(toQueue).send(message, params)
-                }
+            //dest: toQueue, toTopic ; handle String or List<String>
+            //replyTo: queueName or [destName: type];
+            def message = spec.remove('message') ?: spec.remove('data')
+
+            def toQueue, toTopic, toDest
+            if (spec.containsKey('reply')) {
+                Message replyMsg = spec.remove('reply')
+                if (!spec.containsKey('correlationID') && replyMsg.JMSCorrelationID) spec.'correlationID' = replyMsg.JMSCorrelationID
+                toDest = replyMsg.getJMSReplyTo()
+            } else {
+                toQueue = spec.remove('toQueue') ?: spec.remove('queue')
+                toTopic = spec.remove('toTopic') ?: spec.remove('topic')
+                toDest = spec.remove('toDest') ?: spec.remove('dest')
             }
 
-            if (toTopic) {
-                if (toTopic instanceof Collection) {
-                    toTopic.each {t -> session.topic(t).send(message, params)}
-                } else {
-                    session.topic(toTopic).send(message, params)
+
+            if (toDest && toDest instanceof Collection && !toDest.every {it instanceof Destination}) throw new IllegalArgumentException("toDest collection argument is not valid")
+            else if (toDest && !(toDest instanceof Destination)) throw new IllegalArgumentException("non-collection toDest must be a JMS destination, toDest.class: ${toDest.getClass()}, toDest: $toDest")
+
+
+            use(JMSCoreCategory) {
+                if (!session) throw new IllegalStateException("session was not available")
+
+                if (logger.isTraceEnabled()) logger.trace("send() - spec: $spec, toQueue: $toQueue, toTopic: $toTopic, toDest: $toDest")
+
+                if (toQueue) {
+                    if (toQueue instanceof Collection) {
+                        toQueue.each {q -> session.queue(q).send(message, spec)}
+                    } else {
+                        session.queue(toQueue).send(message, spec)
+                    }
+                }
+
+                if (toTopic) {
+                    if (toTopic instanceof Collection) {
+                        toTopic.each {t -> session.topic(t).send(message, spec)}
+                    } else {
+                        session.topic(toTopic).send(message, spec)
+                    }
+                }
+
+                if (toDest) {
+                    if (toDest instanceof Collection) {
+                        toDest.each {Destination d -> d.send(message, spec)}
+                    } else {
+                        toDest.send(message, spec)
+                    }
                 }
             }
-        }
-        if (autoClose && !closed) close();
+            if (autoClose && !closed) close();
+        } catch (e) {logger.error("send() - error", e)}
     }
 
 

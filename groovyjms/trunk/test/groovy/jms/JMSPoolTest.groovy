@@ -25,14 +25,12 @@ class JMSPoolTest extends GroovyTestCase {
         def pool = new JMSPool()
         assertNotNull pool?.connectionFactory
         assertTrue(pool?.connectionFactory instanceof PooledConnectionFactory)
-        println pool
         pool.shutdown()
     }
 
     void testOnMessageThread() {
         def pool = new JMSPool()
         pool.onMessage(topic: 'testTopic', threads: 1) {m -> println m}
-        sleep(500)
         pool.shutdown()
     }
 
@@ -77,36 +75,69 @@ class JMSPoolTest extends GroovyTestCase {
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
             def incomingPool = new JMSPool()
-            incomingPool.onMessage(fromQueue: dest, threads: 1) {Message m -> logger.debug("${dest}() - received message m: ${m}"); results << m}
+            def message;
+            incomingPool.onMessage(fromQueue: dest, threads: 1) {Message m ->
+                logger.debug("${dest}() - received message m: ${m}");
+                results << m
+            }
         }.start()
         sleep(500)
         new Thread() {
             org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
-            def outgoingPool = new JMSPool(), reply=outgoingPool.createQueue("/reply")
-            outgoingPool.send(toQueue: dest, message:[1:'one'],replyTo:reply,properties:['hello':'world'])
+            def outgoingPool = new JMSPool(), reply = outgoingPool.createQueue("/reply")
+            outgoingPool.send(toQueue: dest, message: [1: 'one'], replyTo: reply, properties: ['hello': 'world'])
         }.start()
         sleep(1500)
         assertEquals "fail to receive message", 1, results.size()
     }
 
-    void testQueueSendReceiveWithTwoPools() {
-        def results = [], dest = "testQueueSendReceiveWithTwoPools"
+    void testQueueSendReceiveReplyWithTwoPools() {
+        def dest = "testQueueSendReceiveWithTwoPools", replyDest = dest + "-reply"
         logger.info("testQueueSendReceiveWithTwoPools() - begin")
+
+        def sendJob;
         new Thread() {
-            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
             def outgoingPool = new JMSPool()
-            outgoingPool.send(toQueue: dest, message: 'this is a test')
+            sendJob = outgoingPool.send(toQueue: dest, message: 'this is a test', replyTo: outgoingPool.createQueue(replyDest))
         }.start()
         sleep(2000)
+        assertNotNull(sendJob); assertTrue(sendJob.get()) //wait for the job to complete
+        logger.info("testQueueSendReceiveWithTwoPools() - sent msg")
+        sleep(500)
+
+        org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
+        def incomingPool = new JMSPool()
+        def msgs = incomingPool.receive([fromQueue: dest, within: 5000, threads: 1])
+        assertEquals "fail to receive message", 1, msgs.size()
+        def msg = msgs?.get(0); assertNotNull msg
+        Future sendReply
         new Thread() {
-            org.apache.log4j.MDC.put("tid", Thread.currentThread().getId());
-            def incomingPool = new JMSPool()
-            incomingPool.receive([fromQueue: dest, within: 500, threads: 1]) {m -> logger.debug("${dest}() - received message m: ${m}"); results += m}
+            try {
+                def outgoingPool = new JMSPool()
+                sendReply = outgoingPool.send(reply: msg, message: "received")
+                assertNotNull(sendReply)
+            } catch (e) {
+                logger.error(e)
+            }
         }.start()
+        sleep(2000)
+        assertNotNull(sendReply)
+        def jobResult = sendReply.get(); assertNotNull(jobResult); assertTrue(jobResult)
         sleep(1000)
-        assertEquals "fail to receive message", 1, results.size()
+        def replyMsgs = incomingPool.receive(fromQueue: replyDest, within: 1000, threads: 1)
+        assertEquals("fail to receive reply msg", 1, replyMsgs.size())
+
+        def replyMsg = replyMsgs.get(0)
+        assertNotNull(replyMsg); assertEquals("received", replyMsg.'text')
         logger.info("testQueueSendReceiveWithTwoPools() - end")
     }
 
+
+    void testMultipleConcurrentOutgoingThreads() {
+        def outgoingPool = new JMSPool(maximumPoolSize: 10)
+        outgoingPool.send(queue: ['q1', 'q2', 'q3', 'q4', 'q5'], message: 'hi', threads: 5)
+
+
+    }
 
 }

@@ -6,6 +6,7 @@ import java.util.concurrent.Future
 import javax.jms.Queue
 import org.apache.log4j.Logger
 import javax.jms.Session
+import javax.jms.Topic
 
 /**
  * It provides features shared by JMS and JMSPool, as well as define mandatory methods
@@ -38,11 +39,23 @@ abstract class AbstractJMS {
 
     Queue createQueue(String queueName) {
         if (this instanceof JMS) {
-            return session.createQueue("queue");
+            return session.createQueue(queueName);
         } else {
             Future task = threadPool.submit({
                 if (logger.isTraceEnabled()) logger.trace("createQueue() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
                 return JMSThread.jms.get().session.createQueue(queueName)
+            } as Callable);
+            return task.get();
+        }
+    }
+
+    Topic createTopic(String destName) {
+        if (this instanceof JMS) {
+            return session.createTopic(destName);
+        } else {
+            Future task = threadPool.submit({
+                if (logger.isTraceEnabled()) logger.trace("createTopic() - executing submitted job - jms? ${JMSThread.jms.get() != null}")
+                return JMSThread.jms.get().session.createTopic(destName)
             } as Callable);
             return task.get();
         }

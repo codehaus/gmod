@@ -199,7 +199,6 @@ class JMSCoreCategory {
         if (!JMS.getThreadLocal()?.connection) throw new IllegalStateException("No connection. Call connect() or session() first.")
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         if (logger.isTraceEnabled()) logger.trace("send() - dest: $dest, message: $message, cfg: $cfg")
-
         try {
             MessageProducer producer = JMS.getThreadLocal().session.createProducer(dest);
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
@@ -233,6 +232,7 @@ class JMSCoreCategory {
             if (!JMSUtils.isEnhanced(jmsMessage.getClass())) JMSUtils.enhance(jmsMessage.getClass()) // this may need to be move up in the message creation logic
 
             //TODO review if there are any missing JMSproperty
+            if (cfg.containsKey('replyTo') && !(cfg.'replyTo' instanceof Destination)) throw new IllegalArgumentException("replyTo must be a JMS Destination")
             cfg.remove('replyTo')?.with {jmsMessage.setJMSReplyTo(it)}
             cfg.remove('timestamp')?.with {jmsMessage.setJMSTimestamp(it)}
             cfg.remove('priority')?.with {jmsMessage.setJMSPriority(it)}
