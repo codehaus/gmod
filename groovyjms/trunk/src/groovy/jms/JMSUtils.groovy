@@ -24,6 +24,7 @@ public class JMSUtils {
             // get/setProperty() - property
             clazz.metaClass.getProperty = {String name ->
                 switch (name) {
+                    case 'propertyNames': return delegate.getPropertyNames();
                     case 'text': return delegate.getText();
                     case 'map': return delegate.getMap();
                     default:
