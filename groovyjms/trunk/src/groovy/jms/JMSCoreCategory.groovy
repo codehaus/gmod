@@ -232,17 +232,17 @@ class JMSCoreCategory {
             if (!JMSUtils.isEnhanced(jmsMessage.getClass())) JMSUtils.enhance(jmsMessage.getClass()) // this may need to be move up in the message creation logic
 
             //TODO review if there are any missing JMSproperty
-            if (cfg.containsKey('replyTo') && !(cfg.'replyTo' instanceof Destination)) throw new IllegalArgumentException("replyTo must be a JMS Destination")
-            cfg.remove('replyTo')?.with {jmsMessage.setJMSReplyTo(it)}
-            cfg.remove('timestamp')?.with {jmsMessage.setJMSTimestamp(it)}
-            cfg.remove('priority')?.with {jmsMessage.setJMSPriority(it)}
-            cfg.remove('messageID')?.with {jmsMessage.setJMSMessageID(it)}
-            cfg.remove('deliveryMode')?.with {jmsMessage.setJMSDeliveryMode(it)}
-            cfg.remove('redelivered')?.with {jmsMessage.setJMSRedelivered(it)}
-            cfg.remove('correlationID')?.with {jmsMessage.setJMSCorrelationID(it)}
-            cfg.remove('type')?.with {jmsMessage.setJMSType(it)}
-            cfg.remove('expiration')?.with {jmsMessage.setJMSExpiration(it)}
-            cfg.remove('destination')?.with {jmsMessage.setJMSDestination(it)}
+            if (cfg && cfg.containsKey('replyTo') && !(cfg.'replyTo' instanceof Destination)) throw new IllegalArgumentException("replyTo must be a JMS Destination")
+            cfg?.remove('replyTo')?.with {jmsMessage.setJMSReplyTo(it)}
+            cfg?.remove('timestamp')?.with {jmsMessage.setJMSTimestamp(it)}
+            cfg?.remove('priority')?.with {jmsMessage.setJMSPriority(it)}
+            cfg?.remove('messageID')?.with {jmsMessage.setJMSMessageID(it)}
+            cfg?.remove('deliveryMode')?.with {jmsMessage.setJMSDeliveryMode(it)}
+            cfg?.remove('redelivered')?.with {jmsMessage.setJMSRedelivered(it)}
+            cfg?.remove('correlationID')?.with {jmsMessage.setJMSCorrelationID(it)}
+            cfg?.remove('type')?.with {jmsMessage.setJMSType(it)}
+            cfg?.remove('expiration')?.with {jmsMessage.setJMSExpiration(it)}
+            cfg?.remove('destination')?.with {jmsMessage.setJMSDestination(it)}
 
             if (cfg && cfg.containsKey('properties')) {
                 def properties = cfg.remove('properties')
