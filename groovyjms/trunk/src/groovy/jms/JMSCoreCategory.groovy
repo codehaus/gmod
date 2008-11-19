@@ -304,7 +304,7 @@ class JMSCoreCategory {
         if (!JMS.getThreadLocal()?.session) JMS.getThreadLocal().session = establishSession(JMS.getThreadLocal().connection)
         MessageConsumer consumer = JMS.getThreadLocal().consumer ?: JMS.getThreadLocal().session.createConsumer(dest);
         Message message = (waitTime) ? consumer.receive(waitTime) : consumer.receiveNoWait();
-        if (!JMSUtils.isEnhanced(message.class)) JMSUtils.enhance(message.class)
+        if (message && !JMSUtils.isEnhanced(message.class)) JMSUtils.enhance(message.class)
         consumer.close();
         if (logger.isTraceEnabled() && message) logger.trace("receive() - from $dest - return $message");
         return message;
