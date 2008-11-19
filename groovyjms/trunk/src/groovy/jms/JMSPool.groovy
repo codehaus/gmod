@@ -89,7 +89,8 @@ class JMSPool extends AbstractJMS {
         if (!spec.containsKey('message') && !spec.containsKey('data')) throw new IllegalArgumentException("send message must have a \"message\"")
         if (spec.containsKey('reply') && !(spec.'reply' instanceof Message)) throw new IllegalArgumentException("reply must take a JMS Message as value, reply.class: ${spec.'reply'.getClass()}, reply: ${spec.'reply'}")
         if (spec.containsKey('reply') && !(spec.'reply'.getJMSReplyTo())) throw new IllegalArgumentException("replying message must have a JMSReplyTo destination. reply: ${spec.'reply'}")
-
+        if (spec.containsKey('properties') && !(spec.'properties' instanceof Map)) throw new IllegalArgumentException("'properties' must be a Map. properties.class: ${spec.'properties'.getClass()}, properties: ${spec.'properties'}")
+        
         boolean sync = (spec.'sync') ?: false;
 
         if (spec.containsKey('threads') && spec.'threads' > 1) { //multiple thread mode

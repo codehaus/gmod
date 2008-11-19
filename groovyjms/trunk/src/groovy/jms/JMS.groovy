@@ -317,8 +317,9 @@ class JMS extends AbstractJMS {
             if (!spec) throw new IllegalArgumentException("spec shall not be null")
             if (!spec.keySet().any {it in JMS.SEND_DEST_PARAMS}) throw new IllegalArgumentException("send() - required dest params is not found. required: ${JMS.SEND_DEST_PARAMS}")
             if (!spec.containsKey('message') && !spec.containsKey('data')) throw new IllegalArgumentException("send message must have a \"message\"")
-            if (spec.containsKey('reply') && !(spec.'reply' instanceof Message)) throw new IllegalArgumentException("reply must take a JMS Message as value, reply.class: ${reply.getClass()}, reply: $reply")
+            if (spec.containsKey('reply') && !(spec.'reply' instanceof Message)) throw new IllegalArgumentException("reply must take a JMS Message as value, reply.class: ${spec.'reply'.getClass()}, reply: ${spec.'reply'}")
             if (spec.containsKey('reply') && !(spec.'reply'.getJMSReplyTo())) throw new IllegalArgumentException("replying message must have a JMSReplyTo destination. reply: $reply")
+            if (spec.containsKey('properties') && !(spec.'properties' instanceof Map)) throw new IllegalArgumentException("'properties' must be a Map. properties.class: ${spec.'properties'.getClass()}, properties: ${spec.'properties'}")
 
             //dest: toQueue, toTopic ; handle String or List<String>
             //replyTo: queueName or [destName: type];
@@ -329,6 +330,10 @@ class JMS extends AbstractJMS {
                 Message replyMsg = spec.remove('reply')
                 if (!spec.containsKey('correlationID') && replyMsg.JMSCorrelationID) spec.'correlationID' = replyMsg.JMSCorrelationID
                 toDest = replyMsg.getJMSReplyTo()
+                if (!spec.containsKey('copyProperties') || !spec.'copyProperties') {
+                    spec.'properties' = (!spec.containsKey('properties')) ? [:] : spec.'properties'
+                    replyMsg.propertyNames.each { if (!spec.'properties'.containsKey(it)) spec.'properties'."$it" = replyMsg."$it"}
+                }
             } else {
                 toQueue = spec.remove('toQueue') ?: spec.remove('queue')
                 toTopic = spec.remove('toTopic') ?: spec.remove('topic')
