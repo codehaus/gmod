@@ -78,10 +78,11 @@ class JMSCategoryTest extends GroovyTestCase {
         new Thread() {
             use(JMSCategory) {Session session = jms.session(); session.queue("testQueueInTheDiffConn").send(messageToSend); JMS.close()}
         }.start()
+        sleep(1000)
         new Thread() {
             use(JMSCategory) {messages = jms.queue("testQueueInTheDiffConn").receiveAll(1000); JMS.close()}
         }.start()
-        sleep(500)
+
         assertEquals("message size incorrect", 1, messages.size())
         assertEquals("callback message doesn't match", messageToSend, messages[0].text)
     }

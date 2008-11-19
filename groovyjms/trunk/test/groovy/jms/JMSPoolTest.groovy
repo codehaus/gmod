@@ -98,7 +98,7 @@ class JMSPoolTest extends GroovyTestCase {
         def sendJob;
         new Thread() {
             def outgoingPool = new JMSPool()
-            sendJob = outgoingPool.send(toQueue: dest, message: 'this is a test', replyTo: outgoingPool.createQueue(replyDest))
+            sendJob = outgoingPool.send(toQueue: dest, message: 'this is a test', replyTo: outgoingPool.createQueue(replyDest), properties:[note:'note'])
         }.start()
         sleep(2000)
         assertNotNull(sendJob); assertTrue(sendJob.get()) //wait for the job to complete
@@ -128,7 +128,8 @@ class JMSPoolTest extends GroovyTestCase {
         assertEquals("fail to receive reply msg", 1, replyMsgs.size())
 
         def replyMsg = replyMsgs.get(0)
-        assertNotNull(replyMsg); assertEquals("received", replyMsg.'text')
+        assertNotNull(replyMsg); assertEquals("received", replyMsg.'text') ;
+        assertEquals("fail to copy properties", 'note', replyMsg.'note')
         logger.info("testQueueSendReceiveWithTwoPools() - end")
     }
 
