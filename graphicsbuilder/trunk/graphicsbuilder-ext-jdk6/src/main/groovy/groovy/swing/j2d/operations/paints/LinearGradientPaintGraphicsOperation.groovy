@@ -20,6 +20,7 @@ import java.awt.Paint
 import java.awt.LinearGradientPaint
 import java.awt.geom.Point2D
 import java.awt.MultipleGradientPaint.CycleMethod
+import java.awt.MultipleGradientPaint.ColorSpaceType
 
 import groovy.swing.j2d.GraphicsContext
 import groovy.swing.j2d.operations.GradientStop

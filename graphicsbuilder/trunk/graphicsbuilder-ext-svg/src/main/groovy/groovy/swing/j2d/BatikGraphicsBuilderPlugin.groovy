@@ -42,5 +42,16 @@ class BatikGraphicsBuilderPlugin {
       builder.registerFactory( "xvline", new ExtPathOperationFactory( VLineExtPathOperation) )
       builder.registerFactory( "xshapeTo", new ExtPathOperationFactory( ShapeExtPathOperation) )
       builder.registerFactory( "xclose", new ExtPathOperationFactory( CloseExtPathOperation) )
+
+        ['xpath'].each { nodeName ->
+           builder.addShortcut( nodeName, 'borderColor', 'bc' )
+           builder.addShortcut( nodeName, 'borderWidth', 'bw' )
+           builder.addShortcut( nodeName, 'fill', 'f' )
+           builder.addShortcut( nodeName, 'opacity', 'o' )
+           builder.addShortcut( nodeName, 'composite', 'c' )
+           builder.addShortcut( nodeName, 'asShape', 's' )
+           builder.addShortcut( nodeName, 'asImage', 'i' )
+           builder.addShortcut( nodeName, 'passThrough', 'pt' )
+        }
    }
 }
