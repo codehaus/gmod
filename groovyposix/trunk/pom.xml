@@ -7,7 +7,9 @@
     <groupId>groovyx.posix</groupId>
     <artifactId>groovy-posix</artifactId>
     <name>Groovy POSIX</name>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
+    <url>http://groovy.codehaus.org/modules/groovyposix/</url>
+    <inceptionYear>2009</inceptionYear>
 
     <dependencies>
         <dependency>
@@ -30,6 +32,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -80,4 +88,63 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <developerConnection>scm:https://svn.codehaus.org/gmod/groovyposix/</developerConnection>
+        <connection>scm:http://svn.codehaus.org/gmod/groovyposix/</connection>
+        <tag>trunk</tag>
+        <url>http://fisheye.codehaus.org/browse/gmod/groovyposix/</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>Groovy-Contrib</id>
+            <name>Codehaus Groovy Repo</name>
+            <url>dav:https://dav.codehaus.org/repository/groovy</url>
+        </repository>
+        <snapshotRepository>
+            <id>Groovy-Contrib</id>
+            <name>Codehaus Groovy Snapshots Repo</name>
+            <url>dav:https://dav.codehaus.org/snapshots.repository/groovy</url>
+        </snapshotRepository>
+        <site>
+            <id>Groovy-Contrib</id>
+            <name>Codehaus Groovy WebDAV</name>
+            <url>dav:https://dav.codehaus.org/groovy/modules/groovyposix</url>
+        </site>
+    </distributionManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Groovy-User</name>
+            <post>user@groovy.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/manage_email/user@groovy.codehaus.org</subscribe>
+            <archive>http://www.nabble.com/groovy---user-f11867.html</archive>
+        </mailingList>
+    </mailingLists>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.codehaus.org/browse/GMOD</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Mike Dillon</name>
+            <id>md5</id>
+            <email>mike@embody.org</email>
+            <timezone>-7</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
 </project>
