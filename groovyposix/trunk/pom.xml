@@ -178,7 +178,7 @@
                         <configuration>
                             <rules>
                                 <requirePluginVersions>
-                                    <phases>clean,package,deploy,site</phases>
+                                    <phases>package,site</phases>
                                 </requirePluginVersions>
                             </rules>
                         </configuration>
