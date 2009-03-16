@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package groovyx.posix.io
+package groovyx.posix
 
 import org.jruby.ext.posix.POSIX
 import org.jruby.ext.posix.POSIXHandler
