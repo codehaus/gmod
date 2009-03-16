@@ -22,6 +22,8 @@ import org.jruby.ext.posix.POSIXFactory
 
 import com.sun.jna.Native
 
+import groovyx.posix.DefaultRuntimePOSIXHandler
+
 class PosixFileCategory {
     private static handler = new DefaultRuntimePOSIXHandler()
     private static posix = POSIXFactory.getPOSIX(handler, true)
