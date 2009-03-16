@@ -44,9 +44,33 @@ class PosixFileCategory {
         }
     }
 
+    static void chown(File file, int uid) {
+        if (posix.chown(file.path, uid, -1)) {
+            handleError('chown', file.path)
+        }
+    }
+
+    static void chgrp(File file, int gid) {
+        if (posix.chgrp(file.path, -1, gid)) {
+            handleError('chgrp', file.path)
+        }
+    }
+
     static void lchown(File file, int uid, int gid) {
         if (posix.lchown(file.path, uid, gid)) {
             handleError('lchown', file.path)
+        }
+    }
+
+    static void lchown(File file, int uid) {
+        if (posix.lchown(file.path, uid, -1)) {
+            handleError('lchown', file.path)
+        }
+    }
+
+    static void lchgrp(File file, int gid) {
+        if (posix.lchgrp(file.path, -1, gid)) {
+            handleError('lchgrp', file.path)
         }
     }
 
@@ -58,33 +82,37 @@ class PosixFileCategory {
         return posix.lstat(file.path)
     }
 
+    static FileStat stat(File file, boolean followLinks) {
+        return followLinks ? stat(file) : lstat(file)
+    }
+
     static File link(File file, File targetFile) {
         String targetPath = targetFile == null ? null : targetFile.path
-        link(file, targetPath)
+        return link(file, targetPath)
     }
 
     static File link(File file, String targetPath) {
-        if (posix.link(file.path, targetPath)) {
+        if (posix.link(targetPath, file.path)) {
             handleError('link', file.path)
         }
-        return new File(targetPath)
+        return pathToFile(file.parentFile, targetPath)
     }
 
     static File symlink(File file, File targetFile) {
-        String targetPath = targetFile == null ? null : targetFile.path
-        symlink(file, targetPath)
+        String targetPath = targetFile == null ? null : targetFile.absolutePath
+        return symlink(file, targetPath)
     }
 
     static File symlink(File file, String targetPath) {
-        if (posix.symlink(file.path, targetPath)) {
+        if (posix.symlink(targetPath, file.path)) {
             handleError('symlink', file.path)
         }
-        return new File(targetPath)
+        return pathToFile(file.parentFile, targetPath)
     }
 
     static File readlink(File file) throws IOException {
         def targetPath = posix.readlink(file.path)
-        return targetPath == null ? null : new File(file.parent, targetPath)
+        return pathToFile(file.parentFile, targetPath)
     }
 
     static boolean isRegularFile(File file) {
@@ -92,7 +120,9 @@ class PosixFileCategory {
     }
 
     static boolean isSymlink(File file) {
-        return stat(file).isSymlink()
+        // Note: lstat is used here instead of stat, else you'd never see true
+        // for a symlink (except dangling ones)
+        return lstat(file).isSymlink()
     }
 
     static boolean isFifo(File file) {
@@ -120,8 +150,7 @@ class PosixFileCategory {
     }
 
     static long getInodeNumber(File file, boolean followLinks) {
-        def stat = followLinks ? stat(file) : lstat(file)
-        return stat.ino()
+        return stat(file, followLinks).ino()
     }
 
     static PosixFileType getFileType(File file) {
@@ -129,8 +158,7 @@ class PosixFileCategory {
     }
 
     static PosixFileType getFileType(File file, boolean followLinks) {
-        def stat = followLinks ? stat(file) : lstat(file)
-        return PosixFileType.valueOf(stat.ftype())
+        return PosixFileType.valueOf(stat(file, followLinks).ftype())
     }
 
     static int getOwnerId(File file) {
@@ -138,8 +166,7 @@ class PosixFileCategory {
     }
 
     static int getOwnerId(File file, boolean followLinks) {
-        def stat = followLinks ? stat(file) : lstat(file)
-        return stat.uid()
+        return stat(file, followLinks).uid()
     }
 
     static int getGroupOwnerId(File file) {
@@ -147,8 +174,7 @@ class PosixFileCategory {
     }
 
     static int getGroupOwnerId(File file, boolean followLinks) {
-        def stat = followLinks ? stat(file) : lstat(file)
-        return stat.gid()
+        return stat(file, followLinks).gid()
     }
 
     static long getDeviceId(File file) {
@@ -156,8 +182,7 @@ class PosixFileCategory {
     }
 
     static long getDeviceId(File file, boolean followLinks) {
-        def stat = followLinks ? stat(file) : lstat(file)
-        return stat.dev()
+        return stat(file, followLinks).dev()
     }
 
     static long getRDeviceId(File file) {
@@ -165,8 +190,18 @@ class PosixFileCategory {
     }
 
     static long getRDeviceId(File file, boolean followLinks) {
-        def stat = followLinks ? stat(file) : lstat(file)
-        return stat.rdev()
+        return stat(file, followLinks).rdev()
+    }
+
+    private static File pathToFile(File referenceDirectory, String path) {
+        def file
+        if (path != null) {
+            file = new File(path)
+            if (!file.absolute) {
+                file = new File(referenceDirectory, path)
+            }
+        }
+        return file
     }
 
     private static void handleError(methodName, path) {
@@ -176,9 +211,21 @@ class PosixFileCategory {
         Native.lastError = 0
 
         switch (errno) {
+            // POSIX.ERRORS.EPERM
+            case 1:
+                handler.error(POSIX.ERRORS.EPERM, path)
+
             // POSIX.ERRORS.ENOENT
             case 2:
                 handler.error(POSIX.ERRORS.ENOENT, path)
+
+            // POSIX.ERRORS.EACCES
+            case 13:
+                handler.error(POSIX.ERRORS.EEXIST, path)
+
+            // POSIX.ERRORS.EEXIST
+            case 17:
+                handler.error(POSIX.ERRORS.EEXIST, path)
 
             default:
                 throw new RuntimeException(
