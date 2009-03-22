@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.codehaus.groovy.modules</groupId>
-    <artifactId>groovy-posix</artifactId>
-    <name>Groovy POSIX</name>
+    <artifactId>groovyposix</artifactId>
+    <name>GroovyPOSIX</name>
     <version>0.1.0-SNAPSHOT</version>
     <url>http://groovy.codehaus.org/modules/groovyposix/</url>
     <inceptionYear>2009</inceptionYear>
 
     <description>
-        The Groovy POSIX library provides transparent integration of
+        The GroovyPOSIX library provides transparent integration of
         system-level POSIX functionality that is not available through
         standard Java and Groovy APIs. POSIX functionality can be
         layered on top of common Java API classes such as
@@ -20,7 +20,7 @@
         metaprogramming functionality such as categories and mixins.
 
         <!--
-        Groovy POSIX uses JRuby's jna-posix Java library and Java Native
+        GroovyPOSIX uses JRuby's jna-posix Java library and Java Native
         Access (JNA) to allow compilation-free use of the POSIX
         functionality of the underlying system. Future versions could
         allow JNI-based implementations if greater speed is desired.
