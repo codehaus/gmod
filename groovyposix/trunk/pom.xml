@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>groovyx.posix</groupId>
+    <groupId>org.codehaus.groovy.modules</groupId>
     <artifactId>groovy-posix</artifactId>
     <name>Groovy POSIX</name>
     <version>0.1.0-SNAPSHOT</version>
