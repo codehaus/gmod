@@ -56,6 +56,16 @@
 
     <developers>
         <developer>
+            <name>Guillaume Laforge</name>
+            <id>glaforge</id>
+            <email></email>
+            <organization>SpringSource</organization>
+            <roles>
+                <role>Project Manager</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
             <name>Marcel Overdijk</name>
             <id>marceloverdijk</id>
             <email>marceloverdijk@gmail.com</email>
