@@ -1,14 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.codehaus.groovy</groupId>
     <artifactId>gaelyk</artifactId>
     <name>Gaelyk</name>
     <version>0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <url>http://groovy.codehaus.org/modules/gaelyk/</url>
     <inceptionYear>2009</inceptionYear>
+
+    <organization>
+    	<name>The Codehaus</name>
+    	<url>http://codehaus.org</url>
+    </organization>
+
+    <scm>
+        <connection>scm:http://svn.codehaus.org/gmod/gaelyk/</connection>
+        <developerConnection>scm:https://svn.codehaus.org/gmod/gaelyk/</developerConnection>
+        <url>http://fisheye.codehaus.org/browse/gmod/gaelyk/</url>
+        <tag>trunk</tag>
+    </scm>
+
+    <mailingLists>
+        <mailingList>
+            <name>Groovy-User</name>
+            <post>user@groovy.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/manage_email/user@groovy.codehaus.org</subscribe>
+            <archive>http://www.nabble.com/groovy---user-f11867.html</archive>
+        </mailingList>        
+    </mailingLists>
+    
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.codehaus.org/browse/GMOD</url>
+    </issueManagement>    
+
+    <distributionManagement>
+        <repository>
+            <id>codehaus.org</id>
+            <name>Groovy Central Repository</name>
+            <url>dav:https://dav.codehaus.org/repository/groovy/</url>
+        </repository>
+        <snapshotRepository>
+            <id>codehaus.org</id>
+            <name>Groovy Central Development Repository</name>
+            <url>dav:https://dav.codehaus.org/snapshots.repository/groovy/</url>
+        </snapshotRepository>
+        <site>
+            <id>codehaus.org</id>
+            <name>Groovy Web Site</name>
+            <url>dav:https://dav.codehaus.org/groovy/modules/gaelyk</url>
+        </site>
+    </distributionManagement>
+
+    <developers>
+        <developer>
+            <name>Marcel Overdijk</name>
+            <id>marceloverdijk</id>
+            <email>marceloverdijk@gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -21,4 +77,5 @@
             <version>1.6.1</version>
         </dependency>
     </dependencies>
+
 </project>
