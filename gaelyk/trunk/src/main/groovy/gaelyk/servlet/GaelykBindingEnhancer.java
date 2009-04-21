@@ -50,8 +50,8 @@ public class GaelykBindingEnhancer {
         bindCommonVariables();
         
         // bind render method
-        MethodClosure c = new MethodClosure(this, "forward");
-        binding.setVariable("forward", c);
+        MethodClosure c = new MethodClosure(this, "render");
+        binding.setVariable("render", c);
     }
     
     public void enhanceGaelykTemplateServlet() {
@@ -71,8 +71,12 @@ public class GaelykBindingEnhancer {
         binding.setVariable("userService", userService);
         binding.setVariable("user", userService.getCurrentUser());
         
+        // bind forward method
+        MethodClosure c = new MethodClosure(this, "forward");
+        binding.setVariable("forward", c);
+        
         // bind include method
-        MethodClosure c = new MethodClosure(this, "include");
+        c = new MethodClosure(this, "include");
         binding.setVariable("include", c);
         
         // bind redirect method
@@ -80,12 +84,13 @@ public class GaelykBindingEnhancer {
         binding.setVariable("redirect", c);
     }
 
+    // TODO support template and params attributes
     public void forward(Map attrs) {
         // TODO implement
     } 
     
+    // TODO support template, params and model attributes
     public String include(Map attrs) throws IOException, ServletException {
-        System.out.println("include called");
         String template = (String) attrs.get("template");
         if (template != null) {
             HttpServletRequest request = (HttpServletRequest) binding.getVariable("request");
@@ -96,6 +101,12 @@ public class GaelykBindingEnhancer {
         return "";
     }
 
+    // TODO support Grails-like attributes
+    public void render(Map attrs) {
+        // TODO implement
+    }       
+    
+    // TODO support template, url, params and fragment attributes
     public void redirect(Map attrs) {
         // TODO implement
     }    
