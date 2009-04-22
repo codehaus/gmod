@@ -31,6 +31,6 @@ public class GaelykTemplateServlet extends TemplateServlet {
     // protected void setVariables(Binding binding) {
     protected void setVariables(ServletBinding binding) {
         GaelykBindingEnhancer enhancer = new GaelykBindingEnhancer(binding);
-        enhancer.enhanceGaelykTemplateServlet();
+        enhancer.bind();
     }
 }

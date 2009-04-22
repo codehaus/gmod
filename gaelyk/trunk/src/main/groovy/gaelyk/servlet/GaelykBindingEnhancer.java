@@ -46,19 +46,8 @@ public class GaelykBindingEnhancer {
         this.binding = binding;
     }
     
-    public void enhanceGaelykServlet() {
-        bindCommonVariables();
+    public void bind() {
         
-        // bind render method
-        MethodClosure c = new MethodClosure(this, "render");
-        binding.setVariable("render", c);
-    }
-    
-    public void enhanceGaelykTemplateServlet() {
-        bindCommonVariables();
-    }
-    
-    private void bindCommonVariables() {
         // bind google app engine services
         binding.setVariable("datastoreService", DatastoreServiceFactory.getDatastoreService());
         binding.setVariable("memcacheService", MemcacheServiceFactory.getMemcacheService());
@@ -84,30 +73,30 @@ public class GaelykBindingEnhancer {
         binding.setVariable("redirect", c);
     }
 
-    // TODO support template and params attributes
-    public void forward(Map attrs) {
-        // TODO implement
+    public void forward(String path) throws ServletException, IOException {
+        HttpServletRequest request = getHttpServletRequest();
+        HttpServletResponse response = getHttpServletResponse();
+        RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+        dispatcher.forward(request, response);
     } 
     
-    // TODO support template, params and model attributes
-    public String include(Map attrs) throws IOException, ServletException {
-        String template = (String) attrs.get("template");
-        if (template != null) {
-            HttpServletRequest request = (HttpServletRequest) binding.getVariable("request");
-            HttpServletResponse response = (HttpServletResponse) binding.getVariable("response");
-            RequestDispatcher dispatcher = request.getRequestDispatcher(template);
-            dispatcher.include(request, response);
-        }
-        return "";
+    public void include(String path) throws ServletException, IOException {
+        HttpServletRequest request = getHttpServletRequest();
+        HttpServletResponse response = getHttpServletResponse();
+        RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+        dispatcher.include(request, response);
     }
 
-    // TODO support Grails-like attributes
-    public void render(Map attrs) {
-        // TODO implement
-    }       
+    public void redirect(String location) throws IOException {
+        HttpServletResponse response = getHttpServletResponse();
+        response.sendRedirect(location);
+    }
     
-    // TODO support template, url, params and fragment attributes
-    public void redirect(Map attrs) {
-        // TODO implement
-    }    
+    private HttpServletRequest getHttpServletRequest() {
+        return (HttpServletRequest) binding.getVariable("request");
+    }
+    
+    private HttpServletResponse getHttpServletResponse() {
+        return (HttpServletResponse) binding.getVariable("response");
+    }
 }
