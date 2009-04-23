@@ -15,11 +15,6 @@
  */
 package groovy.gaelyk.servlet;
 
-import groovy.servlet.ServletBinding;
-import groovy.servlet.TemplateServlet;
-
-import java.util.Map;
-
 /**
  * @author Marcel Overdijk
  *
@@ -28,7 +23,6 @@ import java.util.Map;
 public class GaelykTemplateServlet extends TemplateServlet {
 
     @Override
-    // protected void setVariables(Binding binding) {
     protected void setVariables(ServletBinding binding) {
         GaelykBindingEnhancer enhancer = new GaelykBindingEnhancer(binding);
         enhancer.bind();
