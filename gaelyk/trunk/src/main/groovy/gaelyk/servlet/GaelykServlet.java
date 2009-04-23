@@ -15,6 +15,17 @@
  */
 package groovy.gaelyk.servlet;
 
+import groovy.servlet.GroovyServlet;
+import groovy.servlet.ServletBinding;
+
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.mail.MailServiceFactory;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+
 /**
  * @author Marcel Overdijk
  *
@@ -24,7 +35,13 @@ public class GaelykServlet extends GroovyServlet {
 
     @Override
     protected void setVariables(ServletBinding binding) {
-        GaelykBindingEnhancer enhancer = new GaelykBindingEnhancer(binding);
-        enhancer.bind();    
+        binding.setVariable("datastoreService", DatastoreServiceFactory.getDatastoreService());
+        binding.setVariable("memcacheService", MemcacheServiceFactory.getMemcacheService());
+        binding.setVariable("urlFetchService", URLFetchServiceFactory.getURLFetchService());
+        binding.setVariable("mailService", MailServiceFactory.getMailService());
+        binding.setVariable("imagesService", ImagesServiceFactory.getImagesService());
+        UserService userService = UserServiceFactory.getUserService();
+        binding.setVariable("userService", userService);
+        binding.setVariable("user", userService.getCurrentUser());   
     }
 }
