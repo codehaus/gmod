@@ -14,4 +14,4 @@ finally {
     pm.close()
 }
 
-redirect("guestbook.gtpl")
+redirect "guestbook.gtpl"
