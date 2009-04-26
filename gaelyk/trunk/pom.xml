@@ -5,7 +5,7 @@
     <groupId>org.codehaus.groovy</groupId>
     <artifactId>gaelyk</artifactId>
     <name>Gaelyk</name>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
     <url>http://groovy.codehaus.org/modules/gaelyk/</url>
     <inceptionYear>2009</inceptionYear>
