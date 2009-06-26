@@ -211,7 +211,6 @@ class CumulativeExpressionEvaluatorTests extends GroovyTestCase
 			(OverloadableOperators.And):            { a, b -> a & b },
 			(OverloadableOperators.Xor):            { a, b -> a ^ b },
 			(OverloadableOperators.GetAt):          { a, b -> a[ b ] },
-			(OverloadableOperators.PutAt):          { a, b, c -> a[ b ] = c },
 			(OverloadableOperators.LeftShift):      { a, b -> a << b },
 			(OverloadableOperators.RightShift):     { a, b -> a >> b },
 			(OverloadableOperators.BitwiseNegate):  { a -> ~a },

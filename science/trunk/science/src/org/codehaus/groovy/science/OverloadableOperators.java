@@ -16,7 +16,6 @@ public enum OverloadableOperators
 	And,
 	Xor,
 	GetAt,
-	PutAt,
 	LeftShift,
 	RightShift,
 	BitwiseNegate,

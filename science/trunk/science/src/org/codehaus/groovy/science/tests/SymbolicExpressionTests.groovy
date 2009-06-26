@@ -166,12 +166,6 @@ class SymbolicExpressionTests extends GroovyTestCase
 		operatorList.remove( OverloadableOperators.GetAt );
 		
 		assertEquals(
-			x[ y ] = z,
-			new SymbolicExpression( OverloadableOperators.PutAt, [x, y, z] )
-		);
-		operatorList.remove( OverloadableOperators.PutAt );
-		
-		assertEquals(
 			x << y,
 			new SymbolicExpression( OverloadableOperators.LeftShift, [x, y] )
 		);
