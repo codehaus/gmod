@@ -26,6 +26,8 @@ import org.codehaus.groovy.runtime.InvokerHelper;
  */
 public class CumulativeExpressionEvaluator extends Closure
 {
+	private static final long serialVersionUID = 1L;
+	
 	/**
 	 * <p>The incremental changes made to the {@code evaluate} method, in the
 	 * order those changes were registered.</p>
@@ -155,6 +157,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		final Closure finalBehavior = behavior;
 		
 		behaviors.addFirst( new Closure( null ) {
+			
+			private static final long serialVersionUID = 1L;
 			
 			@SuppressWarnings("unused")
             public Object doCall( SymbolicExpression expression )
@@ -357,6 +361,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		
 		setBehavior( new Closure( null ) {
 			
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
             public Object doCall( SymbolicExpression expression )
 			{
@@ -402,6 +408,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		final SymbolicExpression finalReplacement = replacement;
 		
 		setBehavior( new Closure( null ) {
+			
+			private static final long serialVersionUID = 1L;
 			
 			@SuppressWarnings("unused")
             public Object doCall( SymbolicExpression expression )
@@ -554,6 +562,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		
 		return new Closure( null )
 		{
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
             public Object doCall( Object switchValue )
 			{
@@ -585,6 +595,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		
 		return new Closure( null )
 		{
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
             public Object doCall( List< Object > subjects )
 			{
@@ -649,6 +661,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		
 		return new Closure( null )
 		{
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings({ "unused", "unchecked" })
             public Object doCall( SymbolicExpression subject )
 			{
@@ -709,6 +723,8 @@ public class CumulativeExpressionEvaluator extends Closure
 		
 		return new Closure( null )
 		{
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
             public SymbolicExpression doCall(
 				SymbolicExpression expression

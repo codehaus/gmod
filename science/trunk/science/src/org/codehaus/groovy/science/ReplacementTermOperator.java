@@ -121,6 +121,8 @@ public class ReplacementTermOperator
 		
 		return rTerm( new Closure( null ) {
 			
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
 			public SymbolicExpression doCall( Map< ?, ? > matchInformation )
 			{
@@ -193,6 +195,8 @@ public class ReplacementTermOperator
 		final SymbolicExpression finalInnerReplacement = innerReplacement;
 		
 		return rTerm( new Closure( null ) {
+			
+			private static final long serialVersionUID = 1L;
 			
 			@SuppressWarnings("unused")
 			public SymbolicExpression doCall( Map< ?, ? > matchInformation )
@@ -811,6 +815,8 @@ public class ReplacementTermOperator
 		SymbolicExpression temporaryResult = replaceAnywhereRepeatedly(
 			PatternTermOperator.pTerm( new Closure( null ) {
 				
+				private static final long serialVersionUID = 1L;
+				
 				private boolean containsPlaceholder(
 					SymbolicExpression expression
 				)
@@ -865,6 +871,8 @@ public class ReplacementTermOperator
 			} ),
 			rTerm( new Closure( null ) {
 				
+				private static final long serialVersionUID = 1L;
+				
 				@SuppressWarnings("unused")
                 public SymbolicExpression doCall( Map< ?, ? > matchResult )
 				{
@@ -887,6 +895,8 @@ public class ReplacementTermOperator
 		
 		return replaceAnywhereRepeatedly(
 			PatternTermOperator.pTerm( new Closure( null ) {
+				
+				private static final long serialVersionUID = 1L;
 				
 				@SuppressWarnings("unused")
                 public Iterable< Map< ?, ? > > doCall(
