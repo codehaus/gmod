@@ -601,6 +601,8 @@ public class PatternTermOperator
 		{
 			this.matcher = new Closure( null ) {
 				
+				private static final long serialVersionUID = 1L;
+				
 				@SuppressWarnings("unused")
 				public Map< Object, SymbolicExpression >
 					doCall( SymbolicExpression expression )
@@ -619,6 +621,8 @@ public class PatternTermOperator
 		final Object finalName = name;
 		
 		this.matcher = new Closure( null ) {
+			
+			private static final long serialVersionUID = 1L;
 			
 			@SuppressWarnings("unused")
 			public Map< Object, SymbolicExpression >
@@ -770,6 +774,8 @@ public class PatternTermOperator
 			name,
 			new Closure( null )
 			{
+				private static final long serialVersionUID = 1L;
+				
 				@SuppressWarnings("unused")
 				public Iterable< Map< ?, ? > >
 					doCall( SymbolicExpression expression )
@@ -901,6 +907,8 @@ public class PatternTermOperator
 		final SymbolicExpression finalInnerPattern = innerPattern;
 		
 		return pTerm( new Closure( null ) {
+			
+			private static final long serialVersionUID = 1L;
 			
 			@SuppressWarnings("unused")
 			public Iterable< Map< ?, ? > >
@@ -1160,6 +1168,8 @@ if ( !thisResult.containsKey( finalName ) )
 		return expressionSegments(
 			new Closure( null )
 			{
+				private static final long serialVersionUID = 1L;
+				
 				@SuppressWarnings("unused")
 				public SymbolicExpression doCall(
 					SymbolicExpression replacement
@@ -1220,6 +1230,8 @@ if ( !thisResult.containsKey( finalName ) )
 		
 		innerIterables.add( Arrays.asList( new Closure[]{ new Closure( null ) {
 			
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
 			public SymbolicExpression doCall( SymbolicExpression replacement )
 			{
@@ -1241,6 +1253,8 @@ if ( !thisResult.containsKey( finalName ) )
 			innerIterables.add( expressionSegments(
 				new Closure( null )
 				{
+					private static final long serialVersionUID = 1L;
+					
 					@SuppressWarnings("unused")
 					public SymbolicExpression doCall(
 						SymbolicExpression replacement

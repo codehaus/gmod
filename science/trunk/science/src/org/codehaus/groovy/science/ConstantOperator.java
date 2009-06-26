@@ -131,10 +131,12 @@ public class ConstantOperator< T >
 		if ( simpleClosure == null )
 			throw new NullPointerException();
 		
-		final Closure finalSimpleClosure = simpleClosure; 
+		final Closure finalSimpleClosure = simpleClosure;
 		
 		return new Closure( null )
 		{
+			private static final long serialVersionUID = 1L;
+			
 			@SuppressWarnings("unused")
             public SymbolicExpression doCall( SymbolicExpression... arguments )
 			{
