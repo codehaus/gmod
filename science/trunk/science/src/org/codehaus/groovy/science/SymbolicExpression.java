@@ -396,28 +396,6 @@ public class SymbolicExpression
 	}
 	
 	/**
-	 * <p>Returns the result of combining this expression and two others using
-	 * the {@code OverloadableOperators.PutAt} operator.</p>
-	 * 
-	 * @see org.codehaus.groovy.science.OverloadableOperators#Negative
-	 * 
-	 * @param index  the expression acting as the index
-	 * @param value  the expression acting as the value being put at the index
-	 * 
-	 * @return  the resulting expression
-	 */
-	public SymbolicExpression putAt(
-		SymbolicExpression index,
-		SymbolicExpression value
-	)
-	{
-		return new SymbolicExpression(
-			OverloadableOperators.PutAt,
-			Arrays.asList( new SymbolicExpression[]{ this, index, value } )
-		);
-	}
-	
-	/**
 	 * <p>Returns the result of combining this expression with another using the
 	 * {@code OverloadableOperators.LeftShift} operator.</p>
 	 * 
