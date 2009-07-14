@@ -1,0 +1,20 @@
+#!/bin/sh
+
+PROG=`readlink -f "$0"`
+JDBSCRIPT_BIN=`dirname "$PROG"`
+JDBSCRIPT_HOME=`readlink -f "$JDBSCRIPT_BIN/.."`
+
+GROOVY=`which groovy`
+GROOVY=`readlink -f "$GROOVY"`
+GROOVY_BIN=`dirname "$GROOVY"`
+
+GROOVY_APP_NAME=jdbscript
+GROOVY_CONF="$JDBSCRIPT_HOME/conf/jdbscript-starter.conf"
+JAVA_OPTS="-Djdbscript.home=$JDBSCRIPT_HOME"
+
+if [ -z "$GROOVY_HOME" ]; then
+    GROOVY_HOME=`cd "$GROOVY_BIN"/.. && pwd -P`
+fi
+. "$GROOVY_BIN/startGroovy"
+
+startGroovy groovyx.debugger.jdbscript.Main "$@"
