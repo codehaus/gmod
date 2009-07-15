@@ -151,6 +151,7 @@ class Debugger {
                             handler.delegate = this
                             handler(event)
                         } catch (Exception e) {
+                            // XXX: I should know better
                             e.printStackTrace()
                         }
                     }
