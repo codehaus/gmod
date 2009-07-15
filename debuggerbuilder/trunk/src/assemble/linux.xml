@@ -9,6 +9,7 @@
             <directory>${basedir}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
+                <include>*.txt</include>
                 <include>conf/**</include>
                 <include>examples/**</include>
             </includes>
