@@ -139,22 +139,25 @@ class Debugger {
 
         while (true) {
             def events = queue.remove()
-            for (event in events) {
-                if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
-                    return
-                }
+            try {
+                for (event in events) {
+                    if (event instanceof VMDeathEvent || event instanceof VMDisconnectEvent) {
+                        return
+                    }
 
-                def handler = requestHandlers[event.request()]
-                if (handler) {
-                    try {
-                        handler.delegate = this
-                        handler(event)
-                    } catch (Exception e) {
-                        e.printStackTrace()
+                    def handler = requestHandlers[event.request()]
+                    if (handler) {
+                        try {
+                            handler.delegate = this
+                            handler(event)
+                        } catch (Exception e) {
+                            e.printStackTrace()
+                        }
                     }
                 }
+            } finally {
+                events.resume()
             }
-            events.resume()
         }
     }
 
