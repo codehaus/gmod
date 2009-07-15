@@ -24,7 +24,7 @@ import com.sun.jdi.event.VMDisconnectEvent
 class Debugger {
     private vm
     private breakpointDefinitions = []
-    private requestHandlers = [:]
+    private requestHandlers = new WeakHashMap()
 
     void addBreakpointDefinition(breakpointDefinition) {
         if (vm == null) {
@@ -50,6 +50,13 @@ class Debugger {
         }
 
         vm = connector.attach(attachArgs)
+
+        def erm = vm.eventRequestManager()
+        requestHandlers[erm.createClassPrepareRequest()] = { event ->
+            processBreakpointDefinitions(event.referenceType())
+        }
+
+        processBreakpointDefinitions(vm.allClasses())
 
         processEvents()
     }
@@ -90,55 +97,45 @@ class Debugger {
         return connectors[0]
     }
 
-    private void processEvents() {
-        assert vm != null
+    private void processBreakpointDefinitions(classes) {
+        if (!breakpointDefinitions) {
+            return
+        }
 
         def eventRequests = []
-        if (breakpointDefinitions) {
-            def erm = vm.eventRequestManager()
-            for (bd in breakpointDefinitions) {
-                def classes = vm.classesByName(bd.className)
-                if (classes.empty) {
-                    // DEFER bd...
-                    continue
-                }
-
-                for (c in classes) {
-                    if (bd.method) {
-                        def found = []
-                        for (m in c.methods()) {
-                            def subject
-                            if (bd.method instanceof Closure) {
-                                subject = m
-                            } else {
-                                subject = m.name()
-                            }
-                            if (bd.method.isCase(subject)) {
-                                found << m
-                            }
-                        }
-
-                        if (found.empty) {
-                            throw new IllegalArgumentException("No such method: $bd.method")
-                        }
-
-                        for (m in found) {
-                            def breakpoint = erm.createBreakpointRequest(m.locationOfCodeIndex(0))
-                            if (bd.suspendPolicy) {
-                                breakpoint.suspendPolicy = bd.suspendPolicy
-                            }
-                            requestHandlers[breakpoint] = bd.handler
-                            eventRequests << breakpoint
-                        }
-                    } else if (bd.line) {
+        def erm = vm.eventRequestManager()
+        for (bd in breakpointDefinitions) {
+            for (c in classes.grep { matchClass(bd.className, it) }) {
+                if (bd.method) {
+                    def matchedMethods = c.methods().grep { method ->
+                        matchMethod(bd.method, method)
                     }
+
+                    if (matchedMethods.empty) {
+                        throw new IllegalArgumentException("No such matching methods for specification: $bd.method")
+                    }
+
+                    for (method in matchedMethods) {
+                        def breakpoint = erm.createBreakpointRequest(method.locationOfCodeIndex(0))
+                        if (bd.suspendPolicy) {
+                            breakpoint.suspendPolicy = bd.suspendPolicy
+                        }
+                        requestHandlers[breakpoint] = bd.handler
+                        eventRequests << breakpoint
+                    }
+                } else if (bd.line) {
+                    throw new UnsupportedOperationException()
                 }
             }
         }
 
-        def queue = vm.eventQueue()
-
         eventRequests.each { it.enable() }
+    }
+
+    private void processEvents() {
+        assert vm != null
+
+        def queue = vm.eventQueue()
 
         while (true) {
             def events = queue.remove()
@@ -159,5 +156,25 @@ class Debugger {
             }
             events.resume()
         }
+    }
+
+    private boolean matchClass(classSpec, clazz) {
+        def subject
+        if (classSpec instanceof Closure) {
+            subject = clazz
+        } else {
+            subject = clazz.name()
+        }
+        return classSpec.isCase(subject)
+    }
+
+    private boolean matchMethod(methodSpec, method) {
+        def subject
+        if (methodSpec instanceof Closure) {
+            subject = method
+        } else {
+            subject = method.name()
+        }
+        return methodSpec.isCase(subject)
     }
 }
