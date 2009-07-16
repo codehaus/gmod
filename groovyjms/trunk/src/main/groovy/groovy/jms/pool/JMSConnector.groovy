@@ -53,11 +53,11 @@ class JMSConnector extends FutureTask {
         }
     }
 
-    public boolean cancel(boolean mayInterruptIfRunning) {
+    /*public boolean cancel(boolean mayInterruptIfRunning) {
         println("JMSConnector.cancel()")
         super(cancel(mayInterruptIfRunning))
         //cannceled = true; return true;
-    }
+    }*/
 
     public static void main(args) {
         ScheduledExecutorService pool = Executors.newScheduledThreadPool(10)
