@@ -1,15 +1,15 @@
 package groovy.jms
 
+import groovy.jms.JMS
+import groovy.jms.JMSPool
 import groovy.jms.provider.ActiveMQPooledJMSProvider
 import java.util.concurrent.Future
-import org.apache.activemq.pool.PooledConnectionFactory
-import org.apache.log4j.Logger
-import javax.jms.Queue
-
-import static groovy.jms.JMS.jms
 import java.util.concurrent.TimeUnit
-import org.apache.log4j.MDC
 import javax.jms.Message
+import javax.jms.Queue
+import org.apache.log4j.Logger
+import org.apache.log4j.MDC
+import static groovy.jms.JMS.jms
 
 class JMSPoolTest extends GroovyTestCase {
     static Logger logger = Logger.getLogger(JMSPoolTest.class.name)
@@ -21,12 +21,12 @@ class JMSPoolTest extends GroovyTestCase {
         //provider.getConnectionFactory(); //trigger init
     }
 
-    void testConstructor() {
+   /* void testConstructor() {
         def pool = new JMSPool()
         assertNotNull pool?.connectionFactory
         assertTrue(pool?.connectionFactory instanceof PooledConnectionFactory)
         pool.shutdown()
-    }
+    }*/
 
     void testOnMessageThread() {
         def pool = new JMSPool()

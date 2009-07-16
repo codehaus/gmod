@@ -58,9 +58,6 @@ class JMSCoreCategory {
     /** *****************************************************************************************************************
      * TOP LEVEL PRIVATE METHOD for establish Connection and Session
      ***************************************************************************************************************** */
-    static Connection establishConnection(ConnectionFactory factory, boolean force = false) {
-        return establishConnection(factory, null, force)
-    }
 
     //TODO consider to set a timeout to handle uncommitted JMS thread
     //TODO consider to add a parameter to enable/disable transaction
