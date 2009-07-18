@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 /**
+ * The Gaelyk template servlet extends Groovy's own template servlet 
+ * to inject Google App Engine dedicated services in the binding of the Groolets.
+ *
  * @author Marcel Overdijk
  * @author Guillaume Laforge
  *

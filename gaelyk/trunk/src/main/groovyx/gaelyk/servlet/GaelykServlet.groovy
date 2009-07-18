@@ -23,6 +23,9 @@ import javax.servlet.http.HttpServletResponse
 import java.io.IOException
 
 /**
+ * The Gaelyk servlet extends Groovy's own Groovy servlet
+ * to inject Google App Engine dedicated services in the binding of the Groolets.
+ * 
  * @author Marcel Overdijk
  * @author Guillaume Laforge
  *
