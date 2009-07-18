@@ -18,6 +18,7 @@ package groovyx.debugger
 
 import java.util.logging.Logger
 
+import com.sun.jdi.AbsentInformationException
 import com.sun.jdi.Bootstrap
 import com.sun.jdi.StackFrame
 import com.sun.jdi.event.VMDeathEvent
@@ -65,6 +66,24 @@ class Debugger {
         processEvents()
     }
 
+    void dumpVisibleVariables(out, frame) {
+        def toDump
+        try {
+            toDump = frame.getValues(frame.visibleVariables()).collect { k, v ->
+                return "${k.typeName()} ${k.name()}=$v"
+            }
+        } catch (AbsentInformationException e) {
+            log.warning("Unable to dump local variables; use -g to add debug information")
+            def k = 0
+            toDump = frame.getArgumentValues().collect { v ->
+                k += 1
+                return "<argument $k>=$v"
+            }
+        }
+
+        toDump.each { out.println(it) }
+    }
+
     void printStackTrace(PrintStream out, List<StackFrame> frames, indent="") {
         doPrintStackTrace(out, frames, indent)
     }
@@ -83,7 +102,7 @@ class Debugger {
             } else {
                 try {
                     locString = "${loc.sourceName()}:${loc.lineNumber()}"
-                } catch (e) {
+                } catch (AbsentInformationException e) {
                     locString = "Unknown Source"
                 }
             }

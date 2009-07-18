@@ -11,7 +11,12 @@ def bpMethod = "service"
 
 debugger {
     breakpoint(class: bpClass, method: bpMethod) { event ->
+        def stackTrace = event.thread().frames()
+
         println "Breakpoint triggered:"
-        printStackTrace(System.out, event.thread().frames(), "\t")
+        printStackTrace(System.out, stackTrace, "\t")
+
+        println "Visible variables:"
+        dumpVisibleVariables(System.out, stackTrace[0])
     }
 }
