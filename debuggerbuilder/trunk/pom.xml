@@ -244,14 +244,6 @@
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>${maven-site-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>package-site</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -263,6 +255,7 @@
                     <linksource>true</linksource>
                     <links>
                         <link>http://java.sun.com/javase/6/docs/api/</link>
+                        <link>http://java.sun.com/javase/6/docs/jdk/api/jpda/jdi/</link>
                         <link>http://groovy.codehaus.org/api/</link>
                     </links>
                 </configuration>
