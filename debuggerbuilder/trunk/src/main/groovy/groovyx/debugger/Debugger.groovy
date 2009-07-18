@@ -16,12 +16,16 @@
 
 package groovyx.debugger
 
+import java.util.logging.Logger
+
 import com.sun.jdi.Bootstrap
 import com.sun.jdi.StackFrame
 import com.sun.jdi.event.VMDeathEvent
 import com.sun.jdi.event.VMDisconnectEvent
 
 class Debugger {
+    private static final Logger log = Logger.getLogger(Debugger.class.name)
+
     private vm
     private breakpointDefinitions = []
     private requestHandlers = new WeakHashMap()
@@ -154,9 +158,10 @@ class Debugger {
                         try {
                             handler.delegate = this
                             handler(event)
-                        } catch (Exception e) {
-                            // XXX: I should know better
-                            e.printStackTrace()
+                        } catch (InterruptedException e) {
+                            throw e
+                        } catch (e) {
+                            log.error("Error executing handler for event: $event", e)
                         }
                     }
                 }
