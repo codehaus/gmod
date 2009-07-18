@@ -77,7 +77,11 @@ class Debugger {
             if (method.isNative()) {
                 locString = "Native Method"
             } else {
-                locString = "${loc.sourceName()}:${loc.lineNumber()}"
+                try {
+                    locString = "${loc.sourceName()}:${loc.lineNumber()}"
+                } catch (e) {
+                    locString = "Unknown Source"
+                }
             }
 
             out.println "${indent}at ${method.declaringType().name()}.${method.name()}(${locString})"
