@@ -1,1 +1,14 @@
-- Use logger instead of printStackTrace() ;)
+- Add watchpoints
+- Add method breakpoint options other than break at start
+- Ability to add autotrace callback for method duration from breakpoint
+- MetaClass and/or helper method magic to make it easier to work with JDI api
+  - Make ObjectReference field access work transparently with @ syntax?
+  - Make property syntax work?
+  - Make local variable access via @ syntax on StackFrame?
+  - Dare we do invokeMethod? We could use Event.thread() in breakpoints and
+    watchpoitns as the invoking thread without requiring caller to pass it
+  - How to retain native JDI call syntax while allowing full access to
+    underlying object's members with grooviness? Helper methods?
+  - Getting DGM to work would be badass, but likely unworkable since the
+    objects are mirror types and values, not real classes and objects
+    - Could possible support limited DGM for common cases
