@@ -1,0 +1,122 @@
+                                    ------
+                                    REST
+                                    ------
+                                    ------
+                                    ------
+
+
+
+RESTClient
+
+  RESTClient is an extension of HTTPBuilder, which makes a few concessions in 
+  HTTPBuilder's flexibility in order to make REST operations as simple as 
+  possible.  
+  
+  RESTClient makes great use of the automatic content-type parsing 
+  and encoding which makes working with XML and JSON extremely easy, both in the 
+  request and response side.  It also adds some additional convenience methods 
+  for response header parsing.  
+  
+  The main advantages of RESTClient are:
+  
+  [[]] RESTClient has convenience methods for <<<get>>>, <<<put>>> <<<post>>> 
+       <<<delete>>>, <<<head>>>
+  
+  [[]] The response data is always parsed and buffered in-memory
+  
+  [[]] The returned <<<{{{../apidocs/groovyx/net/http/HttpResponseDecorator.html}HttpResponseDecorator}}>>>
+       instance gives convenient access to headers and the parsed response data
+       
+  [[]] No user-defined closure is needed
+  
+  
+* Examples
+
+  All of these examples use the {{{http://apiwiki.twitter.com/REST+API+Documentation}Twitter REST API.}}   
+
+**  Test a URL using the <<<HEAD>>> method 
+
+-------------------------------------------
+import groovyx.net.http.RESTClient
+import groovy.util.slurpersupport.GPathResult
+import static groovyx.net.http.ContentType.URLENC
+
+twitter = new RESTClient( 'https://twitter.com/statuses/' )
+twitter.auth.basic userName, passwd
+
+
+try { // expect an exception from a 404 response:
+    twitter.head path : 'public_timeline'
+    assert false, 'Expected exception'
+}
+// The exception is used for flow control but has access to the response as well:
+catch( ex ) { assert ex.response.status == 404 }
+
+assert twitter.head( path : 'public_timeline.json' ).status == 200
+-------------------------------------------
+
+  The above example takes advantage of HTTPBuilder's default failure handler,
+  which will cause an exception to be thrown for any 'failed' response.  That
+  exception will still allow access to details of the response (e.g. the 
+  response status or message).  
+
+
+**  <<<GET>>> our friends' timeline
+
+-------------------------------------------
+def resp = twitter.get( path : 'friends_timeline.json' )
+assert resp.status == 200
+assert resp.contentType == JSON.toString()
+assert ( resp.data instanceof net.sf.json.JSON )
+assert resp.data.status.size() > 0
+-------------------------------------------
+
+  All request parameters are defined 
+  {{{../apidocs/groovyx/net/http/HTTPBuilder.RequestConfigDelegate.html#setPropertiesFromMap(java.util.Map)}here}}.
+
+  The <<<resp>>> field in the above example is an instance of <<<HttpResponseDecorator>>>.  
+  Calling <<<resp.getData()>>> returns the parsed response content.  This is the
+  same parsed response that you would get passed to HTTPBuilder's response 
+  handler closure, but it is always buffered in-memory and the response stream
+  is automatically closed.   
+
+
+** <<<POST>>> a status update to Twitter!
+
+-------------------------------------------
+def msg = "I'm using HTTPBuilder's RESTClient on ${new Date()}"
+
+resp = twitter.post( path : 'update.xml',
+                     body : [ status:msg, source:'httpbuilder' ],
+                     requestContentType : URLENC )
+
+assert resp.status == 200
+assert ( resp.data instanceof GPathResult ) // parsed using XmlSlurper
+assert resp.data.text == msg
+assert resp.data.user.screen_name == userName
+def postID = resp.data.id.toInteger()
+-------------------------------------------
+
+  Note that the above example is posting the request data as 
+  <<<application/x-www-form-urlencoded>>>.  (The twitter API doesn't support XML or 
+  JSON POST requests.)  For this reason, a <<<requestContentType>>> parameter must 
+  be specified in order to identify how the request body should be serialized.  
+  
+  Also note that we're requesting <<<update.xml>>>, not <<<update.json>>>.  Since
+  we never set a default content-type on the RESTClient instance or pass a 
+  <<<contentType>>> argument in this request, RESTClient will put <<<Accept: */*>>>
+  in the request header, and parse the response based on whatever is given in 
+  the response content-type header.  So because Twitter correctly identifies its 
+  response as <<<application/xml>>>, it will automatically be parsed by the 
+  default {{{../apidocs/groovyx/net/http/ParserRegistry.html#parseXML(org.apache.http.HttpResponse)}XML parser}}.
+
+
+** Now <<<DELETE>>> that post
+
+-------------------------------------------
+resp = twitter.delete( path : "destroy/${postID}.json" )
+assert resp.status == 200
+assert resp.data.id == postID
+println "Test tweet ID ${resp.data.id} was deleted."
+-------------------------------------------
+
