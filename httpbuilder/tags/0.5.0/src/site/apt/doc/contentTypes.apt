@@ -1,0 +1,24 @@
+                                    ------
+                                    Content Types
+                                    ------
+                                    ------
+                                    ------
+
+
+Support for new Content Types
+  
+  To add parsing for new content types, simply add a new entry to the builder's 
+  <<<{{{../apidocs/groovyx/net/http/ParserRegistry.html}ParserRegistry}}>>>.  
+  For example, to parse comma-separated-values using 
+  {{{http://opencsv.sourceforge.net/}OpenCSV}}:
+  
+%{code-snippet|id=contenttype1|brush=groovy|file=src/site/examples.txt}
+
+  A <<<CSVReader>>> instance will then be passed as the second argument to the 
+  response handler:
+  
+%{code-snippet|id=contenttype2|brush=groovy|file=src/site/examples.txt}
+  
+  You can refer to {{{http://www.iana.org/assignments/media-types/}IANA}} for a 
+  complete list of registered content-type names, but the most common are 
+  already handled in the {{{../apidocs/groovyx/net/http/ContentType.html}ContentType}} enumeration.
