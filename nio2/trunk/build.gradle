@@ -1,0 +1,16 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+    mavenRepo urls: 'http://snapshots.repository.codehaus.org'
+    mavenRepo urls: 'http://m2repo.spockframework.org/snapshots'
+}
+
+dependencies {
+    groovy 'org.codehaus.groovy:groovy-all:1.8.0-beta-3-SNAPSHOT'
+    testCompile 'org.spockframework:spock-core:0.6-groovy-1.8-SNAPSHOT'
+    testCompile 'junit:junit:4.8.1'
+}
+
