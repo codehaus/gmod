@@ -294,6 +294,11 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }
+  
+  
+  //FIXME: Possible deadlock between seal() and invalidateAll()
+  //       seal takes the lock from subtypes to supertype and
+  //       invalidate take them in the reverse order
   public void seal() {
     ReentrantLock lock = this.lock;
     lock.lock();
