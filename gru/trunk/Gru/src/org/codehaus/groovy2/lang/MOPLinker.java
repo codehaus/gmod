@@ -109,12 +109,18 @@ public class MOPLinker {
       MethodHandle oldTarget = callSite.getTarget();
       MethodType type = oldTarget.type();
       
-      boolean[] instanceChecks = new boolean[type.parameterCount()];
-      MethodType dynamicType = dynamicType(type, instanceChecks, args);
-      
-      Class<?> clazz = dynamicType.parameterType(0);
-      MetaClass metaClass = RT.getMetaClass(clazz);
-      boolean isStatic = instanceChecks[0];
+      boolean isStatic = false;
+      Class<?> receiverClass = type.parameterType(0);
+      if (!receiverClass.isPrimitive()) {
+        Object receiver = args[0];
+        receiverClass = receiver.getClass();   // object -> class -> metaclass
+        if (receiverClass == Class.class) {    // is a static call ? 
+          receiverClass = (Class<?>)receiver;  // class -> metaclass
+          isStatic = true;
+        }
+      }
+      MetaClass metaClass = RT.getMetaClass(receiverClass);
+      MethodType dynamicType = dynamicType(receiverClass, type, args);
       
       //System.out.println("MOP linker "+callSite.mopKind+"$"+callSite.name+" "+clazz+" "+metaClass+" "+isStatic);
       
@@ -136,8 +142,8 @@ public class MOPLinker {
       MethodHandle target = result.getTarget();
       
       target = MethodHandles.convertArguments(target, type);
-      MethodHandle test = INSTANCE_CHECK;
-      test = MethodHandles.insertArguments(test, 0, clazz);
+      MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
+      test = MethodHandles.insertArguments(test, 0, receiverClass);
       test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
       MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
 
@@ -166,19 +172,14 @@ public class MOPLinker {
     }
   }
   
-  private static MethodType dynamicType(MethodType methodType, boolean[] instanceCheck, Object[] args) {
+  private static MethodType dynamicType(Class<?> receiverClass, MethodType methodType, Object[] args) {
     Class<?>[] types = new Class<?>[methodType.parameterCount()];
-    for(int i=0;i <types.length; i++) {
+    types[0] = receiverClass;
+    for(int i=1;i <types.length; i++) {
       Class<?> type = methodType.parameterType(i);
-      if (type.isPrimitive()) {
-        types[i] = type;
-        continue;
-      }
-      Object arg = args[i];
-      type = arg.getClass();      // object -> class -> metaclass
-      if (type == Class.class) {  // or class -> metaclass
-        type = (Class<?>)arg;
-        instanceCheck[i] = true;
+      if (!type.isPrimitive()) {  // null check not needed for primitive
+        Object arg = args[i];
+        type = (arg == null)? type: args.getClass();
       }
       types[i] = type;
     }
@@ -207,13 +208,20 @@ public class MOPLinker {
     return clazz == o;
   }
   
+  public static boolean classCheck(Class<?> clazz, Object o) {
+    return clazz == o.getClass();
+  }
+  
   private static final MethodHandle INSTANCE_CHECK;
+  private static final MethodHandle CLASS_CHECK;
   private static final MethodHandle FALLBACK;
   private static final MethodHandle RESET;
   static {
     try {
       Lookup lookup = MethodHandles.publicLookup();
       INSTANCE_CHECK = lookup.findStatic(MOPLinker.class, "instanceCheck",
+          MethodType.methodType(boolean.class, Class.class, Object.class));
+      CLASS_CHECK = lookup.findStatic(MOPLinker.class, "classCheck",
           MethodType.methodType(boolean.class, Class.class, Object.class));
       FALLBACK = lookup.findStatic(MOPLinker.class, "fallback",
           MethodType.methodType(Object.class, MOPCallSite.class, Object[].class));
