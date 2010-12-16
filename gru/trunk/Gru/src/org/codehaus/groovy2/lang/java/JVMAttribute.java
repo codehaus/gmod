@@ -45,6 +45,11 @@ public class JVMAttribute implements Attribute {
   }
 
   @Override
+  public String toString() {
+    return declaringMetaClass.toString()+".@"+getName()+": "+getType();
+  }
+  
+  @Override
   public Closure getGetter() {
     if (getter == null) {
       try {
