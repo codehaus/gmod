@@ -43,7 +43,7 @@ public class JVMProperty implements Property {
 
   @Override
   public String toString() {
-    return declaringMetaClass.toString()+".@"+name+": "+type;
+    return declaringMetaClass.toString()+"."+name+": "+type;
   }
   
   @Override

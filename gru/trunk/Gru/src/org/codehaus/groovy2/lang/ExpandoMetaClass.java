@@ -123,167 +123,156 @@ public class ExpandoMetaClass implements MetaClass {
   
   @Override
   public MOPResult mopInvoke(MOPInvokeEvent mopEvent) { 
-    lock.lock();
-    try {
-      getMethods(); // lazy initialize
-      String name = mopEvent.getName();
-      HashMap<FunctionType, Method> map = methodMap.get(name);
-      if (map == null) {
-        return new MOPResult(new LinkageError("no method "+name+" defined for metaclass "+this));
-      }
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
 
-      FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-
-      MethodHandle reset = mopEvent.getReset();
-      MOPResult result = MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, reset);
-      if (result.getFailure() != null)
-        return result;
-      return new MOPResult(switcherGuard(result.getTarget(), reset));
-    } finally {
-      lock.unlock();
+    getMethods(); // lazy initialize
+    String name = mopEvent.getName();
+    HashMap<FunctionType, Method> map = methodMap.get(name);
+    if (map == null) {
+      return new MOPResult(new LinkageError("no method "+name+" defined for metaclass "+this));
     }
+
+    FunctionType signature = mopEvent.getSignature().dropFirstParameter();
+
+    MethodHandle reset = mopEvent.getReset();
+    MOPResult result = MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, reset);
+    if (result.getFailure() != null)
+      return result;
+    return new MOPResult(switcherGuard(result.getTarget(), reset));
   }
   
   @Override
   public MOPResult mopNewInstance(MOPNewInstanceEvent mopEvent) {
-    lock.lock();
-    try {
-      getContructors(); // lazy initialize
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
 
-      FunctionType signature = mopEvent.getSignature().dropFirstParameter();
+    getContructors(); // lazy initialize
 
-      MethodHandle reset = mopEvent.getReset();
-      MOPResult result = MethodResolver.resolve(constructorMap, true, signature, false, reset);
-      if (result.getFailure() != null)
-        return result;
-      return new MOPResult(switcherGuard(result.getTarget(), reset));
-    } finally {
-      lock.unlock();
-    }
+    FunctionType signature = mopEvent.getSignature().dropFirstParameter();
+
+    MethodHandle reset = mopEvent.getReset();
+    MOPResult result = MethodResolver.resolve(constructorMap, true, signature, false, reset);
+    if (result.getFailure() != null)
+      return result;
+    return new MOPResult(switcherGuard(result.getTarget(), reset));
   }
   
   @Override
   public MOPResult mopOperator(MOPOperatorEvent mopEvent) {
-    lock.lock();
-    try {
-      getMethods(); // lazy initialize
-      String name = mopEvent.getName();
-      HashMap<FunctionType, Method> map = methodMap.get(name);
-      if (map == null) {
-        return new MOPResult(new LinkageError("no method "+name+" defined for metaclass "+this));
-      }
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
 
-      FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-
-      MethodHandle reset = mopEvent.getReset();
-      MOPResult result = MethodResolver.resolve(map, false, signature, false, reset);
-      if (result.getFailure() != null)
-        return result;
-      return new MOPResult(switcherGuard(result.getTarget(), reset));
-    } finally {
-      lock.unlock();
+    getMethods(); // lazy initialize
+    String name = mopEvent.getName();
+    HashMap<FunctionType, Method> map = methodMap.get(name);
+    if (map == null) {
+      return new MOPResult(new LinkageError("no method "+name+" defined for metaclass "+this));
     }
+
+    FunctionType signature = mopEvent.getSignature().dropFirstParameter();
+
+    MethodHandle reset = mopEvent.getReset();
+    MOPResult result = MethodResolver.resolve(map, false, signature, false, reset);
+    if (result.getFailure() != null)
+      return result;
+    return new MOPResult(switcherGuard(result.getTarget(), reset));
   }
   
   @Override
   public MOPResult mopDoCall(MOPDoCallEvent mopEvent) {
-    lock.lock();
-    try {
-      if (type.isAssignableFrom(Closure.class)) {
-        MOPResult result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
-            mopEvent.getReset(), false, "asMethodHandle",
-            new FunctionType(RT.getMetaClass(MethodHandle.class), this)));
-        if (result.getFailure() != null) {
-          return result;
-        }
-        MethodType type = RT.asDynMethodType(mopEvent.getSignature());
-        MethodHandle combiner = result.getTarget();
-        combiner = MethodHandles.dropArguments(combiner, 0, type.parameterArray());
-        MethodHandle target = MethodHandles.foldArguments(MethodHandles.exactInvoker(type), combiner);
-        return new MOPResult(target);
-      }
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
 
-      return mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
-          mopEvent.getReset(), false, "doCall",
-          mopEvent.getSignature()));
-    } finally {
-      lock.unlock();
+    if (type.isAssignableFrom(Closure.class)) {
+      MOPResult result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
+          mopEvent.getReset(), false, "asMethodHandle",
+          new FunctionType(RT.getMetaClass(MethodHandle.class), this)));
+      if (result.getFailure() != null) {
+        return result;
+      }
+      MethodType type = RT.asDynMethodType(mopEvent.getSignature());
+      MethodHandle combiner = result.getTarget();
+      combiner = MethodHandles.dropArguments(combiner, 0, type.parameterArray());
+      MethodHandle target = MethodHandles.foldArguments(MethodHandles.exactInvoker(type), combiner);
+      return new MOPResult(target);
     }
+
+    return mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
+        mopEvent.getReset(), false, "doCall",
+        mopEvent.getSignature()));
   }
   
   
   
   @Override
   public MOPResult mopGetProperty(MOPPropertyEvent mopEvent) {
-    lock.lock();
-    try {
-      String name = mopEvent.getName();
-      Property property = findProperty(name);
-      Closure getter;
-      if (property != null && (getter=property.getGetter()) != null) {
-        if (mopEvent.isStatic() && !Modifier.isStatic(property.getModifiers())) {
-          return new MOPResult(new LinkageError("property "+property+" is not static "));
-        }
-        return new MOPResult(switcherGuard(getter.asMethodHandle(), mopEvent.getReset()));
-      }
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
 
-      Attribute attribute = findAttribute(name);
-      if (attribute != null && (getter=attribute.getGetter()) != null) {
-        if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
-          return new MOPResult(new LinkageError("attribute "+attribute+" is not static "));
-        }
-        return new MOPResult(switcherGuard(getter.asMethodHandle(), mopEvent.getReset()));
+    String name = mopEvent.getName();
+    Property property = findProperty(name);
+    Closure getter;
+    if (property != null && (getter=property.getGetter()) != null) {
+      if (mopEvent.isStatic() && !Modifier.isStatic(property.getModifiers())) {
+        return new MOPResult(new LinkageError("property "+property+" is not static "));
       }
-
-      return new MOPResult(new LinkageError("no property "+name+" defined for metaclass "+this));
-    } finally {
-      lock.unlock();
+      return new MOPResult(switcherGuard(getter.asMethodHandle(), mopEvent.getReset()));
     }
+
+    Attribute attribute = findAttribute(name);
+    if (attribute != null && (getter=attribute.getGetter()) != null) {
+      if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
+        return new MOPResult(new LinkageError("attribute "+attribute+" is not static "));
+      }
+      return new MOPResult(switcherGuard(getter.asMethodHandle(), mopEvent.getReset()));
+    }
+
+    return new MOPResult(new LinkageError("no property "+name+" defined for metaclass "+this));
   }
   
   @Override
   public MOPResult mopSetProperty(MOPPropertyEvent mopEvent) {
-    lock.lock();
-    try {
-      String name = mopEvent.getName();
-      Property property = findProperty(name);
-      Closure setter;
-      if (property != null && (setter = property.getSetter()) != null) {
-        if (mopEvent.isStatic() && !Modifier.isStatic(property.getModifiers())) {
-          return new MOPResult(new LinkageError("property "+property+" is not static "));
-        }
-        return new MOPResult(switcherGuard(setter.asMethodHandle(), mopEvent.getReset()));
-      }
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
 
-      Attribute attribute = findAttribute(name);
-      if (attribute != null && (setter = attribute.getSetter()) != null) {
-        if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
-          return new MOPResult(new LinkageError("attribute "+attribute+" is not static "));
-        }
-        return new MOPResult(switcherGuard(attribute.getSetter().asMethodHandle(), mopEvent.getReset()));
+    String name = mopEvent.getName();
+    Property property = findProperty(name);
+    Closure setter;
+    if (property != null && (setter = property.getSetter()) != null) {
+      if (mopEvent.isStatic() && !Modifier.isStatic(property.getModifiers())) {
+        return new MOPResult(new LinkageError("property "+property+" is not static "));
       }
-
-      return new MOPResult(new LinkageError("no property "+name+" defined for metaclass "+this));
-    } finally {
-      lock.unlock();
+      return new MOPResult(switcherGuard(setter.asMethodHandle(), mopEvent.getReset()));
     }
+
+    Attribute attribute = findAttribute(name);
+    if (attribute != null && (setter = attribute.getSetter()) != null) {
+      if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
+        return new MOPResult(new LinkageError("attribute "+attribute+" is not static "));
+      }
+      return new MOPResult(switcherGuard(attribute.getSetter().asMethodHandle(), mopEvent.getReset()));
+    }
+
+    return new MOPResult(new LinkageError("no property "+name+" defined for metaclass "+this));
+    
   }
   
   @Override
   public MOPResult mopConverter(MetaClass metaClass) {
-    lock.lock();
-    try {
-      Collection<Method> constructors = metaClass.findConstructors(type);
-      if (constructors.size() != 1) {
-        return new MOPResult(new LinkageError("no converter for "+this+" to "+metaClass));
-      }
-      return new MOPResult(constructors.iterator().next().asMethodHandle());
-    } finally {
-      lock.unlock();
+    if (!lock.isHeldByCurrentThread())
+      throw new IllegalStateException("MOP method can only be called under the mutation lock");
+
+    Collection<Method> constructors = metaClass.findConstructors(type);
+    if (constructors.size() != 1) {
+      return new MOPResult(new LinkageError("no converter for "+this+" to "+metaClass));
     }
+    return new MOPResult(constructors.iterator().next().asMethodHandle());
   }
   
   // -- Mutation -----------------------------------------
+  
+  //TODO sealed can be volatile
   
   public boolean isSealed() {
     ReentrantLock lock = this.lock;
@@ -299,7 +288,7 @@ public class ExpandoMetaClass implements MetaClass {
   //FIXME: Possible deadlock between seal() and invalidateAll()
   //       seal takes the lock from subtypes to supertype and
   //       invalidate take them in the reverse order
-  public void seal() {
+  /*public void seal() {
     ReentrantLock lock = this.lock;
     lock.lock();
     try {
@@ -319,12 +308,7 @@ public class ExpandoMetaClass implements MetaClass {
     } finally {
       lock.unlock();
     }
-  }
-  
-  // --- DEBUG ---- must be removed
-  public void flushCache() {
-    mutator().close();
-  }
+  }*/
   
   private void flushLocalCache() {
     assert lock.isHeldByCurrentThread();
@@ -380,6 +364,7 @@ public class ExpandoMetaClass implements MetaClass {
   }
   
   public class Mutator implements MetaClassMutator {
+    private boolean mutation;
     Mutator() {
       lock.lock();
     }
@@ -387,7 +372,9 @@ public class ExpandoMetaClass implements MetaClass {
     @Override
     public void close() {
       try {
-        invalidateAll();
+        if (mutation) {
+          invalidateAll();
+        }
       } finally {
         lock.unlock();
       }
@@ -395,17 +382,21 @@ public class ExpandoMetaClass implements MetaClass {
     
     // this method is in fact a module private method
     public void addSuperType(MetaClass superType) {
+      mutation = true;
       superTypes.add(superType);
+      
       //FIXME
       ((ExpandoMetaClass)superType).subTypes.add(new WeakReference<MetaClass>(ExpandoMetaClass.this));
     }
 
     @Override
     public void addMixin(MetaClass mixin) {
+      mutation = true;
       mixins.add(mixin);
     }
     @Override
     public void removeMixin(MetaClass mixin) {
+      mutation = true;
       mixins.remove(mixin);
     }
 
@@ -451,6 +442,8 @@ public class ExpandoMetaClass implements MetaClass {
   }
   
   // -- Reflection ---------------------------------------
+  
+  // TODO: find* can be implemented using CAS
   
   @Override
   public Attribute findAttribute(String name) {
@@ -725,18 +718,19 @@ public class ExpandoMetaClass implements MetaClass {
   
   @Override
   public Collection<Method> getContructors() {
+    HashMap<FunctionType, Method> constructorMap;
     lock.lock();
     try {
-      HashMap<FunctionType, Method> constructorMap = this.constructorMap;
+      constructorMap = this.constructorMap;
       if (constructorMap == null) {
         constructorMap = new HashMap<FunctionType, Method>();
         populateConstructorMap(constructorMap);
         this.constructorMap = constructorMap;
       }
-      return Collections.unmodifiableCollection(constructorMap.values());
     } finally {
       lock.unlock();
     }
+    return Collections.unmodifiableCollection(constructorMap.values());
   }
 
   private void populateConstructorMap(HashMap<FunctionType, Method> constructorMap) {

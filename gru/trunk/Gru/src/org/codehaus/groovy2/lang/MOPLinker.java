@@ -1,6 +1,7 @@
 package org.codehaus.groovy2.lang;
 
 import groovy2.lang.MetaClass;
+import groovy2.lang.MetaClassMutator;
 import groovy2.lang.mop.MOPDoCallEvent;
 import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
@@ -106,8 +107,7 @@ public class MOPLinker {
   
   public static Object fallback(MOPCallSite callSite, Object[] args) throws Throwable {
     try {
-      MethodHandle oldTarget = callSite.getTarget();
-      MethodType type = oldTarget.type();
+      MethodType type = callSite.getTarget().type();
       
       boolean isStatic = false;
       Class<?> receiverClass = type.parameterType(0);
@@ -125,31 +125,46 @@ public class MOPLinker {
       //System.out.println("MOP linker "+callSite.mopKind+"$"+callSite.name+" "+clazz+" "+metaClass+" "+isStatic);
       
       // special case: StaticClass.metaClass is hardcoded
+      // because it will be never change, no need to hold the mutation lock
       if (isStatic && callSite.mopKind == MOPKind.MOP_GET_PROPERTY && "metaClass".equals(callSite.name)){
         MethodHandle target = MethodHandles.convertArguments(getMetaClass, type);
         callSite.setTarget(target);
         return target.invokeVarargs(args);
       }
       
-      MOPResult result = upcallMOP(callSite.mopKind, metaClass, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
-      Throwable failure = result.getFailure();
-      if (failure != null) {
-        throw new LinkageError("MOP not found "+callSite.name+dynamicType+" reason "+failure.getMessage(), failure);
+      /* The call to the MOP must be done with a lock on the metaclass mutation
+       * because if another thread do mutation, there is a risk that
+       * the new target installed may be erased when installing the fast-path.
+       */
+      MethodHandle target;
+      MetaClassMutator mutator = metaClass.mutator();
+      try {
+        MOPResult result = upcallMOP(callSite.mopKind, metaClass, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
+        Throwable failure = result.getFailure();
+        if (failure != null) {
+          throw new LinkageError("MOP not found "+callSite.name+dynamicType+" reason "+failure.getMessage(), failure);
+        }
+        
+        target = result.getTarget();
+        target = MethodHandles.convertArguments(target, type);
+        MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
+        test = MethodHandles.insertArguments(test, 0, receiverClass);
+        test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
+        
+        // Must be done under the mutation lock
+        // if the thread is preempted just after this instruction, the
+        // updated callsite will not take into account all fast paths installed
+        // in between. Not a big deal, they will be installed later
+        MethodHandle oldTarget = callSite.getTarget(); 
+        
+        MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
+
+        callSite.setTarget(guard);
+      } finally {
+        mutator.close();
       }
-
-      //FIXME, result.control is not used
-
-      MethodHandle target = result.getTarget();
-      
-      target = MethodHandles.convertArguments(target, type);
-      MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
-      test = MethodHandles.insertArguments(test, 0, receiverClass);
-      test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
-      MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
-
-      callSite.setTarget(guard);
       return target.invokeVarargs(args);
-
+      
     } catch(Throwable t) {
       t.printStackTrace();
       throw t;
@@ -157,7 +172,13 @@ public class MOPLinker {
   }
   
   public static Object reset(MOPCallSite callSite, MethodHandle fallback, Object[] args) throws Throwable {
+    // we don't hold any lock here, so perhaps the target will be written
+    // before being read by the fallback, in that case, it will create a method handle tree
+    // containing an invalidated method handle.
+    // But because fallback install the guard before the fallback tree,
+    // the semantics will be ok, the MH tree just contains dead code.
     callSite.setTarget(fallback);
+    
     return fallback(callSite, args);
   }
   
@@ -179,7 +200,7 @@ public class MOPLinker {
       Class<?> type = methodType.parameterType(i);
       if (!type.isPrimitive()) {  // null check not needed for primitive
         Object arg = args[i];
-        type = (arg == null)? type: args.getClass();
+        type = (arg == null)? type: arg.getClass();
       }
       types[i] = type;
     }
