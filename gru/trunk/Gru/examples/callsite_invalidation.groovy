@@ -10,7 +10,7 @@ System.out.println(foo("hello" , 1))
 System.out.println(foo("foo" , 2))
 
 //String.metaClass.flushCache()
-String.metaClass.seal()
+//String.metaClass.seal()
 
 System.out.println(foo("hello" , 1))
 System.out.println(foo("foo" , 2))

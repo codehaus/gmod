@@ -4,10 +4,12 @@ import java.dyn.MethodHandle;
 
 public class MOPEvent {
   private final Class<?> callerClass;
+  private final MethodHandle fallback;
   private final MethodHandle reset;
   
-  public MOPEvent(Class<?> callerClass, MethodHandle reset) {
+  public MOPEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset) {
     this.callerClass = callerClass;
+    this.fallback = fallback;
     this.reset = reset;
   }
   
@@ -16,6 +18,10 @@ public class MOPEvent {
    */
   public Class<?> getCallerClass() {
     return callerClass;
+  }
+  
+  public MethodHandle getFallback() {
+    return fallback;
   }
   
   public MethodHandle getReset() {

@@ -9,8 +9,8 @@ public class MOPInvokeEvent extends MOPEvent {
   private final String name;
   private final FunctionType signature;
   
-  public MOPInvokeEvent(Class<?> callerClass, MethodHandle reset, boolean isStatic, String name, FunctionType signature) {
-    super(callerClass, reset);
+  public MOPInvokeEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset, boolean isStatic, String name, FunctionType signature) {
+    super(callerClass, fallback, reset);
     this.isStatic = isStatic;
     this.name = name;
     this.signature = signature;

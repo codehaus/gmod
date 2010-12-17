@@ -7,8 +7,8 @@ import java.dyn.MethodHandle;
 public class MOPNewInstanceEvent extends MOPEvent {
   private final FunctionType signature;
   
-  public MOPNewInstanceEvent(Class<?> callerClass, MethodHandle reset, FunctionType signature) {
-    super(callerClass, reset);
+  public MOPNewInstanceEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset, FunctionType signature) {
+    super(callerClass, fallback, reset);
     this.signature = signature;
   }
   

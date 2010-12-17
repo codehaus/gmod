@@ -73,9 +73,9 @@ public class MOPLinker {
       target = MethodHandles.collectArguments(target, type.generic());
       target = MethodHandles.convertArguments(target, type);
 
-      MethodHandle reset = MethodHandles.insertArguments(MOPLinker.RESET, 0, callSite, FALLBACK);
-      reset = MethodHandles.collectArguments(target, type.generic());
-      reset = MethodHandles.convertArguments(target, type);
+      MethodHandle reset = MethodHandles.insertArguments(RESET, 0, callSite, target);
+      reset = MethodHandles.collectArguments(reset, type.generic());
+      reset = MethodHandles.convertArguments(reset, type);
       callSite.reset = reset;
       
       callSite.setTarget(target);
@@ -103,15 +103,23 @@ public class MOPLinker {
       this.mopKind = mopKind;
       this.name = name;
     }
+    
+    @Override
+    public String toString() {
+      return "CS: "+declaringClass.getName()+'.'+mopKind+'$'+name;
+    }
   }
   
   public static Object fallback(MOPCallSite callSite, Object[] args) throws Throwable {
+    //System.out.println("fallback "+callSite+" args " + java.util.Arrays.toString(args));
+    
     try {
       MethodType type = callSite.getTarget().type();
       
       boolean isStatic = false;
       Class<?> receiverClass = type.parameterType(0);
-      if (!receiverClass.isPrimitive()) {
+      boolean isReceiverClassPrimitive = receiverClass.isPrimitive();
+      if (!isReceiverClassPrimitive) {
         Object receiver = args[0];
         receiverClass = receiver.getClass();   // object -> class -> metaclass
         if (receiverClass == Class.class) {    // is a static call ? 
@@ -139,17 +147,6 @@ public class MOPLinker {
       MethodHandle target;
       MetaClassMutator mutator = metaClass.mutator();
       try {
-        MOPResult result = upcallMOP(callSite.mopKind, metaClass, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
-        Throwable failure = result.getFailure();
-        if (failure != null) {
-          throw new LinkageError("MOP not found "+callSite.name+dynamicType+" reason "+failure.getMessage(), failure);
-        }
-        
-        target = result.getTarget();
-        target = MethodHandles.convertArguments(target, type);
-        MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
-        test = MethodHandles.insertArguments(test, 0, receiverClass);
-        test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
         
         // Must be done under the mutation lock
         // if the thread is preempted just after this instruction, the
@@ -157,9 +154,28 @@ public class MOPLinker {
         // in between. Not a big deal, they will be installed later
         MethodHandle oldTarget = callSite.getTarget(); 
         
-        MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
+        MOPResult result = upcallMOP(callSite.mopKind, metaClass, oldTarget, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
+        Throwable failure = result.getFailure();
+        if (failure != null) {
+          throw new LinkageError("MOP not found "+callSite.name+dynamicType+" reason "+failure.getMessage(), failure);
+        }
+        
+        target = result.getTarget();
+        target = MethodHandles.convertArguments(target, type);
+        
+        if (!isReceiverClassPrimitive) {
+          MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
+          test = MethodHandles.insertArguments(test, 0, receiverClass);
+          test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
 
-        callSite.setTarget(guard);
+          MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
+          callSite.setTarget(guard);
+          
+        } else {
+          // the receiver class is primitive, so it's not a polymorphic call
+          callSite.setTarget(target);
+        }
+        
       } finally {
         mutator.close();
       }
@@ -172,6 +188,8 @@ public class MOPLinker {
   }
   
   public static Object reset(MOPCallSite callSite, MethodHandle fallback, Object[] args) throws Throwable {
+    //System.out.println("reset");
+    
     // we don't hold any lock here, so perhaps the target will be written
     // before being read by the fallback, in that case, it will create a method handle tree
     // containing an invalidated method handle.
@@ -207,20 +225,20 @@ public class MOPLinker {
     return MethodType.methodType(methodType.returnType(), types);
   }
 
-  private static MOPResult upcallMOP(MOPKind kind, MetaClass metaClass, MethodHandle fallback, Class<?> declaringClass, boolean isStatic, String name, MethodType type) {
+  private static MOPResult upcallMOP(MOPKind kind, MetaClass metaClass, MethodHandle fallback, MethodHandle reset, Class<?> declaringClass, boolean isStatic, String name, MethodType type) {
     switch(kind) {
     case MOP_GET_PROPERTY:
-      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, fallback, isStatic, name, RT.getMetaClass(type.returnType())));
+      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, fallback, reset, isStatic, name, RT.getMetaClass(type.returnType())));
     case MOP_SET_PROPERTY:
-      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, fallback, isStatic, name, RT.getMetaClass(type.parameterType(1))));
+      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, fallback, reset, isStatic, name, RT.getMetaClass(type.parameterType(1))));
     case MOP_INVOKE:
-      return metaClass.mopInvoke(new MOPInvokeEvent(declaringClass, fallback, isStatic, name, RT.asFunctionType(type)));
+      return metaClass.mopInvoke(new MOPInvokeEvent(declaringClass, fallback, reset, isStatic, name, RT.asFunctionType(type)));
     case MOP_NEW_INSTANCE:
-      return metaClass.mopNewInstance(new MOPNewInstanceEvent(declaringClass, fallback, RT.asFunctionType(type)));
+      return metaClass.mopNewInstance(new MOPNewInstanceEvent(declaringClass, fallback, reset, RT.asFunctionType(type)));
     case MOP_OPERATOR:
-      return metaClass.mopOperator(new MOPOperatorEvent(declaringClass, fallback, name, RT.asFunctionType(type)));
+      return metaClass.mopOperator(new MOPOperatorEvent(declaringClass, fallback, reset, name, RT.asFunctionType(type)));
     case MOP_DO_CALL:
-      return metaClass.mopDoCall(new MOPDoCallEvent(declaringClass, fallback, RT.asFunctionType(type)));
+      return metaClass.mopDoCall(new MOPDoCallEvent(declaringClass, fallback, reset, RT.asFunctionType(type)));
     }
     return null;
   }

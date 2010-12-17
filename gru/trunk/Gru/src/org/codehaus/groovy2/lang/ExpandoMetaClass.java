@@ -43,12 +43,11 @@ public class ExpandoMetaClass implements MetaClass {
   final ReentrantLock lock =
       new ReentrantLock();
   
-  volatile Switcher switcher;
+  private Switcher switcher;
   private boolean sealed;
   
   private final Class<?> type;
-  final CopyOnWriteArrayList<MetaClass> superTypes =
-      new CopyOnWriteArrayList<MetaClass>();
+  final CopyOnWriteArrayList<MetaClass> superTypes;
   final CopyOnWriteArrayList<MetaClass> mixins =
       new CopyOnWriteArrayList<MetaClass>();
   
@@ -64,19 +63,18 @@ public class ExpandoMetaClass implements MetaClass {
   public ExpandoMetaClass(Class<?> type) {
     this.type = type;
     
+    this.switcher = new Switcher();
+    
     // init hierarchy
-    Mutator mutator = mutator();
-    try {
-      for(Class<?> interfaze: type.getInterfaces()) {
-        mutator.addSuperType(RT.getMetaClass(interfaze));
-      }
-      Class<?> superclass = (type.isInterface())? Object.class: type.getSuperclass();
-      if (superclass != null) {
-        mutator.addSuperType(RT.getMetaClass(superclass));
-      } 
-    } finally {
-      mutator.close();   // this line also create a new Switcher
+    ArrayList<MetaClass> superTypes = new ArrayList<MetaClass>();
+    for(Class<?> interfaze: type.getInterfaces()) {
+      superTypes.add(RT.getMetaClass(interfaze));
     }
+    Class<?> superclass = (type.isInterface())? Object.class: type.getSuperclass();
+    if (superclass != null) {
+      superTypes.add(RT.getMetaClass(superclass));
+    }
+    this.superTypes = new CopyOnWriteArrayList<MetaClass>(superTypes);
   }
   
   @Override
@@ -135,11 +133,10 @@ public class ExpandoMetaClass implements MetaClass {
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
 
-    MethodHandle reset = mopEvent.getReset();
-    MOPResult result = MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, reset);
+    MOPResult result = MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, mopEvent.getFallback());
     if (result.getFailure() != null)
       return result;
-    return new MOPResult(switcherGuard(result.getTarget(), reset));
+    return new MOPResult(switcherGuard(result.getTarget(), mopEvent.getReset()));
   }
   
   @Override
@@ -186,7 +183,7 @@ public class ExpandoMetaClass implements MetaClass {
 
     if (type.isAssignableFrom(Closure.class)) {
       MOPResult result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
-          mopEvent.getReset(), false, "asMethodHandle",
+          mopEvent.getFallback(), mopEvent.getReset(), false, "asMethodHandle",
           new FunctionType(RT.getMetaClass(MethodHandle.class), this)));
       if (result.getFailure() != null) {
         return result;
@@ -199,7 +196,7 @@ public class ExpandoMetaClass implements MetaClass {
     }
 
     return mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
-        mopEvent.getReset(), false, "doCall",
+        mopEvent.getFallback(), mopEvent.getReset(), false, "doCall",
         mopEvent.getSignature()));
   }
   
@@ -323,16 +320,13 @@ public class ExpandoMetaClass implements MetaClass {
   void invalidateAll() {
     assert lock.isHeldByCurrentThread();
     
+    //System.out.println("invalidateAll "+type);
+    
     flushLocalCache();
     
     // all future callsite paths will be protected with a new Switcher
-    if (switcher != null) {
-      Switcher.invalidate(switcher);
-      switcher = null;
-    }
-    if (!sealed) {
-      switcher = new Switcher();
-    }
+    Switcher.invalidate(switcher);
+    switcher = new Switcher();
     
     for(Iterator<WeakReference<MetaClass>> it = subTypes.iterator(); it.hasNext();) {
       WeakReference<MetaClass> reference = it.next();
