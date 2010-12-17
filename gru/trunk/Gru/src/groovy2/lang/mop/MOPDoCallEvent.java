@@ -7,8 +7,8 @@ import groovy2.lang.FunctionType;
 public class MOPDoCallEvent extends MOPEvent {
   private final FunctionType signature;
   
-  public MOPDoCallEvent(Class<?> callerClass, MethodHandle reset, FunctionType signature) {
-    super(callerClass, reset);
+  public MOPDoCallEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset, FunctionType signature) {
+    super(callerClass, fallback, reset);
     this.signature = signature;
   }
   
