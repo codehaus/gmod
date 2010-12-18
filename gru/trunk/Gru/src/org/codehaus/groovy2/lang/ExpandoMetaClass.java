@@ -2,17 +2,20 @@ package org.codehaus.groovy2.lang;
 
 import groovy2.lang.Attribute;
 import groovy2.lang.Closure;
+import groovy2.lang.Failures;
 import groovy2.lang.FunctionType;
+import groovy2.lang.MOPResult;
 import groovy2.lang.MetaClass;
 import groovy2.lang.MetaClassMutator;
 import groovy2.lang.Method;
 import groovy2.lang.Property;
+import groovy2.lang.mop.MOPConvertEvent;
 import groovy2.lang.mop.MOPDoCallEvent;
+import groovy2.lang.mop.MOPEvent;
 import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
 import groovy2.lang.mop.MOPOperatorEvent;
-import groovy2.lang.mop.MOPResult;
 
 import java.dyn.MethodHandle;
 import java.dyn.MethodHandles;
@@ -36,6 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.codehaus.groovy2.dyn.Switcher;
 import org.codehaus.groovy2.lang.java.JVMAttribute;
+import org.codehaus.groovy2.lang.java.JVMClosure;
 import org.codehaus.groovy2.lang.java.JVMMethod;
 import org.codehaus.groovy2.lang.java.JVMProperty;
 
@@ -107,164 +111,230 @@ public class ExpandoMetaClass implements MetaClass {
   }
   
   
+  
   // -- MOP ---------------------------------------------
   
-  private MethodHandle switcherGuard(MethodHandle target, MethodHandle fallback) {
-    assert lock.isHeldByCurrentThread();
-    
+  private static MOPResult asMOPResult(Switcher switcher, Closure target) {
+    /*
     if (sealed) { // metaclass can't change, guard not needed
       return target;
+    }*/
+
+    return new MOPResult(target, switcher);
+  }
+  
+  private static MOPResult asMOPResult(Switcher switcher, MOPResult mopResult) {
+    /*
+    if (sealed) { // metaclass can't change, guard not needed
+      return target;
+    }*/
+
+    if (mopResult.getConditions().isEmpty()) {
+      return new MOPResult(mopResult.getTarget(), switcher);
     }
-    target = MethodHandles.convertArguments(target, fallback.type());
-    return switcher.guard(target, fallback);
+    
+    ArrayList<Switcher> switchers = new ArrayList<Switcher>(mopResult.getConditions());
+    switchers.add(switcher);
+    return new MOPResult(mopResult.getTarget(), switchers);
   }
   
   @Override
   public MOPResult mopInvoke(MOPInvokeEvent mopEvent) { 
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
-
-    getMethods(); // lazy initialize
+    Switcher switcher;
+    HashMap<String, HashMap<FunctionType, Method>> methodMap;
+    lock.lock();
+    try {
+      getMethods(); // lazy initialize
+      methodMap = this.methodMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
+    
     String name = mopEvent.getName();
     HashMap<FunctionType, Method> map = methodMap.get(name);
     if (map == null) {
-      return new MOPResult(new LinkageError("no method "+name+" defined for metaclass "+this));
+      return asMOPResult(switcher, Failures.fail("no method "+name+" defined for metaclass "+this));
     }
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-
-    MOPResult result = MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, mopEvent.getFallback());
-    if (result.getFailure() != null)
-      return result;
-    return new MOPResult(switcherGuard(result.getTarget(), mopEvent.getReset()));
+    return asMOPResult(switcher, MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, mopEvent.getFallback()));
   }
   
   @Override
   public MOPResult mopNewInstance(MOPNewInstanceEvent mopEvent) {
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
-
-    getContructors(); // lazy initialize
+    Switcher switcher; 
+    HashMap<FunctionType, Method> constructorMap;
+    lock.lock();
+    try {
+      getContructors(); // lazy initialize
+      constructorMap = this.constructorMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-
     MethodHandle reset = mopEvent.getReset();
-    MOPResult result = MethodResolver.resolve(constructorMap, true, signature, false, reset);
-    if (result.getFailure() != null)
-      return result;
-    return new MOPResult(switcherGuard(result.getTarget(), reset));
+    return asMOPResult(switcher, MethodResolver.resolve(constructorMap, true, signature, false, reset));
   }
   
   @Override
   public MOPResult mopOperator(MOPOperatorEvent mopEvent) {
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
-
-    getMethods(); // lazy initialize
+    Switcher switcher;
+    HashMap<String, HashMap<FunctionType, Method>> methodMap;
+    lock.lock();
+    try {
+      getMethods(); // lazy initialize
+      methodMap = this.methodMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
     String name = mopEvent.getName();
     HashMap<FunctionType, Method> map = methodMap.get(name);
     if (map == null) {
-      return new MOPResult(new LinkageError("no method "+name+" defined for metaclass "+this));
+      return asMOPResult(switcher, Failures.fail("no method "+name+" defined for metaclass "+this));
     }
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-
-    MethodHandle reset = mopEvent.getReset();
-    MOPResult result = MethodResolver.resolve(map, false, signature, false, reset);
-    if (result.getFailure() != null)
-      return result;
-    return new MOPResult(switcherGuard(result.getTarget(), reset));
+    return asMOPResult(switcher, MethodResolver.resolve(map, false, signature, false, mopEvent.getReset()));
   }
   
   @Override
   public MOPResult mopDoCall(MOPDoCallEvent mopEvent) {
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
-
+    throw new UnsupportedOperationException();
+    /*
     if (type.isAssignableFrom(Closure.class)) {
-      MOPResult result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
-          mopEvent.getFallback(), mopEvent.getReset(), false, "asMethodHandle",
+      Closure result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
+          mopEvent.isLazyAllowed(),
+          mopEvent.getFallback(), mopEvent.getReset(),
+          false, "asMethodHandle",
           new FunctionType(RT.getMetaClass(MethodHandle.class), this)));
-      if (result.getFailure() != null) {
+      if (Failures.isFailure(result)) {
         return result;
       }
       MethodType type = RT.asDynMethodType(mopEvent.getSignature());
-      MethodHandle combiner = result.getTarget();
+      MethodHandle combiner = result.asMethodHandle();
       combiner = MethodHandles.dropArguments(combiner, 0, type.parameterArray());
       MethodHandle target = MethodHandles.foldArguments(MethodHandles.exactInvoker(type), combiner);
-      return new MOPResult(target);
+      return new JVMClosure(false, target);
     }
 
     return mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
-        mopEvent.getFallback(), mopEvent.getReset(), false, "doCall",
+        mopEvent.isLazyAllowed(),
+        mopEvent.getFallback(), mopEvent.getReset(),
+        false, "doCall",
         mopEvent.getSignature()));
+    */
   }
   
   
   
   @Override
   public MOPResult mopGetProperty(MOPPropertyEvent mopEvent) {
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
-
+    Switcher switcher;
+    HashMap<String, Property> propertyMap;
+    lock.lock();
+    try {
+      getProperties();  // lazy init
+      propertyMap = this.propertyMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
+    
     String name = mopEvent.getName();
-    Property property = findProperty(name);
+    Property property = propertyMap.get(name);
     Closure getter;
     if (property != null && (getter=property.getGetter()) != null) {
       if (mopEvent.isStatic() && !Modifier.isStatic(property.getModifiers())) {
-        return new MOPResult(new LinkageError("property "+property+" is not static "));
+        return asMOPResult(switcher, Failures.fail("property "+property+" is not static "));
       }
-      return new MOPResult(switcherGuard(getter.asMethodHandle(), mopEvent.getReset()));
+      return asMOPResult(switcher, getter);
     }
 
-    Attribute attribute = findAttribute(name);
+    HashMap<String, Attribute> attributeMap;
+    lock.lock();
+    try {
+      getAttributes();  // lazy init
+      attributeMap = this.attributeMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
+    
+    Attribute attribute = attributeMap.get(name);
     if (attribute != null && (getter=attribute.getGetter()) != null) {
       if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
-        return new MOPResult(new LinkageError("attribute "+attribute+" is not static "));
+        return asMOPResult(switcher, Failures.fail("attribute "+attribute+" is not static "));
       }
-      return new MOPResult(switcherGuard(getter.asMethodHandle(), mopEvent.getReset()));
+      return asMOPResult(switcher, getter);
     }
 
-    return new MOPResult(new LinkageError("no property "+name+" defined for metaclass "+this));
+    return asMOPResult(switcher, Failures.fail("no property "+name+" defined for metaclass "+this));
   }
   
   @Override
   public MOPResult mopSetProperty(MOPPropertyEvent mopEvent) {
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
+    Switcher switcher;
+    HashMap<String, Property> propertyMap;
+    lock.lock();
+    try {
+      getProperties();  // lazy init
+      propertyMap = this.propertyMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
 
     String name = mopEvent.getName();
-    Property property = findProperty(name);
+    Property property = propertyMap.get(name);
     Closure setter;
     if (property != null && (setter = property.getSetter()) != null) {
       if (mopEvent.isStatic() && !Modifier.isStatic(property.getModifiers())) {
-        return new MOPResult(new LinkageError("property "+property+" is not static "));
+        return asMOPResult(switcher, Failures.fail("property "+property+" is not static "));
       }
-      return new MOPResult(switcherGuard(setter.asMethodHandle(), mopEvent.getReset()));
+      return asMOPResult(switcher, setter);
     }
 
-    Attribute attribute = findAttribute(name);
+    HashMap<String, Attribute> attributeMap;
+    lock.lock();
+    try {
+      getAttributes();  // lazy init
+      attributeMap = this.attributeMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
+    }
+    
+    Attribute attribute = attributeMap.get(name);
     if (attribute != null && (setter = attribute.getSetter()) != null) {
       if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
-        return new MOPResult(new LinkageError("attribute "+attribute+" is not static "));
+        return asMOPResult(switcher, Failures.fail("attribute "+attribute+" is not static "));
       }
-      return new MOPResult(switcherGuard(attribute.getSetter().asMethodHandle(), mopEvent.getReset()));
+      return asMOPResult(switcher, setter);
     }
 
-    return new MOPResult(new LinkageError("no property "+name+" defined for metaclass "+this));
+    return asMOPResult(switcher, Failures.fail("no property "+name+" defined for metaclass "+this));
     
   }
   
   @Override
-  public MOPResult mopConverter(MetaClass metaClass) {
-    if (!lock.isHeldByCurrentThread())
-      throw new IllegalStateException("MOP method can only be called under the mutation lock");
-
-    Collection<Method> constructors = metaClass.findConstructors(type);
-    if (constructors.size() != 1) {
-      return new MOPResult(new LinkageError("no converter for "+this+" to "+metaClass));
+  public MOPResult mopConverter(MOPConvertEvent mopEvent) {
+    Switcher switcher;
+    HashMap<FunctionType, Method> constructorMap;
+    lock.lock();
+    try {  
+      getContructors();  // lazy init
+      constructorMap = this.constructorMap;
+      switcher = this.switcher;
+    } finally {
+      lock.unlock();
     }
-    return new MOPResult(constructors.iterator().next().asMethodHandle());
+    
+    FunctionType functionType = new FunctionType(mopEvent.getType(), this);
+    return asMOPResult(switcher, MethodResolver.resolve(constructorMap, true, functionType, false, mopEvent.getReset()));
   }
   
   // -- Mutation -----------------------------------------
@@ -436,8 +506,6 @@ public class ExpandoMetaClass implements MetaClass {
   }
   
   // -- Reflection ---------------------------------------
-  
-  // TODO: find* can be implemented using CAS
   
   @Override
   public Attribute findAttribute(String name) {

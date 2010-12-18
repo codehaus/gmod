@@ -1,13 +1,12 @@
 package org.codehaus.groovy2.lang;
 
+import groovy2.lang.MOPResult;
 import groovy2.lang.MetaClass;
-import groovy2.lang.MetaClassMutator;
 import groovy2.lang.mop.MOPDoCallEvent;
 import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
 import groovy2.lang.mop.MOPOperatorEvent;
-import groovy2.lang.mop.MOPResult;
 
 import java.dyn.CallSite;
 import java.dyn.MethodHandle;
@@ -16,6 +15,9 @@ import java.dyn.MethodHandles.Lookup;
 import java.dyn.MethodType;
 import java.dyn.NoAccessException;
 import java.util.HashMap;
+import java.util.List;
+
+import org.codehaus.groovy2.dyn.Switcher;
 
 
 public class MOPLinker {
@@ -78,6 +80,8 @@ public class MOPLinker {
       reset = MethodHandles.convertArguments(reset, type);
       callSite.reset = reset;
       
+      callSite.lazy = true;
+      
       callSite.setTarget(target);
       return callSite;
 
@@ -97,6 +101,7 @@ public class MOPLinker {
     final MOPKind mopKind;
     final String name;
     MethodHandle reset;
+    volatile boolean lazy;
     
     public MOPCallSite(Class<?> declaringClass, MOPKind mopKind, String name) {
       this.declaringClass = declaringClass;
@@ -145,40 +150,42 @@ public class MOPLinker {
        * the new target installed may be erased when installing the fast-path.
        */
       MethodHandle target;
-      MetaClassMutator mutator = metaClass.mutator();
-      try {
-        
-        // Must be done under the mutation lock
-        // if the thread is preempted just after this instruction, the
-        // updated callsite will not take into account all fast paths installed
-        // in between. Not a big deal, they will be installed later
-        MethodHandle oldTarget = callSite.getTarget(); 
-        
-        MOPResult result = upcallMOP(callSite.mopKind, metaClass, oldTarget, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
-        Throwable failure = result.getFailure();
-        if (failure != null) {
-          throw new LinkageError("MOP not found "+callSite.name+dynamicType+" reason "+failure.getMessage(), failure);
-        }
-        
-        target = result.getTarget();
-        target = MethodHandles.convertArguments(target, type);
-        
-        if (!isReceiverClassPrimitive) {
-          MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
-          test = MethodHandles.insertArguments(test, 0, receiverClass);
-          test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
 
-          MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
-          callSite.setTarget(guard);
-          
-        } else {
-          // the receiver class is primitive, so it's not a polymorphic call
-          callSite.setTarget(target);
-        }
-        
-      } finally {
-        mutator.close();
+      MethodHandle oldTarget = callSite.getTarget(); 
+
+      MOPResult result = upcallMOP(callSite.mopKind, metaClass, callSite.lazy, oldTarget, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
+
+      target = result.getTarget().asMethodHandle();
+      MethodType targetType = target.type();
+      int targetTypeCount = targetType.parameterCount();
+      int typeCount = type.parameterCount();
+      if (targetTypeCount > typeCount) { 
+        throw new LinkageError("target type has more parameters than callsite arguments"+
+            target+" "+type);
       }
+      // we allow a closure with less parameters than callsite arguments
+      if (targetTypeCount < typeCount) {
+        target = MethodHandles.dropArguments(target, targetTypeCount,
+            type.parameterList().subList(targetTypeCount, typeCount));
+      }
+      target = MethodHandles.convertArguments(target, type);
+
+      // prepends switcher guards
+      target = prependSwitcherGuards(target, result.getConditions(), callSite.reset);
+
+      if (!isReceiverClassPrimitive) {
+        MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
+        test = MethodHandles.insertArguments(test, 0, receiverClass);
+        test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
+
+        MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
+        callSite.setTarget(guard);
+
+      } else {
+        // the receiver class is primitive, so it's not a polymorphic call
+        callSite.setTarget(target);
+      } 
+      
       return target.invokeVarargs(args);
       
     } catch(Throwable t) {
@@ -187,6 +194,13 @@ public class MOPLinker {
     }
   }
   
+  private static MethodHandle prependSwitcherGuards(MethodHandle target, List<Switcher> conditions, MethodHandle reset) {
+    for(int i=conditions.size(); --i>=0;) {
+      target = conditions.get(i).guard(target, reset);
+    }
+    return target;
+  }
+
   public static Object reset(MOPCallSite callSite, MethodHandle fallback, Object[] args) throws Throwable {
     //System.out.println("reset");
     
@@ -194,8 +208,11 @@ public class MOPLinker {
     // before being read by the fallback, in that case, it will create a method handle tree
     // containing an invalidated method handle.
     // But because fallback install the guard before the fallback tree,
-    // the semantics will be ok, the MH tree just contains dead code.
+    // the semantics will be ok, the MH tree will just contains dead code.
     callSite.setTarget(fallback);
+    
+    // start with a fresh callsite, new generated target can be lazy
+    callSite.lazy = true;     // volatile write, force target to be written
     
     return fallback(callSite, args);
   }
@@ -225,20 +242,20 @@ public class MOPLinker {
     return MethodType.methodType(methodType.returnType(), types);
   }
 
-  private static MOPResult upcallMOP(MOPKind kind, MetaClass metaClass, MethodHandle fallback, MethodHandle reset, Class<?> declaringClass, boolean isStatic, String name, MethodType type) {
+  private static MOPResult upcallMOP(MOPKind kind, MetaClass metaClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, Class<?> declaringClass, boolean isStatic, String name, MethodType type) {
     switch(kind) {
     case MOP_GET_PROPERTY:
-      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, fallback, reset, isStatic, name, RT.getMetaClass(type.returnType())));
+      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, RT.getMetaClass(type.returnType())));
     case MOP_SET_PROPERTY:
-      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, fallback, reset, isStatic, name, RT.getMetaClass(type.parameterType(1))));
+      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, RT.getMetaClass(type.parameterType(1))));
     case MOP_INVOKE:
-      return metaClass.mopInvoke(new MOPInvokeEvent(declaringClass, fallback, reset, isStatic, name, RT.asFunctionType(type)));
+      return metaClass.mopInvoke(new MOPInvokeEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, RT.asFunctionType(type)));
     case MOP_NEW_INSTANCE:
-      return metaClass.mopNewInstance(new MOPNewInstanceEvent(declaringClass, fallback, reset, RT.asFunctionType(type)));
+      return metaClass.mopNewInstance(new MOPNewInstanceEvent(declaringClass, lazyAllowed, fallback, reset, RT.asFunctionType(type)));
     case MOP_OPERATOR:
-      return metaClass.mopOperator(new MOPOperatorEvent(declaringClass, fallback, reset, name, RT.asFunctionType(type)));
+      return metaClass.mopOperator(new MOPOperatorEvent(declaringClass, lazyAllowed, fallback, reset, name, RT.asFunctionType(type)));
     case MOP_DO_CALL:
-      return metaClass.mopDoCall(new MOPDoCallEvent(declaringClass, fallback, reset, RT.asFunctionType(type)));
+      return metaClass.mopDoCall(new MOPDoCallEvent(declaringClass, lazyAllowed, fallback, reset, RT.asFunctionType(type)));
     }
     return null;
   }

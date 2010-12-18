@@ -1,13 +1,14 @@
 package org.codehaus.groovy2.lang;
 
+import groovy2.lang.Closure;
+import groovy2.lang.Failures;
 import groovy2.lang.FunctionType;
+import groovy2.lang.MOPResult;
 import groovy2.lang.MetaClass;
 import groovy2.lang.Method;
-import groovy2.lang.mop.MOPResult;
 
 import java.dyn.MethodHandle;
 import java.dyn.MethodHandles;
-import java.dyn.MethodType;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.codehaus.groovy2.dyn.Switcher;
 
 public class MethodResolver {
   static class MethodEntry {
@@ -81,14 +84,14 @@ public class MethodResolver {
     return Arrays.asList(methods);
   }
   
-//this code use the same algorithm as getMostSpecificMethods(), should be updated accordingly
+  // this code use the same algorithm as getMostSpecificMethods(), should be updated accordingly
   public static MOPResult resolve(Map<FunctionType, Method> methodMap, boolean isStatic, FunctionType signature, boolean allowConversions, MethodHandle reset) {
     Method method = methodMap.get(signature);  // short-cut
     if (method != null) {
       if (isStatic && !Modifier.isStatic(method.getModifiers())) {
-        return new MOPResult(new LinkageError("most specific method "+method+" is not static "));
+        return asMOPResult(Failures.fail("most specific method "+method+" is not static "));
       }
-      return new MOPResult(method.asMethodHandle());
+      return asMOPResult(method);
     }
     
     //System.out.println("MOP method resolver: values :" + methodMap.values());
@@ -99,14 +102,14 @@ public class MethodResolver {
     
     int size = entries.size();
     if (size == 0) {
-      return new MOPResult(new LinkageError("no applicable method among "+entries));
+      return asMOPResult(Failures.fail("no applicable method among "+entries));
     }
     MethodEntry mostSpecific = entries.get(0);
     if (size == 1) {
       if (isStatic && !Modifier.isStatic(mostSpecific.target.getModifiers())) {
-        return new MOPResult(new LinkageError("most specific method "+mostSpecific+" is not static "));
+        return asMOPResult(Failures.fail("most specific method "+mostSpecific+" is not static "));
       }
-      return new MOPResult(mostSpecific.asTarget());
+      return asMOPResult(mostSpecific.target);
     }
     
     int count = mostSpecific.methodType.getParameterCount();
@@ -114,29 +117,17 @@ public class MethodResolver {
     
     mostSpecific = mostSpecific(entries, guardNeeded);
     if (mostSpecific == null) {
-      return new MOPResult(new LinkageError("no most specific method among "+entries));
+      return asMOPResult(Failures.fail("no most specific method among "+entries));
     }
     if (isStatic && !Modifier.isStatic(mostSpecific.target.getModifiers())) {
-      return new MOPResult(new LinkageError("most specific method "+mostSpecific+" is not static "));
+      return asMOPResult(Failures.fail("most specific method "+mostSpecific+" is not static "));
     }
     
-    
-    //TODO: add guards using reset path
-    
-    return new MOPResult(mostSpecific.asTarget());
+    return asMOPResult(mostSpecific.target);
   }
   
-  private static MethodHandle asControl(MethodType targetType, boolean[] guardNeeded, boolean allowConversions) {
-    assert targetType.parameterCount() == guardNeeded.length;
-    
-    //FIXME, doesn't work
-    /*
-    MethodHandle control = null;
-    for(int i=0; i<guardNeeded.length; i++) {
-      
-    }*/
-    
-    return null;
+  private static MOPResult asMOPResult(Closure target) {
+    return new MOPResult(target, Collections.<Switcher>emptyList());
   }
 
   public static ArrayList<MethodEntry> applicable(Collection<Method> methods, FunctionType functionType, boolean allowConversions) {
@@ -199,20 +190,53 @@ public class MethodResolver {
     //System.out.println("isAssignable "+metaClass1+" "+metaClass2);
     
     if (isSuperType(metaClass1, metaClass2)) {
+      
+      /*
+      // check if we need converter to implement subtyping relation
+      if (needSubTypeConverter(metaClass1, metaClass2)) {
+        Closure converter = metaClass1.mopConverter(metaClass2);
+        if (!Failures.isFailure(converter)) {
+          converters[index] = converter.asMethodHandle();
+          return true;
+        }
+      } else // no subtype converter needed
+      {
+        return true;
+      }*/
       return true;
     }
     
     if (!allowConversions)
       return false;
     
-    MOPResult converter = metaClass1.mopConverter(metaClass2);
-    if (converter.getFailure() != null) {
+    
+    return false; //FIXME
+    /*
+    Closure converter = metaClass1.mopConverter(metaClass2);
+    if (Failures.isFailure(converter)) {
       return false;
     }
-    converters[index] = converter.getTarget();
+    converters[index] = converter.asMethodHandle();
     return true;
+    */
   }
   
+  private static boolean needSubTypeConverter(MetaClass metaClass1, MetaClass metaClass2) {
+    Class<?> clazz1 = RT.getRawClass(metaClass1);
+    Class<?> clazz2 = RT.getRawClass(metaClass2);
+    
+    if (clazz1.isPrimitive() && (clazz2.isPrimitive() || Utils.getPrimitive(clazz2).isPrimitive())) {
+        return false;
+    }
+    if (Utils.getPrimitive(clazz1).isPrimitive() && clazz2.isPrimitive()) {
+      return false;
+    }
+    if (clazz1.isAssignableFrom(clazz2)) {
+      return false;
+    }
+    return true;
+  }
+
   public static MethodEntry mostSpecific(ArrayList<MethodEntry> entries, /*out*/ boolean[] guardNeeded) {
     int count = guardNeeded.length;
     MethodEntry mostSpecific = entries.get(0);

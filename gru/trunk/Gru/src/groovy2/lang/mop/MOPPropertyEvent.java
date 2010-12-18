@@ -9,8 +9,8 @@ public class MOPPropertyEvent extends MOPEvent {
   private final String name;
   private final MetaClass type;
   
-  public MOPPropertyEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset, boolean isStatic, String name, MetaClass type) {
-    super(callerClass, fallback, reset);
+  public MOPPropertyEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, boolean isStatic, String name, MetaClass type) {
+    super(callerClass, lazyAllowed, fallback, reset);
     this.isStatic = isStatic;
     this.name = name;
     this.type = type;

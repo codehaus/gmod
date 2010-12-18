@@ -3,5 +3,5 @@ def bar(s, index) {
   s.charAt(index)
 }
 
-foo = "foo"
-bar(foo, 1)
+foo = "f1o"
+System.out.println(bar(foo, 1))
