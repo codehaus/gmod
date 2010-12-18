@@ -6,6 +6,7 @@ import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
 import groovy2.lang.mop.MOPOperatorEvent;
+import groovy2.lang.mop.MOPResult;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
