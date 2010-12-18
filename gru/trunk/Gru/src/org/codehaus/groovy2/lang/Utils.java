@@ -3,9 +3,9 @@ package org.codehaus.groovy2.lang;
 
 class Utils {
   public static Class<?> getPrimitive(Class<?> clazz) {
-    if (!clazz.getName().startsWith("java.lang")) {
-      return clazz;  // short circuit
-    }
+    //if (!clazz.getName().startsWith("java.lang")) {
+    //  return clazz;  // short circuit
+    //}
     
     if (clazz == Integer.class)
       return int.class;

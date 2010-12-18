@@ -4,11 +4,13 @@ import java.dyn.MethodHandle;
 
 public class MOPEvent {
   private final Class<?> callerClass;
+  private final boolean lazyAllowed;
   private final MethodHandle fallback;
   private final MethodHandle reset;
   
-  public MOPEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset) {
+  public MOPEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset) {
     this.callerClass = callerClass;
+    this.lazyAllowed = lazyAllowed;
     this.fallback = fallback;
     this.reset = reset;
   }
@@ -18,6 +20,10 @@ public class MOPEvent {
    */
   public Class<?> getCallerClass() {
     return callerClass;
+  }
+  
+  public boolean isLazyAllowed() {
+    return lazyAllowed;
   }
   
   public MethodHandle getFallback() {

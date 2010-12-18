@@ -8,8 +8,8 @@ public class MOPOperatorEvent extends MOPEvent {
   private final String name;
   private final FunctionType signature;
   
-  public MOPOperatorEvent(Class<?> callerClass, MethodHandle fallback, MethodHandle reset, String name, FunctionType signature) {
-    super(callerClass, fallback, reset);
+  public MOPOperatorEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, String name, FunctionType signature) {
+    super(callerClass, lazyAllowed, fallback, reset);
     this.name = name;
     this.signature = signature;
   }
