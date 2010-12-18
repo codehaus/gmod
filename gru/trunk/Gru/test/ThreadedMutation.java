@@ -9,6 +9,8 @@ import org.codehaus.groovy2.lang.RT;
 import groovy2.lang.MetaClass;
 import groovy2.lang.MetaClassMutator;
 
+// this terst case works but doesn't compile in Eclipse
+
 // java -ea -XX:+UnlockExperimentalVMOptions -XX:+EnableInvokeDynamic -cp .:../classes ThreadedMutation
 public class ThreadedMutation {
   /*

@@ -282,52 +282,30 @@ public class MethodResolver {
         }
       }
       
-      assert bias != 0;
-      
+      if (bias == 0) { // covariant return type, take the most specific
+        mostSpecific = mostSpecificCovariantReturnType(mostSpecific, entry, mostSpecificType, entryType);
+        continue;
+      }
       if (bias == -1) {
         mostSpecific = entry;
         continue;
       }
-      
-      /*
-      MetaClass mostSpecificReturnType = mostSpecificType.getReturnType();
-      MetaClass entryReturnType = entryType.getReturnType();
-      if (mostSpecificReturnType == entryReturnType) {
-        if (bias == -1) {
-          mostSpecific = entry;
-          continue;
-        }
-        continue;
-      }
-      
-      switch(bias) {
-      case 1:
-        if(!isSuperType(mostSpecificReturnType, entryReturnType)) {
-          return null;
-        }
-        continue;
-      case -1:
-        if (!isSuperType(entryReturnType, mostSpecificReturnType)) {
-          return null;
-        }
-        mostSpecific = entry;
-        continue;
-        
-      case 0:
-        if (isSuperType(mostSpecificReturnType, entryReturnType)) {
-          continue;
-        }
-        if (isSuperType(entryReturnType, mostSpecificReturnType)) {
-          mostSpecific = entry;
-          continue;
-        }
-        return null;
-      default:
-        throw new AssertionError();
-      }*/
     }
     
     return mostSpecific;
+  }
+
+  private static MethodEntry mostSpecificCovariantReturnType(MethodEntry mostSpecific, MethodEntry entry, FunctionType mostSpecificType, FunctionType entryType) {
+    MetaClass entryReturnType = entryType.getReturnType();
+    MetaClass mostSpecificReturnType = mostSpecificType.getReturnType();
+    
+    if (isSuperType(entryReturnType, mostSpecificReturnType)) {
+      return mostSpecific;
+    }
+    if (isSuperType(mostSpecificReturnType, entryReturnType)) {
+      return entry;
+    }
+    throw new AssertionError();
   }
 
   private static boolean isSuperType(MetaClass metaClass1, MetaClass metaClass2) {
