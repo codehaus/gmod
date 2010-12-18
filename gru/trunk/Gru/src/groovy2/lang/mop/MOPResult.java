@@ -1,4 +1,6 @@
-package groovy2.lang;
+package groovy2.lang.mop;
+
+import groovy2.lang.Closure;
 
 import java.util.Arrays;
 import java.util.List;

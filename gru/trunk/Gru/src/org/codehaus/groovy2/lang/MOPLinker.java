@@ -1,12 +1,12 @@
 package org.codehaus.groovy2.lang;
 
-import groovy2.lang.MOPResult;
 import groovy2.lang.MetaClass;
 import groovy2.lang.mop.MOPDoCallEvent;
 import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
 import groovy2.lang.mop.MOPOperatorEvent;
+import groovy2.lang.mop.MOPResult;
 
 import java.dyn.CallSite;
 import java.dyn.MethodHandle;

@@ -4,7 +4,6 @@ import groovy2.lang.Attribute;
 import groovy2.lang.Closure;
 import groovy2.lang.Failures;
 import groovy2.lang.FunctionType;
-import groovy2.lang.MOPResult;
 import groovy2.lang.MetaClass;
 import groovy2.lang.MetaClassMutator;
 import groovy2.lang.Method;
@@ -16,6 +15,7 @@ import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
 import groovy2.lang.mop.MOPOperatorEvent;
+import groovy2.lang.mop.MOPResult;
 
 import java.dyn.MethodHandle;
 import java.dyn.MethodHandles;
