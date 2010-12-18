@@ -19,7 +19,6 @@ import java.util.List;
 
 import org.codehaus.groovy2.dyn.Switcher;
 
-
 public class MOPLinker {
   public enum MOPKind {
     MOP_GET_PROPERTY("getProperty"),
@@ -145,17 +144,10 @@ public class MOPLinker {
         return target.invokeVarargs(args);
       }
       
-      /* The call to the MOP must be done with a lock on the metaclass mutation
-       * because if another thread do mutation, there is a risk that
-       * the new target installed may be erased when installing the fast-path.
-       */
-      MethodHandle target;
-
       MethodHandle oldTarget = callSite.getTarget(); 
-
       MOPResult result = upcallMOP(callSite.mopKind, metaClass, callSite.lazy, oldTarget, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
 
-      target = result.getTarget().asMethodHandle();
+      MethodHandle target = result.getTarget().asMethodHandle();
       MethodType targetType = target.type();
       int targetTypeCount = targetType.parameterCount();
       int typeCount = type.parameterCount();
@@ -185,6 +177,12 @@ public class MOPLinker {
         // the receiver class is primitive, so it's not a polymorphic call
         callSite.setTarget(target);
       } 
+      
+      // The target must execute switcher guards because perhaps the metaclasses
+      // have changed since the target method was computed.
+      // Theoretically, this can create a stack overflow if one metaclass is invalidated
+      // with a high rate. Practically, this never occurs.
+      // If one day, VMs supports tailcalls, this is a good candidate 
       
       return target.invokeVarargs(args);
       

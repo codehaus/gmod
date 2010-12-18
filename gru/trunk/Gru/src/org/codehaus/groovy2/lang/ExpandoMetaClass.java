@@ -10,7 +10,6 @@ import groovy2.lang.Method;
 import groovy2.lang.Property;
 import groovy2.lang.mop.MOPConvertEvent;
 import groovy2.lang.mop.MOPDoCallEvent;
-import groovy2.lang.mop.MOPEvent;
 import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
@@ -19,7 +18,6 @@ import groovy2.lang.mop.MOPResult;
 
 import java.dyn.MethodHandle;
 import java.dyn.MethodHandles;
-import java.dyn.MethodType;
 import java.dyn.NoAccessException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -39,7 +37,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.codehaus.groovy2.dyn.Switcher;
 import org.codehaus.groovy2.lang.java.JVMAttribute;
-import org.codehaus.groovy2.lang.java.JVMClosure;
 import org.codehaus.groovy2.lang.java.JVMMethod;
 import org.codehaus.groovy2.lang.java.JVMProperty;
 
@@ -395,8 +392,9 @@ public class ExpandoMetaClass implements MetaClass {
     flushLocalCache();
     
     // all future callsite paths will be protected with a new Switcher
+    Switcher switcher = this.switcher;
+    this.switcher = new Switcher();
     Switcher.invalidate(switcher);
-    switcher = new Switcher();
     
     for(Iterator<WeakReference<MetaClass>> it = subTypes.iterator(); it.hasNext();) {
       WeakReference<MetaClass> reference = it.next();
