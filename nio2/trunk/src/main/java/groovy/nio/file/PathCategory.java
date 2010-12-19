@@ -16,18 +16,10 @@
 
 package groovy.nio.file;
 
-import org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport;
-
 import groovy.nio.channels.ReadableByteChannelCategory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.file.Path;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
 
 /**
  * This class defines new Java 7 specific groovy methods which extend the normal
