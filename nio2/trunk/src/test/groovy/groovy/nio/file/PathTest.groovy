@@ -14,8 +14,11 @@ class PathTest extends GroovyTestCase {
 	public void setUp() {
 		File tempFile = File.createTempFile("Path_GetText", ".txt")
 		tempFile.deleteOnExit()
-		tempFile.write(SOME_TEXT)
+		//tempFile.write(SOME_TEXT)
 		path = tempFile.toPath()
+		use(PathCategory) {
+			path.write(SOME_TEXT) // all tests test Path.write
+		}
 	}
 	
 	public void testGetText() {	
