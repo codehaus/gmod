@@ -37,4 +37,10 @@ class PathTest extends GroovyTestCase {
 		}	
 		assert actual == [ LINE_1, LINE_2 ]
 	}
+	
+	public void testReadLines() {
+		use(PathCategory) {
+			assert path.readLines() == [ LINE_1, LINE_2 ]
+		}	
+	}
 }
