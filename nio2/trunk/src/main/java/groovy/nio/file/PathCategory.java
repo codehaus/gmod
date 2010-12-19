@@ -21,8 +21,8 @@ import groovy.nio.channels.ReadableByteChannelCategory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.Attributes;
+import java.util.List;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 
@@ -72,6 +72,19 @@ public class PathCategory {
      * @since ??
      */
     public static <T> T eachLine(Path self, Closure<T> closure) throws IOException {
-        return DefaultGroovyMethods.eachLine(self.newInputStream(StandardOpenOption.READ), 1, closure);
+        return DefaultGroovyMethods.eachLine(self.newInputStream(), 1, closure);
+    }
+    
+    /**
+     * Reads the file into a list of Strings, with one item for each line.
+     *
+     * @param file a Path
+     * @return a List of lines
+     * @throws IOException if an IOException occurs.
+     * @see #readLines(java.io.Reader)
+     * @since ??
+     */
+    public static List<String> readLines(Path self) throws IOException {
+    	return DefaultGroovyMethods.readLines(self.newInputStream());
     }
 }
