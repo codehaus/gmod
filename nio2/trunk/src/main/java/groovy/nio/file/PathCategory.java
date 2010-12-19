@@ -18,12 +18,16 @@ package groovy.nio.file;
 
 import groovy.lang.Closure;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.Attributes;
 import java.util.List;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
+import org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport;
 
 /**
  * This class defines new Java 7 specific groovy methods which extend the normal
@@ -84,5 +88,28 @@ public class PathCategory {
      */
     public static String getText(Path self) throws IOException {
         return DefaultGroovyMethods.getText(self.newInputStream());
+    }
+    
+    /**
+     * Write the text to the Path.
+     *
+     * @param self a Path
+     * @param text the text to write to the File
+     * @throws IOException if an IOException occurs.
+     * @since ??
+     */
+    public static void write(Path self, String text) throws IOException {
+        BufferedOutputStream out = null;
+        try {
+            out = new BufferedOutputStream(self.newOutputStream());
+            out.write(text.getBytes());
+            out.flush();
+
+            BufferedOutputStream temp = out;
+            out = null;
+            temp.close();
+        } finally {
+        	DefaultGroovyMethodsSupport.closeWithWarning(out);
+        }
     }
 }
