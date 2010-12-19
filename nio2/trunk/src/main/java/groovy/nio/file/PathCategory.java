@@ -20,6 +20,8 @@ import groovy.nio.channels.ReadableByteChannelCategory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.attribute.Attributes;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * This class defines new Java 7 specific groovy methods which extend the normal
@@ -38,7 +40,19 @@ public class PathCategory {
      * @throws IOException if an IOException occurs.
      * @since ??
      */
-    public static String getText(Path path) throws IOException {
-        return ReadableByteChannelCategory.getText(path.newByteChannel());
+    public static String getText(Path self) throws IOException {
+        return ReadableByteChannelCategory.getText(self.newByteChannel());
+    }
+    
+    /**
+     * Provide the standard Groovy <code>size()</code> method for <code>Path</code>.
+     *
+     * @param self a file object
+     * @return the file's size (length)
+     * @throws IOException 
+     * @since ??
+     */
+    public static long size(Path self) throws IOException {
+        return Attributes.readBasicFileAttributes(self).size();
     }
 }
