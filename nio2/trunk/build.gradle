@@ -2,6 +2,9 @@ apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+// fails with java.lang.ArrayIndexOutOfBoundsException:
+// sourceCompatibility = 1.7
+
 repositories {
     mavenCentral()
     mavenRepo urls: 'http://snapshots.repository.codehaus.org'
