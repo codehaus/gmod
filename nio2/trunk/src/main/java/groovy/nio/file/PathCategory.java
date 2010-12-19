@@ -17,7 +17,6 @@
 package groovy.nio.file;
 
 import groovy.lang.Closure;
-import groovy.nio.channels.ReadableByteChannelCategory;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -34,19 +33,6 @@ import org.codehaus.groovy.runtime.DefaultGroovyMethods;
  * @author Merlyn Albery-Speyer
  */
 public class PathCategory {
-    /**
-     * Read the content of the Path and return it as a String. 
-     * (Only works with JDK1.7 or later).
-     *
-     * @param path a Path whose content we want to read
-     * @return a String containing the content of the path
-     * @throws IOException if an IOException occurs.
-     * @since ??
-     */
-    public static String getText(Path self) throws IOException {
-        return ReadableByteChannelCategory.getText(self.newByteChannel());
-    }
-    
     /**
      * Provide the standard Groovy <code>size()</code> method for <code>Path</code>.
      *
@@ -78,7 +64,7 @@ public class PathCategory {
     /**
      * Reads the file into a list of Strings, with one item for each line.
      *
-     * @param file a Path
+     * @param self a Path
      * @return a List of lines
      * @throws IOException if an IOException occurs.
      * @see #readLines(java.io.Reader)
@@ -86,5 +72,17 @@ public class PathCategory {
      */
     public static List<String> readLines(Path self) throws IOException {
     	return DefaultGroovyMethods.readLines(self.newInputStream());
+    }
+    
+    /**
+     * Read the content of the Path and returns it as a String.
+     *
+     * @param self the file whose content we want to read
+     * @return a String containing the content of the file
+     * @throws IOException if an IOException occurs.
+     * @since 1.0
+     */
+    public static String getText(Path self) throws IOException {
+        return DefaultGroovyMethods.getText(self.newInputStream());
     }
 }
