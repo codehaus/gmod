@@ -46,4 +46,11 @@ class PathTest extends GroovyTestCase {
 			assert path.readLines() == [ LINE_1, LINE_2 ]
 		}	
 	}
+	
+	public void testAppend() {
+		use(PathCategory) {
+			path.append(LINE_1)
+			assert path.text == SOME_TEXT+LINE_1
+		}	
+	}
 }
