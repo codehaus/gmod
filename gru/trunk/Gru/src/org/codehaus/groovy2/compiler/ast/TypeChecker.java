@@ -118,18 +118,6 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
   
   // --- helper methods
   
-  private final static HashMap<String, MetaClass> primitiveMap;
-  static {
-    HashMap<String, MetaClass> map = new HashMap<String, MetaClass>();
-    for(Class<?> clazz: new Class[] {
-      boolean.class, byte.class, short.class, char.class,
-      int.class, float.class, long.class, double.class
-    }) {
-      map.put(clazz.getName(), RT.getMetaClass(clazz));
-    }
-    primitiveMap = map;
-  }
-  
   /*
   private static Type fromClassNode(TypeScope typeScope, Variable variable) {
     if (variable.isDynamicTyped())

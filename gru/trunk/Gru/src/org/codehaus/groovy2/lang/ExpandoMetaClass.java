@@ -330,7 +330,8 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
     
-    FunctionType functionType = new FunctionType(mopEvent.getType(), this);
+    FunctionType functionType = new FunctionType(this, mopEvent.getType());
+    //System.out.println("converter functionType "+functionType);
     return asMOPResult(switcher, MethodResolver.resolve(constructorMap, true, functionType, false, mopEvent.getReset()));
   }
   
@@ -801,6 +802,9 @@ public class ExpandoMetaClass implements MetaClass {
       }
       
       MethodHandle mh = unreflect(constructor);
+      if (mh == null) {  // workaround hotspot bug
+        continue;
+      }
       
       // see it as a class method
       modifiers = modifiers | Modifier.STATIC;
@@ -816,6 +820,9 @@ public class ExpandoMetaClass implements MetaClass {
       return MethodHandles.publicLookup().unreflectConstructor(constructor);
     } catch (NoAccessException e) {
       throw (AssertionError)new AssertionError().initCause(e);
-    }
+    } catch(UnsupportedOperationException e) {
+      // should not be thrown but hotspot's JSR292 implementation has some restrictions
+      return null;
+    } 
   }
 }
