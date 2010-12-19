@@ -19,7 +19,9 @@ package groovy.nio.file;
 import groovy.lang.Closure;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -28,6 +30,7 @@ import java.util.List;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport;
+import org.codehaus.groovy.runtime.InvokerHelper;
 
 /**
  * This class defines new Java 7 specific groovy methods which extend the normal
@@ -99,17 +102,40 @@ public class PathCategory {
      * @since ??
      */
     public static void write(Path self, String text) throws IOException {
-        BufferedOutputStream out = null;
+        BufferedWriter writer = null;
         try {
-            out = new BufferedOutputStream(self.newOutputStream());
-            out.write(text.getBytes());
-            out.flush();
+            writer = new BufferedWriter(new OutputStreamWriter(self.newOutputStream()));
+            writer.write(text);
+            writer.flush();
 
-            BufferedOutputStream temp = out;
-            out = null;
+            Writer temp = writer;
+            writer = null;
             temp.close();
         } finally {
-        	DefaultGroovyMethodsSupport.closeWithWarning(out);
+        	DefaultGroovyMethodsSupport.closeWithWarning(writer);
+        }
+    }
+    
+    /**
+     * Append the text at the end of the Path.
+     *
+     * @param self a Path
+     * @param text the text to append at the end of the Path
+     * @throws IOException if an IOException occurs.
+     * @since ??
+     */
+    public static void append(Path self, Object text) throws IOException {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(self.newOutputStream(StandardOpenOption.APPEND)));
+            InvokerHelper.write(writer, text);
+            writer.flush();
+
+            Writer temp = writer;
+            writer = null;
+            temp.close();
+        } finally {
+        	DefaultGroovyMethodsSupport.closeWithWarning(writer);
         }
     }
 }
