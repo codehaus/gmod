@@ -147,44 +147,42 @@ public class MOPLinker {
       MethodHandle oldTarget = callSite.getTarget(); 
       MOPResult result = upcallMOP(callSite.mopKind, metaClass, callSite.lazy, oldTarget, callSite.reset, callSite.declaringClass, isStatic, callSite.name, dynamicType);
 
-      MethodHandle target = result.getTarget().asMethodHandle();
-      MethodType targetType = target.type();
-      int targetTypeCount = targetType.parameterCount();
+      //System.out.println("mop resolved "+result.getTarget());
+      
+      MethodHandle mh = result.getTarget().asMethodHandle();
+      MethodType mhType = mh.type();
+      int mhTypeCount = mhType.parameterCount();
       int typeCount = type.parameterCount();
-      if (targetTypeCount > typeCount) { 
+      if (mhTypeCount > typeCount) { 
         throw new LinkageError("target type has more parameters than callsite arguments"+
-            target+" "+type);
+            mh+" "+type);
       }
       // we allow a closure with less parameters than callsite arguments
-      if (targetTypeCount < typeCount) {
-        target = MethodHandles.dropArguments(target, targetTypeCount,
-            type.parameterList().subList(targetTypeCount, typeCount));
+      if (mhTypeCount < typeCount) {
+        mh = MethodHandles.dropArguments(mh, mhTypeCount,
+            type.parameterList().subList(mhTypeCount, typeCount));
       }
-      target = MethodHandles.convertArguments(target, type);
-
+      mh = MethodHandles.convertArguments(mh, type);
+      
       // prepends switcher guards
-      target = prependSwitcherGuards(target, result.getConditions(), callSite.reset);
+      MethodHandle target = prependSwitcherGuards(mh, result.getConditions(), callSite.reset);
 
       if (!isReceiverClassPrimitive) {
+        // the receiver class is not a primitive, so it's a polymorphic call
+        // install a guard to check the receiver class
+        
         MethodHandle test = (isStatic)? INSTANCE_CHECK: CLASS_CHECK;
         test = MethodHandles.insertArguments(test, 0, receiverClass);
         test = MethodHandles.convertArguments(test, MethodType.methodType(boolean.class, type.parameterType(0)));
 
-        MethodHandle guard = MethodHandles.guardWithTest(test, target, oldTarget);
-        callSite.setTarget(guard);
-
-      } else {
-        // the receiver class is primitive, so it's not a polymorphic call
-        callSite.setTarget(target);
-      } 
+        target = MethodHandles.guardWithTest(test, target, oldTarget);
+      }
       
-      // The target must execute switcher guards because perhaps the metaclasses
-      // have changed since the target method was computed.
-      // Theoretically, this can create a stack overflow if one metaclass is invalidated
-      // with a high rate. Practically, this never occurs.
-      // If one day, VMs supports tailcalls, this is a good candidate 
+      callSite.setTarget(target);
       
-      return target.invokeVarargs(args);
+      //System.out.println("mh "+mh);
+      //System.out.println("mh.type() "+mh.type());
+      return mh.invokeVarargs(args);
       
     } catch(Throwable t) {
       t.printStackTrace();

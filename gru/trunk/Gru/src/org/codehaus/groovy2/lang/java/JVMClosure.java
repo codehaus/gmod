@@ -13,14 +13,14 @@ public class JVMClosure implements Closure {
   private final MethodHandle methodHandle;
   private FunctionType functionType;  // lazy created
   
-  public JVMClosure(boolean varargs, MethodHandle mh) {
-    this.methodHandle = mh;
+  public JVMClosure(boolean varargs, MethodHandle methodHandle) {
+    this.methodHandle = methodHandle;
     this.varargs = varargs;
   }
 
   @Override
   public String toString() {
-    return getFunctionType().toString();
+    return methodHandle.toString();
   }
   
   @Override
