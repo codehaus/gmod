@@ -5,7 +5,9 @@ import java.nio.file.Path
 import spock.lang.*
 
 class PathTest extends GroovyTestCase {
-	static def SOME_TEXT = "some text"
+	static def LINE_1 = "a line"
+	static def LINE_2 = "another line"
+	static def SOME_TEXT = LINE_1+"\n"+LINE_2
 	
 	Path path
 	
@@ -26,5 +28,13 @@ class PathTest extends GroovyTestCase {
 		use(PathCategory) {
 			assert path.size() == SOME_TEXT.size()
 		}
+	}
+	
+	public void testEachLine() {
+		def actual = []
+		use(PathCategory) {
+			path.eachLine { actual << it }
+		}	
+		assert actual == [ LINE_1, LINE_2 ]
 	}
 }
