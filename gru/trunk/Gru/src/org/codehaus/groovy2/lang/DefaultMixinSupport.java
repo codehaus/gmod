@@ -41,7 +41,7 @@ class DefaultMixinSupport {
     }
     try {
       //FIXME: invokeExact should be sufficient but it has no eclipse support :(
-      init.invokeVarargs(metaClass);
+      init.invokeWithArguments(metaClass);
     } catch (Throwable e) {
       throw RT.unsafeThrow(e);
     }

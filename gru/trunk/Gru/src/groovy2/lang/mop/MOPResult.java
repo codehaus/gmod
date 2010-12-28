@@ -2,20 +2,20 @@ package groovy2.lang.mop;
 
 import groovy2.lang.Closure;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import org.codehaus.groovy2.dyn.Switcher;
 
 public class MOPResult {
   private final Closure target;
-  private final List<Switcher> conditions;
+  private final Set<Switcher> conditions;
   
   public MOPResult(Closure target, Switcher switcher) {
-    this(target, Arrays.asList(switcher));
+    this(target, Collections.singleton(switcher));
   }
   
-  public MOPResult(Closure target, List<Switcher> conditions) {
+  public MOPResult(Closure target, Set<Switcher> conditions) {
     this.target = target;
     this.conditions = conditions;
   }
@@ -23,7 +23,7 @@ public class MOPResult {
   public Closure getTarget() {
     return target;
   }
-  public List<Switcher> getConditions() {
+  public Set<Switcher> getConditions() {
     return conditions;
   }
 }

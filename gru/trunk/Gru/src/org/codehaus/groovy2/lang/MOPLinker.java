@@ -13,9 +13,10 @@ import java.dyn.MethodHandle;
 import java.dyn.MethodHandles;
 import java.dyn.MethodHandles.Lookup;
 import java.dyn.MethodType;
+import java.dyn.MutableCallSite;
 import java.dyn.NoAccessException;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Set;
 
 import org.codehaus.groovy2.dyn.Switcher;
 
@@ -64,18 +65,18 @@ public class MOPLinker {
         throw new LinkageError("unknown meta protocol "+metaProtocol);
       }
 
-      MOPCallSite callSite = new MOPCallSite(declaringClass, metaProtocolKind, name);
+      MOPCallSite callSite = new MOPCallSite(type, declaringClass, metaProtocolKind, name);
       //Class<?> receiverType = type.parameterType(0);
       /*if (Modifier.isFinal(receiverType.getModifiers())) { // static receiver
 
       }*/ 
 
       MethodHandle target = MethodHandles.insertArguments(FALLBACK, 0, callSite);
-      target = MethodHandles.collectArguments(target, type.generic());
+      target = target.asCollector(Object[].class, type.parameterCount());
       target = MethodHandles.convertArguments(target, type);
 
       MethodHandle reset = MethodHandles.insertArguments(RESET, 0, callSite, target);
-      reset = MethodHandles.collectArguments(reset, type.generic());
+      reset = reset.asCollector(Object[].class, type.parameterCount());
       reset = MethodHandles.convertArguments(reset, type);
       callSite.reset = reset;
       
@@ -95,14 +96,15 @@ public class MOPLinker {
   
   
   
-  static class MOPCallSite extends CallSite {
+  static class MOPCallSite extends MutableCallSite {
     final Class<?> declaringClass;
     final MOPKind mopKind;
     final String name;
     MethodHandle reset;
     volatile boolean lazy;
     
-    public MOPCallSite(Class<?> declaringClass, MOPKind mopKind, String name) {
+    public MOPCallSite(MethodType type, Class<?> declaringClass, MOPKind mopKind, String name) {
+      super(type);
       this.declaringClass = declaringClass;
       this.mopKind = mopKind;
       this.name = name;
@@ -141,7 +143,7 @@ public class MOPLinker {
       if (isStatic && callSite.mopKind == MOPKind.MOP_GET_PROPERTY && "metaClass".equals(callSite.name)){
         MethodHandle target = MethodHandles.convertArguments(getMetaClass, type);
         callSite.setTarget(target);
-        return target.invokeVarargs(args);
+        return target.invokeWithArguments(args);
       }
       
       MethodHandle oldTarget = callSite.getTarget(); 
@@ -182,7 +184,7 @@ public class MOPLinker {
       
       //System.out.println("mh "+mh);
       //System.out.println("mh.type() "+mh.type());
-      return mh.invokeVarargs(args);
+      return mh.invokeWithArguments(args);
       
     } catch(Throwable t) {
       t.printStackTrace();
@@ -190,9 +192,9 @@ public class MOPLinker {
     }
   }
   
-  private static MethodHandle prependSwitcherGuards(MethodHandle target, List<Switcher> conditions, MethodHandle reset) {
-    for(int i=conditions.size(); --i>=0;) {
-      target = conditions.get(i).guard(target, reset);
+  private static MethodHandle prependSwitcherGuards(MethodHandle target, Set<Switcher> conditions, MethodHandle reset) {
+    for(Switcher switcher: conditions) {
+      target = switcher.guardWithTest(target, reset);
     }
     return target;
   }

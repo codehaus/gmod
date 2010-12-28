@@ -10,13 +10,16 @@ import groovy2.lang.mop.MOPResult;
 
 import java.dyn.MethodHandle;
 import java.dyn.MethodHandles;
+import java.dyn.MethodType;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.codehaus.groovy2.dyn.Switcher;
 import org.codehaus.groovy2.lang.java.JVMClosure;
@@ -25,11 +28,11 @@ public class MethodResolver {
   static class MethodEntry {
     final FunctionType methodType;
     final Method target;
-    final List<Switcher> switcherGuards;
-    final MethodHandle returnConverter;
-    final MethodHandle[] parameterConverters;
+    private final Set<Switcher> switcherGuards;
+    private final MethodHandle returnConverter;
+    private final MethodHandle[] parameterConverters;
     
-    MethodEntry(FunctionType methodType, Method target, List<Switcher> switcherGuards, MethodHandle returnConverter, MethodHandle[] parameterConverters) {
+    MethodEntry(FunctionType methodType, Method target, Set<Switcher> switcherGuards, MethodHandle returnConverter, MethodHandle[] parameterConverters) {
       this.methodType = methodType;
       this.target = target;
       this.switcherGuards = switcherGuards;
@@ -42,37 +45,44 @@ public class MethodResolver {
       return target.toString();
     }
     
-    Closure asTarget() {
+    MOPResult asResult() {
       if (parameterConverters == null && returnConverter == null) {
-        return target;
+        return new MOPResult(target, switcherGuards);
       }
       
-      MethodHandle target = this.target.asMethodHandle();
+      MethodHandle mh = this.target.asMethodHandle();
       
-      if (parameterConverters != null) {
+      if (parameterConverters != null) {  
         //System.out.println("converters "+Arrays.toString(parameterConverters));
-        //for(int i=0; i< parameterConverters.length; i++) {
-        //  System.out.println("parameter type "+parameterConverters[i].type());
-        //}
         
-        target = MethodHandles.filterArguments(target, parameterConverters);
+        // add identity where needed
+        for(int i=0; i< parameterConverters.length; i++) { 
+          if (parameterConverters[i] == null) {
+            parameterConverters[i] = MethodHandles.identity(mh.type().parameterType(i));
+          }
+        }
+        
+        //System.out.println("mh.type "+mh.type());
+        //System.out.println("parameterConverters.length "+Arrays.asList(parameterConverters));
+        
+        mh = MethodHandles.filterArguments(mh, 0, parameterConverters);
       }
       
       if (returnConverter != null) {
-        throw new AssertionError("NYI"); //FIXME wait filterReturnvalue
+        mh = MethodHandles.filterReturnValue(mh, returnConverter);
       }
-      return new JVMClosure(false, target);
+      return new MOPResult(new JVMClosure(false, mh), switcherGuards);
     }
   }
   
   // this code use the same algorithm as resolve(), should be updated accordingly
-  public static List<Method> getMostSpecificMethods(Map<FunctionType, Method> methodMap, FunctionType signature, boolean allowConversions) {
+  public static List<Method> getMostSpecificMethods(MetaClass metaClass, Map<FunctionType, Method> methodMap, FunctionType signature, boolean allowConversions) {
     Method method = methodMap.get(signature);  // short-cut
     if (method != null) {
       return Collections.singletonList(method);
     }
     
-    ArrayList<MethodEntry> entries = applicable(methodMap.values(), signature, allowConversions);
+    ArrayList<MethodEntry> entries = applicable(metaClass, methodMap.values(), signature, allowConversions);
     int size = entries.size();
     if (size == 0) {
       return Collections.emptyList();
@@ -94,7 +104,7 @@ public class MethodResolver {
   }
   
   // this code use the same algorithm as getMostSpecificMethods(), should be updated accordingly
-  public static MOPResult resolve(Map<FunctionType, Method> methodMap, boolean isStatic, FunctionType signature, boolean allowConversions, MethodHandle reset) {
+  public static MOPResult resolve(MetaClass metaClass, Map<FunctionType, Method> methodMap, boolean isStatic, FunctionType signature, boolean allowConversions, MethodHandle reset) {
     Method method = methodMap.get(signature);  // short-cut
     if (method != null) {
       if (isStatic && !Modifier.isStatic(method.getModifiers())) {
@@ -105,7 +115,7 @@ public class MethodResolver {
     
     //System.out.println("MOP method resolver: values :" + methodMap.values());
     
-    ArrayList<MethodEntry> entries = applicable(methodMap.values(), signature, allowConversions);
+    ArrayList<MethodEntry> entries = applicable(metaClass, methodMap.values(), signature, allowConversions);
     
     //System.out.println("MOP method resolver: applicable "+entries+" isStatic "+isStatic+" "+signature);
     
@@ -118,7 +128,7 @@ public class MethodResolver {
       if (isStatic && !Modifier.isStatic(mostSpecific.target.getModifiers())) {
         return asMOPResult(Failures.fail("most specific method "+mostSpecific+" is not static "));
       }
-      return asMOPResult(mostSpecific.asTarget(), mostSpecific.switcherGuards);
+      return mostSpecific.asResult();
     }
     
     int count = mostSpecific.methodType.getParameterCount();
@@ -132,18 +142,14 @@ public class MethodResolver {
       return asMOPResult(Failures.fail("most specific method "+mostSpecific+" is not static "));
     }
     
-    return asMOPResult(mostSpecific.asTarget(), mostSpecific.switcherGuards);
+    return mostSpecific.asResult();
   }
   
   private static MOPResult asMOPResult(Closure target) {
-    return new MOPResult(target, Collections.<Switcher>emptyList());
-  }
-  
-  private static MOPResult asMOPResult(Closure target, List<Switcher> switchers) {
-    return new MOPResult(target, switchers);
+    return new MOPResult(target, Collections.<Switcher>emptySet());
   }
 
-  public static ArrayList<MethodEntry> applicable(Collection<Method> methods, FunctionType functionType, boolean allowConversions) {
+  public static ArrayList<MethodEntry> applicable(MetaClass metaClass, Collection<Method> methods, FunctionType functionType, boolean allowConversions) {
     //System.out.println("method resolver: potentially applicable methods "+methods);
     
     ArrayList<MethodEntry> entries = new ArrayList<MethodEntry>();
@@ -164,18 +170,18 @@ public class MethodResolver {
       }
       
       assert methodType.getParameterCount() == functionTypeCount;
-      
       //System.out.println("method resolver: applicable "+method);
       
       boolean isParameterConverted = false;
-      ArrayList<Switcher> switchers = new ArrayList<Switcher>(2);
-      MethodHandle[] parameterConverters = new MethodHandle[functionTypeCount];
+      int staticShift = Modifier.isStatic(method.getModifiers())? 0: 1;
+      HashSet<Switcher> switchers = new HashSet<Switcher>(2);
+      MethodHandle[] parameterConverters = new MethodHandle[functionTypeCount + staticShift];
       for(int i=0; i<functionTypeCount; i++) {
         if (!isAssignable(methodType.getParameterType(i), functionType.getParameterType(i), 
-            switchers, parameterConverters, i, allowConversions)) {
+            switchers, parameterConverters, i + staticShift, allowConversions)) {
           continue loop;  
         }
-        isParameterConverted |= (parameterConverters[i] != null);
+        isParameterConverted |= (parameterConverters[i + staticShift] != null);
       }
       
       MethodHandle[] returnConverters = new MethodHandle[1];
@@ -185,6 +191,29 @@ public class MethodResolver {
           allowConversions)) {
         continue loop;
       }*/
+      
+      // check receiver class
+      if (staticShift == 1) { // if is not static
+        MetaClass declaringMetaClass = method.getDeclaringMetaClass();
+        if (metaClass != declaringMetaClass &&
+            needSubTypeConverter(declaringMetaClass, metaClass)) {
+          MOPResult result = declaringMetaClass.mopConverter(new MOPConvertEvent(null, false, null, null, metaClass));
+
+          //System.out.println("converter found "+result.getTarget());
+
+          Closure target = result.getTarget();  // this may be a failure, because the user change primitive conversions
+          MethodHandle mh = target.asMethodHandle();
+          if (Failures.isFailure(target)) {
+            mh = MethodHandles.dropArguments(mh, 0, RT.getRawClass(metaClass));
+            mh = MethodHandles.convertArguments(mh,
+                MethodType.methodType(RT.getRawClass(declaringMetaClass), mh.type().parameterType(0)));
+          }
+          parameterConverters[0] = mh;
+          switchers.addAll(result.getConditions());
+        }
+        isParameterConverted |= (parameterConverters[0] != null);
+      }
+      
       
       entries.add(new MethodEntry(methodType, method,
           switchers, returnConverters[0],
@@ -199,7 +228,7 @@ public class MethodResolver {
     throw new AssertionError("NYI: varargs spreading no implemented");
   }
 
-  private static boolean isAssignable(MetaClass metaClass1, MetaClass metaClass2, ArrayList<Switcher> switchers, MethodHandle[] converters, int index, boolean allowConversions) {
+  private static boolean isAssignable(MetaClass metaClass1, MetaClass metaClass2, HashSet<Switcher> switchers, MethodHandle[] converters, int index, boolean allowConversions) {
     //System.out.println("isAssignable "+metaClass1+" "+metaClass2);
     
     if (isSuperType(metaClass1, metaClass2)) {
@@ -213,14 +242,13 @@ public class MethodResolver {
         //System.out.println("converter found "+result.getTarget());
         
         Closure target = result.getTarget();  // this may be a failure, because the user change primitive conversions
-        MethodHandle converter = target.asMethodHandle();
-        
-        // static method must be bind to their class
-        if (target instanceof Method && Modifier.isStatic(((Method)target).getModifiers())) {
-          converter = MethodHandles.insertArguments(converter, 0, RT.getRawClass(metaClass1));
+        MethodHandle mh = target.asMethodHandle();
+        if (Failures.isFailure(target)) {
+          mh = MethodHandles.dropArguments(mh, 0, RT.getRawClass(metaClass2));
+          mh = MethodHandles.convertArguments(mh,
+              MethodType.methodType(RT.getRawClass(metaClass1), mh.type().parameterType(0)));
         }
-        
-        converters[index] = converter;
+        converters[index] = mh;
         switchers.addAll(result.getConditions());
       }
       return true;
@@ -241,7 +269,7 @@ public class MethodResolver {
     */
   }
   
-  private static boolean needSubTypeConverter(MetaClass metaClass1, MetaClass metaClass2) {
+  static boolean needSubTypeConverter(MetaClass metaClass1, MetaClass metaClass2) {
     Class<?> clazz1 = RT.getRawClass(metaClass1);
     Class<?> clazz2 = RT.getRawClass(metaClass2);
     
@@ -255,6 +283,7 @@ public class MethodResolver {
     if (Utils.getPrimitive(clazz1).isPrimitive() && clazz2.isPrimitive()) {
       return false;
     }
+    
     if (clazz1.isAssignableFrom(clazz2)) {
       return false;
     }

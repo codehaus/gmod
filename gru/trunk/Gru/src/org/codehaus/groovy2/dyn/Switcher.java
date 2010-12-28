@@ -26,13 +26,13 @@ public final class Switcher {
     this.switchTest = MethodHandles.insertArguments(STATIC_SWITCH, 0, this);  // bind to current switcher
   }
   
-  public static void invalidate(Switcher... switchers) {
+  public static void invalidateAll(Switcher... switchers) {
     for(Switcher switcher: switchers) {
       switcher.switchz = false;
     }
   }
   
-  public MethodHandle guard(MethodHandle target, MethodHandle fallback) {
+  public MethodHandle guardWithTest(MethodHandle target, MethodHandle fallback) {
     return MethodHandles.guardWithTest(switchTest, target, fallback);
   }
 }
