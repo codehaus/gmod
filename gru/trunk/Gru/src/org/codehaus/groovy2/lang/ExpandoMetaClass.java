@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,6 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.codehaus.groovy2.dyn.Switcher;
 import org.codehaus.groovy2.lang.java.JVMAttribute;
+import org.codehaus.groovy2.lang.java.JVMClosure;
 import org.codehaus.groovy2.lang.java.JVMMethod;
 import org.codehaus.groovy2.lang.java.JVMProperty;
 
@@ -130,7 +132,7 @@ public class ExpandoMetaClass implements MetaClass {
       return new MOPResult(mopResult.getTarget(), switcher);
     }
     
-    ArrayList<Switcher> switchers = new ArrayList<Switcher>(mopResult.getConditions());
+    HashSet<Switcher> switchers = new HashSet<Switcher>(mopResult.getConditions());
     switchers.add(switcher);
     return new MOPResult(mopResult.getTarget(), switchers);
   }
@@ -155,7 +157,7 @@ public class ExpandoMetaClass implements MetaClass {
     }
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-    return asMOPResult(switcher, MethodResolver.resolve(map, mopEvent.isStatic(), signature, false, mopEvent.getFallback()));
+    return asMOPResult(switcher, MethodResolver.resolve(this, map, mopEvent.isStatic(), signature, false, mopEvent.getFallback()));
   }
   
   @Override
@@ -172,8 +174,7 @@ public class ExpandoMetaClass implements MetaClass {
     }
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-    MethodHandle reset = mopEvent.getReset();
-    return asMOPResult(switcher, MethodResolver.resolve(constructorMap, true, signature, false, reset));
+    return asMOPResult(switcher, MethodResolver.resolve(this, constructorMap, true, signature, false, mopEvent.getReset()));
   }
   
   @Override
@@ -195,7 +196,7 @@ public class ExpandoMetaClass implements MetaClass {
     }
 
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
-    return asMOPResult(switcher, MethodResolver.resolve(map, false, signature, false, mopEvent.getReset()));
+    return asMOPResult(switcher, MethodResolver.resolve(this, map, false, signature, false, mopEvent.getReset()));
   }
   
   @Override
@@ -319,20 +320,25 @@ public class ExpandoMetaClass implements MetaClass {
   
   @Override
   public MOPResult mopConverter(MOPConvertEvent mopEvent) {
-    Switcher switcher;
-    HashMap<FunctionType, Method> constructorMap;
-    lock.lock();
-    try {  
-      getContructors();  // lazy init
-      constructorMap = this.constructorMap;
-      switcher = this.switcher;
-    } finally {
-      lock.unlock();
+    FunctionType functionType = new FunctionType(this, this, mopEvent.getType());
+    MOPResult result = mopNewInstance(new MOPNewInstanceEvent(mopEvent.getCallerClass(),
+        false, mopEvent.getFallback(), mopEvent.getReset(), functionType));
+    
+    Closure target = result.getTarget();
+    if (!Failures.isFailure(target)) {
+      Closure closure = new JVMClosure(false, MethodHandles.insertArguments(target.asMethodHandle(), 0, type));
+      return new MOPResult(closure, result.getConditions());
     }
     
-    FunctionType functionType = new FunctionType(this, mopEvent.getType());
-    //System.out.println("converter functionType "+functionType);
-    return asMOPResult(switcher, MethodResolver.resolve(constructorMap, true, functionType, false, mopEvent.getReset()));
+    /* infinite loop
+    result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
+        false, mopEvent.getFallback(), mopEvent.getReset(),
+        true, "valueOf", functionType));
+    if (!Failures.isFailure(target)) {
+      Closure closure = new JVMClosure(false, MethodHandles.insertArguments(target.asMethodHandle(), 0, type));
+      return new MOPResult(closure, result.getConditions());
+    }*/
+    return asMOPResult(switcher, Failures.fail("no conversion from "+mopEvent.getType()+" to "+this));
   }
   
   // -- Mutation -----------------------------------------
@@ -395,7 +401,7 @@ public class ExpandoMetaClass implements MetaClass {
     // all future callsite paths will be protected with a new Switcher
     Switcher switcher = this.switcher;
     this.switcher = new Switcher();
-    Switcher.invalidate(switcher);
+    Switcher.invalidateAll(switcher);
     
     for(Iterator<WeakReference<MetaClass>> it = subTypes.iterator(); it.hasNext();) {
       WeakReference<MetaClass> reference = it.next();
@@ -539,7 +545,7 @@ public class ExpandoMetaClass implements MetaClass {
     } finally {
       lock.unlock();
     }
-    return MethodResolver.getMostSpecificMethods(constructorMap, functionType, false);
+    return MethodResolver.getMostSpecificMethods(this, constructorMap, functionType, false);
   }
   
   @Override
@@ -553,7 +559,7 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
     FunctionType functionType = new FunctionType(RT.getMetaClass(Object.class), RT.getMetaClasses(compatibleTypes));
-    return MethodResolver.getMostSpecificMethods(map, functionType, false);
+    return MethodResolver.getMostSpecificMethods(this, map, functionType, false);
   }
   
   

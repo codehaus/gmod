@@ -1,7 +1,5 @@
 package org.codehaus.groovy2.compiler.ast;
 
-import groovy2.lang.MetaClass;
-
 import java.util.HashMap;
 import java.util.Map;
 
