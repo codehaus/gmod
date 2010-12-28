@@ -9,7 +9,7 @@ public class CharMixin {
     return i1 + i2;
   }
   
-  public static void init(ExpandoMetaClass metaClass) {
+  public static void __init__(ExpandoMetaClass metaClass) {
     Mutator mutator = metaClass.mutator();
     try {
       mutator.addSuperType(RT.getMetaClass(int.class));

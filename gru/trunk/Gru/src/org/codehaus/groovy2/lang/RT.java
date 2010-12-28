@@ -43,7 +43,7 @@ public class RT {
     MetaClass objectMetaClass = getMetaClass(Object.class);
     
     // insert getMetaClass link
-    ObjectMixin.boot((ExpandoMetaClass)objectMetaClass);
+    ObjectMixin.__boot__((ExpandoMetaClass)objectMetaClass);
     
     // object metaclass is fully initialized
     // Let's rule the world !!
@@ -56,8 +56,8 @@ public class RT {
   public static MetaClass getMetaClass(Type type) {
     if (type instanceof Class<?>)
       return getMetaClass((Class<?>)type);
-    if (type instanceof ParameterizedType)
-      return null;  //TODO
+    //if (type instanceof ParameterizedType)
+    //  return null;  //TODO
     throw new IllegalArgumentException("invalid type "+type);
   }
   

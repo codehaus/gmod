@@ -62,8 +62,8 @@ public class MethodResolver {
           }
         }
         
-        //System.out.println("mh.type "+mh.type());
-        //System.out.println("parameterConverters.length "+Arrays.asList(parameterConverters));
+        System.out.println("mh.type "+mh.type());
+        System.out.println("parameterConverters.length "+Arrays.asList(parameterConverters));
         
         mh = MethodHandles.filterArguments(mh, 0, parameterConverters);
       }
@@ -199,7 +199,7 @@ public class MethodResolver {
             needSubTypeConverter(declaringMetaClass, metaClass)) {
           MOPResult result = declaringMetaClass.mopConverter(new MOPConvertEvent(null, false, null, null, metaClass));
 
-          //System.out.println("converter found "+result.getTarget());
+          System.out.println("subtype converter found "+result.getTarget());
 
           Closure target = result.getTarget();  // this may be a failure, because the user change primitive conversions
           MethodHandle mh = target.asMethodHandle();

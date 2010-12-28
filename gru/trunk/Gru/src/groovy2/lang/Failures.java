@@ -17,6 +17,11 @@ public class Failures {
     }
     
     @Override
+    public String toString() {
+      return "failure "+throwable.toString();
+    }
+    
+    @Override
     public MethodHandle asMethodHandle() {
       return MethodHandles.throwException(void.class, throwable.getClass()).bindTo(throwable);
     }

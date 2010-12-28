@@ -1,6 +1,6 @@
 package org.codehaus.groovy2.compiler.ast;
 
-import static org.codehaus.groovy2.compiler.type.PrimitiveType.ANY;
+import static org.codehaus.groovy2.compiler.type.PrimitiveType.*;
 import static org.codehaus.groovy2.compiler.type.PrimitiveType.VOID;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
@@ -104,7 +104,9 @@ import org.codehaus.groovy2.compiler.type.PrimaryType;
 import org.codehaus.groovy2.compiler.type.PrimitiveType;
 import org.codehaus.groovy2.compiler.type.RuntimeType;
 import org.codehaus.groovy2.compiler.type.Type;
+import org.codehaus.groovy2.compiler.type.TypeScope;
 import org.codehaus.groovy2.compiler.type.TypeVisitor;
+import org.codehaus.groovy2.compiler.type.Types;
 import org.codehaus.groovy2.lang.MOPLinker;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -115,12 +117,14 @@ import org.objectweb.asm.Opcodes;
 public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
   private final String sourceFile;
   private final ClassVisitor cv;
+  private final TypeScope typeScope;
   private final Map<ASTNode, Type> typeMap;
   private int lineNumber = -1;
   
-  public Gen(String sourceFile, ClassVisitor cv, Map<ASTNode, Type> typeMap) {
+  public Gen(String sourceFile, ClassVisitor cv, TypeScope typeScope, Map<ASTNode, Type> typeMap) {
     this.sourceFile = sourceFile;
     this.cv = cv;
+    this.typeScope = typeScope;
     this.typeMap = typeMap;
   }
 
@@ -194,6 +198,28 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
   static final org.objectweb.asm.Type ASM_OBJECT_TYPE =
       org.objectweb.asm.Type.getObjectType("java/lang/Object");    
   
+  private static int toASMArrayType(org.objectweb.asm.Type type) {
+    switch(type.getSort()) {
+    case org.objectweb.asm.Type.BOOLEAN:
+      return T_BOOLEAN;
+    case org.objectweb.asm.Type.BYTE:
+      return T_BYTE;
+    case org.objectweb.asm.Type.SHORT:
+      return T_SHORT;
+    case org.objectweb.asm.Type.CHAR:
+      return T_CHAR;
+    case org.objectweb.asm.Type.INT:
+      return T_INT;
+    case org.objectweb.asm.Type.LONG:
+      return T_LONG;
+    case org.objectweb.asm.Type.FLOAT:
+      return T_FLOAT;
+    case org.objectweb.asm.Type.DOUBLE:
+      return T_DOUBLE;
+    default:
+      throw new AssertionError("unknown type "+type);  
+    }
+  }
   
   private static void genConversion(Type leftType, Type rightType, MethodVisitor mv) {
     if (leftType == rightType) {
@@ -622,7 +648,23 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     return null;
   }
   
-  
+  @Override
+  public Void visitArrayExpression(ArrayExpression expression, GenEnv env) {
+    for(Expression expr: expression.getSizeExpression()) {
+      gen(expr, env);
+      genConversion(INT, getType(expr), env.mv);
+    }
+    
+    Type type = getType(expression); 
+    Class<?> componentType;
+    if (type instanceof RuntimeType &&
+        (componentType = ((RuntimeType)type).getType().getComponentType()).isPrimitive()) {
+      env.mv.visitIntInsn(NEWARRAY, toASMArrayType(org.objectweb.asm.Type.getType(componentType)));
+    } else {
+      env.mv.visitTypeInsn(ANEWARRAY, asASMType(Types.getComponent(type, typeScope)).getInternalName());
+    }
+    return null;
+  }
 
   @Override
   public Void visitClassExpression(ClassExpression expression, GenEnv env) {
@@ -649,8 +691,13 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
   
   private void visitAssignment(BinaryExpression expression, GenEnv env) {
     Expression leftExpression = expression.getLeftExpression();
+    if (leftExpression instanceof BinaryExpression) {
+      visitArrayAssignment(expression, env);
+      return;
+    }
+    
     if (!(leftExpression instanceof VariableExpression)) {
-      throw new AssertionError("NYI");
+      throw new AssertionError("NYI "+leftExpression);
     }
     
     Expression rightExpression = expression.getRightExpression();
@@ -674,6 +721,30 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     }
   }
   
+  private void visitArrayAssignment(BinaryExpression expression, GenEnv env) {
+    //FIXME b = a[1] = 3 won't compile
+    
+    BinaryExpression arrayAccessExpression = (BinaryExpression)expression.getLeftExpression();
+    
+    String name = MOPLinker.mangle(MOP_INVOKE, "putAt");
+    
+    Expression receiverExpression = arrayAccessExpression.getLeftExpression();
+    gen(receiverExpression, env);
+    Expression indexExpression = arrayAccessExpression.getRightExpression();
+    gen(indexExpression, env);
+    Expression valueExpression = expression.getRightExpression();
+    gen(valueExpression, env);
+    
+    String desc = '(' +   
+       asASMType(getType(receiverExpression)).getDescriptor() +
+       asASMType(getType(indexExpression)).getDescriptor() +
+       asASMType(getType(valueExpression)).getDescriptor() +
+       ')' + asASMType(getType(expression)).getDescriptor();
+    
+    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc.toString());
+    return;
+  }
+
   @Override
   public Void visitVariableExpression(VariableExpression expression, GenEnv env) {
     if (expression.isThisExpression()) {
@@ -759,13 +830,16 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
       case org.codehaus.groovy.syntax.Types.DIVIDE:    // /
         return visitBinaryOp(expression, "divide", env);
 
+      case org.codehaus.groovy.syntax.Types.LEFT_SQUARE_BRACKET:  // array access
+          visitArrayAccess(expression, env);
+          return null;
+        
       default:
         throw new AssertionError("binary "+expression.getOperation().getType()+": NIY");
     }
   }
   
-  
-  
+
   private Void visitBinaryOp(BinaryExpression expression, String name, GenEnv env) {
     Expression leftExpression = expression.getLeftExpression();
     gen(leftExpression, env);
@@ -781,6 +855,23 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     
     env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc);
     return null;
+  }
+  
+  private void visitArrayAccess(BinaryExpression expression, GenEnv env) {
+    String name = MOPLinker.mangle(MOP_INVOKE, "getAt");
+    
+    Expression receiverExpression = expression.getLeftExpression();
+    gen(receiverExpression, env);
+    Expression indexExpression = expression.getRightExpression();
+    gen(indexExpression, env);
+    
+    String desc = '(' +   
+       asASMType(getType(receiverExpression)).getDescriptor() +
+       asASMType(getType(indexExpression)).getDescriptor() +
+       ')' + asASMType(getType(expression)).getDescriptor();
+    
+    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc.toString());
+    return;
   }
 
   @Override
@@ -1017,12 +1108,6 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
 
   @Override
   public Void visitGStringExpression(GStringExpression expression, GenEnv param) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Void visitArrayExpression(ArrayExpression expression, GenEnv param) {
     // TODO Auto-generated method stub
     return null;
   }

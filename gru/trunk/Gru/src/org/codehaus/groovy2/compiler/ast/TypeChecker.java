@@ -71,21 +71,27 @@ import org.codehaus.groovy2.compiler.type.PrimitiveType;
 import org.codehaus.groovy2.compiler.type.Type;
 import org.codehaus.groovy2.compiler.type.TypeScope;
 import org.codehaus.groovy2.compiler.type.TypeVisitor;
+import org.codehaus.groovy2.compiler.type.Types;
 import org.codehaus.groovy2.lang.RT;
 
 import static org.codehaus.groovy2.compiler.ast.Liveness.*;
 import static org.codehaus.groovy2.compiler.type.PrimitiveType.*;
 
 public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
+  private final TypeScope typeScope;
   private final HashMap<ASTNode, Type> typeMap =
       new HashMap<ASTNode, Type>();
   
+  public TypeChecker(TypeScope typeScope) {
+    this.typeScope = typeScope;
+  }
+
   public Map<ASTNode, Type> getTypeMap() {
     return typeMap;
   }
   
-  public void typecheck(ClassNode rootNode, TypeScope typeScope) {
-    TypeCheckEnv env = new TypeCheckEnv(null, typeScope, null);
+  public void typecheck(ClassNode rootNode) {
+    TypeCheckEnv env = new TypeCheckEnv(null, null);
     typecheck(rootNode, env);
   }
   
@@ -123,7 +129,7 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
     return fromClassNode(typeScope, variable.getOriginType());
   }*/
   
-  private static Type fromClassNode(TypeScope typeScope, ClassNode classNode) {
+  private Type fromClassNode(ClassNode classNode) {
     return typeScope.getType(classNode);
   }
   
@@ -155,9 +161,8 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
 
   @Override
   public Type visitMethod(MethodNode node, TypeCheckEnv env) {
-    TypeScope typeScope = env.getTypeScope();
-    Type returnType = (node.isDynamicReturnType())?ANY: fromClassNode(typeScope, node.getReturnType());
-    typecheck(node.getCode(), new TypeCheckEnv(returnType, typeScope, null));
+    Type returnType = (node.isDynamicReturnType())?ANY: fromClassNode(node.getReturnType());
+    typecheck(node.getCode(), new TypeCheckEnv(returnType, null));
     
     // store returnType to be used by Gen pass
     return returnType;
@@ -165,7 +170,7 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
 
   @Override
   public Type visitField(FieldNode node, TypeCheckEnv env) {
-    Type fieldType = fromClassNode(env.getTypeScope(), node.getType());
+    Type fieldType = fromClassNode(node.getType());
     Expression init = node.getInitialExpression();
     if (init != null) {
       typecheck(init, env.expectedType(fieldType));
@@ -249,7 +254,7 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
     if (primitive != null) {
       return primitive;
     }
-    return env.getTypeScope().getType(clazz);
+    return typeScope.getType(clazz);
   }
   
   @Override
@@ -277,15 +282,30 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
       return ANY;
     }
     
-    return fromClassNode(env.getTypeScope(), variable.getOriginType());
+    return fromClassNode(variable.getOriginType());
+  }
+  
+  @Override
+  public Type visitArrayExpression(ArrayExpression expression, TypeCheckEnv env) {
+    if (!expression.getExpressions().isEmpty()) {  // don't support array initializer
+      throw new AssertionError("NYI");
+    }
+    
+    Type type = fromClassNode(expression.getElementType());
+    for(Expression expr: expression.getSizeExpression()) {
+      typecheck(expr, env.expectedType(INT));
+      
+      type = Types.arrayOf(type, typeScope);
+    }
+    return type;
   }
   
   @Override
   public Type visitClassExpression(ClassExpression expression, TypeCheckEnv env) {
     // add class type to the type scope as dependency
-    fromClassNode(env.getTypeScope(), expression.getType());
+    fromClassNode(expression.getType());
     
-    return env.getTypeScope().getType(Class.class);
+    return typeScope.getType(Class.class);
   }
   
   @Override
@@ -317,7 +337,7 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
     if (field.isDynamicTyped()) {
       return ANY;
     }
-    return fromClassNode(env.getTypeScope(), field.getOriginType());
+    return fromClassNode(field.getOriginType());
   }
   
   @Override
@@ -339,6 +359,11 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
       case org.codehaus.groovy.syntax.Types.MINUS:     // - binary op
       case org.codehaus.groovy.syntax.Types.MULTIPLY:  // * binary op
       case org.codehaus.groovy.syntax.Types.DIVIDE:    // / binary op
+        typecheck(expression.getLeftExpression(), env);
+        typecheck(expression.getRightExpression(), env);
+        return ANY;
+        
+      case org.codehaus.groovy.syntax.Types.LEFT_SQUARE_BRACKET:  // array access
         typecheck(expression.getLeftExpression(), env);
         typecheck(expression.getRightExpression(), env);
         return ANY;
@@ -587,13 +612,6 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
 
   @Override
   public Type visitGStringExpression(GStringExpression expression,
-      TypeCheckEnv param) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Type visitArrayExpression(ArrayExpression expression,
       TypeCheckEnv param) {
     // TODO Auto-generated method stub
     return null;

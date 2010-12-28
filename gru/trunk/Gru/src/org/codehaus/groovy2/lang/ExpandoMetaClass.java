@@ -1,5 +1,6 @@
 package org.codehaus.groovy2.lang;
 
+import groovy2.lang.Array;
 import groovy2.lang.Attribute;
 import groovy2.lang.Closure;
 import groovy2.lang.Failures;
@@ -45,41 +46,57 @@ import org.codehaus.groovy2.lang.java.JVMProperty;
 public class ExpandoMetaClass implements MetaClass {
   final ReentrantLock lock =
       new ReentrantLock();
-  
+
   private Switcher switcher;
   private boolean sealed;
-  
+
   private final Class<?> type;
   final CopyOnWriteArrayList<MetaClass> superTypes;
   final CopyOnWriteArrayList<MetaClass> mixins =
       new CopyOnWriteArrayList<MetaClass>();
-  
+
   final LinkedList<WeakReference<MetaClass>> subTypes =
       new LinkedList<WeakReference<MetaClass>>();
-  
+
   private HashMap<String, Attribute> attributeMap;                   // lazy populated
   private HashMap<String, Property> propertyMap;                     // lazy populated
   private HashMap<FunctionType, Method> constructorMap;              // lazy populated
   private List<Method> methods;                                      // lazy populated
   private HashMap<String, HashMap<FunctionType, Method>> methodMap;  // lazy populated
-  
+
   public ExpandoMetaClass(Class<?> type) {
     this.type = type;
-    
+
     this.switcher = new Switcher();
-    
+
     // init hierarchy
     ArrayList<MetaClass> superTypes = new ArrayList<MetaClass>();
     for(Class<?> interfaze: type.getInterfaces()) {
       superTypes.add(RT.getMetaClass(interfaze));
     }
-    Class<?> superclass = (type.isInterface())? Object.class: type.getSuperclass();
+
+    Class<?> superclass = getSuperclass(type);
     if (superclass != null) {
       superTypes.add(RT.getMetaClass(superclass));
     }
+
     this.superTypes = new CopyOnWriteArrayList<MetaClass>(superTypes);
   }
-  
+
+  private static Class<?> getSuperclass(Class<?> type) {
+    if (type.isInterface()) {
+      return Object.class;
+    }
+    if (type.isArray()) {  // insert groovy2.lang.Array as a fake superclass
+      Class<?> componentType = type.getComponentType();
+      if (type == Object[].class || componentType.isPrimitive()) {
+        return Array.class;
+      }
+      return Utils.asArray(getSuperclass(componentType));
+    }
+    return type.getSuperclass();
+  }
+
   @Override
   public Class<?> getType() {
     return type;
@@ -92,14 +109,14 @@ public class ExpandoMetaClass implements MetaClass {
   public List<MetaClass> getMixins() {
     return mixins;
   }
-  
-  
+
+
   @Override
   public String toString() {
     return type.getName().toString();
   }
-  
-  
+
+
   @Override
   public MetaClass getRawMetaClass() {
     return this;
@@ -108,11 +125,11 @@ public class ExpandoMetaClass implements MetaClass {
   public List<MetaClass> getTypeArguments() {
     return Collections.emptyList();
   }
-  
-  
-  
+
+
+
   // -- MOP ---------------------------------------------
-  
+
   private static MOPResult asMOPResult(Switcher switcher, Closure target) {
     /*
     if (sealed) { // metaclass can't change, guard not needed
@@ -121,7 +138,7 @@ public class ExpandoMetaClass implements MetaClass {
 
     return new MOPResult(target, switcher);
   }
-  
+
   private static MOPResult asMOPResult(Switcher switcher, MOPResult mopResult) {
     /*
     if (sealed) { // metaclass can't change, guard not needed
@@ -131,12 +148,12 @@ public class ExpandoMetaClass implements MetaClass {
     if (mopResult.getConditions().isEmpty()) {
       return new MOPResult(mopResult.getTarget(), switcher);
     }
-    
+
     HashSet<Switcher> switchers = new HashSet<Switcher>(mopResult.getConditions());
     switchers.add(switcher);
     return new MOPResult(mopResult.getTarget(), switchers);
   }
-  
+
   @Override
   public MOPResult mopInvoke(MOPInvokeEvent mopEvent) { 
     Switcher switcher;
@@ -149,7 +166,7 @@ public class ExpandoMetaClass implements MetaClass {
     } finally {
       lock.unlock();
     }
-    
+
     String name = mopEvent.getName();
     HashMap<FunctionType, Method> map = methodMap.get(name);
     if (map == null) {
@@ -159,7 +176,7 @@ public class ExpandoMetaClass implements MetaClass {
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
     return asMOPResult(switcher, MethodResolver.resolve(this, map, mopEvent.isStatic(), signature, false, mopEvent.getFallback()));
   }
-  
+
   @Override
   public MOPResult mopNewInstance(MOPNewInstanceEvent mopEvent) {
     Switcher switcher; 
@@ -176,7 +193,7 @@ public class ExpandoMetaClass implements MetaClass {
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
     return asMOPResult(switcher, MethodResolver.resolve(this, constructorMap, true, signature, false, mopEvent.getReset()));
   }
-  
+
   @Override
   public MOPResult mopOperator(MOPOperatorEvent mopEvent) {
     Switcher switcher;
@@ -198,7 +215,7 @@ public class ExpandoMetaClass implements MetaClass {
     FunctionType signature = mopEvent.getSignature().dropFirstParameter();
     return asMOPResult(switcher, MethodResolver.resolve(this, map, false, signature, false, mopEvent.getReset()));
   }
-  
+
   @Override
   public MOPResult mopDoCall(MOPDoCallEvent mopEvent) {
     throw new UnsupportedOperationException();
@@ -224,11 +241,11 @@ public class ExpandoMetaClass implements MetaClass {
         mopEvent.getFallback(), mopEvent.getReset(),
         false, "doCall",
         mopEvent.getSignature()));
-    */
+     */
   }
-  
-  
-  
+
+
+
   @Override
   public MOPResult mopGetProperty(MOPPropertyEvent mopEvent) {
     Switcher switcher;
@@ -241,7 +258,7 @@ public class ExpandoMetaClass implements MetaClass {
     } finally {
       lock.unlock();
     }
-    
+
     String name = mopEvent.getName();
     Property property = propertyMap.get(name);
     Closure getter;
@@ -261,7 +278,7 @@ public class ExpandoMetaClass implements MetaClass {
     } finally {
       lock.unlock();
     }
-    
+
     Attribute attribute = attributeMap.get(name);
     if (attribute != null && (getter=attribute.getGetter()) != null) {
       if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
@@ -272,7 +289,7 @@ public class ExpandoMetaClass implements MetaClass {
 
     return asMOPResult(switcher, Failures.fail("no property "+name+" defined for metaclass "+this));
   }
-  
+
   @Override
   public MOPResult mopSetProperty(MOPPropertyEvent mopEvent) {
     Switcher switcher;
@@ -305,7 +322,7 @@ public class ExpandoMetaClass implements MetaClass {
     } finally {
       lock.unlock();
     }
-    
+
     Attribute attribute = attributeMap.get(name);
     if (attribute != null && (setter = attribute.getSetter()) != null) {
       if (mopEvent.isStatic() && !Modifier.isStatic(attribute.getModifiers())) {
@@ -315,21 +332,21 @@ public class ExpandoMetaClass implements MetaClass {
     }
 
     return asMOPResult(switcher, Failures.fail("no property "+name+" defined for metaclass "+this));
-    
+
   }
-  
+
   @Override
   public MOPResult mopConverter(MOPConvertEvent mopEvent) {
     FunctionType functionType = new FunctionType(this, this, mopEvent.getType());
     MOPResult result = mopNewInstance(new MOPNewInstanceEvent(mopEvent.getCallerClass(),
         false, mopEvent.getFallback(), mopEvent.getReset(), functionType));
-    
+
     Closure target = result.getTarget();
     if (!Failures.isFailure(target)) {
       Closure closure = new JVMClosure(false, MethodHandles.insertArguments(target.asMethodHandle(), 0, type));
       return new MOPResult(closure, result.getConditions());
     }
-    
+
     /* infinite loop
     result = mopInvoke(new MOPInvokeEvent(mopEvent.getCallerClass(),
         false, mopEvent.getFallback(), mopEvent.getReset(),
@@ -340,11 +357,11 @@ public class ExpandoMetaClass implements MetaClass {
     }*/
     return asMOPResult(switcher, Failures.fail("no conversion from "+mopEvent.getType()+" to "+this));
   }
-  
+
   // -- Mutation -----------------------------------------
-  
+
   //TODO sealed can be volatile
-  
+
   public boolean isSealed() {
     ReentrantLock lock = this.lock;
     lock.lock();
@@ -354,8 +371,8 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }
-  
-  
+
+
   //FIXME: Possible deadlock between seal() and invalidateAll()
   //       seal takes the lock from subtypes to supertype and
   //       invalidate take them in the reverse order
@@ -366,9 +383,9 @@ public class ExpandoMetaClass implements MetaClass {
       if (sealed) {
         return;
       }
-      
+
       flushLocalCache();
-      
+
       // seal all super types
       for(MetaClass superType: superTypes) {
         if (!(superType instanceof ExpandoMetaClass)) {
@@ -380,29 +397,29 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }*/
-  
+
   private void flushLocalCache() {
     assert lock.isHeldByCurrentThread();
-    
+
     attributeMap = null;
     propertyMap = null;
     methods = null;
     methodMap = null;
     constructorMap = null;
   }
-  
+
   void invalidateAll() {
     assert lock.isHeldByCurrentThread();
-    
+
     //System.out.println("invalidateAll "+type);
-    
+
     flushLocalCache();
-    
+
     // all future callsite paths will be protected with a new Switcher
     Switcher switcher = this.switcher;
     this.switcher = new Switcher();
     Switcher.invalidateAll(switcher);
-    
+
     for(Iterator<WeakReference<MetaClass>> it = subTypes.iterator(); it.hasNext();) {
       WeakReference<MetaClass> reference = it.next();
       MetaClass metaClass = reference.get();
@@ -410,7 +427,7 @@ public class ExpandoMetaClass implements MetaClass {
         it.remove();  // cleaning
         continue;
       }
-      
+
       //FIXME remove cast
       ExpandoMetaClass expandoMetaClass = (ExpandoMetaClass)metaClass;
       ReentrantLock lock = expandoMetaClass.lock;
@@ -422,7 +439,7 @@ public class ExpandoMetaClass implements MetaClass {
       }
     }
   }
-  
+
   //this method is final because it is called in the constructor
   @Override
   public final Mutator mutator() {
@@ -431,13 +448,13 @@ public class ExpandoMetaClass implements MetaClass {
     }
     return new Mutator();
   }
-  
+
   public class Mutator implements MetaClassMutator {
     private boolean mutation;
     Mutator() {
       lock.lock();
     }
-    
+
     @Override
     public void close() {
       try {
@@ -448,12 +465,12 @@ public class ExpandoMetaClass implements MetaClass {
         lock.unlock();
       }
     }
-    
+
     // this method is in fact a module private method
     public void addSuperType(MetaClass superType) {
       mutation = true;
       superTypes.add(superType);
-      
+
       //FIXME
       ((ExpandoMetaClass)superType).subTypes.add(new WeakReference<MetaClass>(ExpandoMetaClass.this));
     }
@@ -488,7 +505,7 @@ public class ExpandoMetaClass implements MetaClass {
     public Method addConstructor(int modifiers, Closure closure) {
       throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void removeAttribute(String name) {
       throw new UnsupportedOperationException();
@@ -503,15 +520,15 @@ public class ExpandoMetaClass implements MetaClass {
     public void removeMethod(String name, Type... types) {
       throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void removeConstructor(Type... types) {
       throw new UnsupportedOperationException();
     }
   }
-  
+
   // -- Reflection ---------------------------------------
-  
+
   @Override
   public Attribute findAttribute(String name) {
     lock.lock();
@@ -522,7 +539,7 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }
-  
+
   @Override
   public Property findProperty(String name) {
     lock.lock();
@@ -533,7 +550,7 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }
-  
+
   @Override
   public Collection<Method> findConstructors(Type... compatibleTypes) {
     FunctionType functionType = new FunctionType(this, RT.getMetaClasses(compatibleTypes));
@@ -547,7 +564,7 @@ public class ExpandoMetaClass implements MetaClass {
     }
     return MethodResolver.getMostSpecificMethods(this, constructorMap, functionType, false);
   }
-  
+
   @Override
   public Collection<Method> findMethods(String name, Type... compatibleTypes) {
     HashMap<FunctionType, Method> map;
@@ -561,9 +578,9 @@ public class ExpandoMetaClass implements MetaClass {
     FunctionType functionType = new FunctionType(RT.getMetaClass(Object.class), RT.getMetaClasses(compatibleTypes));
     return MethodResolver.getMostSpecificMethods(this, map, functionType, false);
   }
-  
-  
-  
+
+
+
   @Override
   public Collection<Attribute> getAttributes() {
     lock.lock();
@@ -579,7 +596,7 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }
-  
+
   private void populateAttributeMap(HashMap<String, Attribute> attributeMap) {
     for(MetaClass superType: getSuperTypes()) {
       if (superType instanceof ExpandoMetaClass) {
@@ -590,15 +607,15 @@ public class ExpandoMetaClass implements MetaClass {
         }
       }
     }
-    
+
     for(Field field: type.getDeclaredFields()) {
       /*if (!Modifier.isPublic(field.getModifiers())) {
         continue;
       }*/
       field.setAccessible(true);
-      
-      Attribute attribute = new JVMAttribute(this, field);
-      attributeMap.put(attribute.getName(), attribute);
+
+        Attribute attribute = new JVMAttribute(this, field);
+        attributeMap.put(attribute.getName(), attribute);
     }
   }
 
@@ -617,13 +634,13 @@ public class ExpandoMetaClass implements MetaClass {
       lock.unlock();
     }
   }
-  
+
   static class AccessorsEntry {
     int modifiers;
     Closure getter;
     Closure setter;
   }
-  
+
   private static AccessorsEntry accessorEntry(HashMap<String, AccessorsEntry> accessorMap, String name) {
     AccessorsEntry entry = accessorMap.get(name);
     if (entry == null) {
@@ -632,7 +649,7 @@ public class ExpandoMetaClass implements MetaClass {
     }
     return entry;
   }
-  
+
   private void populatePropertyMap(HashMap<String, Property> propertyMap, Collection<Method> methods) {
     for(MetaClass superType: getSuperTypes()) {
       if (superType instanceof ExpandoMetaClass) {
@@ -644,50 +661,50 @@ public class ExpandoMetaClass implements MetaClass {
         }
       }
     }
-    
+
     HashMap<String, AccessorsEntry> accessorMap =
         new HashMap<String, AccessorsEntry>();
-    for(Method method: methods) {
-      String name = method.getName();
-      if (name.length() > 3 && name.startsWith("get") &&  method.getParameterCount() == 1) {
-        AccessorsEntry entry = accessorEntry(accessorMap, Utils.uncapitalize(name.substring(3)));
-        entry.modifiers = method.getModifiers();
-        entry.getter = method;
-      }
-      if (name.length() > 2 && name.startsWith("is") && name.length() > 3 && method.getParameterCount() == 1) {
-        AccessorsEntry entry = accessorEntry(accessorMap, Utils.uncapitalize(name.substring(2)));
-        entry.modifiers = method.getModifiers();
-        entry.getter = method;
-      }
-      if (name.length() > 3 && name.startsWith("set") && method.getParameterCount() == 2) {
-        AccessorsEntry entry = accessorEntry(accessorMap, Utils.uncapitalize(name.substring(3)));
-        entry.modifiers = method.getModifiers();
-        entry.setter = method;
-      }
-    }
-    
-    for(Map.Entry<String, AccessorsEntry> entry: accessorMap.entrySet()) {
-      AccessorsEntry accessorsEntry = entry.getValue();
-      Closure getter = accessorsEntry.getter;
-      Closure setter = accessorsEntry.setter;
-      
-      MetaClass type;
-      if (getter == null) {
-        if (setter == null) {
-          throw new AssertionError();
-        }
-        type = setter.getFunctionType().getParameterType(1);
-      } else {
-        type = getter.getFunctionType().getReturnType();
-      }
-      
-      String name = entry.getKey();
-      Property property = new JVMProperty(this, accessorsEntry.modifiers, name, type, getter, setter); 
-      propertyMap.put(name, property);
-    }
+            for(Method method: methods) {
+              String name = method.getName();
+                if (name.length() > 3 && name.startsWith("get") &&  method.getParameterCount() == 1) {
+                  AccessorsEntry entry = accessorEntry(accessorMap, Utils.uncapitalize(name.substring(3)));
+                entry.modifiers = method.getModifiers();
+                entry.getter = method;
+                }
+                if (name.length() > 2 && name.startsWith("is") && name.length() > 3 && method.getParameterCount() == 1) {
+                  AccessorsEntry entry = accessorEntry(accessorMap, Utils.uncapitalize(name.substring(2)));
+                  entry.modifiers = method.getModifiers();
+                  entry.getter = method;
+                }
+                if (name.length() > 3 && name.startsWith("set") && method.getParameterCount() == 2) {
+                  AccessorsEntry entry = accessorEntry(accessorMap, Utils.uncapitalize(name.substring(3)));
+                  entry.modifiers = method.getModifiers();
+                  entry.setter = method;
+                }
+            }
+
+            for(Map.Entry<String, AccessorsEntry> entry: accessorMap.entrySet()) {
+              AccessorsEntry accessorsEntry = entry.getValue();
+                Closure getter = accessorsEntry.getter;
+                Closure setter = accessorsEntry.setter;
+
+                MetaClass type;
+                if (getter == null) {
+                  if (setter == null) {
+                    throw new AssertionError();
+                  }
+                  type = setter.getFunctionType().getParameterType(1);
+                } else {
+                  type = getter.getFunctionType().getReturnType();
+                }
+
+                String name = entry.getKey();
+                Property property = new JVMProperty(this, accessorsEntry.modifiers, name, type, getter, setter); 
+                propertyMap.put(name, property);
+            }
   }
-  
-  
+
+
   @Override
   public Collection<Method> getMethods() {
     lock.lock();
@@ -717,64 +734,65 @@ public class ExpandoMetaClass implements MetaClass {
       } else {
         for(Method method: superType.getMethods()) {
           String name = method.getName();
-          HashMap<FunctionType, Method> map = methodMap.get(name);
-          if (map == null) {
-            map = new HashMap<FunctionType, Method>();
-            methodMap.put(name, map);
-          }
-          map.put(method.getMethodType(), method);
+            HashMap<FunctionType, Method> map = methodMap.get(name);
+            if (map == null) {
+              map = new HashMap<FunctionType, Method>();
+              methodMap.put(name, map);
+            }
+            map.put(method.getMethodType(), method);
         }
       }
     }
-    
+
     // add mixins
     for(MetaClass mixin: getMixins()) {
       //TODO: Revisit: there is no inheritance of mixins ??
       for(java.lang.reflect.Method method: RT.getRawClass(mixin).getDeclaredMethods()) {
         int modifiers = method.getModifiers();
-        if (!Modifier.isPublic(modifiers) || !Modifier.isStatic(modifiers)) {
+          if (!Modifier.isPublic(modifiers) || !Modifier.isStatic(modifiers)) {
+            continue;
+          }
+
+          String name = method.getName();
+          Class<?>[] parameterTypes = method.getParameterTypes();
+          if (parameterTypes.length < 1 || name.startsWith("__")) {
+            continue;  // this test will skip __init__(MetaClass)
+          }
+
+          modifiers = modifiers & (~Modifier.STATIC);
+          MetaClass declaringMetaClass = RT.getMetaClass(parameterTypes[0]);
+          Method metaMethod = new JVMMethod(declaringMetaClass, modifiers, name, unreflect(method)); 
+          HashMap<FunctionType, Method> map = methodMap.get(name);
+          if (map == null) {
+            map = new HashMap<FunctionType, Method>();
+            methodMap.put(name, map);
+          }
+          map.put(metaMethod.getMethodType(), metaMethod);
+      }
+    }
+
+    for(java.lang.reflect.Method method: type.getDeclaredMethods()) {
+      int modifiers = method.getModifiers();
+        if (!Modifier.isPublic(modifiers)) {
           continue;
         }
-        
+
         String name = method.getName();
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length < 1 || parameterTypes[0] != type) {
-          continue;  // this will also skip init(MetaClass)
+        MethodHandle mh = unreflect(method);
+        if (Modifier.isStatic(modifiers)) {  // a static method is a class method
+          mh = MethodHandles.dropArguments(mh, 0, Class.class);
         }
-        
-        modifiers = modifiers & (~Modifier.STATIC);
-        Method metaMethod = new JVMMethod(this, modifiers, name, unreflect(method)); 
+        Method metaMethod = new JVMMethod(this, modifiers, name, mh);
+
         HashMap<FunctionType, Method> map = methodMap.get(name);
         if (map == null) {
           map = new HashMap<FunctionType, Method>();
           methodMap.put(name, map);
         }
         map.put(metaMethod.getMethodType(), metaMethod);
-      }
-    }
-    
-    for(java.lang.reflect.Method method: type.getDeclaredMethods()) {
-      int modifiers = method.getModifiers();
-      if (!Modifier.isPublic(modifiers)) {
-        continue;
-      }
-      
-      String name = method.getName();
-      MethodHandle mh = unreflect(method);
-      if (Modifier.isStatic(modifiers)) {  // a static method is a class method
-        mh = MethodHandles.dropArguments(mh, 0, Class.class);
-      }
-      Method metaMethod = new JVMMethod(this, modifiers, name, mh);
-      
-      HashMap<FunctionType, Method> map = methodMap.get(name);
-      if (map == null) {
-        map = new HashMap<FunctionType, Method>();
-        methodMap.put(name, map);
-      }
-      map.put(metaMethod.getMethodType(), metaMethod);
     }
   }
-  
+
   private static MethodHandle unreflect(java.lang.reflect.Method method) {
     try {
       return MethodHandles.publicLookup().unreflect(method);
@@ -782,7 +800,7 @@ public class ExpandoMetaClass implements MetaClass {
       throw (AssertionError)new AssertionError().initCause(e);
     }
   }
-  
+
   @Override
   public Collection<Method> getContructors() {
     HashMap<FunctionType, Method> constructorMap;
@@ -803,24 +821,24 @@ public class ExpandoMetaClass implements MetaClass {
   private void populateConstructorMap(HashMap<FunctionType, Method> constructorMap) {
     for(Constructor<?> constructor: type.getConstructors()) {
       int modifiers = constructor.getModifiers();
-      if (!Modifier.isPublic(modifiers)) {
-        continue;
-      }
-      
-      MethodHandle mh = unreflect(constructor);
-      if (mh == null) {  // workaround hotspot bug
-        continue;
-      }
-      
-      // see it as a class method
-      modifiers = modifiers | Modifier.STATIC;
-      mh = MethodHandles.dropArguments(mh, 0, Class.class);
-      
-      Method metaMethod = new JVMMethod(this, modifiers, "<init>", mh);
-      constructorMap.put(metaMethod.getMethodType(), metaMethod);
+        if (!Modifier.isPublic(modifiers)) {
+          continue;
+        }
+
+        MethodHandle mh = unreflect(constructor);
+        if (mh == null) {  // workaround hotspot bug
+          continue;
+        }
+
+        // see it as a class method
+        modifiers = modifiers | Modifier.STATIC;
+        mh = MethodHandles.dropArguments(mh, 0, Class.class);
+
+        Method metaMethod = new JVMMethod(this, modifiers, "<init>", mh);
+        constructorMap.put(metaMethod.getMethodType(), metaMethod);
     }
   }
-  
+
   private static MethodHandle unreflect(Constructor<?> constructor) {
     try {
       return MethodHandles.publicLookup().unreflectConstructor(constructor);
