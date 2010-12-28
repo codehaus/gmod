@@ -1,5 +1,7 @@
 package org.codehaus.groovy2.lang;
 
+import java.lang.reflect.Array;
+
 
 class Utils {
   public static Class<?> getPrimitive(Class<?> clazz) {
@@ -62,5 +64,9 @@ class Utils {
 
   public static String uncapitalize(String name) {
     return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+  }
+  
+  public static Class<?> asArray(Class<?> type) {
+    return Array.newInstance(type, 0).getClass();
   }
 }

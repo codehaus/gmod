@@ -33,7 +33,7 @@ class DefaultMixinSupport {
     
     MethodHandle init;
     try {
-      init = MethodHandles.lookup().findStatic(mixinClass, "init",
+      init = MethodHandles.lookup().findStatic(mixinClass, "__init__",
           MethodType.methodType(void.class, ExpandoMetaClass.class));
     } catch (NoAccessException e) {
       //System.out.println("init mixin: "+mixinName+" no init");

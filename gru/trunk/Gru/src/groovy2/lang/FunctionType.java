@@ -31,7 +31,16 @@ public final class FunctionType {
   
   @Override
   public String toString() {
-    return Arrays.toString(parameterTypes)+':'+returnType;
+    StringBuilder builder = new StringBuilder();
+    builder.append('(');
+    for(MetaClass parameterType: parameterTypes) {
+      builder.append(parameterType).append(", ");
+    }
+    if (parameterTypes.length != 0) {
+      builder.setLength(builder.length() - 2);
+    }
+    builder.append(')').append(returnType);
+    return builder.toString();
   }
   
   public MetaClass getReturnType() {

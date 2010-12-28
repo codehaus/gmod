@@ -15,7 +15,7 @@ public class ObjectMixin {
    * because we dn't want to introduce cycle
    * when processing the ObjectMixin
    */
-  public static void boot(ExpandoMetaClass metaClass) {
+  public static void __boot__(ExpandoMetaClass metaClass) {
     Mutator mutator = metaClass.mutator();
     try {
       mutator.addMixin(RT.getMetaClass(ObjectMixin.class));

@@ -16,10 +16,10 @@ public class Compiler {
     try {
       TypeScope typeScope = new TypeScope();
 
-      TypeChecker typeChecker = new TypeChecker();
-      typeChecker.typecheck(classNode, typeScope);
+      TypeChecker typeChecker = new TypeChecker(typeScope);
+      typeChecker.typecheck(classNode);
 
-      Gen gen = new Gen(sourceFile, cv, typeChecker.getTypeMap());
+      Gen gen = new Gen(sourceFile, cv, typeScope, typeChecker.getTypeMap());
       gen.gen(classNode);
       
       //DEBUG

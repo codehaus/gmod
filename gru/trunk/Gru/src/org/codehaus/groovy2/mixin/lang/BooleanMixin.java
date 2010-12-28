@@ -5,7 +5,7 @@ import org.codehaus.groovy2.lang.ExpandoMetaClass.Mutator;
 import org.codehaus.groovy2.lang.RT;
 
 public class BooleanMixin {
-  public static void init(ExpandoMetaClass metaClass) {
+  public static void __init__(ExpandoMetaClass metaClass) {
     Mutator mutator = metaClass.mutator();
     try {
       mutator.addSuperType(RT.getMetaClass(byte.class));
