@@ -1,17 +1,36 @@
 package org.codehaus.groovy2.compiler.ast;
 
+import static org.codehaus.groovy2.compiler.type.PrimitiveType.ANY;
+import static org.codehaus.groovy2.compiler.type.PrimitiveType.INT;
 import static org.codehaus.groovy2.compiler.type.PrimitiveType.*;
-import static org.codehaus.groovy2.compiler.type.PrimitiveType.VOID;
+import static org.codehaus.groovy2.lang.MOPLinker.MOPKind.*;
+import static org.codehaus.groovy2.lang.MOPLinker.MOPKind.MOP_INVOKE;
+import static org.codehaus.groovy2.lang.MOPLinker.MOPKind.MOP_NEW_INSTANCE;
+import static org.codehaus.groovy2.lang.MOPLinker.MOPKind.MOP_OPERATOR;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.BIPUSH;
+import static org.objectweb.asm.Opcodes.D2F;
+import static org.objectweb.asm.Opcodes.D2I;
+import static org.objectweb.asm.Opcodes.D2L;
 import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.DUP2;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.F2D;
+import static org.objectweb.asm.Opcodes.F2I;
+import static org.objectweb.asm.Opcodes.F2L;
+import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.I2B;
+import static org.objectweb.asm.Opcodes.I2C;
+import static org.objectweb.asm.Opcodes.I2D;
+import static org.objectweb.asm.Opcodes.I2F;
+import static org.objectweb.asm.Opcodes.I2L;
+import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.ILOAD;
@@ -19,15 +38,27 @@ import static org.objectweb.asm.Opcodes.INVOKEDYNAMIC;
 import static org.objectweb.asm.Opcodes.INVOKEDYNAMIC_OWNER;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
+import static org.objectweb.asm.Opcodes.L2D;
+import static org.objectweb.asm.Opcodes.L2F;
+import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.LCONST_0;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.POP2;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
-
-import static org.codehaus.groovy2.lang.MOPLinker.MOPKind.*;
+import static org.objectweb.asm.Opcodes.T_BOOLEAN;
+import static org.objectweb.asm.Opcodes.T_BYTE;
+import static org.objectweb.asm.Opcodes.T_CHAR;
+import static org.objectweb.asm.Opcodes.T_DOUBLE;
+import static org.objectweb.asm.Opcodes.T_FLOAT;
+import static org.objectweb.asm.Opcodes.T_INT;
+import static org.objectweb.asm.Opcodes.T_LONG;
+import static org.objectweb.asm.Opcodes.T_SHORT;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -238,7 +269,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     }
     
     if (leftType == ANY) {
-      if (rightType instanceof PrimitiveType) {
+      if (rightType != NULL && rightType instanceof PrimitiveType) {
         genBoxConversion((PrimitiveType)rightType, mv);
         return;
       }
@@ -277,6 +308,10 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
       }
     }
     
+    if (rightType == NULL) {
+      return;
+    }
+    
     //TODO widening conversion ?
     
     genDynConversion(leftType, rightType, mv);
@@ -284,7 +319,8 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
   
   
   private static void genDynConversion(Type leftType, Type rightType, MethodVisitor mv) {
-    mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, "convert$",
+    mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER,
+        MOPLinker.mangle(MOP_CONVERTER, ""),
         "("+asASMType(rightType).getDescriptor()+")"+asASMType(leftType).getDescriptor());
   }
 
@@ -465,6 +501,8 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     String internalClassName = BytecodeHelper.getClassInternalName(node);
     String internalBaseClassName = BytecodeHelper.getClassInternalName(node.getSuperClass());
 
+    System.out.println("generate "+internalClassName+" extends "+internalBaseClassName);
+    
     cv.visit(
         Opcodes.V1_7,
         Opcodes.ACC_PUBLIC,
@@ -621,11 +659,11 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
       return null;
     }
     
-    if (expression == ConstantExpression.NULL) {
-      env.mv.visitInsn(ACONST_NULL);
+    Object value = expression.getValue();
+    if (value == null) {
+      genFromVoidConversion(type, env.mv);
       return null;
     }
-    Object value = expression.getValue();
     Class<?> constantClass = value.getClass();
     if (constantClass == Boolean.class) {
       env.mv.visitInsn((expression == ConstantExpression.TRUE)? ICONST_1: ICONST_0);
@@ -691,6 +729,10 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
   
   private void visitAssignment(BinaryExpression expression, GenEnv env) {
     Expression leftExpression = expression.getLeftExpression();
+    if (leftExpression instanceof PropertyExpression) {
+      visitPropertyAssignment(expression, env);
+      return;
+    }
     if (leftExpression instanceof BinaryExpression) {
       visitArrayAssignment(expression, env);
       return;
@@ -719,6 +761,25 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     if (returnType != VOID) {
       genConversion(returnType, rightType, env.mv);
     }
+  }
+  
+  private void visitPropertyAssignment(BinaryExpression expression, GenEnv env) {
+    //FIXME b = foo.bar = 3 won't compile
+    
+    PropertyExpression propertyExpression = (PropertyExpression)expression.getLeftExpression();
+    
+    Expression receiverExpression = propertyExpression.getObjectExpression();
+    gen(receiverExpression, env);
+    Expression valueExpression = expression.getRightExpression();
+    gen(valueExpression, env);
+    
+    String name = propertyExpression.getPropertyAsString();
+    name = MOPLinker.mangle(MOP_SET_PROPERTY, name);
+    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name,
+        '(' + asASMType(getType(receiverExpression)).getDescriptor() +
+        asASMType(getType(valueExpression)).getDescriptor() +
+        ')' + asASMType(getType(expression)).getDescriptor());
+    return;
   }
   
   private void visitArrayAssignment(BinaryExpression expression, GenEnv env) {

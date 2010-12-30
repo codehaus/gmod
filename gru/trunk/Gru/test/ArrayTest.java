@@ -1,4 +1,3 @@
-import groovy2.lang.Array;
 import groovy2.lang.MetaClass;
 
 import org.codehaus.groovy2.lang.RT;
@@ -19,7 +18,7 @@ public class ArrayTest {
     System.out.println(metaClass3.getMethods());
     */
    
-    MetaClass metaClass4 = RT.getMetaClass(Array.class);
+    MetaClass metaClass4 = RT.getMetaClass(int[].class);
     System.out.println(metaClass4.getMethods());
   }
 }

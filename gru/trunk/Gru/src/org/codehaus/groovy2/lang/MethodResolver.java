@@ -5,7 +5,7 @@ import groovy2.lang.Failures;
 import groovy2.lang.FunctionType;
 import groovy2.lang.MetaClass;
 import groovy2.lang.Method;
-import groovy2.lang.mop.MOPConvertEvent;
+import groovy2.lang.mop.MOPConverterEvent;
 import groovy2.lang.mop.MOPResult;
 
 import java.dyn.MethodHandle;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.groovy2.dyn.Switcher;
-import org.codehaus.groovy2.lang.java.JVMClosure;
+import org.codehaus.groovy2.lang.mop.ReflectClosure;
 
 public class MethodResolver {
   static class MethodEntry {
@@ -71,7 +71,7 @@ public class MethodResolver {
       if (returnConverter != null) {
         mh = MethodHandles.filterReturnValue(mh, returnConverter);
       }
-      return new MOPResult(new JVMClosure(false, mh), switcherGuards);
+      return new MOPResult(new ReflectClosure(false, mh), switcherGuards);
     }
   }
   
@@ -136,7 +136,7 @@ public class MethodResolver {
     
     mostSpecific = mostSpecific(entries, guardNeeded);
     if (mostSpecific == null) {
-      return asMOPResult(Failures.fail("no most specific method among "+entries));
+      return asMOPResult(Failures.fail("no most specific method among "+entries+" when calling with "+signature));
     }
     if (isStatic && !Modifier.isStatic(mostSpecific.target.getModifiers())) {
       return asMOPResult(Failures.fail("most specific method "+mostSpecific+" is not static "));
@@ -197,7 +197,8 @@ public class MethodResolver {
         MetaClass declaringMetaClass = method.getDeclaringMetaClass();
         if (metaClass != declaringMetaClass &&
             needSubTypeConverter(declaringMetaClass, metaClass)) {
-          MOPResult result = declaringMetaClass.mopConverter(new MOPConvertEvent(null, false, null, null, metaClass));
+          MOPResult result = declaringMetaClass.mopConverter(new MOPConverterEvent(null, false, null, null,
+              new FunctionType(metaClass, declaringMetaClass)));
 
           System.out.println("subtype converter found "+result.getTarget());
 
@@ -237,7 +238,8 @@ public class MethodResolver {
         
         //System.out.println("need subtype conversion between "+metaClass1+" <- "+metaClass2);
         
-        MOPResult result = metaClass1.mopConverter(new MOPConvertEvent(null, false, null, null, metaClass2));
+        MOPResult result = metaClass1.mopConverter(new MOPConverterEvent(null, false, null, null,
+            new FunctionType(metaClass2, metaClass1)));
         
         //System.out.println("converter found "+result.getTarget());
         

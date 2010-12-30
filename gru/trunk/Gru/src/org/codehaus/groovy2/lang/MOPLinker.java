@@ -1,7 +1,8 @@
 package org.codehaus.groovy2.lang;
 
+import groovy2.lang.FunctionType;
 import groovy2.lang.MetaClass;
-import groovy2.lang.mop.MOPDoCallEvent;
+import groovy2.lang.mop.MOPConverterEvent;
 import groovy2.lang.mop.MOPNewInstanceEvent;
 import groovy2.lang.mop.MOPPropertyEvent;
 import groovy2.lang.mop.MOPInvokeEvent;
@@ -27,7 +28,7 @@ public class MOPLinker {
     MOP_INVOKE("invoke"),
     MOP_NEW_INSTANCE("newInstance"),
     MOP_OPERATOR("operator"),
-    MOP_DO_CALL("doCall");
+    MOP_CONVERTER("convert");
     
     final String protocol;
 
@@ -123,18 +124,22 @@ public class MOPLinker {
       MethodType type = callSite.getTarget().type();
       
       boolean isStatic = false;
+      MetaClass metaClass;
       Class<?> receiverClass = type.parameterType(0);
       boolean isReceiverClassPrimitive = receiverClass.isPrimitive();
       if (!isReceiverClassPrimitive) {
         Object receiver = args[0];
-        receiverClass = receiver.getClass();   // object -> class -> metaclass
-        if (receiverClass == Class.class) {    // is a static call ? 
-          receiverClass = (Class<?>)receiver;  // class -> metaclass
+        receiverClass = receiver.getClass();                // object -> class -> metaclass
+        if (receiverClass == Class.class) {                 // is a static call ? 
+          metaClass = RT.getMetaClass((Class<?>)receiver);  // class -> metaclass
           isStatic = true;
+        } else {
+          metaClass = RT.getMetaClass(receiver);
         }
+      } else { // primitive type
+        metaClass = RT.getMetaClass(receiverClass);
       }
-      MetaClass metaClass = RT.getMetaClass(receiverClass);
-      MethodType dynamicType = dynamicType(receiverClass, type, args);
+      FunctionType dynamicType = dynamicType(metaClass, type, args);
       
       //System.out.println("MOP linker "+callSite.mopKind+"$"+callSite.name+" "+clazz+" "+metaClass+" "+isStatic);
       
@@ -226,34 +231,37 @@ public class MOPLinker {
     }
   }
   
-  private static MethodType dynamicType(Class<?> receiverClass, MethodType methodType, Object[] args) {
-    Class<?>[] types = new Class<?>[methodType.parameterCount()];
-    types[0] = receiverClass;
-    for(int i=1;i <types.length; i++) {
+  private static FunctionType dynamicType(MetaClass receiverMetaClass, MethodType methodType, Object[] args) {
+    MetaClass[] metaTypes = new MetaClass[methodType.parameterCount()];
+    metaTypes[0] = receiverMetaClass;
+    for(int i=1;i <metaTypes.length; i++) {
+      MetaClass metaType;
       Class<?> type = methodType.parameterType(i);
       if (!type.isPrimitive()) {  // null check not needed for primitive
         Object arg = args[i];
-        type = (arg == null)? type: arg.getClass();
+        metaType = (arg == null)? RT.getMetaClass(type): RT.getMetaClass(arg);
+      } else {
+        metaType = RT.getMetaClass(type);
       }
-      types[i] = type;
+      metaTypes[i] = metaType;
     }
-    return MethodType.methodType(methodType.returnType(), types);
+    return new FunctionType(RT.getMetaClass(methodType.returnType()), metaTypes);
   }
 
-  private static MOPResult upcallMOP(MOPKind kind, MetaClass metaClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, Class<?> declaringClass, boolean isStatic, String name, MethodType type) {
+  static MOPResult upcallMOP(MOPKind kind, MetaClass metaClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, Class<?> declaringClass, boolean isStatic, String name, FunctionType functionType) {
     switch(kind) {
     case MOP_GET_PROPERTY:
-      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, RT.getMetaClass(type.returnType())));
+      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, functionType));
     case MOP_SET_PROPERTY:
-      return metaClass.mopGetProperty(new MOPPropertyEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, RT.getMetaClass(type.parameterType(1))));
+      return metaClass.mopSetProperty(new MOPPropertyEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, functionType));
     case MOP_INVOKE:
-      return metaClass.mopInvoke(new MOPInvokeEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, RT.asFunctionType(type)));
+      return metaClass.mopInvoke(new MOPInvokeEvent(declaringClass, lazyAllowed, fallback, reset, isStatic, name, functionType));
     case MOP_NEW_INSTANCE:
-      return metaClass.mopNewInstance(new MOPNewInstanceEvent(declaringClass, lazyAllowed, fallback, reset, RT.asFunctionType(type)));
+      return metaClass.mopNewInstance(new MOPNewInstanceEvent(declaringClass, lazyAllowed, fallback, reset, functionType));
     case MOP_OPERATOR:
-      return metaClass.mopOperator(new MOPOperatorEvent(declaringClass, lazyAllowed, fallback, reset, name, RT.asFunctionType(type)));
-    case MOP_DO_CALL:
-      return metaClass.mopDoCall(new MOPDoCallEvent(declaringClass, lazyAllowed, fallback, reset, RT.asFunctionType(type)));
+      return metaClass.mopOperator(new MOPOperatorEvent(declaringClass, lazyAllowed, fallback, reset, name, functionType));
+    case MOP_CONVERTER:
+      return metaClass.mopConverter(new MOPConverterEvent(declaringClass, lazyAllowed, fallback, reset, functionType));
     }
     return null;
   }
