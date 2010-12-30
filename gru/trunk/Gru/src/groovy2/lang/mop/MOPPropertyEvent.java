@@ -1,19 +1,19 @@
 package groovy2.lang.mop;
 
-import java.dyn.MethodHandle;
+import groovy2.lang.FunctionType;
 
-import groovy2.lang.MetaClass;
+import java.dyn.MethodHandle;
 
 public class MOPPropertyEvent extends MOPEvent {
   private final boolean isStatic;
   private final String name;
-  private final MetaClass type;
+  private final FunctionType signature;
   
-  public MOPPropertyEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, boolean isStatic, String name, MetaClass type) {
+  public MOPPropertyEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, boolean isStatic, String name, FunctionType signature) {
     super(callerClass, lazyAllowed, fallback, reset);
     this.isStatic = isStatic;
     this.name = name;
-    this.type = type;
+    this.signature = signature;
   }
   
   public boolean isStatic() {
@@ -22,7 +22,7 @@ public class MOPPropertyEvent extends MOPEvent {
   public String getName() {
     return name;
   }
-  public MetaClass getType() {
-    return type;
+  public FunctionType getSignature() {
+    return signature;
   }
 }

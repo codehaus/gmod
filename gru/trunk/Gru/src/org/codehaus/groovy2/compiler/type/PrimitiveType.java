@@ -12,6 +12,7 @@ public enum PrimitiveType implements Type {
   LONG(long.class,       "java/lang/Long"),
   FLOAT(float.class,     "java/lang/Float"),
   DOUBLE(double.class,   "java/lang/Double"),
+  NULL(Object.class, null),
   VOID(void.class, null);
   
   private final Class<?> runtimeClass;

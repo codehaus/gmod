@@ -2,8 +2,8 @@ package org.codehaus.groovy2.mixin.lang;
 
 import groovy2.lang.MetaClass;
 
-import org.codehaus.groovy2.lang.ExpandoMetaClass;
-import org.codehaus.groovy2.lang.ExpandoMetaClass.Mutator;
+import org.codehaus.groovy2.lang.ClassMetaClass;
+import org.codehaus.groovy2.lang.ClassMetaClass.Mutator;
 import org.codehaus.groovy2.lang.RT;
 
 public class ObjectMixin {
@@ -15,7 +15,7 @@ public class ObjectMixin {
    * because we dn't want to introduce cycle
    * when processing the ObjectMixin
    */
-  public static void __boot__(ExpandoMetaClass metaClass) {
+  public static void __boot__(ClassMetaClass metaClass) {
     Mutator mutator = metaClass.mutator();
     try {
       mutator.addMixin(RT.getMetaClass(ObjectMixin.class));

@@ -1,13 +1,13 @@
 package groovy2.lang.mop;
 
-import java.dyn.MethodHandle;
-
 import groovy2.lang.FunctionType;
 
-public class MOPDoCallEvent extends MOPEvent {
+import java.dyn.MethodHandle;
+
+public class MOPConverterEvent extends MOPEvent {
   private final FunctionType signature;
   
-  public MOPDoCallEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, FunctionType signature) {
+  public MOPConverterEvent(Class<?> callerClass, boolean lazyAllowed, MethodHandle fallback, MethodHandle reset, FunctionType signature) {
     super(callerClass, lazyAllowed, fallback, reset);
     this.signature = signature;
   }

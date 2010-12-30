@@ -241,15 +241,17 @@ public class TypeChecker extends ASTBridgeVisitor<Type, TypeCheckEnv> {
   
   @Override
   public Type visitConstantExpression(ConstantExpression expression, TypeCheckEnv env) {
-    if (env.getExpectedType() == VOID) { // don't generate a constant if not needed
+    Type expectedType = env.getExpectedType();
+    if (expectedType == VOID) { // don't generate a constant if not needed
       return VOID;
     }
     
-    if (expression == ConstantExpression.NULL) {
-      return ANY;
+    Object value = expression.getValue();
+    if (value == null) {  // constant null
+      return expectedType;
     }
     
-    Class<?> clazz = expression.getValue().getClass();  // can be a boxed type
+    Class<?> clazz = value.getClass();  // can be a boxed type
     PrimitiveType primitive = PrimitiveType.wrapperAsPrimitive(clazz);
     if (primitive != null) {
       return primitive;

@@ -9,15 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.codehaus.groovy2.lang.ExpandoMetaClass;
+import org.codehaus.groovy2.lang.ClassMetaClass;
 import org.codehaus.groovy2.lang.RT;
-import org.codehaus.groovy2.lang.ExpandoMetaClass.Mutator;
+import org.codehaus.groovy2.lang.ClassMetaClass.Mutator;
 
+/** Special mixin for array of primitives and array of Object.
+ */
 public class ArrayMixin {
   // groovy meta-interface
-
-  
-
   public static int getLength(Object array) {
     return Array.getLength(array);
   }
@@ -348,7 +347,7 @@ public class ArrayMixin {
     };
   }
   
-  public static void __init__(ExpandoMetaClass metaClass) {
+  public static void __init__(ClassMetaClass metaClass) {
     Mutator mutator = metaClass.mutator();
     try {
       mutator.addMixin(RT.getMetaClass(ArrayMixin.class));

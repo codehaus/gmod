@@ -1,11 +1,13 @@
 package org.codehaus.groovy2.lang;
 
+import groovy2.lang.Failures;
 import groovy2.lang.FunctionType;
 import groovy2.lang.MetaClass;
+import groovy2.lang.mop.MOPPropertyEvent;
+import groovy2.lang.mop.MOPResult;
 
 import java.dyn.ClassValue;
 import java.dyn.MethodType;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
@@ -26,12 +28,39 @@ public class RT {
             }
           }
           
-          ExpandoMetaClass metaClass = new ExpandoMetaClass(clazz);
+          ClassMetaClass metaClass = new ClassMetaClass(clazz);
           DefaultMixinSupport.init(metaClass);
+          
+          //System.out.println("verbose load metaclass: "+metaClass);
           
           return metaClass;
         }
       };
+    
+      
+  public static MetaClass getMetaClass(Object o) {
+    // first find the metaClass
+    MetaClass metaClass = getMetaClass(o.getClass());
+    
+    // now ask the property metaClass to the metaClass
+    MOPResult result = metaClass.mopGetProperty(new MOPPropertyEvent(RT.class, true, null, null, false,
+        "metaClass", new FunctionType(RT.getMetaClass(MetaClass.class))));
+    
+    assert !Failures.isFailure(result.getTarget());
+    
+    if (result.getTarget().getFunctionType().getReturnType() != RT.getMetaClass(MetaClass.class)) {
+      // interropt with already existing Groovy v1 object
+      // FIXME revisit
+      return metaClass;
+    }
+    
+    try {
+      return (MetaClass)result.getTarget().asMethodHandle().invokeWithArguments(o);
+    } catch (Throwable t) {
+      throw unsafeThrow(t);
+    }
+  }
+      
       
   public static MetaClass getMetaClass(Class<?> clazz) {
     return metaClass.get(clazz);
@@ -43,7 +72,7 @@ public class RT {
     MetaClass objectMetaClass = getMetaClass(Object.class);
     
     // insert getMetaClass link
-    ObjectMixin.__boot__((ExpandoMetaClass)objectMetaClass);
+    ObjectMixin.__boot__((ClassMetaClass)objectMetaClass);
     
     // object metaclass is fully initialized
     // Let's rule the world !!

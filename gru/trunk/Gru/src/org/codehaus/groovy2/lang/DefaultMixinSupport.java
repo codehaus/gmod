@@ -5,12 +5,38 @@ import java.dyn.MethodHandles;
 import java.dyn.MethodType;
 import java.dyn.NoAccessException;
 
+import org.codehaus.groovy2.mixin.lang.ArrayMixin;
+
 class DefaultMixinSupport {
   //TODO add circular init detection ??
-  public static void init(ExpandoMetaClass metaClass) {
-    Class<?> clazz = metaClass.getType();
-    if (clazz.isArray()) {  //TODO add array support
+  public static void init(ClassMetaClass metaClass) {
+    Class<?> mixinClass = getMixinClass(metaClass);
+    if (mixinClass == null) {  // no mixin
       return;
+    }
+    
+    MethodHandle init;
+    try {
+      init = MethodHandles.lookup().findStatic(mixinClass, "__init__",
+          MethodType.methodType(void.class, ClassMetaClass.class));
+    } catch (NoAccessException e) {
+      //System.out.println("init mixin: "+mixinName+" no init");
+      return; // no init
+    }
+    try {
+      //FIXME: invokeExact should be sufficient but it has no eclipse support :(
+      init.invokeWithArguments(metaClass);
+    } catch (Throwable e) {
+      throw RT.unsafeThrow(e);
+    }
+  }
+  
+  private static Class<?> getMixinClass(ClassMetaClass metaClass) {
+    Class<?> clazz = metaClass.getType();
+    if (clazz.isArray()) {  // array class has a special mixin
+      if (clazz == Object[].class || clazz.getComponentType().isPrimitive())
+        return ArrayMixin.class;
+      return null;
     }
     
     String mixinName = clazz.getName() + "Mixin";
@@ -23,27 +49,11 @@ class DefaultMixinSupport {
       }
     }
     
-    Class<?> mixinClass;
     try {
-      mixinClass = Class.forName(mixinName);
+      return Class.forName(mixinName);
     } catch (ClassNotFoundException e) {
       //System.out.println("init mixin: "+mixinName+" no mixin");
-      return;  // no mixin
-    }
-    
-    MethodHandle init;
-    try {
-      init = MethodHandles.lookup().findStatic(mixinClass, "__init__",
-          MethodType.methodType(void.class, ExpandoMetaClass.class));
-    } catch (NoAccessException e) {
-      //System.out.println("init mixin: "+mixinName+" no init");
-      return; // no init
-    }
-    try {
-      //FIXME: invokeExact should be sufficient but it has no eclipse support :(
-      init.invokeWithArguments(metaClass);
-    } catch (Throwable e) {
-      throw RT.unsafeThrow(e);
+      return null;  // no mixin
     }
   }
 }
