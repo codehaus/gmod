@@ -34,8 +34,6 @@ import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.ILOAD;
-import static org.objectweb.asm.Opcodes.INVOKEDYNAMIC;
-import static org.objectweb.asm.Opcodes.INVOKEDYNAMIC_OWNER;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
@@ -139,9 +137,11 @@ import org.codehaus.groovy2.compiler.type.TypeScope;
 import org.codehaus.groovy2.compiler.type.TypeVisitor;
 import org.codehaus.groovy2.compiler.type.Types;
 import org.codehaus.groovy2.lang.MOPLinker;
+import org.codehaus.groovy2.lang.MOPLinker.MOPKind;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MHandle;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -198,6 +198,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
         public org.objectweb.asm.Type visitPrimitiveType(PrimitiveType type, Void unused) {
           switch(type) {
           case ANY:
+          case NULL:
             return ASM_OBJECT_TYPE;
           case BOOLEAN:
             return org.objectweb.asm.Type.BOOLEAN_TYPE;
@@ -251,6 +252,18 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
       throw new AssertionError("unknown type "+type);  
     }
   }
+  
+  private static void invokeDynamic(MOPKind kind, String name, String desc, MethodVisitor mv) {
+    mv.visitIndyMethodInsn(MOPLinker.mangle(kind, name),
+        desc, INVOKEDYNAMIC_BOOTSTRAP_METHOD, OBJECT_EMPTY_ARRAY);
+  }
+  
+  private static final MHandle INVOKEDYNAMIC_BOOTSTRAP_METHOD =
+      new MHandle(MHandle.REF_invokeStatic,
+          MOPLinker.class.getName().replace('.', '/'),
+          "bootstrap",
+          "(Ljava/dyn/MethodHandles$Lookup;Ljava/lang/String;Ljava/dyn/MethodType;)Ljava/dyn/CallSite;");
+  private static final Object[] OBJECT_EMPTY_ARRAY = new Object[0];
   
   private static void genConversion(Type leftType, Type rightType, MethodVisitor mv) {
     if (leftType == rightType) {
@@ -319,9 +332,9 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
   
   
   private static void genDynConversion(Type leftType, Type rightType, MethodVisitor mv) {
-    mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER,
-        MOPLinker.mangle(MOP_CONVERTER, ""),
-        "("+asASMType(rightType).getDescriptor()+")"+asASMType(leftType).getDescriptor());
+    invokeDynamic(MOP_CONVERTER, "",
+        "("+asASMType(rightType).getDescriptor()+")"+asASMType(leftType).getDescriptor(),
+        mv);
   }
 
   private static void genFromVoidConversion(Type type, MethodVisitor mv) {
@@ -529,7 +542,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
       visitMethod(mn, env);
     }
     
-    genStaticInit(cv);
+    //genStaticInit(cv);
     
     cv.visitEnd();
     
@@ -774,11 +787,11 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     gen(valueExpression, env);
     
     String name = propertyExpression.getPropertyAsString();
-    name = MOPLinker.mangle(MOP_SET_PROPERTY, name);
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name,
+    invokeDynamic(MOP_SET_PROPERTY, name,
         '(' + asASMType(getType(receiverExpression)).getDescriptor() +
         asASMType(getType(valueExpression)).getDescriptor() +
-        ')' + asASMType(getType(expression)).getDescriptor());
+        ')' + asASMType(getType(expression)).getDescriptor(),
+        env.mv);
     return;
   }
   
@@ -786,8 +799,6 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     //FIXME b = a[1] = 3 won't compile
     
     BinaryExpression arrayAccessExpression = (BinaryExpression)expression.getLeftExpression();
-    
-    String name = MOPLinker.mangle(MOP_INVOKE, "putAt");
     
     Expression receiverExpression = arrayAccessExpression.getLeftExpression();
     gen(receiverExpression, env);
@@ -802,7 +813,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
        asASMType(getType(valueExpression)).getDescriptor() +
        ')' + asASMType(getType(expression)).getDescriptor();
     
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc.toString());
+    invokeDynamic(MOP_INVOKE, "putAt", desc.toString(), env.mv);
     return;
   }
 
@@ -834,11 +845,10 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
       name = "FIXME";
     }
     
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER,
-        name,
+    invokeDynamic(MOP_GET_PROPERTY, name,
         org.objectweb.asm.Type.getMethodDescriptor(ASM_OBJECT_TYPE,
-            new org.objectweb.asm.Type[]{asASMType(receiverType)}));
-    
+            new org.objectweb.asm.Type[]{asASMType(receiverType)}),
+        env.mv);
     return null;
   }
   
@@ -848,11 +858,11 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     gen(receiverExpression, env);
     
     String name = expression.getPropertyAsString();
-    name = MOPLinker.mangle(MOP_GET_PROPERTY, name);
     Type receiverType = getType(receiverExpression);
     Type type = getType(expression);
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name,
-        '('+asASMType(receiverType).getDescriptor()+')'+asASMType(type));
+    invokeDynamic(MOP_GET_PROPERTY, name,
+        '('+asASMType(receiverType).getDescriptor()+')'+asASMType(type),
+        env.mv);
     return null;
   }
   
@@ -907,20 +917,17 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     Expression rightExpression = expression.getRightExpression();
     gen(rightExpression, env);
     
-    name = MOPLinker.mangle(MOP_OPERATOR, name);
     String desc = '(' +  
       asASMType(getType(leftExpression)).getDescriptor() +
       asASMType(getType(rightExpression)).getDescriptor() +
       ')' +
       asASMType(getType(expression)).getDescriptor();
     
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc);
+    invokeDynamic(MOP_OPERATOR, name, desc, env.mv);
     return null;
   }
   
   private void visitArrayAccess(BinaryExpression expression, GenEnv env) {
-    String name = MOPLinker.mangle(MOP_INVOKE, "getAt");
-    
     Expression receiverExpression = expression.getLeftExpression();
     gen(receiverExpression, env);
     Expression indexExpression = expression.getRightExpression();
@@ -931,7 +938,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
        asASMType(getType(indexExpression)).getDescriptor() +
        ')' + asASMType(getType(expression)).getDescriptor();
     
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc.toString());
+    invokeDynamic(MOP_INVOKE, "getAt", desc.toString(), env.mv);
     return;
   }
 
@@ -940,7 +947,6 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     TupleExpression tuple = (TupleExpression)expression.getArguments();
     
     String name = expression.getMethodAsString();
-    name = MOPLinker.mangle(MOP_INVOKE, name);
     
     Expression receiverExpression = expression.getObjectExpression();
     gen(receiverExpression, env);
@@ -954,7 +960,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     Type returnType = getType(expression);
     desc.append(")").append(asASMType(returnType).getDescriptor());
     
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc.toString());
+    invokeDynamic(MOP_INVOKE, name, desc.toString(), env.mv);
     return null;
   }
   
@@ -966,7 +972,6 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
         BytecodeHelper.getClassInternalName(expression.getType()));
     env.mv.visitLdcInsn(asmReceiverType);
     
-    String name = MOPLinker.mangle(MOP_NEW_INSTANCE, "");
     StringBuilder desc = new StringBuilder().append("(Ljava/lang/Class;");
     
     List<Expression> expressions = tuple.getExpressions();
@@ -984,7 +989,7 @@ public class Gen extends ASTBridgeVisitor<Void, GenEnv> {
     Type returnType = getType(expression);
     desc.append(")").append(asASMType(returnType).getDescriptor());
     
-    env.mv.visitMethodInsn(INVOKEDYNAMIC, INVOKEDYNAMIC_OWNER, name, desc.toString());
+    invokeDynamic(MOP_NEW_INSTANCE, "", desc.toString(), env.mv);
     return null;
   }
 
