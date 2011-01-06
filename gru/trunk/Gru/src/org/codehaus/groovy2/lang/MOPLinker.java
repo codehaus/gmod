@@ -50,7 +50,7 @@ public class MOPLinker {
     return metaProtocolKind.protocol+'$'+name;
   }
   
-  public static CallSite bootstrap(Class<?> declaringClass, String indyName, MethodType type) {
+  public static CallSite bootstrap(Lookup lookup, String indyName, MethodType type) {
     try {
 
       int index = indyName.indexOf('$');
@@ -66,7 +66,7 @@ public class MOPLinker {
         throw new LinkageError("unknown meta protocol "+metaProtocol);
       }
 
-      MOPCallSite callSite = new MOPCallSite(type, declaringClass, metaProtocolKind, name);
+      MOPCallSite callSite = new MOPCallSite(type, lookup.lookupClass(), metaProtocolKind, name);
       //Class<?> receiverType = type.parameterType(0);
       /*if (Modifier.isFinal(receiverType.getModifiers())) { // static receiver
 
