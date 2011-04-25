@@ -18,12 +18,7 @@ package groovy.nio.file;
 
 import groovy.lang.Closure;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -143,4 +138,13 @@ public class PathCategory {
     public static void deleteOnExit(Path self) {
         self.toFile().deleteOnExit();
     }
+
+    public static InputStream newInputStream(Path self) throws IOException {
+        return Files.newInputStream(self);
+    }
+
+    public static OutputStream newOutputStream(Path self) throws IOException {
+        return Files.newOutputStream(self);
+    }
+
 }
