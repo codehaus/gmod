@@ -66,4 +66,10 @@ class PathTest extends GroovyTestCase {
             assert path2.text == path.text
         }
     }
+
+    public void testWithReader() {
+        use(PathCategory) {
+            assert path.withReader { reader -> reader.readLine() } == LINE_1
+        }
+    }
 }

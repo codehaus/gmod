@@ -147,4 +147,12 @@ public class PathCategory {
         return Files.newOutputStream(self);
     }
 
+    public static <T> T withReader(Path self, Closure<T> closure) throws IOException {
+        return DefaultGroovyMethods.withReader(newReader(self), closure);
+    }
+
+    public static BufferedReader newReader(Path self) throws IOException {
+        return DefaultGroovyMethods.newReader(self.toFile()); // side-step CharsetToolkit particulars
+    }
+
 }
