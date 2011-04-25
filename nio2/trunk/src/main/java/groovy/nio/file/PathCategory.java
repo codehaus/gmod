@@ -20,12 +20,13 @@ import groovy.lang.Closure;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.attribute.Attributes;
 import java.util.List;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
@@ -49,7 +50,7 @@ public class PathCategory {
      * @since ??
      */
     public static long size(Path self) throws IOException {
-        return Attributes.readBasicFileAttributes(self).size();
+        return (Long)Files.readAttributes(self, "size").get("size");
     }
     
     /**
@@ -65,7 +66,7 @@ public class PathCategory {
      * @since ??
      */
     public static <T> T eachLine(Path self, Closure<T> closure) throws IOException {
-        return DefaultGroovyMethods.eachLine(self.newInputStream(), 1, closure);
+        return DefaultGroovyMethods.eachLine(Files.newInputStream(self), 1, closure);
     }
     
     /**
@@ -78,7 +79,7 @@ public class PathCategory {
      * @since ??
      */
     public static List<String> readLines(Path self) throws IOException {
-    	return DefaultGroovyMethods.readLines(self.newInputStream());
+    	return DefaultGroovyMethods.readLines(Files.newInputStream(self));
     }
     
     /**
@@ -90,7 +91,7 @@ public class PathCategory {
      * @since 1.0
      */
     public static String getText(Path self) throws IOException {
-        return DefaultGroovyMethods.getText(self.newInputStream());
+        return DefaultGroovyMethods.getText(Files.newInputStream(self));
     }
     
     /**
@@ -104,7 +105,7 @@ public class PathCategory {
     public static void write(Path self, String text) throws IOException {
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(self.newOutputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(self)));
             writer.write(text);
             writer.flush();
 
@@ -127,7 +128,7 @@ public class PathCategory {
     public static void append(Path self, Object text) throws IOException {
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new OutputStreamWriter(self.newOutputStream(StandardOpenOption.APPEND)));
+            writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(self, StandardOpenOption.APPEND)));
             InvokerHelper.write(writer, text);
             writer.flush();
 
@@ -137,5 +138,9 @@ public class PathCategory {
         } finally {
         	DefaultGroovyMethodsSupport.closeWithWarning(writer);
         }
+    }
+
+    public static void deleteOnExit(Path self) {
+        self.toFile().deleteOnExit();
     }
 }

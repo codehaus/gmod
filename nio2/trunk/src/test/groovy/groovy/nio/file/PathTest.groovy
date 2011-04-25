@@ -12,11 +12,9 @@ class PathTest extends GroovyTestCase {
 	Path path
 	
 	public void setUp() {
-		File tempFile = File.createTempFile("Path_GetText", ".txt")
-		tempFile.deleteOnExit()
-		//tempFile.write(SOME_TEXT)
-		path = tempFile.toPath()
+        path = File.createTempFile("Path", ".txt").toPath()            
 		use(PathCategory) {
+            path.deleteOnExit()
 			path.write(SOME_TEXT) // all tests test Path.write
 		}
 	}
@@ -53,4 +51,10 @@ class PathTest extends GroovyTestCase {
 			assert path.text == SOME_TEXT+LINE_1
 		}	
 	}
+
+    public void testNewOutputStreamAndNewInputStream() {
+        use(PathCategory) {
+            
+        }
+    }
 }
