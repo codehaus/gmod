@@ -16,13 +16,14 @@
 
 package groovy.nio.file;
 
-import groovy.lang.Closure;
+import groovy.lang.*;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport;
@@ -154,5 +155,78 @@ public class PathCategory {
     public static BufferedReader newReader(Path self) throws IOException {
         return DefaultGroovyMethods.newReader(self.toFile()); // side-step CharsetToolkit particulars
     }
+
+    // TODO replace these generated methods with more efficient implementations:
+
+    //public static long size(Path self) { return DefaultGroovyMethods.size(self.toFile()); }
+    public static ObjectOutputStream newObjectOutputStream(Path path) throws IOException { return DefaultGroovyMethods.newObjectOutputStream(path.toFile()); }
+    public static <T> T withObjectOutputStream(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withObjectOutputStream(path.toFile(),closure); }
+    public static ObjectInputStream newObjectInputStream(Path path) throws IOException { return DefaultGroovyMethods.newObjectInputStream(path.toFile()); }
+    public static ObjectInputStream newObjectInputStream(Path path, final ClassLoader classLoader) throws IOException { return DefaultGroovyMethods.newObjectInputStream(path.toFile(),classLoader); }
+    public static void eachObject(Path self, Closure closure) throws IOException, ClassNotFoundException { DefaultGroovyMethods.eachObject(self.toFile(),closure); }
+    public static <T> T withObjectInputStream(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withObjectInputStream(path.toFile(),closure); }
+    public static <T> T withObjectInputStream(Path path, ClassLoader classLoader, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withObjectInputStream(path.toFile(),classLoader,closure); }
+    //public static <T> T eachLine(Path self, Closure<T> closure) throws IOException { return DefaultGroovyMethods.eachLine(self.toFile(),closure); }
+    public static <T> T eachLine(Path self, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.eachLine(self.toFile(),charset,closure); }
+    public static <T> T eachLine(Path self, int firstLine, Closure<T> closure) throws IOException { return DefaultGroovyMethods.eachLine(self.toFile(),firstLine,closure); }
+    public static <T> T eachLine(Path self, String charset, int firstLine, Closure<T> closure) throws IOException { return DefaultGroovyMethods.eachLine(self.toFile(),charset,firstLine,closure); }
+    public static <T> T splitEachLine(Path self, String regex, Closure<T> closure) throws IOException { return DefaultGroovyMethods.splitEachLine(self.toFile(),regex,closure); }
+    public static <T> T splitEachLine(Path self, Pattern pattern, Closure<T> closure) throws IOException { return DefaultGroovyMethods.splitEachLine(self.toFile(),pattern,closure); }
+    public static <T> T splitEachLine(Path self, String regex, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.splitEachLine(self.toFile(),regex,charset,closure); }
+    public static <T> T splitEachLine(Path self, Pattern pattern, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.splitEachLine(self.toFile(),pattern,charset,closure); }
+    //public static List<String> readLines(Path path) throws IOException { return DefaultGroovyMethods.readLines(path.toFile()); }
+    public static List<String> readLines(Path path, String charset) throws IOException { return DefaultGroovyMethods.readLines(path.toFile(),charset); }
+    public static String getText(Path path, String charset) throws IOException { return DefaultGroovyMethods.getText(path.toFile(),charset); }
+    //public static String getText(Path path) throws IOException { return DefaultGroovyMethods.getText(path.toFile()); }
+    public static byte[] getBytes(Path path) throws IOException { return DefaultGroovyMethods.getBytes(path.toFile()); }
+    public static void setBytes(Path path, byte[] bytes) throws IOException { DefaultGroovyMethods.setBytes(path.toFile(),bytes); }
+    //public static void write(Path path, String text) throws IOException { DefaultGroovyMethods.write(path.toFile(),text); }
+    public static void setText(Path path, String text) throws IOException { DefaultGroovyMethods.setText(path.toFile(),text); }
+    public static void setText(Path path, String text, String charset) throws IOException { DefaultGroovyMethods.setText(path.toFile(),text,charset); }
+    public static Path leftShift(Path path, Object text) throws IOException { return DefaultGroovyMethods.leftShift(path.toFile(),text).toPath(); }
+    public static Path leftShift(Path path, byte[] bytes) throws IOException { return DefaultGroovyMethods.leftShift(path.toFile(),bytes).toPath(); }
+    public static Path leftShift(Path path, InputStream data) throws IOException { return DefaultGroovyMethods.leftShift(path.toFile(),data).toPath(); }
+    public static void write(Path path, String text, String charset) throws IOException { DefaultGroovyMethods.write(path.toFile(),text,charset); }
+    //public static void append(Path path, Object text) throws IOException { DefaultGroovyMethods.append(path.toFile(),text); }
+    public static void append(Path path, byte[] bytes) throws IOException { DefaultGroovyMethods.append(path.toFile(),bytes); }
+    public static void append(Path self, InputStream stream ) throws IOException { DefaultGroovyMethods.append(self.toFile(),stream); }
+    public static void append(Path path, Object text, String charset) throws IOException { DefaultGroovyMethods.append(path.toFile(),text,charset); }
+    public static void eachDir(Path self, Closure closure) throws FileNotFoundException, IllegalArgumentException { DefaultGroovyMethods.eachDir(self.toFile(),closure); }
+    public static void eachFileRecurse(Path self, Closure closure) throws FileNotFoundException, IllegalArgumentException { DefaultGroovyMethods.eachFileRecurse(self.toFile(),closure); }
+    //public static BufferedReader newReader(Path path) throws IOException { return DefaultGroovyMethods.newReader(path.toFile()); }
+    public static BufferedReader newReader(Path path, String charset) throws IOException { return DefaultGroovyMethods.newReader(path.toFile(),charset); }
+    //public static <T> T withReader(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withReader(path.toFile(),closure); }
+    public static <T> T withReader(Path path, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withReader(path.toFile(),charset,closure); }
+    //public static BufferedOutputStream newOutputStream(Path path) throws IOException { return DefaultGroovyMethods.newOutputStream(path.toFile()); }
+    public static DataOutputStream newDataOutputStream(Path path) throws IOException { return DefaultGroovyMethods.newDataOutputStream(path.toFile()); }
+    public static Object withOutputStream(Path path, Closure closure) throws IOException { return DefaultGroovyMethods.withOutputStream(path.toFile(),closure); }
+    public static Object withInputStream(Path path, Closure closure) throws IOException { return DefaultGroovyMethods.withInputStream(path.toFile(),closure); }
+    public static <T> T withDataOutputStream(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withDataOutputStream(path.toFile(),closure); }
+    public static <T> T withDataInputStream(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withDataInputStream(path.toFile(),closure); }
+    public static BufferedWriter newWriter(Path path) throws IOException { return DefaultGroovyMethods.newWriter(path.toFile()); }
+    public static BufferedWriter newWriter(Path path, boolean append) throws IOException { return DefaultGroovyMethods.newWriter(path.toFile(),append); }
+    public static BufferedWriter newWriter(Path path, String charset, boolean append) throws IOException { return DefaultGroovyMethods.newWriter(path.toFile(),charset,append); }
+    public static BufferedWriter newWriter(Path path, String charset) throws IOException { return DefaultGroovyMethods.newWriter(path.toFile(),charset); }
+    public static <T> T withWriter(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withWriter(path.toFile(),closure); }
+    public static <T> T withWriter(Path path, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withWriter(path.toFile(),charset,closure); }
+    public static <T> T withWriterAppend(Path path, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withWriterAppend(path.toFile(),charset,closure); }
+    public static <T> T withWriterAppend(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withWriterAppend(path.toFile(),closure); }
+    public static PrintWriter newPrintWriter(Path path) throws IOException { return DefaultGroovyMethods.newPrintWriter(path.toFile()); }
+    public static PrintWriter newPrintWriter(Path path, String charset) throws IOException { return DefaultGroovyMethods.newPrintWriter(path.toFile(),charset); }
+    public static <T> T withPrintWriter(Path path, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withPrintWriter(path.toFile(),closure); }
+    public static <T> T withPrintWriter(Path path, String charset, Closure<T> closure) throws IOException { return DefaultGroovyMethods.withPrintWriter(path.toFile(),charset,closure); }
+    //public static BufferedInputStream newInputStream(Path path) throws FileNotFoundException { return DefaultGroovyMethods.newInputStream(path.toFile()); }
+    public static DataInputStream newDataInputStream(Path path) throws FileNotFoundException { return DefaultGroovyMethods.newDataInputStream(path.toFile()); }
+    public static void eachByte(Path self, Closure closure) throws IOException { DefaultGroovyMethods.eachByte(self.toFile(),closure); }
+    public static void eachByte(Path self, int bufferLen, Closure closure) throws IOException { DefaultGroovyMethods.eachByte(self.toFile(),bufferLen,closure); }
+    public static Writable filterLine(Path self, Closure closure) throws IOException { return DefaultGroovyMethods.filterLine(self.toFile(),closure); }
+    public static Writable filterLine(Path self, String charset, Closure closure) throws IOException { return DefaultGroovyMethods.filterLine(self.toFile(),charset,closure); }
+    public static void filterLine(Path self, Writer writer, Closure closure) throws IOException { DefaultGroovyMethods.filterLine(self.toFile(),writer,closure); }
+    public static void filterLine(Path self, Writer writer, String charset, Closure closure) throws IOException { DefaultGroovyMethods.filterLine(self.toFile(),writer,charset,closure); }
+    //public static byte[] readBytes(Path path) throws IOException { return DefaultGroovyMethods.readBytes(path.toFile()); }
+    public static Path asWritable(Path path) { return DefaultGroovyMethods.asWritable(path.toFile()).toPath(); }
+    public static <T> T asType(Path f, Class<T> c) { return DefaultGroovyMethods.asType(f.toFile(),c); }
+    public static Path asWritable(Path path, String encoding) { return DefaultGroovyMethods.asWritable(path.toFile(),encoding).toPath(); }
+
 
 }
